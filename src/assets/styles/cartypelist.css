@@ -1,0 +1,61 @@
+.car-type-list-container {
+  width: 100%;
+  background: #fff;
+  padding: 24px 0 8px 0;
+  margin-bottom: 0;
+}
+
+.car-type-list-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #222;
+}
+
+.car-type-slider {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.car-type-item {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.car-type-icon {
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.car-type-name {
+  font-size: 15px;
+  color: #222;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.car-type-arrow {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #222 !important;
+  font-size: 24px !important;
+  width: 32px;
+  height: 32px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.slick-slide {
+  display: flex;
+  justify-content: center;
+} 

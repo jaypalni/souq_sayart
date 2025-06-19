@@ -1,0 +1,68 @@
+.sell-your-car-section {
+  width: 100%;
+  min-height: 240px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sell-your-car-overlay {
+  background: rgba(0, 0, 0, 0.45);
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 12px;
+}
+
+.sell-your-car-title {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sell-your-car-desc {
+  color: #fff;
+  font-size: 1.08rem;
+  margin-bottom: 18px;
+  font-weight: 400;
+}
+
+.sell-your-car-btn {
+  background: #0090d4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.sell-your-car-btn:hover {
+  background: #007bb3;
+}
+
+@media (max-width: 600px) {
+  .sell-your-car-title {
+    font-size: 1.2rem;
+  }
+  .sell-your-car-desc {
+    font-size: 0.98rem;
+  }
+  .sell-your-car-section, .sell-your-car-overlay {
+    min-height: 140px;
+    padding: 18px 4px;
+  }
+  .sell-your-car-btn {
+    font-size: 1rem;
+    padding: 7px 18px;
+  }
+} 

@@ -1,0 +1,78 @@
+.car-upload-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.car-upload-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.car-upload-form {
+  width: 100%;
+}
+
+.car-upload-form .ant-form-item {
+  margin-bottom: 1.5rem;
+}
+
+.car-upload-form .ant-input,
+.car-upload-form .ant-select-selector {
+  height: 40px !important;
+  border-radius: 4px !important;
+}
+
+.car-upload-form .ant-select-selection-item {
+  line-height: 38px !important;
+}
+
+.car-upload-form .ant-btn {
+  height: 40px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.car-upload-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #333;
+}
+
+.car-upload-form .ant-upload-list {
+  margin-top: 8px;
+}
+
+.car-upload-form .ant-upload-list-item {
+  margin-top: 8px;
+}
+
+.submit-button {
+  background: #1890ff;
+  border-color: #1890ff;
+  height: 44px;
+  font-size: 16px;
+  margin-top: 1rem;
+}
+
+.submit-button:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .car-upload-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .car-upload-form .ant-form-item {
+    margin-bottom: 1rem;
+  }
+} 

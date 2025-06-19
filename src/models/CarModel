@@ -1,0 +1,16 @@
+export interface CarModel {
+  id: number;
+  car_image: string;
+  make: string;
+  model: string;
+  year: number;
+  price: string;
+  engine_cc: number;
+  fuel_type: string;
+  transmission: string;
+  location: string;
+  country: string;
+  mileage: string;
+  featured: boolean;
+  certified: boolean;
+}

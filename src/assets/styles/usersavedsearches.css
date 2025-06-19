@@ -1,0 +1,118 @@
+.user-saved-searches-outer-card {
+  display: flex;
+  background: #fff;
+  border-radius: 14px;
+  border: 1.5px solid #eaeaea;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin: 12px 0;
+}
+
+.user-saved-search-section {
+  flex: 1 1 0;
+  padding: 18px 18px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  background: #fff;
+}
+
+.user-saved-search-section.with-divider {
+  position: relative;
+  border-right: none;
+}
+.user-saved-search-section.with-divider::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  right: 0;
+  width: 1.5px;
+  background: #ededed;
+  border-radius: 2px;
+}
+
+.user-saved-search-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.user-saved-search-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 1px solid #eee;
+}
+
+.user-saved-search-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.user-saved-search-brand {
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: #222;
+}
+
+.user-saved-search-model {
+  font-size: 0.95rem;
+  color: #888;
+  font-weight: 400;
+  margin-top: -2px;
+}
+
+.user-saved-search-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.98rem;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.user-saved-search-dot {
+  font-size: 1.1em;
+  color: #bbb;
+}
+
+.user-saved-search-details {
+  margin: 0;
+  padding-left: 18px;
+  color: #444;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-align: left;
+}
+.user-saved-search-details li {
+  margin-bottom: 2px;
+}
+
+@media (max-width: 900px) {
+  .user-saved-searches-outer-card {
+    flex-direction: column;
+    border-radius: 10px;
+  }
+  .user-saved-search-section.with-divider {
+    border-right: none;
+    border-bottom: none;
+  }
+  .user-saved-search-section.with-divider::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: auto;
+    bottom: 0;
+    height: 1.5px;
+    width: auto;
+    background: #ededed;
+    border-radius: 2px;
+  }
+} 

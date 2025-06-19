@@ -1,0 +1,375 @@
+.allcars-filters-outer {
+  position: relative;
+  top: -80px;
+  z-index: 2;
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.allcars-filters-bar {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #0002;
+  width: 100%;
+  max-width: 1200px;
+  padding: 24px 16px;
+}
+
+.allcars-filters-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.allcars-filters-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.allcars-filters-btn-col {
+  flex: 1 1 0;
+  min-width: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.allcars-filters-label {
+  color: #008ad5;
+  font-weight: 400;
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.allcars-filters-select {
+  width: 100% !important;
+  background: #fff !important;
+  border-radius: 8px !important;
+  height: 44px !important;
+}
+
+.allcars-filters-dropdown {
+  border-radius: 8px !important;
+}
+
+.allcars-filters-btn {
+  border-radius: 8px !important;
+  min-width: 180px;
+  background: #d5f0ff !important;
+  color: #0090d4 !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  height: 44px !important;
+  box-shadow: 0 2px 8px #0001 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+}
+
+.allcars-filters-row-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 2px;
+  flex-wrap: wrap;
+}
+
+.allcars-filters-text {
+  color: #008ad5;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0 8px 2px 0;
+  border-bottom: 2px solid transparent;
+  transition: border 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  min-width: 80px;
+  position: relative;
+}
+.allcars-filters-text:hover {
+  color: #008ad5;
+  border-bottom: 2px solid #008ad5;
+}
+.allcars-filters-text-arrow {
+  font-size: 22px;
+  margin-left: 4px;
+  color: #008ad5;
+  opacity: 0.7;
+}
+
+.allcars-filters-dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  min-width: 120px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px #0002;
+  z-index: 10;
+  padding: 4px 0;
+  margin-top: 2px;
+}
+.allcars-filters-dropdown-item {
+  padding: 8px 20px 8px 16px;
+  color: #222;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.allcars-filters-dropdown-item:hover {
+  background: #eaf6fd;
+  color: #0090d4;
+}
+.allcars-filters-dropdown-item.selected {
+  background: #0090d4;
+  color: #fff;
+  font-weight: 600;
+}
+
+.allcars-listing-card {
+  flex: 0 0 calc((100% - 4 * 24px) / 4); /* 4 cards per row, 24px gap */
+  /* max-width: calc((100% - 4 * 24px) / 4); */
+  min-width: 220px;
+  background: #fcfcfc;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s;
+  position: relative;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Best Cars Sale by Type */
+
+.bestcarsalebytype-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px 32px 32px 32px;
+  margin: 32px 0;
+}
+
+.bestcarsalebytype-header {
+  margin-bottom: 16px;
+}
+
+.bestcarsalebytype-title {
+  color: #222;
+  font-size: 24px;
+  font-weight: 700;
+  margin-left: 0;
+  margin-bottom: 16px;
+}
+
+.bestcarsalebytype-grid {
+  display: grid;
+  background: #f8fafc;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px 32px;
+  border-radius: 16px;
+}
+
+.bestcarsalebytype-item {
+  color: #008ad5;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.bestcarsalebytype-item .type-count {
+  color: #b0b0b0;
+  font-size: 16px;
+  margin-left: 6px;
+  font-weight: 400;
+}
+
+.bestcarsalebytype-item:hover {
+  color: #005b8e;
+}
+
+@media (max-width: 900px) {
+  .bestcarsalebytype-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .bestcarsalebytype-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Car Details Filter */
+
+.custom-radio-button.ant-radio-button-wrapper::before {
+  display: none !important; /* removes the separator line */
+}
+
+.checkbox-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkbox-button {
+  padding: 6px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  user-select: none;
+  color: #000;
+  transition: all 0.3s;
+}
+
+.checkbox-button.selected {
+  background-color: #FFEDD5;
+  border-color: #D67900;
+  color: #000;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 1200px) {
+  .allcars-filters-bar {
+    max-width: 95%;
+  }
+  
+  .allcars-filters-col {
+    flex: 0 0 calc(50% - 8px);
+    margin-bottom: 16px;
+  }
+  
+  .allcars-filters-btn-col {
+    flex: 0 0 100%;
+    justify-content: center;
+  }
+  
+  .allcars-filters-btn {
+    width: 100%;
+  }
+  
+  .allcars-listing-card {
+    flex: 0 0 calc((100% - 3 * 24px) / 3);
+  }
+}
+
+@media (max-width: 900px) {
+  .allcars-filters-outer {
+    top: -40px;
+  }
+  
+  .allcars-filters-bar {
+    padding: 16px;
+  }
+  
+  .allcars-filters-row {
+    gap: 12px;
+  }
+  
+  .allcars-filters-col {
+    flex: 0 0 100%;
+  }
+  
+  .allcars-filters-row-text {
+    gap: 16px;
+  }
+  
+  .allcars-filters-text {
+    font-size: 13px;
+  }
+  
+  .allcars-listing-card {
+    flex: 0 0 calc((100% - 2 * 24px) / 2);
+  }
+  
+  .bestcarsalebytype-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .allcars-filters-outer {
+    top: -20px;
+  }
+  
+  .allcars-filters-bar {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  .allcars-filters-row {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .allcars-filters-label {
+    font-size: 12px;
+  }
+  
+  .allcars-filters-select {
+    height: 40px !important;
+  }
+  
+  .allcars-filters-btn {
+    height: 40px !important;
+    font-size: 14px !important;
+  }
+  
+  .allcars-filters-row-text {
+    gap: 12px;
+  }
+  
+  .allcars-filters-text {
+    font-size: 12px;
+    min-width: 70px;
+  }
+  
+  .allcars-filters-text-arrow {
+    font-size: 18px;
+  }
+  
+  .allcars-listing-card {
+    flex: 0 0 100%;
+    margin: 8px 0;
+  }
+  
+  .bestcarsalebytype-container {
+    padding: 16px;
+    margin: 24px 0;
+  }
+  
+  .bestcarsalebytype-title {
+    font-size: 20px;
+  }
+  
+  .bestcarsalebytype-grid {
+    grid-template-columns: 1fr;
+    gap: 1px 12px;
+  }
+  
+  .checkbox-button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+

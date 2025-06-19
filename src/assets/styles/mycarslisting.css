@@ -1,0 +1,16 @@
+.mylisting-car-image-container {
+  width: 100%;
+  height: 270px;
+  background-image: url("../images/mylistingcar_icon.png");
+  background-size: cover;
+  background-position: center 63%;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 35px;
+}
+
+.custom-radio-button.ant-radio-button-wrapper::before {
+  display: none !important; /* removes the separator line */
+}

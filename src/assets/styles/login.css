@@ -1,0 +1,79 @@
+.login-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.login-form .ant-form-item {
+  margin-bottom: 1.5rem;
+}
+
+.login-form .ant-input-affix-wrapper {
+  height: 44px;
+  border-radius: 4px;
+}
+
+.login-form .ant-input-password {
+  height: 44px;
+}
+
+.login-form .ant-input-prefix {
+  margin-right: 8px;
+  color: #999;
+}
+
+.login-button {
+  height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  background: #1890ff;
+  border-color: #1890ff;
+  margin-top: 1rem;
+}
+
+.login-button:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.login-links a {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.login-links a:hover {
+  color: #40a9ff;
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+  .login-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .login-form .ant-form-item {
+    margin-bottom: 1rem;
+  }
+} 

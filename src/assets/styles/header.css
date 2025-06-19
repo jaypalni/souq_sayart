@@ -1,0 +1,112 @@
+.header{
+    background-color: #008ad5;
+    padding: 10px;
+}
+.headerLogo{
+    height: 56px;
+    width: 125px;
+    margin-left: 35px;
+    margin-top: 10px;
+}
+.menuItem{
+    color:  #FAFAFA;
+    font-weight: 700;
+    font-size: 18px;
+}
+.remove_gutter{
+    --bs-gutter-x: 0rem !important;
+}
+.menuLeft{
+    color:  #FAFAFA;
+    font-weight: 400;
+    font-size: 18px;
+}
+.contct_us_btn{
+    font-weight: 700;
+    background-color: #D67900;
+    padding: 10px;
+    border-radius: 5px;
+    height: 38px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .header {
+    padding: 6px 0 6px 0;
+  }
+  .headerLogo {
+    height: 38px;
+    width: 90px;
+    margin-left: 10px;
+    margin-top: 4px;
+  }
+  .row.remove_gutter {
+    flex-direction: column !important;
+    align-items: center;
+  }
+  .col-3, .col-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .menuItem {
+    font-size: 16px;
+    margin: 0 8px !important;
+    padding: 6px 0;
+  }
+  .menuLeft {
+    font-size: 15px;
+    margin: 0 6px !important;
+    padding: 6px 0;
+  }
+  .contct_us_btn {
+    font-size: 14px;
+    padding: 7px 16px;
+    height: 32px;
+  }
+  .footer-main-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 0 10px !important;
+  }
+  .footer-logo-col, .footer-columns-col, .footer-app-col {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 18px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .footer-logo-col .footerLogoImg {
+    width: 100px !important;
+    margin-bottom: 10px !important;
+  }
+  .footer-columns-col {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: center !important;
+  }
+  .footer-app-col {
+    min-width: 0 !important;
+    width: 100% !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+  }
+  .footer-app-col img {
+    width: 120px !important;
+    height: auto !important;
+    margin-bottom: 8px !important;
+  }
+  .footer-copyright {
+    padding: 12px 10px 8px 10px !important;
+    font-size: 12px !important;
+    text-align: center !important;
+  }
+}

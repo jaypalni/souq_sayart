@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Form, Input, Button, Radio, Row, Col, Avatar, message } from "antd";
 import {
   EditOutlined,
@@ -6,34 +6,44 @@ import {
   CloseOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
+import { userAPI } from "../services/api";
+import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 
-const initialProfile = {
-  firstName: "Ralph",
-  lastName: "Doe",
-  email: "Ralphdoe@gmail.com",
-  dob: "03 / 12 / 1986",
-  dealer: "no",
-  company: "Telmdob",
-  owner: "Jack Doe",
-  address: "02930000000",
-  phone: "9100000000",
-  reg: "000000000000",
-  facebook: "Telmdob",
-  instagram: "Telmdob agency",
-  avatar: "",
-};
-
+ 
 const MyProfileForm = () => {
+  // const [form] = Form.useForm();
+  // const [editMode, setEditMode] = useState(false);
+  // const [profile, setProfile] = useState(initialProfile);
+  // const [avatarUrl, setAvatarUrl] = useState("");
+  // const fileInputRef = useRef();
+  // const [dealerValue, setDealerValue] = useState(profile.dealer);
+
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState({});
   const [avatarUrl, setAvatarUrl] = useState("");
   const fileInputRef = useRef();
+  const [dealerValue, setDealerValue] = useState("no");
 
-  const onFinish = (values) => {
+  const [loading, setLoading] = useState(false);
+  const [newuserData, setUsersData] = useState({});
+  const [dobError, setDobError] = useState("");
+ 
+const onFinishFailed = ({ errorFields }) => {
+  const dobErr = errorFields.find((f) => f.name[0] === "dob");
+  setDobError(dobErr ? dobErr.errors[0] : "");
+};
+
+  // const onFinish = (values) => {
+  //   setProfile({ ...values, avatar: avatarUrl });
+  //   setEditMode(false);
+  //   message.success("Profile updated!");
+  // };
+  const onFinish = async (values) => {
     setProfile({ ...values, avatar: avatarUrl });
     setEditMode(false);
     message.success("Profile updated!");
+    await onClickContinue(); // Call update API here
   };
 
   const onEdit = () => {
@@ -48,7 +58,10 @@ const MyProfileForm = () => {
   };
 
   const handleDealerChange = (e) => {
-    if (e.target.value === "no") {
+    const value = e.target.value;
+    setDealerValue(value);
+
+    if (value === "no") {
       form.setFieldsValue({
         company: "",
         owner: "",
@@ -72,6 +85,125 @@ const MyProfileForm = () => {
   const triggerAvatarUpload = () => {
     if (editMode && fileInputRef.current) fileInputRef.current.click();
   };
+
+  // API Call
+
+  
+   useEffect(() => {
+     Userdataapi();
+   }, []);
+
+   const Userdataapi = async () => {
+     try {
+       setLoading(true);
+       const response = await userAPI.getProfile({});
+       const users_data = handleApiResponse(response);
+       if (users_data?.data) {
+         const user = users_data.data;
+
+         // Build profile from API data
+         const userProfile = {
+           first_name: user.first_name || "",
+           last_name: user.last_name || "",
+           email: user.email || "",
+           dob: user.date_of_birth || "",
+           dealer: user.dealer || "no",
+           company: user.company_name || "",
+           owner: user.owner_name || "",
+           address: user.company_address || "",
+           phone: user.phone_number || "",
+           reg: user.company_registration_number || "",
+           facebook: user.facebook_page || "",
+           instagram: user.instagram_company_profile || "",
+           avatar: user.profile_image || "",
+         };
+
+         setUsersData(user); // Save raw response if needed
+         setProfile(userProfile); // Set form data
+         form.setFieldsValue(userProfile); // Update form fields
+         setAvatarUrl(user.avatar || "");
+         setDealerValue(user.dealer || "no");
+
+         message.success(users_data.message || "Fetched successfully");
+       }
+     } catch (error) {
+       const errorData = handleApiError(error);
+       message.error(errorData.message || "Failed to load profile");
+       setUsersData({});
+     } finally {
+       setLoading(false);
+     }
+   };
+
+
+   // Update Profile API Call
+
+  const onClickContinue = async () => {
+    try {
+      setLoading(true);
+
+      const values = await form.validateFields();
+
+      const formData = new FormData();
+
+      formData.append("first_name", values.first_name || "");
+      formData.append("last_name", values.last_name || "");
+      formData.append("location", ""); // Add actual File object here if available
+      formData.append("whatsapp", "efrg"); // Change if needed
+    //  formData.append("whatsapp", values.phone || "");
+
+      console.log("Sending FormData payload", formData);
+
+      const response = await userAPI.updateProfile(formData);
+
+      const result = handleApiResponse(response);
+
+      if (result?.data) {
+        const user = result.data;
+
+        const updatedProfile = {
+          first_name: user.first_name || "",
+          last_name: user.last_name || "",
+          email: user.email || "",
+          dob: user.date_of_birth || "",
+          dealer: user.is_dealer ? "yes" : "no",
+          company: user.company_name || "",
+          owner: user.owner_name || "",
+          address: user.company_address || "",
+          phone: user.phone_number || "",
+          reg: user.company_registration_number || "",
+          facebook: user.facebook_page || "",
+          instagram: user.instagram_company_profile || "",
+          avatar: user.profile_image || "",
+        };
+
+        setUsersData(user);
+        setProfile(updatedProfile);
+        form.setFieldsValue(updatedProfile);
+        setAvatarUrl(user.profile_image || "");
+        setDealerValue(user.is_dealer ? "yes" : "no");
+
+        setEditMode(false);
+        message.success(result.message || "Profile updated!");
+      }
+    } catch (error) {
+      if (error.errorFields) {
+        onFinishFailed(error);
+      } else {
+        const errorData = handleApiError(error);
+        message.error(errorData.message || "Failed to update profile.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+
+
+
 
   return (
     <div className="myprofile-main">
@@ -118,7 +250,7 @@ const MyProfileForm = () => {
                   )}
                 </div>
                 <span className="profile-username">
-                  {profile.firstName} {profile.lastName}
+                  {newuserData.first_name} {newuserData.last_name}
                 </span>
               </div>
             </div>
@@ -129,17 +261,17 @@ const MyProfileForm = () => {
           layout="vertical"
           initialValues={profile}
           onFinish={onFinish}
-          disabled={!editMode}
-          className={editMode ? "edit-mode-form" : ""}
+          // disabled={!editMode}
+          className={editMode ? "" : "edit-mode-form"}
         >
           <Row gutter={16}>
             <Col span={6}>
-              <Form.Item label="First Name*" name="firstName">
+              <Form.Item label="First Name*" name="first_name">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item label="Last Name*" name="lastName">
+              <Form.Item label="Last Name*" name="last_name">
                 <Input />
               </Form.Item>
             </Col>
@@ -215,7 +347,7 @@ const MyProfileForm = () => {
           <div className="profile-btns profile-btns-bottom">
             <Button
               className="btn-outline-blue"
-              //icon={<PhoneOutlined />}
+              icon={<PhoneOutlined />}
               shape="round"
               style={{ marginRight: 16 }}
             >
@@ -229,8 +361,8 @@ const MyProfileForm = () => {
                   shape="round"
                   type="primary"
                   htmlType="submit"
-                  onClick={() => form.submit()}
                   style={{ marginRight: 8 }}
+                  //onClick={(() => onClickContinue)}
                 >
                   Update
                 </Button>
@@ -246,12 +378,12 @@ const MyProfileForm = () => {
             ) : (
               <Button
                 className="btn-solid-blue"
-                //icon={<EditOutlined />}
+                icon={<EditOutlined />}
                 shape="round"
                 type="primary"
                 onClick={onEdit}
               >
-                Save Changes
+                Edit Profile
               </Button>
             )}
           </div>

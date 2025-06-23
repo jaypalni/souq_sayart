@@ -37,12 +37,16 @@ const API_CONFIG = {
       VERIFY_OTP: "api/auth/verify-otp",
     },
     USER: {
-      PROFILE: "/users/profile",
-      UPDATE_PROFILE: "/users/profile",
+      PROFILE: "/api/users/profile",
+      UPDATE_PROFILE: "/api/users/edit-profile",
       CHANGE_PASSWORD: "/users/change-password",
-      GET_FAVORITES: "/users/favorites",
-      ADD_FAVORITE: "/users/favorites",
-      REMOVE_FAVORITE: (id) => `/users/favorites/${id}`,
+      GET_FAVORITES: (page, limit) =>
+        `/api/users/favorites?page=${page}&limit=${limit}`,
+      ADD_FAVORITE: (id) => `/api/users/favorites/${id}`,
+      REMOVE_FAVORITE: (id) => `/api/users/favorites/${id}`,
+      GET_SAVEDSEARCHES: (page, limit) =>
+        `/api/users/saved-searches?page=${page}&limit=${limit}`,
+      GET_SUBSCRIPTIONS: "/api/subscriptions/packages",
     },
   },
 };

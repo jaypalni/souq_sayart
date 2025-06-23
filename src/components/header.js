@@ -3,8 +3,10 @@ import "../assets/styles/header.css";
 import iconWhite from "../assets/images/souqLogo.svg";
 import { CiBellOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Header = () => {
+  
   const menuList = [
     { id: "", name: "Buy", path: "/landing", displayName: "" },
     { id: "", name: "Sell", path: "/sell", displayName: "" },
@@ -13,10 +15,9 @@ const Header = () => {
   ];
 
   const navigate = useNavigate();
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  console.log("userData123", userData);
+  
   return (
-    <div>
+    <>
       <div className="header">
         <div className="row remove_gutter">
           <div className="col-3 d-flex">
@@ -40,14 +41,20 @@ const Header = () => {
             <div className="menuLeft mx-2">
               <CiBellOn />
             </div>
-            <div className="menuLeft mx-2">Sign up / Login</div>
+            <div
+              className="menuLeft mx-2"
+              onClick={() => navigate(`/myProfile`)}
+              style={{ cursor: "pointer" }}
+            >
+              Sign up / Login
+            </div>
             <div className="menuLeft mx-2">
               <div className="contct_us_btn">Contact Us</div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 export default Header;

@@ -500,3 +500,36 @@
 .blocked-contact-item:hover {
   background: #f7fafd;
 } 
+
+
+ /* MyProfileForm Antd override */
+
+ :where(.css-dev-only-do-not-override-mc1tut).ant-form-item .ant-form-item-label >label {
+position: relative;
+display: inline-flex;
+align-items: center;
+max-width: 100%;
+height: 32px;
+color: #637D92;
+font-size: 14px;
+font-weight: 400;
+ }
+
+ .edit-mode-form .ant-input {
+border: none !important;
+border-bottom: 1px solid #000000 !important;
+border-radius: 0 !important;
+background: transparent !important;
+box-shadow: none !important;
+}
+
+.edit-mode-form .ant-input {
+border: none !important;
+border-bottom: 1px solid #000000 !important;
+border-radius: 0 !important;
+background: transparent !important;
+box-shadow: none !important;
+color: #4A5E6D;
+font-size: 16px;
+font-weight: 400;
+}

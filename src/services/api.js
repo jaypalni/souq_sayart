@@ -131,11 +131,15 @@ export const userAPI = {
     api.put(API_CONFIG.ENDPOINTS.USER.UPDATE_PROFILE, data),
   changePassword: (data) =>
     api.put(API_CONFIG.ENDPOINTS.USER.CHANGE_PASSWORD, data),
-  getFavorites: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_FAVORITES),
+  getFavorites: (page, limit) =>
+    api.get(API_CONFIG.ENDPOINTS.USER.GET_FAVORITES(page, limit)),
   addFavorite: (carId) =>
     api.post(API_CONFIG.ENDPOINTS.USER.ADD_FAVORITE, { carId }),
   removeFavorite: (carId) =>
     api.delete(API_CONFIG.ENDPOINTS.USER.REMOVE_FAVORITE(carId)),
+  savedSearches: (page, limit) =>
+    api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit)),
+  getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
 };
 
 export default api;

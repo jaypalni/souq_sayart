@@ -1,42 +1,35 @@
-import { useEffect, useState } from "react";
-import AllCarFilters from "../components/allcarfilters";
-import PlaneBanner from "../components/planeBanner";
-import redcar_icon from "../assets/images/redcar_icon.jpg";
-import bluecar_icon from "../assets/images/blackcar_icon.png";
-import { CheckCircleFilled } from "@ant-design/icons";
-import "../assets/styles/carListing.css";
+import { data, useParams } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { Form, Input, Button, Radio, Row, Col, Avatar, message } from "antd";
 import { FaCogs, FaGlobe, FaMapMarkerAlt, FaRegHeart } from "react-icons/fa";
+import redcar_icon from "../assets/images/redcar_icon.jpg";
 import { TbManualGearbox } from "react-icons/tb";
-import Bestcarsalebytype from "../components/bestcarsalebytype";
-import { carAPI, userAPI } from "../services/api";
+import { userAPI } from "../services/api";
+import { CheckCircleFilled } from "@ant-design/icons";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { message } from "antd";
-import { useNavigate } from "react-router-dom";
-const Allcars = () => {
-  return (
-    <div>
-      <PlaneBanner name={"jdi"} />
-      <AllCarFilters />
-      <CarListing />
-      <Bestcarsalebytype />
-    </div>
-  );
-};
-const CarListing = () => {
+
+const MyFavoritesCars = () => {
   const [carsData, setCarsData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(15); 
+  const { id } = useParams();
+  
   useEffect(() => {
     Allcarsapi();
   }, []);
+
   const Allcarsapi = async () => {
     try {
       setLoading(true);
-      const response = await carAPI.getAllCars({});
+      const response = await userAPI.getFavorites({
+        page,
+        limit,
+      });
       const newcars = handleApiResponse(response);
       console.log("API Response:", newcars?.data?.cars);
-      if (newcars?.data?.cars) {
-        setCarsData(newcars.data.cars);
+      if (newcars?.favorites) {
+        setCarsData(newcars.favorites);
       }
       message.success(newcars.message || "Fetched successfully");
     } catch (error) {
@@ -45,53 +38,45 @@ const CarListing = () => {
       setCarsData([]);
     } finally {
       setLoading(false);
-    } 
+    }
   };
 
-  // Add Fav API
+  const Deletecarapi = async (carId) => {
+    console.log("Delete clicked for ID:", carId);
+    try {
+      setLoading(true);
 
-  const Addfavcarapi = async (carId) => {
-      console.log("Added clicked for ID:", carId);
-      try {
-        setLoading(true);
-  
-        const response = await userAPI.addFavorite(carId); 
-        const data = handleApiResponse(response);
-  
-        if (data.success) {
-          message.success(data.message || "Added to favorites");
-        } else {
-          message.error(data.message || "Something went wrong");
-        }
-      } catch (error) {
-        const errorData = handleApiError(error);
-        message.error(
-          errorData.message || "Failed to remove car from favorites."
-        );
-      } finally {
-        setLoading(false);
-      }       
-    };
+      const response = await userAPI.removeFavorite(carId); 
+      const data = handleApiResponse(response);
+
+      if (data.success) {
+        message.success(data.message || "Removed from favorites");
+        await Allcarsapi(); 
+      } else {
+        message.error(data.message || "Something went wrong");
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(
+        errorData.message || "Failed to remove car from favorites."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
 
   return (
     <div className="car-listing-container">
       <div className="car-listing-header">
-        <span>Showing 1 - {carsData.length} Cars</span>
-        <a
-          href="#"
-          className="allcars-sortingtitle"
-          style={{ color: "#000000", fontSize: "16px", fontWeight: "700" }}
-        >
-          Sort : Newest Listing
-        </a>
+        <span>Favorites</span>
       </div>
       <div className="row">
         {carsData.map((car, idx) => (
           <div className="col-3 p-0" key={idx}>
-            <div
-              className="allcars-listing-card"
-              onClick={() => navigate(`/carDetails/${car.id}`)}
-            >
+            <div className="allcars-listing-card">
               <div className="car-listing-image-wrapper">
                 <img
                   src={car.image_url || redcar_icon} // fallback image
@@ -108,18 +93,15 @@ const CarListing = () => {
                     </div>
                   )}
                 </div>
-                {/* <div className="car-listing-fav">
-                  <FaRegHeart />
-                </div> */}
                 <button
                   className="car-listing-fav"
                   style={{
-                    backgroundColor: "#ffffff",
-                    color: "#008ad5",
+                    backgroundColor: "#008ad5",
+                    color: "#ffffff",
                     border: "none",
                     cursor: "pointer",
                   }}
-                  onClick={() => Addfavcarapi(car.id)}
+                  onClick={() => Deletecarapi(car.id)}
                 >
                   <FaRegHeart />
                 </button>
@@ -127,31 +109,26 @@ const CarListing = () => {
               <div className="car-listing-content">
                 <div className="d-flex">
                   <div className="car-listing-title">
-                    {car.ad_title || "No Title Available"}
+                    {car.year + " " + car.make + " " + car.model ||
+                      "No Title Available"}
                   </div>
                   <div className="car-listing-price">{"$" + car.price}</div>
                 </div>
-                <div className="car-listing-engine">
-                  {car.no_of_cylinders +
-                    "Cyl " +
-                    car.engine_cc +
-                    " " +
-                    car.fuel_type}
-                </div>
+                <div className="car-listing-engine">{car.fuel_type}</div>
                 <div className="car-listing-details row">
                   <div className="col-5">
                     <span>
-                      <TbManualGearbox /> {car.transmission_type}
+                      <TbManualGearbox /> {car.transmission}
                     </span>
                   </div>
                   <div className="col-3">
                     <span>
-                      <FaGlobe /> {car.consumption}
+                      <FaGlobe /> {car.consumption || "UAE"}
                     </span>
                   </div>
                   <div className="col-4">
                     <span>
-                      <FaMapMarkerAlt /> {car.kilometers}
+                      <FaMapMarkerAlt /> {car.mileage}
                     </span>
                   </div>
                   <div className="car-listing-location">{car.location}</div>
@@ -164,4 +141,5 @@ const CarListing = () => {
     </div>
   );
 };
-export default Allcars;
+
+export default MyFavoritesCars;

@@ -103,7 +103,7 @@ const SignupOtp = () => {
     <div className="otp-container">
       <h2 className="otp-title">Login</h2>
       <p className="otp-desc">
-        Enter the verification code sent to your phone number
+        Enter the verification code sent to your phone number 
       </p>
       <div className="otp-inputs">
         {otp.map((digit, idx) => (

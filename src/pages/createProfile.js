@@ -116,7 +116,12 @@ const CreateProfile = () => {
       >
         <Title
           level={3}
-          style={{ textAlign: "center", marginBottom: 24, fontWeight: 700 }}
+          style={{
+            textAlign: "center",
+            marginBottom: 24,
+            fontWeight: 700,
+            fontSize: 20,
+          }}
         >
           Create Your Account
         </Title>
@@ -169,25 +174,44 @@ const CreateProfile = () => {
           <div className="row g-3">
             <div className="col-md-6">
               <Form.Item
-                label={<span style={{ fontWeight: 500 }}>First Name*</span>}
+                label={
+                  <span
+                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                  >
+                    First Name<span style={{ color: "#637D92" }}>*</span>
+                  </span>
+                }
                 name="firstName"
                 rules={[{ required: true, message: "First name is required" }]}
+                style={{ marginBottom: 12 }}
+                required={false}
               >
-                <Input placeholder="First Name" size="large" />
+                <Input placeholder="First Name" size="middle" />
               </Form.Item>
             </div>
             <div className="col-md-6">
               <Form.Item
-                label={<span style={{ fontWeight: 500 }}>Last Name*</span>}
+                label={
+                  <span
+                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                  >
+                    Last Name*
+                  </span>
+                }
                 name="lastName"
                 rules={[{ required: true, message: "Last name is required" }]}
+                required={false}
               >
-                <Input placeholder="Last Name" size="large" />
+                <Input placeholder="Last Name" size="middle" />
               </Form.Item>
             </div>
           </div>
           <Form.Item
-            label={<span style={{ fontWeight: 500 }}>Email</span>}
+            label={
+              <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
+                Email
+              </span>
+            }
             name="email"
             rules={[
               {
@@ -196,13 +220,20 @@ const CreateProfile = () => {
                 message: "Valid email is required",
               },
             ]}
+            required={false}
           >
-            <Input placeholder="Email" size="large" />
+            <Input placeholder="Email" size="middle" />
           </Form.Item>
           <div className="row g-3">
             <div className="col-md-6">
               <Form.Item
-                label={<span style={{ fontWeight: 500 }}>Date Of Birth*</span>}
+                label={
+                  <span
+                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                  >
+                    Date Of Birth*
+                  </span>
+                }
                 name="dob"
                 rules={[
                   {
@@ -210,6 +241,7 @@ const CreateProfile = () => {
                     message: "this field is mandatory please fill it",
                   },
                 ]}
+                required={false}
                 validateStatus={dobError ? "error" : ""}
                 help={dobError || ""}
               >
@@ -220,7 +252,7 @@ const CreateProfile = () => {
                   }}
                   format="DD / MM / YYYY"
                   placeholder="DD / MM / YYYY"
-                  size="large"
+                  size="middle"
                   disabledDate={(current) =>
                     current && current > moment().endOf("day")
                   }
@@ -229,11 +261,16 @@ const CreateProfile = () => {
             </div>
           </div>
           <Form.Item
-            label={<span style={{ fontWeight: 500 }}>Are You A Dealer?*</span>}
+            label={
+              <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
+                Are You A Dealer?*
+              </span>
+            }
             name="isDealer"
             rules={[
               { required: true, message: "Please select if you are a dealer" },
             ]}
+            required={false}
           >
             <Radio.Group
               onChange={(e) => {
@@ -263,7 +300,15 @@ const CreateProfile = () => {
                 <div className="col-md-6">
                   <Form.Item
                     label={
-                      <span style={{ fontWeight: 500 }}>Company Name*</span>
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
+                        Company Name*
+                      </span>
                     }
                     name="companyName"
                     rules={[
@@ -272,21 +317,31 @@ const CreateProfile = () => {
                         message: "Company name is required",
                       },
                     ]}
+                    required={false}
                   >
-                    <Input placeholder="Company Name" size="large" />
+                    <Input placeholder="Company Name" size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
                   <Form.Item
                     label={
-                      <span style={{ fontWeight: 500 }}>Owner's Name*</span>
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
+                        Owner's Name*
+                      </span>
                     }
                     name="ownerName"
                     rules={[
                       { required: isDealer, message: "Owner name is required" },
                     ]}
+                    required={false}
                   >
-                    <Input placeholder="Owner's Name" size="large" />
+                    <Input placeholder="Owner's Name" size="middle" />
                   </Form.Item>
                 </div>
               </div>
@@ -294,7 +349,15 @@ const CreateProfile = () => {
                 <div className="col-md-6">
                   <Form.Item
                     label={
-                      <span style={{ fontWeight: 500 }}>Company Address*</span>
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
+                        Company Address*
+                      </span>
                     }
                     name="companyAddress"
                     rules={[
@@ -303,15 +366,24 @@ const CreateProfile = () => {
                         message: "Company address is required",
                       },
                     ]}
+                    required={false}
                   >
                     {/* {" "} */}
-                    <Input placeholder="Company Address" size="large" />
+                    <Input placeholder="Company Address" size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
                   <Form.Item
                     label={
-                      <span style={{ fontWeight: 500 }}>Phone Number*</span>
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
+                        Phone Number*
+                      </span>
                     }
                     name="phoneNumber"
                     rules={[
@@ -324,8 +396,9 @@ const CreateProfile = () => {
                         message: "Enter a valid phone number",
                       },
                     ]}
+                    required={false}
                   >
-                    <Input placeholder="Phone Number" size="large" />
+                    <Input placeholder="Phone Number" size="middle" />
                   </Form.Item>
                 </div>
               </div>
@@ -333,7 +406,13 @@ const CreateProfile = () => {
                 <div className="col-md-6">
                   <Form.Item
                     label={
-                      <span style={{ fontWeight: 500 }}>
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
                         Company Registration Number CR*
                       </span>
                     }
@@ -341,53 +420,65 @@ const CreateProfile = () => {
                     rules={[
                       { required: isDealer, message: "CR number is required" },
                     ]}
+                    required={false}
                   >
                     {/* {" "} */}
-                    <Input placeholder="000000000000" size="large" />
+                    <Input placeholder="000000000000" size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
                   <Form.Item
                     label={
-                      <span style={{ fontWeight: 500 }}>
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
                         Facebook Page (Optional)
                       </span>
                     }
                     name="facebookPage"
+                    required={false}
                   >
                     {/* {" "} */}
-                    <Input placeholder="Name" size="large" />{" "}
+                    <Input placeholder="Name" size="middle" />{" "}
                   </Form.Item>
                 </div>
               </div>
               <Form.Item
                 label={
-                  <span style={{ fontWeight: 500 }}>
+                  <span
+                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                  >
                     Instagram Company Profile (Optional)
                   </span>
                 }
                 name="instagramProfile"
+                required={false}
               >
                 {/* {" "} */}
-                <Input placeholder="Name" size="large" />{" "}
+                <Input placeholder="Name" size="middle" />{" "}
               </Form.Item>
             </>
           )}
-          <Form.Item>
+          <Form.Item style={{ textAlign: "center" }}>
             <Button
               type="primary"
               htmlType="submit"
               block
               loading={loading}
               style={{
-                marginTop: 16,
-                height: 44,
-                borderRadius: 24,
-                fontWeight: 600,
-                fontSize: 18,
-                background: "#1890ff",
+                marginTop: 3,
+                width: 200,
+                height: 35,
+                borderRadius: 20,
+                fontWeight: 700,
+                fontSize: 16,
+                background: "#008AD5",
               }}
-              onClick={onClickContinue} // Only use this
+              onClick={onClickContinue}
             >
               Create account
             </Button>
@@ -398,17 +489,13 @@ const CreateProfile = () => {
             style={{
               display: "block",
               textAlign: "center",
-              marginTop: 8,
+              marginTop: 4,
               fontSize: 13,
             }}
           >
-            By registering you agree with our{" "}
-            <a href="#" style={{ color: "#1890ff" }}>
-              terms & conditions
-            </a>{" "}
-            and{" "}
-            <a href="#" style={{ color: "#1890ff" }}>
-              privacy policy
+            <a href="#" style={{ color: "#1890ff", textDecoration: "none" }}>
+              By registering you agree with our terms & conditions and privacy
+              policy
             </a>
           </Text>
         </Form>

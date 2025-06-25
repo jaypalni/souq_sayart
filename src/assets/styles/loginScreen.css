@@ -1,0 +1,16 @@
+.login-box {
+  flex: 1;
+  border: 1.5px solid #008ad5;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 16px;
+  background: #f9f9f9;
+  height: 43px;
+  color: #008ad5;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.login-box:hover {
+  border-color: #005c99;
+}

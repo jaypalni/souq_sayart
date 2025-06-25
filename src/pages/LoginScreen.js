@@ -4,9 +4,10 @@ import { useDispatch } from "react-redux";
 import Footer from "../components/footer";
 import footerLogo from "../assets/images/souqLogo_blue.svg";
 import Car_icon from "../assets/images/Car_icon.png";
-import { authAPI } from '../services/api';
-import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message } from 'antd'; 
+import { authAPI } from "../services/api";
+import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import { message } from "antd";
+import "../assets/styles/loginScreen.css";
 
 const countryOptions = [
   { code: "+961", name: "Lebanon", flag: "🇱🇧" },
@@ -23,37 +24,37 @@ const LoginScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const onClickContinue = async () => {
-    console.log("continue")
+    console.log("continue");
     try {
       // Validate form before submission
-console.log(selectedCountry,phone)
+      console.log(selectedCountry, phone);
       setLoading(true);
 
       // Call login API
       const response = await authAPI.login({
         // email:selectedCountry,
-        phone_number:phone
+        phone_number: phone,
       });
 
       const data = handleApiResponse(response);
-      console.log("verifyOtp",data)
-      if (data ) {
+      console.log("verifyOtp", data);
+      if (data) {
         // Store token in localStorage
         //localStorage.setItem('token', data.token);
-        
+
         // Store user data if available
         if (data) {
-          localStorage.setItem('userData', JSON.stringify(data));
+          localStorage.setItem("userData", JSON.stringify(data));
         }
 
         message.success(data.message);
-        
+
         // Redirect to dashboard or home page
-        navigate('/verifyOtp');
-       }
+        navigate("/verifyOtp");
+      }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Login failed. Please try again.');
+      message.error(errorData.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -65,8 +66,6 @@ console.log(selectedCountry,phone)
     >
       {/* Header */}
 
-   
-
       {/* Login Form */}
       <div
         style={{
@@ -76,7 +75,7 @@ console.log(selectedCountry,phone)
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "32px 0",
+          padding: "12px 0",
         }}
       >
         <div
@@ -88,11 +87,20 @@ console.log(selectedCountry,phone)
             textAlign: "center",
           }}
         >
-          <h2 style={{ color: "#0A0A0B", fontSize: 24 }}>Login</h2>
-          <p style={{ color: "#0A0A0B", fontSize: 16 }}>
+          <h2
+            style={{
+              color: "#0A0A0B",
+              fontSize: 20,
+              fontFamily: "Roboto",
+              fontWeight: 700,
+            }}
+          >
+            Login
+          </h2>
+          <p style={{ color: "#0A0A0B", fontSize: 14, fontFamily: "Roboto" }}>
             Enter Your Phone Number to login to our app
           </p>
-          <div style={{ margin: "24px 0" }}>
+          <div style={{ margin: "20px 0" }}>
             {/* Single label for both fields */}
             <label
               style={{
@@ -101,6 +109,7 @@ console.log(selectedCountry,phone)
                 fontWeight: 500,
                 color: "#637D92",
                 textAlign: "left",
+                fontSize: 12,
               }}
             >
               Enter Your Phone Number
@@ -169,19 +178,11 @@ console.log(selectedCountry,phone)
               </div>
               {/* Phone number input */}
               <input
+                className="login-box"
                 type="text"
                 placeholder="Enter phone number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                style={{
-                  flex: 1,
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  padding: "8px 12px",
-                  fontSize: 16,
-                  background: "#f9f9f9",
-                  height: 43,
-                }}
               />
             </div>
           </div>
@@ -192,12 +193,16 @@ console.log(selectedCountry,phone)
                 color: "#0090d4",
                 border: "1px solid #008ad5",
                 borderRadius: 20,
-                padding: "8px 24px",
+                padding: "2px 24px",
                 cursor: "pointer",
+                fontFamily: "Roboto",
+                fontWeight: 400,
+                fontSize: 14,
+                height: 35,
               }}
               onClick={() => {
-                dispatch({ type: 'SET_LOGIN', payload: false });
-                navigate('/landing');
+                dispatch({ type: "SET_LOGIN", payload: false });
+                navigate("/landing");
               }}
             >
               Continue as guest
@@ -208,12 +213,15 @@ console.log(selectedCountry,phone)
                 color: "#fff",
                 border: "none",
                 borderRadius: 20,
-                padding: "8px 40px",
+                padding: "2px 40px",
                 cursor: "pointer",
+                fontFamily: "Roboto",
+                fontWeight: 700,
+                fontSize: 14,
               }}
-              onClick={()=>onClickContinue()}
+              onClick={() => onClickContinue()}
             >
-              Continue  
+              Continue
             </button>
           </div>
         </div>

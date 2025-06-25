@@ -99,7 +99,6 @@ const SignupOtp = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="otp-container">
       <h2 className="otp-title">Login</h2>

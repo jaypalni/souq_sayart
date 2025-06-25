@@ -36,10 +36,10 @@ const { Panel } = Collapse;
 
 const CarDetails = () => {
   const { id } = useParams();
-  console.log("Newid", id)
+  console.log("Newid", id);
   const handleImageClick = (img) => setMainImageIdx(carImages.indexOf(img));
   const handleCollapseChange = (key) => setActiveKey(key);
-  
+
   const features = [
     "Keyless Entry",
     "Rear AC Vents",
@@ -50,7 +50,6 @@ const CarDetails = () => {
     "Alloy Wheels",
     "Automatic Climate Control",
   ];
-
 
   const safetyFeatures = [
     "Airbags",
@@ -112,7 +111,6 @@ const CarDetails = () => {
       Allcarsapi();
     }
   }, [id]);
-
 
   const Allcarsapi = async () => {
     try {
@@ -374,7 +372,9 @@ const CarDetails = () => {
                     <span>country</span>
                   </div>
                   <div className="col-4 d-flex align-items-center gap-1">
-                    <FaMapMarkerAlt style={{ fontSize: "16px" }} />
+                    <FaMapMarkerAlt
+                      style={{ fontSize: "16px", display: "inline" }}
+                    />
                     <span>{carDetails.location}</span>
                   </div>
                 </div>

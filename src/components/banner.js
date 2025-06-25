@@ -31,8 +31,25 @@ const Banner = () => {
           }}
         >
           <div style={{ maxWidth: 1200, margin: "0 35px" }}>
-            <h2 style={{ margin: 0 }}>My Profile</h2>
-            <p style={{ margin: 0 }}>
+            <h2
+              style={{
+                margin: 0,
+                fontFamily: 700,
+                fontSize: 25,
+                fontFamily: "Roboto",
+              }}
+            >
+              My Profile
+            </h2>
+            <p
+              style={{
+                margin: 0,
+                marginTop: 5,
+                fontFamily: 400,
+                fontSize: 12,
+                fontFamily: "Roboto",
+              }}
+            >
               Post Your Listing in just 3 simple steps
             </p>
           </div>
@@ -69,9 +86,10 @@ const Banner = () => {
             color: "#fff",
             fontWeight: 700,
             fontSize: 32,
+            fontFamily: 'Roboto',
           }}
         >
-          {isLoginPage ? "Welcome To Souq Siyarate" : ""}
+          {isLoginPage ? "Welcome To Souq Sayarat" : ""}
         </h1>
       </div>
     </div>

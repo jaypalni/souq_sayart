@@ -153,9 +153,9 @@ const Sell = () => {
     make && modalName && yearData && fetchTrimCars();
   }, [make, modalName, yearData]);
 
-  useEffect(() => {
-    handleSaveDraft();
-  }, []);
+  // useEffect(() => {
+  //   handleSaveDraft();
+  // }, []);
 
   useEffect(() => {
     modalName && make && fetchYearData();
@@ -333,7 +333,13 @@ const Sell = () => {
       {/* {selectedColor && (
         <span className="color-swatch-input" style={{ background: (colorOptions.find(c => c.value === selectedColor)?.color || '#fff'), border: (colorOptions.find(c => c.value === selectedColor)?.border || '1px solid #d9d9d9') }} />
       )} */}
-      <span>{selectedColor || "Beige"}</span>
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedColor || "Beige"}
+      </span>
       <RightOutlined className="color-arrow" />
     </div>
   );
@@ -347,7 +353,13 @@ const Sell = () => {
       className={`trim-input${!selectedTrim ? " placeholder" : ""}`}
       onClick={() => setTrimModalOpen(true)}
     >
-      <span>{selectedTrim || "B200"}</span>
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedTrim || "B200"}
+      </span>
       <RightOutlined className="trim-arrow" />
     </div>
   );
@@ -364,7 +376,13 @@ const Sell = () => {
           className="brand-input-img"
         />
       )}
-      <span>{selectedBrand || "Select Brand"}</span>
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedBrand || "brand and model of your car"}
+      </span>
       <RightOutlined className="brand-arrow" />
     </div>
   );
@@ -374,7 +392,13 @@ const Sell = () => {
       className={`year-input${!selectedYear ? " placeholder" : ""}`}
       onClick={() => setYearModalOpen(true)}
     >
-      <span>{selectedYear || "2023"}</span>
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedYear || "2023"}
+      </span>
       <RightOutlined className="year-arrow" />
     </div>
   );
@@ -384,7 +408,13 @@ const Sell = () => {
       className={`region-input${!selectedRegion ? " placeholder" : ""}`}
       onClick={() => setRegionModalOpen(true)}
     >
-      <span>{selectedRegion || "Select Region"}</span>
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedRegion || "Select Region"}
+      </span>
       <RightOutlined className="region-arrow" />
     </div>
   );
@@ -396,7 +426,13 @@ const Sell = () => {
       }`}
       onClick={() => setRegionalSpecsModalOpen(true)}
     >
-      <span>{selectedRegionalSpecs || "Select Specs"}</span>
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedRegionalSpecs || "Select Specs"}
+      </span>
       <RightOutlined className="regionalspecs-arrow" />
     </div>
   );
@@ -488,7 +524,16 @@ const Sell = () => {
   const mediaUploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       <PlusOutlined style={{ fontSize: 32, color: "#1890ff" }} />
-      <div style={{ marginTop: 8 }}>Add Media</div>
+      <div
+        style={{
+          marginTop: 8,
+          fontWeight: 500,
+          color: "#008AD5",
+          fontSize: 16,
+        }}
+      >
+        Add Media
+      </div>
     </button>
   );
 
@@ -626,10 +671,26 @@ const Sell = () => {
                 </Form.Item>
               </Col>
               <Col xs={24} md={14}>
-                <Form.Item label="Ad Title" name="adTitle">
+                <Form.Item
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "#0A0A0B",
+                  }}
+                  label="Ad Title"
+                  name="adTitle"
+                >
                   <Input placeholder="Ad Title" />
                 </Form.Item>
-                <Form.Item label="Description" name="description">
+                <Form.Item
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "#0A0A0B",
+                  }}
+                  label="Description"
+                  name="description"
+                >
                   <TextArea rows={4} placeholder="Choose" />
                 </Form.Item>
               </Col>
@@ -638,11 +699,23 @@ const Sell = () => {
             {/* Car Information Section */}
             <Card
               title="Enter Your Car Information"
-              style={{ marginTop: 32, marginBottom: 24, padding: 24 }}
+              style={{
+                marginTop: 15,
+                marginBottom: 32,
+                padding: 24,
+              }}
             >
               <Row gutter={16}>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Car Information" name="brand">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Car Information"
+                    name="brand"
+                  >
                     <BrandInput />
                   </Form.Item>
                   <Modal
@@ -744,7 +817,15 @@ const Sell = () => {
                   </Modal>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Exterior Color" name="exteriorColor">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: "#0A0A0B",
+                    }}
+                    label="Exterior Color"
+                    name="exteriorColor"
+                  >
                     <ExteriorColorInput />
                   </Form.Item>
                   <Modal
@@ -801,7 +882,15 @@ const Sell = () => {
                   </Modal>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Trim" name="trim">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: "#0A0A0B",
+                    }}
+                    label="Trim"
+                    name="trim"
+                  >
                     <TrimInput />
                   </Form.Item>
                   <Modal
@@ -848,7 +937,15 @@ const Sell = () => {
                   </Modal>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Regional Specs" name="regionalSpecs">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: "#0A0A0B",
+                    }}
+                    label="Regional Specs"
+                    name="regionalSpecs"
+                  >
                     <RegionalSpecsInput />
                   </Form.Item>
                   <Modal
@@ -901,7 +998,15 @@ const Sell = () => {
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Body Type" name="bodyType">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: "#0A0A0B",
+                    }}
+                    label="Body Type"
+                    name="bodyType"
+                  >
                     <div className="option-box-group">
                       {bodyTypes.map((opt) => (
                         <div
@@ -921,7 +1026,15 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Condition" name="condition">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: "#0A0A0B",
+                    }}
+                    label="Condition"
+                    name="condition"
+                  >
                     <div className="option-box-group">
                       {conditionOptions.map((opt) => (
                         <div
@@ -943,7 +1056,15 @@ const Sell = () => {
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={24}>
-                  <Form.Item label="Badges" name="badges">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: "#0A0A0B",
+                    }}
+                    label="Badges"
+                    name="badges"
+                  >
                     <div className="option-box-group">
                       {badges.map((opt) => (
                         <div
@@ -974,17 +1095,39 @@ const Sell = () => {
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
                     label="Kilometers*"
                     name="kilometers"
                     rules={[
-                      { required: true, message: "Please enter kilometers!" },
+                      { required: false, message: "Please enter kilometers!" },
                     ]}
+                    required={false}
+                    validateTrigger="onBlur"
                   >
-                    <Input placeholder="Choose" type="number" />
+                    <Input
+                      style={{
+                        fontSize: 14,
+                      }}
+                      placeholder="Choose"
+                      type="number"
+                      min={0}
+                    />
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Year" name="year">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Year"
+                    name="year"
+                  >
                     <YearInput />
                   </Form.Item>
                   <Modal
@@ -1027,7 +1170,15 @@ const Sell = () => {
                   </Modal>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Region" name="region">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Region"
+                    name="region"
+                  >
                     <RegionInput />
                   </Form.Item>
                   <Modal
@@ -1075,6 +1226,11 @@ const Sell = () => {
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
                     label="Warranty Date (Optional)"
                     name="warrantyDate"
                   >
@@ -1084,7 +1240,15 @@ const Sell = () => {
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={12}>
-                  <Form.Item label="Accident History" name="accidentHistory">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Accident History"
+                    name="accidentHistory"
+                  >
                     <Select placeholder="Select The accident history of your car">
                       {updateData?.accident_histories.map((hist) => (
                         <Option key={hist.id} value={hist.id}>
@@ -1095,7 +1259,15 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={12}>
-                  <Form.Item label="Regional Specs" name="regionalSpecs2">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Regional Specs"
+                    name="regionalSpecs2"
+                  >
                     <Select placeholder="Select the specs of your car">
                       {updateData?.regional_specs.map((spec) => (
                         <Option key={spec.id} value={spec.id}>
@@ -1109,10 +1281,18 @@ const Sell = () => {
             </Card>
 
             {/* Additional Details Section */}
-            <Card title="Additional Details" style={{ padding: " 0px 20px" }}>
+            <Card title="Additional Details" style={{ padding: " 0px 24px" }}>
               <Row gutter={16}>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Number of seats" name="seats">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Number of seats"
+                    name="seats"
+                  >
                     <div className="option-box-group">
                       {seats.map((opt) => (
                         <div
@@ -1132,7 +1312,15 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={4}>
-                  <Form.Item label="Number of doors" name="doors">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Number of doors"
+                    name="doors"
+                  >
                     <div className="option-box-group">
                       {doors.map((opt) => (
                         <div
@@ -1152,7 +1340,15 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={7}>
-                  <Form.Item label="Fuel Type" name="fuelType">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Fuel Type"
+                    name="fuelType"
+                  >
                     <div className="option-box-group">
                       {fuelTypes.map((opt) => (
                         <div
@@ -1172,7 +1368,15 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Transmission Type" name="transmissionType">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Transmission Type"
+                    name="transmissionType"
+                  >
                     <div className="option-box-group">
                       {transmissionTypes.map((opt) => (
                         <div
@@ -1192,7 +1396,15 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={12}>
-                  <Form.Item label="Drive Type" name="driveType">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Drive Type"
+                    name="driveType"
+                  >
                     <div className="option-box-group">
                       {driveTypes.map((opt) => (
                         <div
@@ -1212,24 +1424,76 @@ const Sell = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Engine CC" name="engineCC">
-                    <Input placeholder="1600" type="number" />
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Engine CC"
+                    name="engineCC"
+                  >
+                    <Input
+                      style={{
+                        fontSize: 14,
+                      }}
+                      placeholder="1600"
+                      type="number"
+                      min={0}
+                    />
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Consumption (1/100 km)" name="consumption">
-                    <Input placeholder="20" type="number" />
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Consumption (1/100 km)"
+                    name="consumption"
+                  >
+                    <Input
+                      style={{
+                        fontSize: 14,
+                      }}
+                      placeholder="20"
+                      type="number"
+                      min={0}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Extra Features" name="extraFeatures">
-                    <Input placeholder="ABS, Fog lights, Power windows..." />
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Extra Features"
+                    name="extraFeatures"
+                  >
+                    <Select placeholder="Choose">
+                      {updateData?.extra_features.map((int1) => (
+                        <Option key={int1.id} value={int1.id}>
+                          {int1.extra_feature}
+                        </Option>
+                      ))}
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
-                  <Form.Item label="Interior" name="interior">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Interior"
+                    name="interior"
+                  >
                     <Select placeholder="Choose">
                       {updateData?.interiors.map((int) => (
                         <Option key={int.id} value={int.id}>
@@ -1242,7 +1506,15 @@ const Sell = () => {
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={18}>
-                  <Form.Item label="Number of Cylinders" name="cylinders">
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: "#0A0A0B",
+                    }}
+                    label="Number of Cylinders"
+                    name="cylinders"
+                  >
                     <div className="option-box-group">
                       {cylinders.map((opt) => (
                         <div
@@ -1263,7 +1535,7 @@ const Sell = () => {
                 </Col>
               </Row>
             </Card>
-            <Form.Item style={{ marginTop: 24 }}>
+            <Form.Item style={{ marginTop: 16 }}>
               <div className="submit-btn-group">
                 <Button
                   size="small"

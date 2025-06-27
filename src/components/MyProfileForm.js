@@ -354,7 +354,7 @@ const MyProfileForm = () => {
             </Col>
           </Row>
           <Row gutter={16} align="middle">
-            <Col span={6}>
+            <Col span={24}>
               <Form.Item
                 label={
                   <span
@@ -369,75 +369,189 @@ const MyProfileForm = () => {
                 }
                 name="dealer"
               >
-                <Radio.Group onChange={handleDealerChange}>
+                <Radio.Group disabled onChange={handleDealerChange}>
                   <Radio value="yes">Yes</Radio>
                   <Radio value="no">No</Radio>
                 </Radio.Group>
               </Form.Item>
             </Col>
+
+            {/* Conditional fields shown in same row horizontally */}
             {form.getFieldValue("dealer") === "yes" && (
               <>
                 <Col span={6}>
-                  <Form.Item label="Company Name" name="company">
-                    <Input />
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Company Name
+                      </span>
+                    }
+                    name="company"
+                  >
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="Owner's Name" name="owner">
-                    <Input />
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Owner's Name
+                      </span>
+                    }
+                    name="owner"
+                  >
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="Company Address" name="address">
-                    <Input />
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Company Address
+                      </span>
+                    }
+                    name="Company Address"
+                  >
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={6}>
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Phone Number
+                      </span>
+                    }
+                    name="phone"
+                  >
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
                   </Form.Item>
                 </Col>
               </>
             )}
           </Row>
+
           <Row gutter={16}>
-            <Col span={6}>
-              <Form.Item
-                label={
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 400,
-                      color: "#637D92",
-                    }}
-                  >
-                    Phone Number
-                  </span>
-                }
-                name="phone"
-              >
-                <Input
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 400,
-                    color: "#4A5E6D",
-                  }}
-                />
-              </Form.Item>
-            </Col>
             {form.getFieldValue("dealer") === "yes" && (
               <>
-                <Col span={6}>
-                  <Form.Item label="Company Registration Number CR" name="reg">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item label="Facebook Page (Optional)" name="facebook">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
+                <Col span={8}>
                   <Form.Item
-                    label="Instagram Company Profile (Optional)"
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Company Registration Number CR
+                      </span>
+                    }
+                    name="reg"
+                  >
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Facebook Page (Optional)
+                      </span>
+                    }
+                    name="facebook"
+                  >
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#637D92",
+                        }}
+                      >
+                        Instagram Company Profile (Optional)
+                      </span>
+                    }
                     name="instagram"
                   >
-                    <Input />
+                    <Input
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#4A5E6D",
+                      }}
+                    />
                   </Form.Item>
                 </Col>
               </>

@@ -58,17 +58,24 @@ const Landing = () => {
     }
   };
   return (
-    <div className="container py-4">
-      <LandingFilters />
-      <CarTypeList />
-      {/* <SavedSearches /> */}
-      <CarListing title={"Featured Car"} cardata={carsData} />
+    <>
+      <div className="container py-4">
+        <LandingFilters />
+        <CarTypeList />
+        <CarListing title={"Featured Car"} cardata={carsData} />
+      </div>
+
       <DownloadApp />
-      <div className="my-5"></div>
-      <CarListing title={"Recommended Cars"} cardata={carsRecomData} />
+
+      <div className="container">
+        <div className="my-5"></div>
+        <CarListing title={"Recommended Cars"} cardata={carsRecomData} />
+      </div>
+
       <SellYourCar />
-    </div>
+    </>
   );
+  
 };
 
 export default Landing;

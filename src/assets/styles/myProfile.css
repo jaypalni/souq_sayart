@@ -4,8 +4,8 @@
 .myprofile-header {
   font-weight: 700;
   font-size: 20px;
-  margin-bottom: 24px;
-  color: #222;
+  margin-bottom: 0px;
+  color: #0A0A0B;
 }
 .myprofile-card {
   background: #fff;
@@ -68,7 +68,7 @@
   font-weight: 600;
   font-size: 17px;
   padding: 0 36px;
-  height: 48px;
+  height: 36px;
   display: flex;
   align-items: center;
   box-shadow: none;
@@ -80,12 +80,12 @@
 .btn-outline-blue {
   background: #fff !important;
   color: #039be5 !important;
-  border: 2px solid #039be5 !important;
+  border: 1px solid #039be5 !important;
   border-radius: 32px !important;
   font-weight: 600;
   font-size: 17px;
   padding: 0 36px;
-  height: 48px;
+  height: 36px;
   display: flex;
   align-items: center;
   box-shadow: none;

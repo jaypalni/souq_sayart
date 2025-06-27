@@ -95,7 +95,7 @@ const Payments = () => {
   );
 
   return (
-    <div style={{ maxWidth: 420, margin: '0 auto', background: '#fff', borderRadius: 12, padding: 24 }}>
+    <div style={{ maxWidth: 420, margin: '0', background: '#fff', borderRadius: 12, padding: 24 }}>
       <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 24 }}>Payments</div>
       {view === 'list' && (
         <>

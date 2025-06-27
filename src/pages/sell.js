@@ -521,6 +521,13 @@ const Sell = () => {
     setMediaFileList(newFileList);
     form.setFieldsValue({ media: newFileList });
   };
+  const beforeMediaUpload = (file) => {
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      message.error("File must be smaller than 5MB!");
+    }
+    return isLt5M || Upload.LIST_IGNORE;
+  };
   const mediaUploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       <PlusOutlined style={{ fontSize: 32, color: "#1890ff" }} />
@@ -631,6 +638,7 @@ const Sell = () => {
                         fileList={mediaFileList}
                         onPreview={handleMediaPreview}
                         onChange={handleMediaChange}
+                        beforeUpload={beforeMediaUpload}
                         showUploadList={{
                           showRemoveIcon: true,
                           showPreviewIcon: true,

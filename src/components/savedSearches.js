@@ -4,6 +4,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { userAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
+import lamborgini from '../assets/images/lamborghini.png'
 
 
 const savedSearchesData = [
@@ -131,10 +132,7 @@ const SavedSearches = () => {
           <div className="saved-search-item" key={search.id}>
             <div className="saved-search-info">
               <img
-                src={
-                  search.car_image ||
-                  'https://cdn-icons-png.flaticon.com/512/616/616494.png'
-                }
+                src={search.car_image || lamborgini}
                 alt="logo"
                 className="saved-search-logo"
               />

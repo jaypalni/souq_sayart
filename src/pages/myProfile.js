@@ -35,49 +35,164 @@ const { Sider, Content } = Layout;
 
 const menuItems = [
   {
+    key: "Personal Informations",
+    label: (
+      <Link
+        to="/myProfile"
+        style={{
+          fontSize: "14px",
+          fontWeight: 700,
+          color: "#0A0A0B",
+        }}
+      >
+        {" "}
+        Personal Informations
+      </Link>
+    ),
+  },
+  {
     key: "profile",
     icon: <UserOutlined />,
-    label: <Link to="/myProfile">Profile</Link>,
+    label: (
+      <Link
+        to="/myProfile"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Profile
+      </Link>
+    ),
   },
   {
     key: "subscriptions",
     icon: <CreditCardOutlined />,
-    label: <Link to="/myProfile/subscriptions">Subscriptions</Link>,
+    label: (
+      <Link
+        to="/myProfile/subscriptions"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Subscriptions
+      </Link>
+    ),
   },
   {
     key: "messages",
     icon: <MessageOutlined />,
-    label: <Link to="/myProfile/messages">Messages</Link>,
+    label: (
+      <Link
+        to="/myProfile/messages"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Messages
+      </Link>
+    ),
   },
   {
     key: "notifications",
     icon: <BellOutlined />,
-    label: <Link to="/myProfile/notifications">Manage Notifications</Link>,
+    label: (
+      <Link
+        to="/myProfile/notifications"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Manage Notifications
+      </Link>
+    ),
   },
   {
     key: "searches",
     icon: <SearchOutlined />,
-    label: <Link to="/myProfile/searches">Saved Searches</Link>,
+    label: (
+      <Link
+        to="/myProfile/searches"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Saved Searches
+      </Link>
+    ),
   },
   {
     key: "payments",
     icon: <CreditCardOutlined />,
-    label: <Link to="/myProfile/payments">Payments</Link>,
+    label: (
+      <Link
+        to="/myProfile/payments"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Payments
+      </Link>
+    ),
   },
   {
     key: "blocked",
     icon: <StarOutlined />,
-    label: <Link to="/myProfile/blocked">Blocked users</Link>,
+    label: (
+      <Link
+        to="/myProfile/blocked"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Blocked users
+      </Link>
+    ),
   },
   {
     key: "dashboard",
     icon: <DashboardOutlined />,
-    label: <Link to="/myProfile/dashboard">Dealership Dashboard</Link>,
+    label: (
+      <Link
+        to="/myProfile/dashboard"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Dealership Dashboard
+      </Link>
+    ),
   },
   {
     key: "favorites",
     icon: <HeartOutlined />,
-    label: <Link to="/myProfile/favorites">Favorites</Link>,
+    label: (
+      <Link
+        to="/myProfile/favorites"
+        style={{
+          fontSize: "12px",
+          fontWeight: 400,
+          color: "#0A0A0B",
+        }}
+      >
+        Favorites
+      </Link>
+    ),
   },
 ];
 
@@ -144,9 +259,9 @@ const MyProfile = () => {
             <div
               style={{
                 padding: "0 24px",
-                color: "#888",
-                fontWeight: 500,
-                fontSize: 13,
+                color: "#0A0A0B",
+                fontWeight: 700,
+                fontSize: 15,
                 marginBottom: 8,
               }}
             >
@@ -154,7 +269,7 @@ const MyProfile = () => {
             </div>
             <Menu
               mode="inline"
-              style={{ borderRight: 0 }}
+              style={{ borderRight: 0, fontWeight: 400,fontSize:"12px" }}
               items={manageItems}
               onClick={({ key }) => {
                 if (key === "logout") {
@@ -213,7 +328,7 @@ const MyProfile = () => {
           <Button
             onClick={() => setLogoutModalOpen(false)}
             style={{
-               width: 120,
+              width: 120,
               backgroundColor: "#ffffff",
               color: "#008AD5",
               borderColor: "#008AD5",
@@ -229,7 +344,7 @@ const MyProfile = () => {
             type="primary"
             onClick={handleLogout}
             style={{
-               width: 120,
+              width: 120,
               backgroundColor: "#008AD5",
               color: "#ffffff",
               fontSize: "16px",

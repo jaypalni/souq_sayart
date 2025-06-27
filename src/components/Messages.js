@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Input, Button, Tabs, Avatar, Dropdown, Menu } from 'antd';
 import { SendOutlined, EllipsisOutlined } from '@ant-design/icons';
 import '../assets/styles/messages.css';
+import instagram from '../assets/images/instagram.png'
+import gallery from "../assets/images/gallery.png";
+import clipboard from "../assets/images/clipboard.png";
 
 const mockChats = [
   {
@@ -155,8 +158,8 @@ const ChatView = ({ chat }) => {
       </div>
       <div className="chat-view-messages">
         <div className="message-date-divider">Tuesday, April 22</div>
-        {chat.messages.map(msg => (
-          <div key={msg.id} className={`message ${msg.isOwn ? 'own' : ''}`}>
+        {chat.messages.map((msg) => (
+          <div key={msg.id} className={`message ${msg.isOwn ? "own" : ""}`}>
             <div className="message-content">
               <div className="message-text">{msg.text}</div>
               <div className="message-time">{msg.time}</div>
@@ -165,9 +168,12 @@ const ChatView = ({ chat }) => {
         ))}
       </div>
       <div className="chat-view-input">
+        <img src={instagram} alt="" />
+        <img src={gallery} alt="" />
+        <img src={clipboard} alt="" />
         <Input.TextArea
           value={message}
-          onChange={e => setMessage(e.target.value)}
+          onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type a message..."
           autoSize={{ minRows: 1, maxRows: 4 }}

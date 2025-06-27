@@ -22,7 +22,7 @@
 }
 
 .car-listing-seeall {
-  color: #ff9100;
+  color: #008AD5;
   font-size: 1rem;
   font-weight: 500;
   text-decoration: none;
@@ -35,9 +35,16 @@
 .car-listing-flex-row {
   display: flex;
   flex-wrap: nowrap;
-  overflow: hidden;
+  flex-direction: row;
+  overflow-x: auto;
+  scroll-behavior: smooth;
   width: 100%;
   gap: 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.car-listing-flex-row::-webkit-scrollbar {
+  display: none;
 }
 
 .car-listing-card {
@@ -139,7 +146,7 @@
   align-items: center;
 }
 .car-listing-price {
-  color: #ff9100;
+  color: #D67900;
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 8px;

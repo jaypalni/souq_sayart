@@ -9,7 +9,6 @@ import {
 import { userAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 
- 
 const MyProfileForm = () => {
   // const [form] = Form.useForm();
   // const [editMode, setEditMode] = useState(false);
@@ -28,11 +27,11 @@ const MyProfileForm = () => {
   const [loading, setLoading] = useState(false);
   const [newuserData, setUsersData] = useState({});
   const [dobError, setDobError] = useState("");
- 
-const onFinishFailed = ({ errorFields }) => {
-  const dobErr = errorFields.find((f) => f.name[0] === "dob");
-  setDobError(dobErr ? dobErr.errors[0] : "");
-};
+
+  const onFinishFailed = ({ errorFields }) => {
+    const dobErr = errorFields.find((f) => f.name[0] === "dob");
+    setDobError(dobErr ? dobErr.errors[0] : "");
+  };
 
   // const onFinish = (values) => {
   //   setProfile({ ...values, avatar: avatarUrl });
@@ -88,55 +87,53 @@ const onFinishFailed = ({ errorFields }) => {
 
   // API Call
 
-  
-   useEffect(() => {
-     Userdataapi();
-   }, []);
+  useEffect(() => {
+    Userdataapi();
+  }, []);
 
-   const Userdataapi = async () => {
-     try {
-       setLoading(true);
-       const response = await userAPI.getProfile({});
-       const users_data = handleApiResponse(response);
-       if (users_data?.data) {
-         const user = users_data.data;
+  const Userdataapi = async () => {
+    try {
+      setLoading(true);
+      const response = await userAPI.getProfile({});
+      const users_data = handleApiResponse(response);
+      if (users_data?.data) {
+        const user = users_data.data;
 
-         // Build profile from API data
-         const userProfile = {
-           first_name: user.first_name || "",
-           last_name: user.last_name || "",
-           email: user.email || "",
-           dob: user.date_of_birth || "",
-           dealer: user.dealer || "no",
-           company: user.company_name || "",
-           owner: user.owner_name || "",
-           address: user.company_address || "",
-           phone: user.phone_number || "",
-           reg: user.company_registration_number || "",
-           facebook: user.facebook_page || "",
-           instagram: user.instagram_company_profile || "",
-           avatar: user.profile_image || "",
-         };
+        // Build profile from API data
+        const userProfile = {
+          first_name: user.first_name || "",
+          last_name: user.last_name || "",
+          email: user.email || "",
+          dob: user.date_of_birth || "",
+          dealer: user.dealer || "no",
+          company: user.company_name || "",
+          owner: user.owner_name || "",
+          address: user.company_address || "",
+          phone: user.phone_number || "",
+          reg: user.company_registration_number || "",
+          facebook: user.facebook_page || "",
+          instagram: user.instagram_company_profile || "",
+          avatar: user.profile_image || "",
+        };
 
-         setUsersData(user); // Save raw response if needed
-         setProfile(userProfile); // Set form data
-         form.setFieldsValue(userProfile); // Update form fields
-         setAvatarUrl(user.avatar || "");
-         setDealerValue(user.dealer || "no");
+        setUsersData(user); // Save raw response if needed
+        setProfile(userProfile); // Set form data
+        form.setFieldsValue(userProfile); // Update form fields
+        setAvatarUrl(user.avatar || "");
+        setDealerValue(user.dealer || "no");
 
-         message.success(users_data.message || "Fetched successfully");
-       }
-     } catch (error) {
-       const errorData = handleApiError(error);
-       message.error(errorData.message || "Failed to load profile");
-       setUsersData({});
-     } finally {
-       setLoading(false);
-     }
-   };
+        message.success(users_data.message || "Fetched successfully");
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || "Failed to load profile");
+      setUsersData({});
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-   // Update Profile API Call
+  // Update Profile API Call
 
   const onClickContinue = async () => {
     try {
@@ -150,7 +147,7 @@ const onFinishFailed = ({ errorFields }) => {
       formData.append("last_name", values.last_name || "");
       formData.append("location", ""); // Add actual File object here if available
       formData.append("whatsapp", "efrg"); // Change if needed
-    //  formData.append("whatsapp", values.phone || "");
+      //  formData.append("whatsapp", values.phone || "");
 
       console.log("Sending FormData payload", formData);
 
@@ -198,18 +195,11 @@ const onFinishFailed = ({ errorFields }) => {
     }
   };
 
-
-
-
-
-
-
-
   return (
     <div className="myprofile-main">
       <div className="myprofile-header">My Profile</div>
       <div className="myprofile-card">
-        <Row gutter={24} align="middle" style={{ marginBottom: 16 }}>
+        <Row gutter={24} align="middle" style={{ marginBottom: 0 }}>
           <Col span={24}>
             <div className="profile-header-row">
               <div className="profile-avatar-name">
@@ -224,8 +214,9 @@ const onFinishFailed = ({ errorFields }) => {
                     src={avatarUrl || undefined}
                     style={{
                       background: "#e3f1ff",
-                      color: "#1890ff",
-                      fontWeight: 700,
+                      color: "#008AD5",
+                      fontWeight: 400,
+                      fontSize: 26,
                       marginRight: 16,
                       cursor: editMode ? "pointer" : "default",
                     }}
@@ -250,7 +241,7 @@ const onFinishFailed = ({ errorFields }) => {
                   )}
                 </div>
                 <span className="profile-username">
-                  {newuserData.first_name} {newuserData.last_name}
+                  {/* {newuserData.first_name} {newuserData.last_name} */}
                 </span>
               </div>
             </div>
@@ -266,29 +257,118 @@ const onFinishFailed = ({ errorFields }) => {
         >
           <Row gutter={16}>
             <Col span={6}>
-              <Form.Item label="First Name*" name="first_name">
-                <Input />
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 400,
+                      color: "#637D92",
+                    }}
+                  >
+                    First Name*
+                  </span>
+                }
+                name="first_name"
+              >
+                <Input
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 400,
+                    color: "#4A5E6D",
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item label="Last Name*" name="last_name">
-                <Input />
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 400,
+                      color: "#637D92",
+                    }}
+                  >
+                    Last Name*
+                  </span>
+                }
+                name="last_name"
+              >
+                <Input
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 400,
+                    color: "#4A5E6D",
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item label="Email" name="email">
-                <Input />
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 400,
+                      color: "#637D92",
+                    }}
+                  >
+                    Email
+                  </span>
+                }
+                name="email"
+              >
+                <Input
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 400,
+                    color: "#4A5E6D",
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item label="Date of Birth*" name="dob">
-                <Input />
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 400,
+                      color: "#637D92",
+                    }}
+                  >
+                    Date of Birth*
+                  </span>
+                }
+                name="dob"
+              >
+                <Input
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 400,
+                    color: "#4A5E6D",
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16} align="middle">
             <Col span={6}>
-              <Form.Item label="Are You a Dealer?*" name="dealer">
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 400,
+                      color: "#637D92",
+                    }}
+                  >
+                    Are You a Dealer?*
+                  </span>
+                }
+                name="dealer"
+              >
                 <Radio.Group onChange={handleDealerChange}>
                   <Radio value="yes">Yes</Radio>
                   <Radio value="no">No</Radio>
@@ -317,8 +397,27 @@ const onFinishFailed = ({ errorFields }) => {
           </Row>
           <Row gutter={16}>
             <Col span={6}>
-              <Form.Item label="Phone Number" name="phone">
-                <Input />
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 400,
+                      color: "#637D92",
+                    }}
+                  >
+                    Phone Number
+                  </span>
+                }
+                name="phone"
+              >
+                <Input
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 400,
+                    color: "#4A5E6D",
+                  }}
+                />
               </Form.Item>
             </Col>
             {form.getFieldValue("dealer") === "yes" && (
@@ -347,9 +446,14 @@ const onFinishFailed = ({ errorFields }) => {
           <div className="profile-btns profile-btns-bottom">
             <Button
               className="btn-outline-blue"
-              icon={<PhoneOutlined />}
+              //icon={<PhoneOutlined />}
               shape="round"
-              style={{ marginRight: 16 }}
+              style={{
+                marginRight: 16,
+                color: "#008AD5",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
             >
               Change Phone Number
             </Button>
@@ -382,6 +486,11 @@ const onFinishFailed = ({ errorFields }) => {
                 shape="round"
                 type="primary"
                 onClick={onEdit}
+                style={{
+                  color: "#FAFAFA",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                }}
               >
                 Edit Profile
               </Button>

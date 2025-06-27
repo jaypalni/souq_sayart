@@ -6,6 +6,9 @@ import { CheckCircleFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/carListing.css";
 import carImage from "../assets/images/Car_icon.png";
+import car_type from "../assets/images/car_type.png";
+import country_code from "../assets/images/country_code.png";
+import speed_code from "../assets/images/speed_dashboard.png";
 
 const CarListing = ({ title, cardata }) => {
   const navigate = useNavigate();
@@ -56,17 +59,49 @@ const CarListing = ({ title, cardata }) => {
                 <div className="col-5">
                   {" "}
                   <span>
-                    <TbManualGearbox /> {car.transmission}
+                    <img
+                      src={car_type}
+                      alt="Car"
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#003958",
+                      }}
+                    />{" "}
+                    {car.transmission}
                   </span>
                 </div>
                 <div className="col-3">
                   <span>
-                    <FaGlobe /> {car.country}
+                    <img
+                      src={country_code}
+                      alt="Car"
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#003958",
+                      }}
+                    />
+                    {car.country}
                   </span>{" "}
                 </div>
                 <div className="col-4">
                   <span>
-                    <FaMapMarkerAlt />
+                    <img
+                      src={speed_code}
+                      alt="Car"
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#003958",
+                      }}
+                    />
                     {car.mileage}{" "}
                   </span>
                 </div>

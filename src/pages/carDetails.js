@@ -27,13 +27,16 @@ import country_code from "../assets/images/country_code.png";
 import speed_code from "../assets/images/speed_dashboard.png";
 import car_type from "../assets/images/car_type.png";
 import pin_location from "../assets/images/pin_location.png";
+import gear_image from "../assets/images/gear_image.png";
+import fuel_image from "../assets/images/fuel_image.png";
+import calender_image from "../assets/images/Layer_1.png";
 import bluecar_icon from "../assets/images/blackcar_icon.png";
 import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import CarListing from "../components/carListing";
 const { Panel } = Collapse;
 
 //const carImages = [redcar_icon, bluecar_icon, redcar_icon, bluecar_icon];
@@ -43,6 +46,10 @@ const CarDetails = () => {
   console.log("Newid", id);
   const handleImageClick = (img) => setMainImageIdx(carImages.indexOf(img));
   const handleCollapseChange = (key) => setActiveKey(key);
+
+  useEffect(() => {
+    fetchFeaturedCars();
+  }, []);
 
   const features = [
     "Keyless Entry",
@@ -91,6 +98,7 @@ const CarDetails = () => {
   const [openAdditional, setOpenAdditional] = useState(false);
   const [carDetails, setCarDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [carsData, setCarsData] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -115,6 +123,26 @@ const CarDetails = () => {
       Allcarsapi();
     }
   }, [id]);
+
+  const fetchFeaturedCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getCarFeatures({});
+      const data1 = handleApiResponse(response);
+      console.log("API Response123:", data1?.data?.cars);
+      if (data1) {
+        setCarsData(data1?.data?.cars);
+      }
+
+      message.success(data1.message || "Fetched successfully");
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || "Failed to load car data");
+      setCarsData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const Allcarsapi = async () => {
     try {
@@ -237,39 +265,73 @@ const CarDetails = () => {
               {carDetails.location}
             </span>
           </div>
-          <div className="col-md-6">
-            <div className="car-details-info">Car Details</div>
-            <div
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: 10,
-                width: 150,
-                height: 80,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              }}
-            >
-              <img
-                src=""
-                alt="Card"
-                style={{ width: "100%", borderRadius: 8, marginBottom: 4 }}
-              />
-              <p
-                style={{ color: "#726C6C", fontWeight: 400, fontSize: "12px" }}
-              >
-                Year
-              </p>
-              <p
-                style={{
-                  color: "#0A0A0B",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  marginBottom:"10px"
-                }}
-              >
-                2021
-              </p>
+          <div className="col-md-12">
+            <div className="car-details-info" style={{ marginBottom: "10px" }}>
+              Car Details
+            </div>
+
+            <div className="row">
+              {[
+                { label: "Year", value: "2021", icon: calender_image },
+                { label: "Fuel Type", value: "Petrol", icon: fuel_image },
+                { label: "Condition", value: "New", icon: gear_image },
+                {
+                  label: "Kilometers",
+                  value: "45,000",
+                  icon: speed_code,
+                },
+              ].map((item, index) => (
+                <div className="col-md-3" key={index}>
+                  <div
+                    style={{
+                      border: "1px solid #ccc",
+                      borderRadius: 10,
+                      padding: "8px",
+                      height: 80,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <img
+                        src={item.icon}
+                        alt=""
+                        style={{ width: 14, height: 14 }}
+                      />
+                      <p
+                        style={{
+                          color: "#726C6C",
+                          fontWeight: 400,
+                          fontSize: "12px",
+                          margin: 0,
+                        }}
+                      >
+                        {item.label}
+                      </p>
+                    </div>
+                    <p
+                      style={{
+                        color: "#0A0A0B",
+                        fontWeight: 700,
+                        fontSize: "14px",
+                        margin: 0,
+                      }}
+                    >
+                      {item.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+
           <div className="row g-4 mb-4">
             <div className="col-md-6">
               <div className="car-details-table-title">Car Informations</div>
@@ -559,6 +621,14 @@ const CarDetails = () => {
             </div>
           </Card>
         </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: 50,
+        }}
+      >
+        <CarListing title={"Used " + carDetails.ad_title} cardata={carsData} />
       </div>
     </div>
   );

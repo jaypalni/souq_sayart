@@ -1,33 +1,58 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import LoginScreen from './pages/LoginScreen';
-import SignupOtp from './pages/signupOtp';
-import AllCars from './pages/allcars';
-import Header from './components/header';
-import MyProfile from './pages/myProfile';
-import MyListings from './pages/mylistings';
-import Footer from './components/footer';
-import Banner from './components/banner';
-import CreateProfile from './pages/createProfile';
-import Landing from './pages/landing';
-import CarDetails from './pages/carDetails';
-import Sell from './pages/sell';
-import UserProfile from './pages/userProfile';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import { useSelector } from "react-redux";
+import LoginScreen from "./pages/LoginScreen";
+import SignupOtp from "./pages/signupOtp";
+import AllCars from "./pages/allcars";
+import Header from "./components/header";
+import MyProfile from "./pages/myProfile";
+import MyListings from "./pages/mylistings";
+import Footer from "./components/footer";
+import Banner from "./components/banner";
+import CreateProfile from "./pages/createProfile";
+import Landing from "./pages/landing";
+import CarDetails from "./pages/carDetails";
+import Sell from "./pages/sell";
+import UserProfile from "./pages/userProfile";
 
 // Example protected page (replace with your real pages)
 const HomePage = () => <div>Home Page (Protected)</div>;
 
 const ProtectedRoute = ({ children }) => {
-  const isLogin = useSelector(state => state.userData?.isLogin);
+  const isLogin = useSelector((state) => state.userData?.isLogin);
   return isLogin ? children : <Navigate to="/" replace />;
 };
 
 const AppRouterContent = () => {
-  const isLogin = useSelector(state => state.userData?.isLogin);
+  const isLogin = useSelector((state) => state.userData?.isLogin);
   const location = useLocation();
-  const hidebannerList=["/carDetails","/sell","/allCars","/myListings","/myProfile","/userProfile","/myProfile/notifications","/myProfile/searches","/myProfile/subscriptions","/myProfile/messages","/myProfile/payments","/myProfile/blocked","/myProfile/dashboard","/myProfile/favorites"]
-  const hideBanner = hidebannerList.includes(location.pathname)
+  const hidebannerList = [
+    "/carDetails",
+    "/sell",
+    "/allCars",
+    "/myListings",
+    "/myProfile",
+    "/userProfile",
+    "/myProfile/notifications",
+    "/myProfile/searches",
+    "/myProfile/subscriptions",
+    "/myProfile/messages",
+    "/myProfile/payments",
+    "/myProfile/blocked",
+    "/myProfile/dashboard",
+    "/myProfile/favorites",
+  ];
+
+  console.log("s666", location.pathname);
+  const hideBanner =
+    hidebannerList.includes(location.pathname) ||
+    location.pathname.startsWith("/carDetails/");
 
   return (
     <>
@@ -83,4 +108,4 @@ const AppRouter = () => (
   </Router>
 );
 
-export default AppRouter; 
+export default AppRouter;

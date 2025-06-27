@@ -23,6 +23,10 @@ import { Link } from "react-router-dom";
 import "../assets/styles/cardetails.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import redcar_icon from "../assets/images/redcar_icon.jpg";
+import country_code from "../assets/images/country_code.png";
+import speed_code from "../assets/images/speed_dashboard.png";
+import car_type from "../assets/images/car_type.png";
+import pin_location from "../assets/images/pin_location.png";
 import bluecar_icon from "../assets/images/blackcar_icon.png";
 import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
@@ -193,76 +197,111 @@ const CarDetails = () => {
               ))}
             </div>
           </Card>
-          <Card className="mt-3 p-3">
-            <h3>{carDetails.ad_title}</h3>
-            <p className="text-muted">
-              Indulge in the ultimate driving experience with our Mercedes AMG
-              G63 2021. The high performance car combines cutting edge
-              technologies & design, delivering a unique experience with our
-              Mercedes AMG G63 2021. The high performance car technology.
-            </p>
-            <div className="d-flex align-items-center gap-3 mb-2">
-              <Tag color="blue">
-                {carDetails.no_of_cylinders +
-                  " Cyl " +
-                  carDetails.engine_cc +
-                  " " +
-                  carDetails.fuel_type}
-              </Tag>
-              <span className="text-muted">ID: 234567</span>
+          {/* <Card > */}
+          <h3 className="text-title">{carDetails.ad_title}</h3>
+          <p className="text-muted">
+            Indulge in the ultimate driving experience with our Mercedes AMG G63
+            2021. The high performance car combines cutting edge technologies &
+            design, delivering a unique experience with our Mercedes AMG G63
+            2021. The high performance car technology.
+          </p>
+          <div
+            className="d-flex align-items-center gap-3 mb-2"
+            style={{ color: "#2B2829", fontWeight: 400, fontSize: "14px" }}
+          >
+            {/* <Tag color="blue"> */}
+            {carDetails.no_of_cylinders +
+              " Cyl " +
+              carDetails.engine_cc +
+              " " +
+              carDetails.fuel_type}
+            {/* </Tag> */}
+            {/* <span className="text-muted">ID: 234567</span> */}
+          </div>
+          <div className="d-flex align-items-center gap-1 mb-2">
+            <img
+              src={pin_location}
+              alt=""
+              style={{
+                width: "15px",
+                height: "15px",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: 400,
+                color: "#7991A4",
+              }}
+            >
+              {carDetails.location}
+            </span>
+          </div>
+          <div className="col-md-6">
+            <div className="car-details-info">Car Details</div>
+            <div
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: 10,
+                width: 150,
+                height: 80,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              }}
+            >
+              <img
+                src=""
+                alt="Card"
+                style={{ width: "100%", borderRadius: 8, marginBottom: 4 }}
+              />
+              <p
+                style={{ color: "#726C6C", fontWeight: 400, fontSize: "12px" }}
+              >
+                Year
+              </p>
+              <p
+                style={{
+                  color: "#0A0A0B",
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  marginBottom:"10px"
+                }}
+              >
+                2021
+              </p>
             </div>
-            <div className="d-flex align-items-center gap-3 mb-2">
-              <FaRegHeart className="icon-fav" />
-              <span>Buy/Sell</span>
+          </div>
+          <div className="row g-4 mb-4">
+            <div className="col-md-6">
+              <div className="car-details-table-title">Car Informations</div>
+              <table className="car-details-table">
+                <tbody>
+                  {carInfo.map((item, idx) => (
+                    <tr key={idx}>
+                      <td className="car-details-table-label">{item.label}</td>
+                      <td className="car-details-table-value">{item.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* </Card> */}
             </div>
-          </Card>
-          <Card className="mt-3 p-3">
-            <div className="row g-4 mb-4">
-              <div className="col-md-6">
-                <Card className="car-details-table-card">
-                  <div className="car-details-table-title">
-                    Car Informations
-                  </div>
-                  <table className="car-details-table">
-                    <tbody>
-                      {carInfo.map((item, idx) => (
-                        <tr key={idx}>
-                          <td className="car-details-table-label">
-                            {item.label}
-                          </td>
-                          <td className="car-details-table-value">
-                            {item.value}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Card>
-              </div>
-              <div className="col-md-6">
-                <Card className="car-details-table-card">
-                  <div className="car-details-table-title">
-                    Additional Details
-                  </div>
-                  <table className="car-details-table">
-                    <tbody>
-                      {additionalDetails.map((item, idx) => (
-                        <tr key={idx}>
-                          <td className="car-details-table-label">
-                            {item.label}
-                          </td>
-                          <td className="car-details-table-value">
-                            {item.value}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Card>
-              </div>
+            <div className="col-md-6">
+              {/* <Card className="car-details-table-card"> */}
+              <div className="car-details-table-title">Additional Details</div>
+              <table className="car-details-table">
+                <tbody>
+                  {additionalDetails.map((item, idx) => (
+                    <tr key={idx}>
+                      <td className="car-details-table-label">{item.label}</td>
+                      <td className="car-details-table-value">{item.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* </Card> */}
             </div>
-          </Card>
-          {/* <CarDetailsMock /> */}
+          </div>
+
           <div>
             <div className="car-details-features-section">
               {/* Main Features Section */}
@@ -271,7 +310,14 @@ const CarDetails = () => {
               </div>
               <div className="border-bottom">
                 <div className="car-details-features-header collapsed">
-                  <span>Safety Features</span>
+                  <span
+                    style={{
+                      fontWeight: 500,
+                      fontSize: "14px",
+                    }}
+                  >
+                    Safety Features
+                  </span>
                   <span
                     onClick={() => setOpenFeatures(!openFeatures)}
                     style={{ cursor: "pointer" }}
@@ -301,7 +347,14 @@ const CarDetails = () => {
               {/* Safety Features Section */}
               <div className="border-bottom">
                 <div className="car-details-features-header collapsed">
-                  <span>Safety Features</span>
+                  <span
+                    style={{
+                      fontWeight: 500,
+                      fontSize: "14px",
+                    }}
+                  >
+                    Safety Features
+                  </span>
                   <span
                     onClick={() => setOpenSafety(!openSafety)}
                     style={{ cursor: "pointer" }}
@@ -328,7 +381,14 @@ const CarDetails = () => {
               {/* Additional Features Section */}
               <div className="border-bottom">
                 <div className="car-details-features-header collapsed">
-                  <span>Additional Features</span>
+                  <span
+                    style={{
+                      fontWeight: 500,
+                      fontSize: "14px",
+                    }}
+                  >
+                    Additional Features
+                  </span>
                   <span
                     onClick={() => setOpenAdditional(!openAdditional)}
                     style={{ cursor: "pointer" }}
@@ -360,32 +420,88 @@ const CarDetails = () => {
           <Card className="seller-info-card">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <h5 className="mb-0">{carDetails.ad_title}</h5>
+                <h5
+                  className="mb-0"
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: 700,
+                    color: "#0A0A0B",
+                  }}
+                >
+                  {carDetails.ad_title}
+                </h5>
                 <div className="car-price">${carDetails.price}</div>
                 <div className="row align-items-center mt-2 mb-2">
                   <div className="col-4 d-flex align-items-center gap-1">
-                    <TbManualGearbox style={{ fontSize: "16px" }} />
+                    <img
+                      src={car_type}
+                      alt="Car"
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#003958",
+                      }}
+                    />
                     <span>{carDetails.transmission_type}</span>
                   </div>
                   <div className="col-4 d-flex align-items-center gap-1">
-                    <FaGlobe style={{ fontSize: "16px" }} />
+                    <img
+                      src={country_code}
+                      alt="Car"
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        color: "#003958",
+                      }}
+                    />
                     <span>country</span>
                   </div>
                   <div className="col-4 d-flex align-items-center gap-1">
-                    <FaMapMarkerAlt
-                      style={{ fontSize: "16px", display: "inline" }}
+                    <img
+                      src={speed_code}
+                      alt="Car"
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        fontSize: "10px",
+                        fontWeight: 400,
+                        color: "#003958",
+                        display: "inline",
+                      }}
                     />
-                    <span>{carDetails.location}</span>
+                    <span>{carDetails.kilometers}</span>
                   </div>
                 </div>
-                <div className="mt-2 text-muted" style={{ fontSize: 13 }}>
+                <div
+                  className="mt-2 text-muted"
+                  style={{ fontSize: 16, fontWeight: 700, color: "#0A0A0B" }}
+                >
                   Listed by Private User
                 </div>
                 <div className="d-flex align-items-center gap-2 mt-2">
                   <Avatar icon={<UserOutlined />} />
                   <div>
-                    <div>Moe</div>
-                    <div className="text-muted" style={{ fontSize: 12 }}>
+                    <div
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: "#0A0A0B",
+                      }}
+                    >
+                      Moe
+                    </div>
+                    <div
+                      className="text-muted"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#0A0A0B",
+                      }}
+                    >
                       Member since July 2016
                     </div>
                     <Link
@@ -394,7 +510,7 @@ const CarDetails = () => {
                     >
                       View Profile{" "}
                       <FaChevronRight
-                        style={{ fontSize: "11px", marginLeft: "3px" }}
+                        style={{ fontSize: "9px", marginLeft: "2px" }}
                       />
                     </Link>
                   </div>
@@ -402,17 +518,42 @@ const CarDetails = () => {
               </div>
             </div>
             <div className="d-flex gap-2 mt-3">
-              <Button icon={<MessageOutlined />} className="w-100">
+              <Button
+                icon={<MessageOutlined />}
+                className="w-100"
+                style={{
+                  background: "#008AD5",
+                  color: "#fff",
+                  fontWeight: 500,
+                  fontSize: "12px",
+                }}
+              >
                 Message
               </Button>
               <Button
                 icon={<FaWhatsapp />}
                 className="w-100"
-                style={{ background: "#25D366", color: "#fff" }}
+                style={{
+                  background: "#20B648",
+                  color: "#fff",
+                  fontWeight: 500,
+                  fontSize: "12px",
+                  border: "#20B648",
+                }}
               >
                 Whatsapp
               </Button>
-              <Button icon={<FaPhoneAlt />} className="w-100">
+              <Button
+                icon={<FaPhoneAlt />}
+                className="w-100"
+                style={{
+                  background: "#323F49",
+                  color: "#fff",
+                  fontWeight: 500,
+                  fontSize: "12px",
+                  border: "#323F49",
+                }}
+              >
                 Call
               </Button>
             </div>

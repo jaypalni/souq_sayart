@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { userAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import '../assets/styles/model.css';
 
 const MyProfileForm = () => {
   // const [form] = Form.useForm();
@@ -22,11 +23,17 @@ const MyProfileForm = () => {
   const [profile, setProfile] = useState({});
   const [avatarUrl, setAvatarUrl] = useState("");
   const fileInputRef = useRef();
-  const [dealerValue, setDealerValue] = useState("no");
+  const [dealerValue, setDealerValue] = useState("yes");
 
   const [loading, setLoading] = useState(false);
   const [newuserData, setUsersData] = useState({});
   const [dobError, setDobError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleConfirm = () => {
+    alert("Confirmed!");
+    setModalOpen(false);
+  };
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === "dob");
@@ -369,7 +376,7 @@ const MyProfileForm = () => {
                 }
                 name="dealer"
               >
-                <Radio.Group disabled onChange={handleDealerChange}>
+                <Radio.Group onChange={handleDealerChange}>
                   <Radio value="yes">Yes</Radio>
                   <Radio value="no">No</Radio>
                 </Radio.Group>
@@ -568,6 +575,7 @@ const MyProfileForm = () => {
                 fontWeight: 600,
                 fontSize: "14px",
               }}
+              onClick={() => setModalOpen(true)}
             >
               Change Phone Number
             </Button>
@@ -609,11 +617,42 @@ const MyProfileForm = () => {
                 Edit Profile
               </Button>
             )}
+            <ConfirmModal
+              isOpen={modalOpen}
+              onClose={() => setModalOpen(false)}
+              onConfirm={handleConfirm}
+            />
           </div>
         </Form>
       </div>
     </div>
   );
 };
+
+const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="small-popup-container">
+      <div className="small-popup">
+        <span className="popup-close-icon" onClick={onClose}>
+          &times;
+        </span>
+        <p className="popup-text">
+          Are you sure you want to change your number?
+        </p>
+        <div className="popup-buttons">
+          <button className="popup-btn-no" onClick={onClose}>
+            No
+          </button>
+          <button className="popup-btn-yes" onClick={onClose}>
+            Yes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default MyProfileForm;

@@ -80,7 +80,7 @@ const EmptyState = () => (
 );
 
 const SavedSearches = () => {
-  const [searches, setSearches] = useState(savedSearchesData);
+  const [searches, setSearches] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [limit] = useState(15);
@@ -97,7 +97,7 @@ const SavedSearches = () => {
         limit,
       });
       const newcars = handleApiResponse(response);
-      console.log("API Response:", newcars?.data?.cars);
+      console.log("API Response:", newcars);
       if (newcars?.favorites) {
         setSearches(newcars.favorites);
       } else {
@@ -123,7 +123,7 @@ const SavedSearches = () => {
   if (searches.length === 0) {
     return <EmptyState />;
   }
-
+  const BASE_URL = "http://192.168.2.68:5000";
   return (
     <div className="saved-searches-main">
       <div className="saved-searches-header">Saved Searches</div>
@@ -132,7 +132,11 @@ const SavedSearches = () => {
           <div className="saved-search-item" key={search.id}>
             <div className="saved-search-info">
               <img
-                src={search.car_image || lamborgini}
+                src={
+                  search.car_image?.trim()
+                    ? `${BASE_URL}${search.car_image}`
+                    : lamborgini
+                }
                 alt="logo"
                 className="saved-search-logo"
               />

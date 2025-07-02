@@ -17,15 +17,15 @@ import axios from "axios";
 const { Option } = Select;
 
 const Mycarslisting = () => {
-  const [value, setValue] = useState("Active"); // listing status tab
-  const [filterStatus, setFilterStatus] = useState("Any"); // filter dropdown status
+  const [value, setValue] = useState("Active");
+  const [filterStatus, setFilterStatus] = useState("Any");
   const navigate = useNavigate();
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const [activeDropdownId, setActiveDropdownId] = useState(null);
 
-  const baseURL = "http://192.168.2.54:5000/";
+  const baseURL = "http://192.168.2.68:5000/";
 
   const menuItemStyle = {
     padding: "8px 16px",
@@ -42,6 +42,7 @@ const Mycarslisting = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(15); // 15 per page now
   const [totalCount, setTotalCount] = useState(0);
+  const [carDelete, setCarDelete] = useState(null);
 
   // Handle radio button change (Active/Drafts/Sold)
   const handleChange = (e) => {
@@ -56,6 +57,7 @@ const Mycarslisting = () => {
   };
 
   // Fetch cars when page, value (status), or filterStatus changes
+
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -109,9 +111,26 @@ const Mycarslisting = () => {
         setLoading(false);
       }
     };
-
     fetchCars();
   }, [page, limit, value, filterStatus]);
+
+  const handleDeleteMethod = async (carId) => {
+    console.log("id from delete :", carId);
+    try {
+      setLoading(true);
+      const response = await carAPI.deleteCar(carId);
+      const cardetail = handleApiResponse(response);
+      if (cardetail?.data) {
+        setCarDelete(cardetail.data);
+      }
+      message.success(cardetail.message || "Fetched successfully");
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || "Failed to delete car data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   console.log("dev11234", carDetails);
   return (
@@ -318,7 +337,6 @@ const Mycarslisting = () => {
                               <div
                                 style={menuItemStyle}
                                 onClick={() => {
-                                  // Delete action
                                   setActiveDropdownId(null);
                                 }}
                               >
@@ -327,7 +345,6 @@ const Mycarslisting = () => {
                               <div
                                 style={menuItemStyle}
                                 onClick={() => {
-                                  // Edit action
                                   setActiveDropdownId(null);
                                 }}
                               >
@@ -525,6 +542,7 @@ const Mycarslisting = () => {
                               fontSize: "14px",
                               fontWeight: 600,
                             }}
+                            onClick={handleDeleteMethod(car.id)}
                           >
                             Delete
                           </Button>

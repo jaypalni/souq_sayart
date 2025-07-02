@@ -40,7 +40,7 @@ const Mycarslisting = () => {
   const [carDetails, setCarDetails] = useState([]);
   const [loading, setLoading] = useState(false); // loading spinner
   const [page, setPage] = useState(1);
-  const [limit] = useState(15); // 15 per page now
+  const [limit] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
   const [carDelete, setCarDelete] = useState(null);
 
@@ -542,7 +542,7 @@ const Mycarslisting = () => {
                               fontSize: "14px",
                               fontWeight: 600,
                             }}
-                            onClick={handleDeleteMethod(car.id)}
+                            onClick={() => handleDeleteMethod(car.id)}
                           >
                             Delete
                           </Button>
@@ -577,13 +577,31 @@ const Mycarslisting = () => {
       </div>
 
       {/* Pagination */}
-      <Pagination
-        current={page}
-        total={totalCount}
-        pageSize={limit}
-        onChange={(newPage) => setPage(newPage)}
-        style={{ marginTop: "20px", textAlign: "center" }}
-      />
+
+      {/* Centered Pagination */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: 20,
+          color: "#0A0A0B",
+          borderradius: "4px",
+        }}
+      >
+        <Pagination
+          className="custom-pagination"
+          current={page}
+          total={totalCount || 50}
+          pageSize={15}
+          onChange={(newPage) => setPage(newPage)}
+          showSizeChanger={false}
+          itemRender={(page, type, originalElement) => {
+            if (type === "prev") return <span>&lt;</span>;
+            if (type === "next") return <span>&gt;</span>;
+            return originalElement;
+          }}
+        />
+      </div>
     </div>
   );
 };

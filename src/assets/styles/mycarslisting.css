@@ -12,5 +12,18 @@
 }
 
 .custom-radio-button.ant-radio-button-wrapper::before {
-  display: none !important; /* removes the separator line */
+  display: none !important; 
+}
+
+.custom-pagination .ant-pagination-item {
+  border: 1px solid black !important; 
+  color: #0A0A0B;
+  opacity: 0.4; 
+  transition: opacity 0.3s ease;
+}
+.custom-pagination .ant-pagination-item-active {
+  border-color: #0A0A0B !important;
+  color: #0A0A0B !important;
+  opacity: 1 !important;
+  font-weight: bold;
 }

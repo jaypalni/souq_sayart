@@ -110,7 +110,7 @@ const SignupOtp = () => {
           <input
             key={idx}
             ref={inputRefs[idx]}
-            type="text"
+            type="number"
             className={`otp-input${digit ? " filled" : ""}${
               error && (digit === "" || !/^\d$/.test(digit))
                 ? " otp-input-error"

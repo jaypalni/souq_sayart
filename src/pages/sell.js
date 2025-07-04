@@ -517,16 +517,21 @@ const Sell = () => {
     setMediaPreviewImage(file.url || file.preview);
     setMediaPreviewOpen(true);
   };
+  
   const handleMediaChange = ({ fileList: newFileList }) => {
-    setMediaFileList(newFileList);
-    form.setFieldsValue({ media: newFileList });
+    const filteredList = newFileList.filter((file) => {
+      return (file.size || file.originFileObj?.size) / 1024 / 1024 < 5;
+    });
+    setMediaFileList(filteredList);
+    form.setFieldsValue({ media: filteredList });
   };
   const beforeMediaUpload = (file) => {
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
       message.error("File must be smaller than 5MB!");
+      return Promise.reject();
     }
-    return isLt5M || Upload.LIST_IGNORE;
+    return true;
   };
   const mediaUploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
@@ -1548,7 +1553,7 @@ const Sell = () => {
                 <Button
                   size="small"
                   className="btn-outline-blue"
-                  onClick={handleEvaluateCar}
+                  onClick={() => handleEvaluateCar}
                   type="default"
                 >
                   Evaluate Car
@@ -1556,7 +1561,7 @@ const Sell = () => {
                 <Button
                   size="small"
                   className="btn-outline-blue"
-                  onClick={handleSaveDraft}
+                  onClick={() => handleSaveDraft}
                   type="default"
                 >
                   Save as draft
@@ -1566,14 +1571,14 @@ const Sell = () => {
                   className="btn-solid-blue"
                   type="primary"
                   htmlType="submit"
-                  onClick={handleCreateData}
+                  onClick={() => handleCreateData}
                 >
                   Create
                 </Button>
                 <Button
                   size="small"
                   className="btn-solid-blue"
-                  onClick={handlePostAndNew}
+                  onClick={() => handlePostAndNew}
                   type="primary"
                 >
                   Create & New

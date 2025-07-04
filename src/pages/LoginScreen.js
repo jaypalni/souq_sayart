@@ -179,10 +179,15 @@ const LoginScreen = () => {
               {/* Phone number input */}
               <input
                 className="login-box"
-                type="text"
+                type="tel"
                 placeholder="Enter phone number"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  const numb = e.target.value;
+                  if (/^\d*$/.test(numb)) {
+                    setPhone(numb);
+                  }
+                }}
               />
             </div>
           </div>

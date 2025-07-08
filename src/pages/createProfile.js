@@ -52,7 +52,6 @@ const CreateProfile = () => {
   };
 
   // API CALL
-
   const onClickContinue = async () => {
     try {
       setLoading(true);

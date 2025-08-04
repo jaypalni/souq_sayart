@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import CarTypeList from "../components/cartypelist";
-import SavedSearches from "../components/savedSearches";
+//import SavedSearches from "../components/savedSearches";
 import LandingFilters from "../components/LandingFilters";
 import CarListing from "../components/carListing";
 import DownloadApp from "../components/downloadApp";
@@ -8,6 +8,7 @@ import SellYourCar from "../components/sellYourCar";
 import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
+import SavedSearches from "../components/userSavedsearch";
 
 const Landing = () => {
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,7 @@ const Landing = () => {
         <LandingFilters />
         <CarTypeList />
         <CarListing title={"Featured Car"} cardata={carsData} />
+        <SavedSearches /> 
       </div>
 
       <DownloadApp />

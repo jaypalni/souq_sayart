@@ -19,6 +19,7 @@ const Allcars = () => {
       <AllCarFilters />
       <CarListing />
       <Bestcarsalebytype />
+      
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import React from "react";
 import "../assets/styles/header.css";
 import iconWhite from "../assets/images/souqLogo.svg";
-import NotifiyImg from "../assets/images/Group.png";
+import NotifiyImg from "../assets/images/bell.svg";
+import MessagesImg from "../assets/images/messages.svg";
 import { CiBellOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { Select } from "antd";
 
 const Header = () => {
   const menuList = [
@@ -15,7 +17,7 @@ const Header = () => {
   ];
 
   const navigate = useNavigate();
-
+  const { Option } = Select;
   return (
     <>
       <div className="header">
@@ -23,7 +25,7 @@ const Header = () => {
           <div className="col-3 d-flex">
             <img className="headerLogo" src={iconWhite} />
           </div>
-          <div className="col-6 d-flex align-items-center  justify-content-center">
+          <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (
               <div
                 className="menuItem mx-3 "
@@ -37,7 +39,20 @@ const Header = () => {
               </div>
             ))}
           </div>
-          <div className="col-3 d-flex align-items-center justify-content-center">
+          <div className="col-4 d-flex align-items-center justify-content-center">
+            <div className="menuLeft mx-1">
+              <img
+                className="headerLogo"
+                src={MessagesImg}
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  objectFit: "contain",
+                  marginBottom: "8px",
+                  marginLeft: "0px",
+                }}
+              />
+            </div>
             <div className="menuLeft mx-2">
               <img
                 className="headerLogo"
@@ -46,8 +61,8 @@ const Header = () => {
                   width: "20px",
                   height: "20px",
                   objectFit: "contain",
-                  marginBottom:"8px",
-                  marginLeft:"6px"
+                  marginBottom: "8px",
+                  marginLeft: "0px",
                 }}
               />
             </div>
@@ -65,6 +80,34 @@ const Header = () => {
             </div>
             <div className="menuLeft mx-2">
               <div className="contct_us_btn">Contact Us</div>
+            </div>
+            <div
+              className="menuLeft mx-1"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                color: "#FAFAFA",
+              }}
+            >
+              <Select
+                defaultValue="en"
+                bordered={false}
+                style={{
+                  width: 60,
+                  color: "#FAFAFA",
+                  backgroundColor: "transparent",
+                }}
+                dropdownStyle={{
+                  backgroundColor: "transparent",
+                  boxShadow: "none",
+                }}
+                onChange={(value) => console.log("Selected:", value)}
+              >
+                <Option value="en">en</Option>
+                <Option value="ar">hi</Option>
+                <Option value="ku">te</Option>
+              </Select>
             </div>
           </div>
         </div>

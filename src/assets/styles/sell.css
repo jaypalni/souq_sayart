@@ -497,7 +497,7 @@
 .bodytype-box:hover,
 .badges-box.selected,
 .badges-box:hover {
-  composes: option-box.selected;
+  composes: option-box-selected,
 }
 
 .region-input {

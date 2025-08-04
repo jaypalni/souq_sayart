@@ -116,3 +116,11 @@
     text-align: center !important;
   }
 }
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-select-single .ant-select-selector .ant-select-selection-item, :where(.css-dev-only-do-not-override-1m2bkf9).ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+  color: #fafafa;
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-select .ant-select-arrow {
+  color: #fafafa !important; 
+}

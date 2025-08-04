@@ -186,6 +186,7 @@ const CarDetails = () => {
 
   return (
     <div className="container py-4 car-details-page">
+      
       <div className="row">
         {/* Left: Images */}
         <div className="col-md-8">

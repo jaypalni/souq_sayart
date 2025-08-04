@@ -8,6 +8,7 @@ import "../assets/styles/login.css";
 const LoginForm = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onClickContinue = async () => {
     try {
@@ -18,7 +19,7 @@ const LoginForm = () => {
       // Call login API
       const response = await authAPI.login({
         email: values.email,
-        password: values.password
+        password: values.password,
       });
 
       const data = handleApiResponse(response);
@@ -48,6 +49,7 @@ const LoginForm = () => {
   return (
     <Card className="login-container">
       <h2>Login to Your Account</h2>
+      {contextHolder}
       <Form
         form={form}
         layout="vertical"

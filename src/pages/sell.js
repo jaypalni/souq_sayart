@@ -481,9 +481,9 @@ const Sell = () => {
       setLoading(true);
       const response = await carAPI.saveDraftCar(formData);
       const data1 = handleApiResponse(response);
-      console.log("API Update Options:", data1?.data);
+      console.log("API Update Options:", data1);
       if (data1) {
-        setDraftData(data1?.data);
+        setDraftData(data1);
       }
 
       message.success(data1.message || "Saved Draft Data successfully");

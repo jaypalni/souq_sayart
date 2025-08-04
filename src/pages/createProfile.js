@@ -8,12 +8,14 @@ import {
   Radio,
   Typography,
   message,
+  Switch,
 } from "antd";
 import { UserOutlined, PlusCircleFilled } from "@ant-design/icons";
 import moment from "moment";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-
+import downloadIcon from "../assets/images/download.svg";
+import whatsappIcon from "../assets/images/Whatsup.svg";
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
@@ -33,6 +35,7 @@ const CreateProfile = () => {
       delete values.companyCR;
       delete values.facebookPage;
       delete values.instagramProfile;
+      delete values.uploadDocuments;
     }
     setDobError("");
     console.log("Form values:", values);
@@ -75,6 +78,7 @@ const CreateProfile = () => {
         company_registration_number: values.companyCR || "",
         facebook_page: values.facebookPage || "",
         instagram_company_profile: values.instagramProfile || "",
+        upload_documents: values.uploadDocuments || "",
         profile_pic: "https://example.com/profile_pics/default.jpg",
         phone_number: values.phoneNumber || "",
         is_dealer: values.isDealer,
@@ -205,25 +209,29 @@ const CreateProfile = () => {
               </Form.Item>
             </div>
           </div>
-          <Form.Item
-            label={
-              <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
-                Email
-              </span>
-            }
-            name="email"
-            rules={[
-              {
-                required: true,
-                type: "email",
-                message: "Valid email is required",
-              },
-            ]}
-            required={false}
-          >
-            <Input placeholder="Email" size="middle" />
-          </Form.Item>
           <div className="row g-3">
+            <div className="col-md-6">
+              <Form.Item
+                label={
+                  <span
+                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                  >
+                    Email
+                  </span>
+                }
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    type: "email",
+                    message: "Valid email is required",
+                  },
+                ]}
+                required={false}
+              >
+                <Input placeholder="Email" size="middle" />
+              </Form.Item>
+            </div>
             <div className="col-md-6">
               <Form.Item
                 label={
@@ -259,41 +267,50 @@ const CreateProfile = () => {
               </Form.Item>
             </div>
           </div>
-          <Form.Item
-            label={
-              <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
-                Are You A Dealer?*
-              </span>
-            }
-            name="isDealer"
-            rules={[
-              { required: true, message: "Please select if you are a dealer" },
-            ]}
-            required={false}
-          >
-            <Radio.Group
-              onChange={(e) => {
-                setIsDealer(e.target.value);
-                if (!e.target.value) {
-                  form.setFieldsValue({
-                    companyName: undefined,
-                    ownerName: undefined,
-                    companyAddress: undefined,
-                    phoneNumber: undefined,
-                    companyCR: undefined,
-                    facebookPage: undefined,
-                    instagramProfile: undefined,
-                  });
-                }
-              }}
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Form.Item
+              label={
+                <span
+                  style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                >
+                  Are You A Dealer?*
+                </span>
+              }
+              name="isDealer"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select if you are a dealer",
+                },
+              ]}
+              required={false}
             >
-              <Radio value={true} style={{ marginRight: 24 }}>
-                Yes
-              </Radio>
-              <Radio value={false}>No</Radio>
-            </Radio.Group>
-          </Form.Item>
-          {isDealer && (
+              <Radio.Group
+                onChange={(e) => {
+                  setIsDealer(e.target.value);
+                  if (!e.target.value) {
+                    form.setFieldsValue({
+                      companyName: undefined,
+                      ownerName: undefined,
+                      companyAddress: undefined,
+                      phoneNumber: undefined,
+                      companyCR: undefined,
+                      facebookPage: undefined,
+                      instagramProfile: undefined,
+                      uploadDocuments: undefined,
+                    });
+                  }
+                }}
+              >
+                <Radio value={false} style={{ marginRight: 24 }}>
+                  Yes
+                </Radio>
+                <Radio value={true}>No</Radio>
+              </Radio.Group>
+            </Form.Item>
+          </div>
+
+          {!isDealer && (
             <>
               <div className="row g-3">
                 <div className="col-md-6">
@@ -446,20 +463,84 @@ const CreateProfile = () => {
                   </Form.Item>
                 </div>
               </div>
-              <Form.Item
-                label={
-                  <span
-                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 11,
+                        }}
+                      >
+                        Instagram Company Profile (Optional)
+                      </span>
+                    }
+                    name="instagramProfile"
+                    required={false}
                   >
-                    Instagram Company Profile (Optional)
+                    {/* {" "} */}
+                    <Input placeholder="Name" size="middle" />{" "}
+                  </Form.Item>
+                </div>
+                <div className="col-md-6">
+                  <Form.Item
+                    label={
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#637D92",
+                          fontSize: 12,
+                        }}
+                      >
+                        Upload Documents
+                      </span>
+                    }
+                    name="uploadDocuments"
+                    required={false}
+                  >
+                    {/* {" "} */}
+                    <Input
+                      placeholder="Documents"
+                      size="middle"
+                      suffix={
+                        <img
+                          src={downloadIcon}
+                          alt="icon"
+                          style={{ width: 20, height: 20, cursor: "pointer" }}
+                        />
+                      }
+                    />{" "}
+                  </Form.Item>
+                </div>
+              </div>
+              <div className="row g-3">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <span
+                    style={{ fontWeight: 700, color: "#0A0A0B", fontSize: 13 }}
+                  >
+                    <img
+                      src={whatsappIcon}
+                      alt="Whatsapp Icon"
+                      style={{ width: 18, height: 18, marginRight: 5 }}
+                    />
+                    Whatsapp
                   </span>
-                }
-                name="instagramProfile"
-                required={false}
-              >
-                {/* {" "} */}
-                <Input placeholder="Name" size="middle" />{" "}
-              </Form.Item>
+
+                  <Switch
+                    defaultChecked
+                    style={{ backgroundColor: "#008AD5" }}
+                  />
+                </div>
+              </div>
             </>
           )}
           <Form.Item style={{ textAlign: "center" }}>
@@ -469,7 +550,7 @@ const CreateProfile = () => {
               block
               loading={loading}
               style={{
-                marginTop: 3,
+                marginTop: 20,
                 width: 200,
                 height: 35,
                 borderRadius: 20,
@@ -492,7 +573,11 @@ const CreateProfile = () => {
               fontSize: 13,
             }}
           >
-            <a href="#" style={{ color: "#1890ff", textDecoration: "none" }}>
+            <a
+              href="#"
+              onClick={() => navigate("/termsAndconditions")}
+              style={{ color: "#1890ff", textDecoration: "none" }}
+            >
               By registering you agree with our terms & conditions and privacy
               policy
             </a>

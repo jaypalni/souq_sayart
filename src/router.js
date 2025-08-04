@@ -20,7 +20,7 @@ import Landing from "./pages/landing";
 import CarDetails from "./pages/carDetails";
 import Sell from "./pages/sell";
 import UserProfile from "./pages/userProfile";
-
+import TermsAndConditions from "./pages/termsAndconditions";
 // Example protected page (replace with your real pages)
 const HomePage = () => <div>Home Page (Protected)</div>;
 
@@ -47,6 +47,7 @@ const AppRouterContent = () => {
     "/myProfile/blocked",
     "/myProfile/dashboard",
     "/myProfile/favorites",
+    "/termsAndconditions",
   ];
 
   console.log("s666", location.pathname);
@@ -72,6 +73,7 @@ const AppRouterContent = () => {
             <Route path="/sell" element={<Sell />} />
             <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/userProfile" element={<UserProfile />} />
+            <Route path="/termsAndconditions" element={<TermsAndConditions />} />
           </>
         )}
         {isLogin && (

@@ -27,6 +27,11 @@ const CreateProfile = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const [checked, setChecked] = useState(true);
+
+  const handleChange = (value) => {
+    setChecked(value);
+  };
 
   const onFinish = (values) => {
     console.log("Form values:", values);
@@ -575,8 +580,11 @@ const CreateProfile = () => {
                   </span>
 
                   <Switch
-                    defaultChecked
-                    style={{ backgroundColor: "#008AD5" }}
+                    checked={checked}
+                    onChange={handleChange}
+                    style={{
+                      backgroundColor: checked ? "#008AD5" : "#ccc",
+                    }}
                   />
                 </div>
               </div>
@@ -613,6 +621,9 @@ const CreateProfile = () => {
             }}
           >
             <a
+              // href="https://example.com"
+              // target="_blank"
+              // rel="noopener noreferrer"
               onClick={() => navigate("/termsAndconditions")}
               style={{ color: "#1890ff", textDecoration: "none" }}
             >

@@ -23,7 +23,7 @@ const Header = () => {
       <div className="header">
         <div className="row remove_gutter">
           <div className="col-3 d-flex">
-            <img className="headerLogo" src={iconWhite} />
+            <img className="headerLogo" src={iconWhite}  />
           </div>
           <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (
@@ -91,22 +91,24 @@ const Header = () => {
               }}
             >
               <Select
-                defaultValue="en"
+                defaultValue="En"
                 bordered={false}
                 style={{
                   width: 60,
                   color: "#FAFAFA",
                   backgroundColor: "transparent",
+                  fontSize: "12px",
+                  fontWeight: 700,
                 }}
                 dropdownStyle={{
-                  backgroundColor: "transparent",
+                  backgroundColor: "white",
                   boxShadow: "none",
                 }}
                 onChange={(value) => console.log("Selected:", value)}
               >
-                <Option value="en">en</Option>
-                <Option value="ar">ar</Option>
-                <Option value="ku">ku</Option>
+                <Option value="En">En</Option>
+                <Option value="Ar">Ar</Option>
+                <Option value="Ku">Ku</Option>
               </Select>
             </div>
           </div>

@@ -60,7 +60,7 @@ const Banner = () => {
       <div
         style={{
           width: "100%",
-          height: isLoginPage ? 270 : 526,
+          height: isLoginPage ? 200 : 526,
           background: "#222",
           display: "flex",
           alignItems: "center",

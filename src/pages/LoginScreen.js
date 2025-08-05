@@ -22,24 +22,24 @@ const LoginScreen = () => {
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-//  const [verified, setVerified] = useState(false);
+  //  const [verified, setVerified] = useState(false);
 
   // const [msg, setMsg] = useState("");
-  
-    // useEffect(() => {
-    //   socket.on("connect", () => {
-    //     console.log("Connected to WebSocket");
-    //   });
-  
-    //   socket.on("newMessage", (data) => {
-    //     console.log("New message:", data);
-    //     setMsg(data);
-    //   });
-  
-    //   return () => {
-    //     socket.off("newMessage");
-    //   };
-    // }, []);
+
+  // useEffect(() => {
+  //   socket.on("connect", () => {
+  //     console.log("Connected to WebSocket");
+  //   });
+
+  //   socket.on("newMessage", (data) => {
+  //     console.log("New message:", data);
+  //     setMsg(data);
+  //   });
+
+  //   return () => {
+  //     socket.off("newMessage");
+  //   };
+  // }, []);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -250,7 +250,7 @@ const LoginScreen = () => {
                 color: "#fff",
                 border: "none",
                 borderRadius: 20,
-                padding: "2px 40px",
+                padding: "2px 52px",
                 cursor: "pointer",
                 fontFamily: "Roboto",
                 fontWeight: 700,

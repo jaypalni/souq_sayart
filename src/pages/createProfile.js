@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Form,
@@ -9,8 +9,9 @@ import {
   Typography,
   message,
   Switch,
+  Upload,
 } from "antd";
-import { UserOutlined, PlusCircleFilled } from "@ant-design/icons";
+import { PlusCircleFilled, UserOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
@@ -24,6 +25,8 @@ const CreateProfile = () => {
   const [dobError, setDobError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
 
   const onFinish = (values) => {
     console.log("Form values:", values);
@@ -40,6 +43,22 @@ const CreateProfile = () => {
     setDobError("");
     console.log("Form values:", values);
     message.success("Form submitted successfully!");
+  };
+
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    console.log("Selected file:", file);
+  };
+
+  const handleBeforeUpload = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImageUrl(e.target.result);
+    };
+    reader.readAsDataURL(file);
+    return false;
   };
 
   const onFinishFailed = ({ errorFields }) => {
@@ -136,36 +155,53 @@ const CreateProfile = () => {
             marginBottom: 24,
           }}
         >
-          <div
-            style={{
-              width: 90,
-              height: 90,
-              borderRadius: "50%",
-              background: "#e6f4ff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 36,
-              color: "#1890ff",
-              position: "relative",
-              fontWeight: 700,
-              marginBottom: 8,
-            }}
-          >
-            {getInitials() || <UserOutlined />}
-            <PlusCircleFilled
+          <Upload showUploadList={false} beforeUpload={handleBeforeUpload}>
+            <div
               style={{
-                position: "absolute",
-                bottom: 6,
-                right: 6,
-                fontSize: 28,
-                color: "#1890ff",
-                background: "#fff",
+                width: 90,
+                height: 90,
                 borderRadius: "50%",
-                border: "2px solid #fff",
+                background: "#e6f4ff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 36,
+                color: "#1890ff",
+                position: "relative",
+                fontWeight: 700,
+                marginBottom: 8,
+                overflow: "hidden",
+                cursor: "pointer",
               }}
-            />
-          </div>
+            >
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt="avatar"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                getInitials() || <UserOutlined />
+              )}
+
+              <PlusCircleFilled
+                style={{
+                  position: "absolute",
+                  bottom: 6,
+                  right: 6,
+                  fontSize: 28,
+                  color: "#1890ff",
+                  background: "#fff",
+                  borderRadius: "50%",
+                  border: "2px solid #fff",
+                }}
+              />
+            </div>
+          </Upload>
         </div>
         <Form
           layout="vertical"
@@ -504,13 +540,16 @@ const CreateProfile = () => {
                     <Input
                       placeholder="Documents"
                       size="middle"
-                      suffix={
-                        <img
-                          src={downloadIcon}
-                          alt="icon"
-                          style={{ width: 20, height: 20, cursor: "pointer" }}
-                        />
-                      }
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      // suffix={
+                      //   <img
+                      //     src={downloadIcon}
+                      //     alt="icon"
+                      //     style={{ width: 20, height: 20, cursor: "pointer" }}
+                      //   />
+                      // }
                     />{" "}
                   </Form.Item>
                 </div>
@@ -574,7 +613,6 @@ const CreateProfile = () => {
             }}
           >
             <a
-              href="#"
               onClick={() => navigate("/termsAndconditions")}
               style={{ color: "#1890ff", textDecoration: "none" }}
             >

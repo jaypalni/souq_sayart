@@ -105,8 +105,8 @@ const Header = () => {
                 onChange={(value) => console.log("Selected:", value)}
               >
                 <Option value="en">en</Option>
-                <Option value="ar">hi</Option>
-                <Option value="ku">te</Option>
+                <Option value="ar">ar</Option>
+                <Option value="ku">ku</Option>
               </Select>
             </div>
           </div>

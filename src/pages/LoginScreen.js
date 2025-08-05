@@ -8,6 +8,8 @@ import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
 import "../assets/styles/loginScreen.css";
+// import ReCAPTCHA from "react-google-recaptcha";
+// import socket from "../socket";
 
 const countryOptions = [
   { code: "+961", name: "Lebanon", flag: "🇱🇧" },
@@ -20,9 +22,33 @@ const LoginScreen = () => {
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+//  const [verified, setVerified] = useState(false);
+
+  // const [msg, setMsg] = useState("");
+  
+    // useEffect(() => {
+    //   socket.on("connect", () => {
+    //     console.log("Connected to WebSocket");
+    //   });
+  
+    //   socket.on("newMessage", (data) => {
+    //     console.log("New message:", data);
+    //     setMsg(data);
+    //   });
+  
+    //   return () => {
+    //     socket.off("newMessage");
+    //   };
+    // }, []);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  //  const handleCaptchaChange = (value) => {
+  //    console.log("Captcha value:", value);
+  //    setVerified(!!value);
+  //  };
+
   const onClickContinue = async () => {
     console.log("continue");
     try {
@@ -190,6 +216,12 @@ const LoginScreen = () => {
                 }}
               />
             </div>
+          </div>
+          <div style={{ margin: "10px 0px 20px 0px" }}>
+            {/* <ReCAPTCHA
+              sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key
+              onChange={handleCaptchaChange}
+            /> */}
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             <button

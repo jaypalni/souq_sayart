@@ -142,7 +142,7 @@ const CreateProfile = () => {
       console.log("12345", data);
 
       message.success(data.message);
-      // navigate("/landing");
+      navigate("/landing");
     } catch (error) {
       if (error.errorFields) {
         onFinishFailed(error);

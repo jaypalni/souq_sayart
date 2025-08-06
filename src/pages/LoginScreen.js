@@ -64,14 +64,12 @@ const LoginScreen = () => {
 
       const response = await authAPI.login({
         captcha_token: verified,
-        phone_number: phone,
+        phone_number: `${selectedCountry.country_code}${phone}`,
       });
 
       const data = handleApiResponse(response);
-      console.log("verifyOtp", data);
       if (data) {
-        // Store token in localStorage
-        //localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
 
         if (data) {
           localStorage.setItem("userData", JSON.stringify(data));

@@ -70,23 +70,22 @@ const SignupOtp = () => {
       setLoading(true);
 
       const userData = JSON.parse(localStorage.getItem("userData"));
-      console.log("userData123", userData);
-      console.log("userData12345", userData?.otp);
       const otpDigits = otp.join("");
       const response = await authAPI.verifyOtp({
-        // email:selectedCountry,
         otp: otpDigits,
         request_id: userData.request_id,
       });
 
       const data = handleApiResponse(response);
-      console.log("verifyOtp", data);
       if (data) {
         localStorage.setItem("token", data.token);
-
         message.success(data.message);
 
-        navigate("/createProfile");
+        if (data.is_registered) {
+          navigate("/landing");
+        } else {
+          navigate("/createProfile");
+        }
       }
     } catch (error) {
       const errorData = handleApiError(error);
@@ -99,7 +98,7 @@ const SignupOtp = () => {
     <div className="otp-container">
       <h2 className="otp-title">Login</h2>
       <p className="otp-desc">
-        Enter the verification code sent to your phone number 
+        Enter the verification code sent to your phone number
       </p>
       <div className="otp-inputs">
         {otp.map((digit, idx) => (

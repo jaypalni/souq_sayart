@@ -56,39 +56,42 @@ const CreateProfile = () => {
   const file = e.target.files[0];
   console.log("Selected file:", file);
 
-  if (file) {
-    const localUrl = URL.createObjectURL(file);
-    setUploadedDocUrl(localUrl);
-    form.setFieldsValue({ uploadDocuments: localUrl });
-  }
+  if (!file) return;
 
   try {
     setLoading(true);
 
-    // Prepare FormData
     const formData = new FormData();
-    formData.append("images", file);
 
-    // Upload the image
+    // 🔁 TRY different keys: "file", "image", "images"
+    formData.append("file", file); // ✅ Try "file" first
+
+    // Debug what's being sent
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
     const carResponse = await authAPI.uploadimages(formData);
     const userdoc = handleApiResponse(carResponse);
 
     if (userdoc?.attachment_url) {
       console.log("Uploaded attachment URL:", userdoc.attachment_url);
+      setUploadedDocUrl(userdoc.attachment_url);
       form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
-      setUploadedDocUrl(userdoc.attachment_url); 
     }
 
-    message.success(userdoc.message || ' details uploaded successfully!');
+    message.success(userdoc.message || 'Details uploaded successfully!');
     form.resetFields();
-   
   } catch (error) {
     const errorData = handleApiError(error);
+    console.error("API error:", errorData);
     message.error(errorData.message || 'Failed to upload details');
   } finally {
     setLoading(false);
   }
 };
+
+
 
 
   const handleBeforeUpload = (file) => {

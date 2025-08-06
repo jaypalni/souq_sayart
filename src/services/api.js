@@ -88,11 +88,8 @@ export const authAPI = {
   countrycode: () => api.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
   // uploadimages: (body) => api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_IMAGES, body),
 uploadimages: (formData) =>
-     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }),
+  api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData),
+
 
 };
 

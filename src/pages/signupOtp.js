@@ -78,7 +78,7 @@ const SignupOtp = () => {
 
       const data = handleApiResponse(response);
       if (data) {
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.access_token);
         message.success(data.message);
 
         if (data.is_registered) {

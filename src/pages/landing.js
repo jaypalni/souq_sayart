@@ -14,6 +14,7 @@ const Landing = () => {
   const [loading, setLoading] = useState(false);
   const [carsData, setCarsData] = useState([]);
   const [carsRecomData, setCarsRecomData] = useState([]);
+
   useEffect(() => {
     fetchFeaturedCars();
     fetchRecommendedCars();

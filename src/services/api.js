@@ -85,6 +85,7 @@ export const authAPI = {
     api.post(API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD, data),
   verifyOtp: (otpData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData),
+  countrycode: () => api.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
 };
 
 // Car APIs

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Footer from "../components/footer";
@@ -8,21 +8,33 @@ import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
 import "../assets/styles/loginScreen.css";
-// import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 // import socket from "../socket";
-
-const countryOptions = [
-  { code: "+961", name: "Lebanon", flag: "🇱🇧" },
-  { code: "+1", name: "USA", flag: "🇺🇸" },
-  { code: "+971", name: "UAE", flag: "🇦🇪" },
-];
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState("");
+  const [countryOptions, setCountryOptions] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  //  const [verified, setVerified] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await authAPI.countrycode();
+        const data = handleApiResponse(response);
+        if (data && data.length > 0) {
+          setCountryOptions(data);
+          setSelectedCountry(data[0]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch countries", error);
+      }
+    };
+    fetchCountries();
+  }, []);
+
 
   // const [msg, setMsg] = useState("");
 
@@ -85,7 +97,6 @@ const LoginScreen = () => {
       setLoading(false);
     }
   };
-
   return (
     <div
       style={{ minHeight: "50vh", display: "flex", flexDirection: "column" }}
@@ -150,16 +161,22 @@ const LoginScreen = () => {
                     cursor: "pointer",
                     borderRadius: 8,
                     padding: "8px 12px",
-                    background: "#E7EBEf",
+                    background: "#E7EBEF",
                   }}
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <span
-                    style={{ fontSize: 18, marginRight: 5, marginLeft: 12 }}
-                  >
-                    {selectedCountry.flag}
-                  </span>
-                  <span style={{ fontSize: 16 }}>{selectedCountry.code}</span>
+                  {selectedCountry && (
+                    <>
+                      <img
+                        src={`http://192.168.2.72:5001/${selectedCountry.country_flag_image}`}
+                        alt="flag"
+                        style={{ width: 20, height: 14, marginRight: 6 }}
+                      />
+                      <span style={{ fontSize: 16 }}>
+                        {selectedCountry.country_code}
+                      </span>
+                    </>
+                  )}
                 </div>
                 {dropdownOpen && (
                   <div
@@ -176,7 +193,7 @@ const LoginScreen = () => {
                   >
                     {countryOptions.map((country) => (
                       <div
-                        key={country.code}
+                        key={country.id}
                         style={{
                           padding: "6px 12px",
                           cursor: "pointer",
@@ -188,14 +205,13 @@ const LoginScreen = () => {
                           setDropdownOpen(false);
                         }}
                       >
-                        <span style={{ fontSize: 18, marginRight: 6 }}>
-                          {country.flag}
-                        </span>
-                        <span style={{ fontSize: 15 }}>{country.code}</span>
-                        <span
-                          style={{ marginLeft: 6, color: "#888", fontSize: 13 }}
-                        >
-                          {country.name}
+                        <img
+                          src={`http://your-base-url/${country.country_flag_image}`}
+                          alt="flag"
+                          style={{ width: 20, height: 14, marginRight: 6 }}
+                        />
+                        <span style={{ fontSize: 15 }}>
+                          {country.country_code}
                         </span>
                       </div>
                     ))}
@@ -219,7 +235,7 @@ const LoginScreen = () => {
           </div>
           <div style={{ margin: "10px 0px 20px 0px" }}>
             {/* <ReCAPTCHA
-              sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key
+              sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
               onChange={handleCaptchaChange}
             /> */}
           </div>

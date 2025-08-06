@@ -27,7 +27,8 @@ const CreateProfile = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(false);
+  const [uploadedDocUrl, setUploadedDocUrl] = useState("");
 
   const handleChange = (value) => {
     setChecked(value);
@@ -55,6 +56,12 @@ const CreateProfile = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     console.log("Selected file:", file);
+    if (file) {
+      const localUrl = URL.createObjectURL(file);
+      setUploadedDocUrl(localUrl);
+
+      form.setFieldsValue({ uploadDocuments: localUrl });
+    }
   };
 
   const handleBeforeUpload = (file) => {
@@ -102,21 +109,24 @@ const CreateProfile = () => {
         company_registration_number: values.companyCR || "",
         facebook_page: values.facebookPage || "",
         instagram_company_profile: values.instagramProfile || "",
-        upload_documents: values.uploadDocuments || "",
-        profile_pic: "https://example.com/profile_pics/default.jpg",
+        profile_pic: imageUrl || "",
         phone_number: values.phoneNumber || "",
         is_dealer: values.isDealer,
+        whatsapp: checked ? "1" : "0",
+        document: uploadedDocUrl || "",
       };
 
       // Call API
+      console.log("12345789", payload);
       const response = await authAPI.register(payload);
       const data = handleApiResponse(response);
+
+      console.log("12345",data)
 
       message.success(data.message);
       navigate("/landing");
     } catch (error) {
       if (error.errorFields) {
-        // Form validation error
         onFinishFailed(error);
       } else {
         const errorData = handleApiError(error);
@@ -134,7 +144,7 @@ const CreateProfile = () => {
       className="d-flex justify-content-center align-items-center"
       style={{
         minHeight: "100vh",
-        padding: "16px", // add some padding for small devices
+        padding: "16px",
       }}
     >
       <div
@@ -548,13 +558,6 @@ const CreateProfile = () => {
                       type="file"
                       ref={fileInputRef}
                       onChange={handleFileChange}
-                      // suffix={
-                      //   <img
-                      //     src={downloadIcon}
-                      //     alt="icon"
-                      //     style={{ width: 20, height: 20, cursor: "pointer" }}
-                      //   />
-                      // }
                     />{" "}
                   </Form.Item>
                 </div>

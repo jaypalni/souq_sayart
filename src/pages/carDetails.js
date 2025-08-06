@@ -186,7 +186,6 @@ const CarDetails = () => {
 
   return (
     <div className="container py-4 car-details-page">
-      
       <div className="row">
         {/* Left: Images */}
         <div className="col-md-8">
@@ -597,11 +596,11 @@ const CarDetails = () => {
                 icon={<FaWhatsapp />}
                 className="w-100"
                 style={{
-                  background: "#20B648",
+                  background: "#E3E3E3",
                   color: "#fff",
                   fontWeight: 500,
                   fontSize: "12px",
-                  border: "#20B648",
+                  border: "#E3E3E3",
                 }}
               >
                 Whatsapp

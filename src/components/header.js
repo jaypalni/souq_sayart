@@ -9,13 +9,19 @@ import { useSelector } from "react-redux";
 import { Select } from "antd";
 
 const Header = () => {
-  const menuList = [
-    { id: "", name: "Buy", path: "/landing", displayName: "" },
-    { id: "", name: "Sell", path: "/sell", displayName: "" },
-    { id: "", name: "My Listings", path: "/myListings", displayName: "" },
-    { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "" },
-  ];
+  // const menuList = [
+  //   { id: "", name: "Buy", path: "/landing", displayName: "" },
+  //   { id: "", name: "Sell", path: "/sell", displayName: "" },
+  //   { id: "", name: "My Listings", path: "/myListings", displayName: "" },
+  //   { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "" },
+  // ];
 
+    const menuList = [
+      { id: "", name: "Buy", path: "", displayName: "" },
+      { id: "", name: "Sell", path: "", displayName: "" },
+      { id: "", name: "My Listings", path: "", displayName: "" },
+      { id: "", name: "Evaluate My Car", path: "", displayName: "" },
+    ];
   const navigate = useNavigate();
   const { Option } = Select;
   return (

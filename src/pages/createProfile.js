@@ -139,7 +139,7 @@ const CreateProfile = () => {
       const response = await authAPI.register(payload);
       const data = handleApiResponse(response);
 
-      console.log("12345",data)
+      console.log("12345", data);
 
       message.success(data.message);
       // navigate("/landing");

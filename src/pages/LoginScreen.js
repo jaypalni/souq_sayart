@@ -8,7 +8,7 @@ import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
 import "../assets/styles/loginScreen.css";
-import ReCAPTCHA from "react-google-recaptcha";
+//import ReCAPTCHA from "react-google-recaptcha";
 // import socket from "../socket";
 
 const LoginScreen = () => {

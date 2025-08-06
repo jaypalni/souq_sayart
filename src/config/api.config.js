@@ -36,6 +36,7 @@ const API_CONFIG = {
       RESET_PASSWORD: "/auth/reset-password",
       VERIFY_OTP: "api/auth/verify-otp",
       COUNTRY_CODE: "/api/country-codes",
+      UPLOAD_DOCUMENTS: "/api/search/upload-attachment"
     },
     USER: {
       PROFILE: "/api/users/profile",

@@ -52,16 +52,44 @@ const CreateProfile = () => {
 
   const fileInputRef = useRef(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    console.log("Selected file:", file);
-    if (file) {
-      const localUrl = URL.createObjectURL(file);
-      setUploadedDocUrl(localUrl);
+  const handleFileChange = async (e) => {
+  const file = e.target.files[0];
+  console.log("Selected file:", file);
 
-      form.setFieldsValue({ uploadDocuments: localUrl });
+  if (file) {
+    const localUrl = URL.createObjectURL(file);
+    setUploadedDocUrl(localUrl);
+    form.setFieldsValue({ uploadDocuments: localUrl });
+  }
+
+  try {
+    setLoading(true);
+
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append("images", file);
+
+    // Upload the image
+    const carResponse = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(carResponse);
+
+    if (userdoc?.attachment_url) {
+      console.log("Uploaded attachment URL:", userdoc.attachment_url);
+      form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
+      setUploadedDocUrl(userdoc.attachment_url); 
     }
-  };
+
+    message.success(userdoc.message || ' details uploaded successfully!');
+    form.resetFields();
+   
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to upload details');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleBeforeUpload = (file) => {
     const reader = new FileReader();
@@ -114,7 +142,7 @@ const CreateProfile = () => {
       console.log("12345",data)
 
       message.success(data.message);
-      navigate("/landing");
+      // navigate("/landing");
     } catch (error) {
       if (error.errorFields) {
         onFinishFailed(error);
@@ -630,4 +658,4 @@ const CreateProfile = () => {
   );
 };
 
-export default CreateProfile;
+export default CreateProfile; 

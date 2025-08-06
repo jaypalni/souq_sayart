@@ -40,12 +40,12 @@ api.interceptors.response.use(
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       switch (error.response.status) {
-        case 401:
-          // Handle unauthorized access
-          localStorage.removeItem("token");
-          //alert("401");
-          window.location.href = "/login";
-          break;
+        // case 401:
+        //   // Handle unauthorized access
+        //   localStorage.removeItem("token");
+        //   //alert("401");
+        //   window.location.href = "/login";
+        //   break;
         case 403:
           // Handle forbidden access
           console.error("Access forbidden");
@@ -86,6 +86,14 @@ export const authAPI = {
   verifyOtp: (otpData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData),
   countrycode: () => api.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
+  // uploadimages: (body) => api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_IMAGES, body),
+uploadimages: (formData) =>
+     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
 };
 
 // Car APIs

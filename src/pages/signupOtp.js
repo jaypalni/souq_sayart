@@ -67,14 +67,12 @@ const SignupOtp = () => {
   const handleContinue = async () => {
     console.log("continue");
     try {
-      // Validate form before submission
       setLoading(true);
 
       const userData = JSON.parse(localStorage.getItem("userData"));
       console.log("userData123", userData);
       console.log("userData12345", userData?.otp);
       const otpDigits = otp.join("");
-      // Call login API
       const response = await authAPI.verifyOtp({
         // email:selectedCountry,
         otp: otpDigits,
@@ -84,12 +82,10 @@ const SignupOtp = () => {
       const data = handleApiResponse(response);
       console.log("verifyOtp", data);
       if (data) {
-        // Store token in localStorage
         localStorage.setItem("token", data.token);
 
         message.success(data.message);
 
-        // Redirect to dashboard or home page
         navigate("/createProfile");
       }
     } catch (error) {

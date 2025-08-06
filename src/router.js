@@ -21,6 +21,7 @@ import CarDetails from "./pages/carDetails";
 import Sell from "./pages/sell";
 import UserProfile from "./pages/userProfile";
 import TermsAndConditions from "./pages/termsAndconditions";
+import Captcha from "./pages/captcha";
 // Example protected page (replace with your real pages)
 const HomePage = () => <div>Home Page (Protected)</div>;
 
@@ -48,16 +49,21 @@ const AppRouterContent = () => {
     "/myProfile/dashboard",
     "/myProfile/favorites",
     "/termsAndconditions",
+    "/captchatoken",
   ];
+
+  const hidefooterList = ["/captchatoken"];
 
   console.log("s666", location.pathname);
   const hideBanner =
     hidebannerList.includes(location.pathname) ||
     location.pathname.startsWith("/carDetails/");
 
+  const hideFooter = hidefooterList.includes(location.pathname);
+
   return (
     <>
-      <Header />
+      {!hideFooter && <Header />}
       {!hideBanner && <Banner />}
       <Routes>
         {!isLogin && (
@@ -73,7 +79,11 @@ const AppRouterContent = () => {
             <Route path="/sell" element={<Sell />} />
             <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/userProfile" element={<UserProfile />} />
-            <Route path="/termsAndconditions" element={<TermsAndConditions />} />
+            <Route
+              path="/termsAndconditions"
+              element={<TermsAndConditions />}
+            />
+            <Route path="/captchatoken" element={<Captcha />} />
           </>
         )}
         {isLogin && (
@@ -99,7 +109,7 @@ const AppRouterContent = () => {
           </>
         )}
       </Routes>
-      <Footer />
+      {!hideFooter && <Footer />}
     </>
   );
 };

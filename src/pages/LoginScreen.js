@@ -1,14 +1,11 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import Footer from "../components/footer";
-import footerLogo from "../assets/images/souqLogo_blue.svg";
-import Car_icon from "../assets/images/Car_icon.png";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
 import "../assets/styles/loginScreen.css";
-//import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 // import socket from "../socket";
 
 const LoginScreen = () => {
@@ -18,6 +15,8 @@ const LoginScreen = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -34,7 +33,6 @@ const LoginScreen = () => {
     };
     fetchCountries();
   }, []);
-
 
   // const [msg, setMsg] = useState("");
 
@@ -53,24 +51,19 @@ const LoginScreen = () => {
   //   };
   // }, []);
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  //  const handleCaptchaChange = (value) => {
-  //    console.log("Captcha value:", value);
-  //    setVerified(!!value);
-  //  };
+  const handleCaptchaChange = (value) => {
+    console.log("Captcha value:", value);
+    setVerified(!!value);
+  };
 
   const onClickContinue = async () => {
     console.log("continue");
     try {
-      // Validate form before submission
       console.log(selectedCountry, phone);
       setLoading(true);
 
-      // Call login API
       const response = await authAPI.login({
-        // email:selectedCountry,
+        captcha_token: verified,
         phone_number: phone,
       });
 
@@ -80,14 +73,11 @@ const LoginScreen = () => {
         // Store token in localStorage
         //localStorage.setItem('token', data.token);
 
-        // Store user data if available
         if (data) {
           localStorage.setItem("userData", JSON.stringify(data));
         }
 
         message.success(data.message);
-
-        // Redirect to dashboard or home page
         navigate("/verifyOtp");
       }
     } catch (error) {
@@ -234,10 +224,10 @@ const LoginScreen = () => {
             </div>
           </div>
           <div style={{ margin: "10px 0px 20px 0px" }}>
-            {/* <ReCAPTCHA
+            <ReCAPTCHA
               sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
               onChange={handleCaptchaChange}
-            /> */}
+            />
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             <button

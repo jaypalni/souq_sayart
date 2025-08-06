@@ -15,7 +15,6 @@ import { PlusCircleFilled, UserOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import downloadIcon from "../assets/images/download.svg";
 import whatsappIcon from "../assets/images/Whatsup.svg";
 const { Title, Text } = Typography;
 
@@ -78,24 +77,17 @@ const CreateProfile = () => {
     setDobError(dobErr ? dobErr.errors[0] : "");
   };
 
-  // Helper to get initials from form values
   const getInitials = () => {
     const first = form.getFieldValue("firstName") || "";
     const last = form.getFieldValue("lastName") || "";
     return (first[0] || "").toUpperCase() + (last[0] || "").toUpperCase();
   };
 
-  // API CALL
   const onClickContinue = async () => {
     try {
       setLoading(true);
-      // Validate form and get values
       const values = await form.validateFields();
-
-      // Format date of birth
       const formattedDOB = values.dob.format("YYYY-MM-DD");
-
-      // Construct payload
       const payload = {
         first_name: values.firstName,
         last_name: values.lastName,
@@ -115,8 +107,6 @@ const CreateProfile = () => {
         whatsapp: checked ? "1" : "0",
         document: uploadedDocUrl || "",
       };
-
-      // Call API
       console.log("12345789", payload);
       const response = await authAPI.register(payload);
       const data = handleApiResponse(response);

@@ -44,9 +44,9 @@ const Landing = () => {
       setLoading(true);
       const response = await carAPI.getCarRecommended({});
       const data1 = handleApiResponse(response);
-      console.log("API Response Recommended Cars:", data1?.data);
+      console.log("API Response Recommended Cars:", data1?.data.cars);
       if (data1) {
-        setCarsRecomData(data1?.data);
+        setCarsRecomData(data1?.data.cars);
       }
 
       message.success(data1.message || "Fetched successfully");

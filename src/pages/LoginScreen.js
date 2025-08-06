@@ -69,7 +69,7 @@ const LoginScreen = () => {
 
       const data = handleApiResponse(response);
       if (data) {
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.access_token);
 
         if (data) {
           localStorage.setItem("userData", JSON.stringify(data));

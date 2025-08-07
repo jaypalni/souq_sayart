@@ -119,16 +119,23 @@ const CreateProfile = () => {
 };
 
 
- const handleBeforeUpload = async (file) => {
-  const isImage = file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/jpg";
+const handleBeforeUpload = async (file) => {
+  const isImage =
+    file.type === "image/png" ||
+    file.type === "image/jpeg" ||
+    file.type === "image/jpg";
 
   if (!isImage) {
     messageApi.open({
       type: "error",
       content: "Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.",
     });
-    return false; // Prevent upload
+    return false;
   }
+
+  // 🔥 Show preview immediately
+  const previewUrl = URL.createObjectURL(file);
+  setImageUrl(previewUrl); // show preview before API response
 
   const formData = new FormData();
   formData.append("attachment", file);
@@ -138,6 +145,7 @@ const CreateProfile = () => {
     const userdoc = handleApiResponse(response);
 
     if (userdoc?.attachment_url) {
+      // 🔄 Replace preview with actual uploaded URL (optional)
       setImageUrl(userdoc.attachment_url);
       messageApi.open({
         type: "success",
@@ -156,8 +164,9 @@ const CreateProfile = () => {
     message.error("Upload failed due to network error");
   }
 
-  return false; // Prevent default upload
+  return false; // Prevent default upload behavior
 };
+
 
 
   const onFinishFailed = ({ errorFields }) => {
@@ -279,18 +288,19 @@ const CreateProfile = () => {
               }}
             >
               {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt="avatar"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              ) : (
-                getInitials() || <UserOutlined />
-              )}
+  <img
+    src={imageUrl}
+    alt="avatar"
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+    }}
+  />
+) : (
+  getInitials() || <UserOutlined />
+)}
+
 
               <PlusCircleFilled
                 style={{

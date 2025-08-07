@@ -6,6 +6,13 @@ export const AUTH_LOGIN_SUCCESS = "AUTH_LOGIN_SUCCESS";
 export const AUTH_LOGIN_FAILURE = "AUTH_LOGIN_FAILURE";
 export const AUTH_LOGOUT = "AUTH_LOGOUT";
 
+// Customer Details Action Types
+export const CUSTOMER_DETAILS_REQUEST = "CUSTOMER_DETAILS_REQUEST";
+export const CUSTOMER_DETAILS_SUCCESS = "CUSTOMER_DETAILS_SUCCESS";
+export const CUSTOMER_DETAILS_FAILURE = "CUSTOMER_DETAILS_FAILURE";
+export const CUSTOMER_DETAILS_UPDATE = "CUSTOMER_DETAILS_UPDATE";
+export const CUSTOMER_DETAILS_CLEAR = "CUSTOMER_DETAILS_CLEAR";
+
 // Action Creators
 export const loginRequest = () => ({
   type: AUTH_LOGIN_REQUEST,
@@ -23,6 +30,30 @@ export const loginFailure = (error) => ({
 
 export const logout = () => ({
   type: AUTH_LOGOUT,
+});
+
+// Customer Details Action Creators
+export const customerDetailsRequest = () => ({
+  type: CUSTOMER_DETAILS_REQUEST,
+});
+
+export const customerDetailsSuccess = (customerDetails) => ({
+  type: CUSTOMER_DETAILS_SUCCESS,
+  payload: customerDetails,
+});
+
+export const customerDetailsFailure = (error) => ({
+  type: CUSTOMER_DETAILS_FAILURE,
+  payload: error,
+});
+
+export const updateCustomerDetails = (customerDetails) => ({
+  type: CUSTOMER_DETAILS_UPDATE,
+  payload: customerDetails,
+});
+
+export const clearCustomerDetails = () => ({
+  type: CUSTOMER_DETAILS_CLEAR,
 });
 
 // Thunk Actions
@@ -46,10 +77,65 @@ export const login = (credentials) => async (dispatch) => {
 
 export const logoutUser = () => async (dispatch) => {
   try {
-    await authAPI.logout();
-    localStorage.removeItem("token");
+    // Call logout API if available
+    try {
+      await authAPI.logout();
+    } catch (apiError) {
+      console.log("Logout API call failed, continuing with local logout");
+    }
+    
+    // Clear all localStorage data
+    localStorage.clear();
+    
+    // Clear auth state
     dispatch(logout());
+    
+    // Clear customer details
+    dispatch({ type: CUSTOMER_DETAILS_CLEAR });
+    
+    return { success: true };
   } catch (error) {
     console.error("Logout error:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Customer Details Thunk Actions
+export const registerUser = (userData) => async (dispatch) => {
+  try {
+    dispatch(customerDetailsRequest());
+    const response = await authAPI.register(userData);
+    const customerDetails = response.data.user || response.data;
+    
+    dispatch(customerDetailsSuccess(customerDetails));
+    return { success: true, data: customerDetails };
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Registration failed";
+    dispatch(customerDetailsFailure(errorMessage));
+    return { success: false, error: errorMessage };
+  }
+};
+
+export const verifyOTP = (otpData) => async (dispatch) => {
+  try {
+    console.log("verifyOTP action called with:", otpData);
+    dispatch(customerDetailsRequest());
+    console.log("Dispatching customerDetailsRequest");
+    
+    const response = await authAPI.verifyOtp(otpData);
+    console.log("API response:", response);
+    
+    const customerDetails = response.data.user || response.data;
+    console.log("Customer details extracted:", customerDetails);
+    
+    dispatch(customerDetailsSuccess(customerDetails));
+    console.log("Dispatching customerDetailsSuccess");
+    
+    return { success: true, data: customerDetails };
+  } catch (error) {
+    console.error("verifyOTP error:", error);
+    const errorMessage = error.response?.data?.message || "OTP verification failed";
+    dispatch(customerDetailsFailure(errorMessage));
+    return { success: false, error: errorMessage };
   }
 };

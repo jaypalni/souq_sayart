@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Form,
   Input,
@@ -16,12 +17,15 @@ import { PlusCircleFilled, UserOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import { registerUser } from "../redux/actions/authActions";
 import whatsappIcon from "../assets/images/Whatsup.svg";
 import TermsAndconditions from "./termsAndconditions";
 
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
+  const dispatch = useDispatch();
+  const { customerDetailsLoading, customerDetailsError } = useSelector((state) => state.customerDetails);
   const [isDealer, setIsDealer] = useState(false);
   const [form] = Form.useForm();
   const [dobError, setDobError] = useState("");
@@ -183,18 +187,20 @@ const CreateProfile = () => {
         document: uploadedDocUrl || "",
       };
       console.log("12345789", payload);
-      const response = await authAPI.register(payload);
-      const data = handleApiResponse(response);
-
-      console.log("12345", data);
-
-      messageApi.open({
-        type: "success",
-        content: data.message,
-      });
-
-      // message.success(data.message);
-      navigate("/landing");
+      const result = await dispatch(registerUser(payload));
+      
+      if (result.success) {
+        messageApi.open({
+          type: "success",
+          content: "Registration successful!",
+        });
+        navigate("/landing");
+      } else {
+        messageApi.open({
+          type: "error",
+          content: result.error || "Registration failed",
+        });
+      }
     } catch (error) {
       if (error.errorFields) {
         onFinishFailed(error);

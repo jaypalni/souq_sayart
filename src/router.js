@@ -22,16 +22,9 @@ import Sell from "./pages/sell";
 import UserProfile from "./pages/userProfile";
 import TermsAndConditions from "./pages/termsAndconditions";
 import Captcha from "./pages/captcha";
-// Example protected page (replace with your real pages)
-const HomePage = () => <div>Home Page (Protected)</div>;
-
-const ProtectedRoute = ({ children }) => {
-  const isLogin = useSelector((state) => state.userData?.isLogin);
-  return isLogin ? children : <Navigate to="/" replace />;
-};
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppRouterContent = () => {
-  const isLogin = useSelector((state) => state.userData?.isLogin);
   const location = useLocation();
   const hidebannerList = [
     "/carDetails",
@@ -66,49 +59,49 @@ const AppRouterContent = () => {
       {!hideFooter && <Header />}
       {!hideBanner && <Banner />}
       <Routes>
-        {!isLogin && (
-          <>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<LoginScreen />} />
-            <Route path="/verifyOtp" element={<SignupOtp />} />
-            <Route path="/createProfile" element={<CreateProfile />} />
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/carDetails/:id" element={<CarDetails />} />
-            <Route path="/myProfile/*" element={<MyProfile />} />
-            <Route path="/allCars" element={<AllCars />} />
-            <Route path="/myListings" element={<MyListings />} />
-            <Route path="/sell" element={<Sell />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-            <Route path="/userProfile" element={<UserProfile />} />
-            <Route
-              path="/termsAndconditions"
-              element={<TermsAndConditions />}
-            />
-            <Route path="/captchatoken" element={<Captcha />} />
-          </>
-        )}
-        {isLogin && (
-          <>
-            {/* Add your protected routes here */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/createProfile" element={<CreateProfile />} />
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/carDetails" element={<CarDetails />} />
-            <Route path="/sell" element={<Sell />} />
-            <Route path="/allCars" element={<AllCars />} />
-            <Route path="/myListings" element={<MyListings />} />
-            {/* Example: <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-            <Route path="/userProfile" element={<UserProfile />} />
-          </>
-        )}
+        {/* Public Routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/verifyOtp" element={<SignupOtp />} />
+        <Route path="/createProfile" element={<CreateProfile />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/carDetails/:id" element={<CarDetails />} />
+        <Route path="/allCars" element={<AllCars />} />
+        <Route path="/userProfile" element={<UserProfile />} />
+        <Route
+          path="/termsAndconditions"
+          element={<TermsAndConditions />}
+        />
+        <Route path="/captchatoken" element={<Captcha />} />
+        
+        {/* Protected Routes */}
+        <Route 
+          path="/sell" 
+          element={
+            <ProtectedRoute>
+              <Sell />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/myListings" 
+          element={
+            <ProtectedRoute>
+              <MyListings />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/myProfile/*" 
+          element={
+            <ProtectedRoute>
+              <MyProfile />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Catch all route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {!hideFooter && <Footer />}
     </>

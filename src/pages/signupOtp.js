@@ -1,11 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../assets/styles/signupOtp.css";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import { verifyOTP } from "../redux/actions/authActions";
 import { message } from "antd";
 
 const SignupOtp = () => {
+  const dispatch = useDispatch();
+  const { customerDetailsLoading, customerDetailsError } = useSelector((state) => state.customerDetails);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(300);
   const [istimer, setisTimer] = useState(false);
@@ -119,36 +123,52 @@ const SignupOtp = () => {
   // };
 
   const handleContinue = async () => {
+    console.log("=== OTP VERIFICATION START ===");
+    console.log("OTP digits:", otp.join(""));
+    
     if (!validateOtp()) {
+      console.log("OTP validation failed");
       return;
     }
 
     try {
       setLoading(true);
+      console.log("Loading set to true");
 
       const userData = JSON.parse(localStorage.getItem("userData"));
+      console.log("User data from localStorage:", userData);
+      
       const otpDigits = otp.join("");
-      const response = await authAPI.verifyOtp({
+      const otpPayload = {
         otp: otpDigits,
         request_id: userData.request_id,
-      });
+      };
+      console.log("OTP payload:", otpPayload);
+      
+      console.log("Dispatching verifyOTP action...");
+      const result = await dispatch(verifyOTP(otpPayload));
+      console.log("verifyOTP result:", result);
 
-      const data = handleApiResponse(response);
-      if (data) {
-        localStorage.setItem("token", data.access_token);
-        message.success(data.message);
+      if (result.success) {
+        console.log("OTP verification successful");
+        localStorage.setItem("token", result.data.access_token);
+        message.success("OTP verified successfully!");
 
-        if (data.is_registered) {
+        if (result.data.is_registered) {
           navigate("/landing");
         } else {
           navigate("/createProfile");
         }
+      } else {
+        console.log("OTP verification failed:", result.error);
+        message.error(result.error || "OTP verification failed. Please try again.");
       }
     } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || "Login failed. Please try again.");
+      console.error("OTP verification error:", error);
+      message.error("OTP verification failed. Please try again.");
     } finally {
       setLoading(false);
+      console.log("Loading set to false");
     }
   };
 

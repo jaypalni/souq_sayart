@@ -85,8 +85,11 @@ export const authAPI = {
     api.post(API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD, { email }),
   resetPassword: (data) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD, data),
-  verifyOtp: (otpData) =>
-    api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData),
+  verifyOtp: (otpData) => {
+    console.log("API verifyOtp called with:", otpData);
+    console.log("API endpoint:", API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP);
+    return api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData);
+  },
   countrycode: () => api.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
   uploadimages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {

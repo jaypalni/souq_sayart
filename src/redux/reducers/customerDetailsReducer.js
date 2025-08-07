@@ -1,0 +1,56 @@
+import {
+  CUSTOMER_DETAILS_REQUEST,
+  CUSTOMER_DETAILS_SUCCESS,
+  CUSTOMER_DETAILS_FAILURE,
+  CUSTOMER_DETAILS_UPDATE,
+  CUSTOMER_DETAILS_CLEAR,
+} from '../actions/authActions';
+
+const initialState = {
+  customerDetails: null,
+  customerDetailsLoading: false,
+  customerDetailsError: null,
+};
+
+const customerDetailsReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case CUSTOMER_DETAILS_REQUEST:
+      return {
+        ...state,
+        customerDetailsLoading: true,
+        customerDetailsError: null,
+      };
+    case CUSTOMER_DETAILS_SUCCESS:
+      return {
+        ...state,
+        customerDetailsLoading: false,
+        customerDetails: action.payload,
+        customerDetailsError: null,
+      };
+    case CUSTOMER_DETAILS_FAILURE:
+      return {
+        ...state,
+        customerDetailsLoading: false,
+        customerDetailsError: action.payload,
+      };
+    case CUSTOMER_DETAILS_UPDATE:
+      return {
+        ...state,
+        customerDetails: {
+          ...state.customerDetails,
+          ...action.payload,
+        },
+      };
+    case CUSTOMER_DETAILS_CLEAR:
+      return {
+        ...state,
+        customerDetails: null,
+        customerDetailsLoading: false,
+        customerDetailsError: null,
+      };
+    default:
+      return state;
+  }
+};
+
+export default customerDetailsReducer; 

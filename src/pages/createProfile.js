@@ -10,12 +10,15 @@ import {
   message,
   Switch,
   Upload,
+  Modal,
 } from "antd";
 import { PlusCircleFilled, UserOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import whatsappIcon from "../assets/images/Whatsup.svg";
+import TermsAndconditions from "./termsAndconditions";
+
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
@@ -28,6 +31,9 @@ const CreateProfile = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [checked, setChecked] = useState(false);
   const [uploadedDocUrl, setUploadedDocUrl] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const closeModal = () => setShowModal(false);
+  const [isChecked, setIsChecked] = useState(false);
 
    useEffect(() => {
       const accesstoken = localStorage.getItem("token")
@@ -666,7 +672,8 @@ const CreateProfile = () => {
               // href="https://example.com"
               // target="_blank"
               // rel="noopener noreferrer"
-              onClick={() => navigate("/termsAndconditions")}
+              // onClick={() => navigate("/termsAndconditions")}
+              onClick={() => setShowModal(true)}
               style={{ color: "#1890ff", textDecoration: "none" }}
             >
               By registering you agree with our terms & conditions and privacy
@@ -675,6 +682,29 @@ const CreateProfile = () => {
           </Text>
         </Form>
       </div>
+<Modal
+  title="Terms & Conditions"
+  visible={showModal}
+  onCancel={closeModal}
+  footer={[
+    <Button key="close" onClick={closeModal}>
+      Close
+    </Button>,
+    <Button
+      key="accept"
+      type="primary"
+      onClick={() => {
+        setIsChecked(true);
+        closeModal();
+      }}
+    >
+      Accept
+    </Button>,
+  ]}
+>
+  <TermsAndconditions />
+</Modal>
+
     </div>
   );
 };

@@ -366,7 +366,7 @@ const handleBeforeUpload = async (file) => {
                   <span
                     style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
                   >
-                    Email
+                    Email*
                   </span>
                 }
                 name="email"

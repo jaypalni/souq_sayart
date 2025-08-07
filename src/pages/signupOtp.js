@@ -7,7 +7,7 @@ import { message } from "antd";
 
 const SignupOtp = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [timer, setTimer] = useState(300);
+  const [timer, setTimer] = useState(60);
   const [istimer, setisTimer] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ const SignupOtp = () => {
   };
 
   const handleResend = async () => {
-    if (timer === 0) setTimer(300);
+    if (timer === 0) setTimer(60);
 
     try {
       const usermobilenumber = localStorage.getItem("phone_number");
@@ -81,17 +81,17 @@ const SignupOtp = () => {
       if (data) {
         localStorage.setItem("userData", JSON.stringify(data));
         messageApi.open({
-                    type: "success",
-                    content: data.message,
-                  });
+          type: "success",
+          content: data.message,
+        });
         // message.success(data.message || "OTP has been resent successfully.");
       }
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.open({
-                  type: "error",
-                  content: errorData.message,
-                });
+        type: "error",
+        content: errorData.message,
+      });
       // message.error(
       //   errorData.message || "Failed to resend OTP. Please try again."
       // );
@@ -139,9 +139,9 @@ const SignupOtp = () => {
         message.success(data.message);
 
         if (data.is_registered) {
-          navigate("/landing");
+          navigate("/landing", { replace: true });
         } else {
-          navigate("/createProfile");
+          navigate("/createProfile", { replace: true });
         }
       }
     } catch (error) {
@@ -214,11 +214,7 @@ const SignupOtp = () => {
 
         <button
           disabled={!istimer}
-          className={
-            istimer
-              ? "otp-btn otp-btn-filled"
-              : "otp-btn otp-btn-filled-disabled"
-          }
+          className="otp-btn otp-btn-filled"
           type="button"
           onClick={handleContinue}
           style={{ cursor: istimer ? "pointer" : "default" }}

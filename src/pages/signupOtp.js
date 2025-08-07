@@ -154,7 +154,7 @@ const SignupOtp = () => {
         localStorage.setItem("token", result.data.access_token);
         message.success("OTP verified successfully!");
 
-        if (data.is_registered) {
+        if (result.data.is_registered) {
           navigate("/landing", { replace: true });
         } else {
           navigate("/createProfile", { replace: true });

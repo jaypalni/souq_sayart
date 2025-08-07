@@ -34,15 +34,20 @@ const CreateProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
-   useEffect(() => {
-      const accesstoken = localStorage.getItem("token")
-  console.log("Access Token", accesstoken)
-  
-       if (accesstoken == "undefined" || accesstoken === "" || accesstoken === null) {
-        navigate("/")
-       }
-    })
+  useEffect(() => {
+    const accesstoken = localStorage.getItem("token");
+    console.log("Access Token", accesstoken);
+
+    if (
+      accesstoken == "undefined" ||
+      accesstoken === "" ||
+      accesstoken === null
+    ) {
+      navigate("/");
+    }
+  });
 
   const handleChange = (value) => {
     setChecked(value);
@@ -92,11 +97,19 @@ const CreateProfile = () => {
         form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
       }
 
-      message.success(userdoc.message || "Details uploaded successfully!");
+       messageApi.open({
+         type: "success",
+         content: userdoc.message,
+       });
+      // message.success(userdoc.message || "Details uploaded successfully!");
     } catch (error) {
       const errorData = handleApiError(error);
       console.error("API error:", errorData);
-      message.error(errorData.message || "Failed to upload details");
+       messageApi.open({
+         type: "error",
+         content: errorData.message,
+       });
+      // message.error(errorData.message || "Failed to upload details");
     } finally {
       setLoading(false);
     }
@@ -112,12 +125,20 @@ const CreateProfile = () => {
 
       if (userdoc?.attachment_url) {
         setImageUrl(userdoc.attachment_url);
-        message.success("Upload successful!");
+         messageApi.open({
+           type: "success",
+           content: userdoc.message,
+         });
+        // message.success("Upload successful!");
       } else {
         message.error(userdoc.message || "Upload failed");
       }
     } catch (error) {
       const errorData = handleApiError(error);
+      messageApi.open({
+        type: "error",
+        content: errorData.message,
+      });
       console.error("Upload error:", errorData);
       message.error("Upload failed due to network error");
     }
@@ -167,13 +188,22 @@ const CreateProfile = () => {
 
       console.log("12345", data);
 
-      message.success(data.message);
+      messageApi.open({
+        type: "success",
+        content: data.message,
+      });
+
+      // message.success(data.message);
       navigate("/landing");
     } catch (error) {
       if (error.errorFields) {
         onFinishFailed(error);
       } else {
         const errorData = handleApiError(error);
+        messageApi.open({
+          type: "error",
+          content: errorData.message,
+        });
         message.error(
           errorData.message || "Registration failed. Please try again."
         );
@@ -191,6 +221,7 @@ const CreateProfile = () => {
         padding: "16px",
       }}
     >
+      {contextHolder}
       <div
         className="bg-white p-4 rounded"
         style={{ minWidth: 320, maxWidth: 480, width: "100%" }}
@@ -682,29 +713,28 @@ const CreateProfile = () => {
           </Text>
         </Form>
       </div>
-<Modal
-  title="Terms & Conditions"
-  visible={showModal}
-  onCancel={closeModal}
-  footer={[
-    <Button key="close" onClick={closeModal}>
-      Close
-    </Button>,
-    <Button
-      key="accept"
-      type="primary"
-      onClick={() => {
-        setIsChecked(true);
-        closeModal();
-      }}
-    >
-      Accept
-    </Button>,
-  ]}
->
-  <TermsAndconditions />
-</Modal>
-
+      <Modal
+        title="Terms & Conditions"
+        visible={showModal}
+        onCancel={closeModal}
+        footer={[
+          <Button key="close" onClick={closeModal}>
+            Close
+          </Button>,
+          <Button
+            key="accept"
+            type="primary"
+            onClick={() => {
+              setIsChecked(true);
+              closeModal();
+            }}
+          >
+            Accept
+          </Button>,
+        ]}
+      >
+        <TermsAndconditions />
+      </Modal>
     </div>
   );
 };

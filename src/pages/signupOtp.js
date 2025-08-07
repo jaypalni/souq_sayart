@@ -15,14 +15,14 @@ const SignupOtp = () => {
   const navigate = useNavigate();
   const [otperrormsg, setOtpErrorMsg] = useState("");
 
-//   useEffect(() => {
-//     const reqstid = localStorage.getItem("requestid")
-// console.log("Access Token", reqstid)
+  useEffect(() => {
+    const reqstid = localStorage.getItem("requestid")
+console.log("Access Token", reqstid)
 
-//      if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
-//       navigate("/")
-//      }
-//   })
+     if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
+      navigate("/")
+     }
+  })
 
   useEffect(() => {
     if (timer > 0) {

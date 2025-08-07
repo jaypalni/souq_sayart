@@ -21,7 +21,7 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
   const [emailerrormsg, setEmailErrorMsg] = useState("");
   const [captchaerrormsg, setCaptchaErrorMsg] = useState("");
-  
+
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -111,8 +111,8 @@ const LoginScreen = () => {
           captcha_token: verified,
           phone_number: `${selectedCountry.country_code}${phone}`,
         });
-const savephonenumber = `${selectedCountry.country_code}${phone}`
-        localStorage.setItem("phonenumber", savephonenumber)
+        const savephonenumber = `${selectedCountry.country_code}${phone}`;
+        localStorage.setItem("phonenumber", savephonenumber);
 
         const data = handleApiResponse(response);
         if (data) {

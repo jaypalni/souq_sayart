@@ -76,79 +76,102 @@ const CreateProfile = () => {
 
   const fileInputRef = useRef(null);
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    console.log("Selected file:", file);
+ const handleFileChange = async (e) => {
+  const file = e.target.files[0];
+  console.log("Selected file:", file);
 
-    if (!file) return;
+  if (!file) return;
 
-    try {
-      setLoading(true);
+  const isPDF = file.type === "application/pdf";
 
-      const formData = new FormData();
-      formData.append("attachment", file);
+  if (!isPDF) {
+    messageApi.open({
+      type: "error",
+      content: "Upload failed. Only .pdf documents are allowed.",
+    });
+    return;
+  }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
+  try {
+    setLoading(true);
 
-      const carResponse = await authAPI.uploadimages(formData);
-      const userdoc = handleApiResponse(carResponse);
-
-      if (userdoc?.attachment_url) {
-        console.log("Uploaded attachment URL:", userdoc.attachment_url);
-        setUploadedDocUrl(userdoc.attachment_url);
-        form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
-      }
-
-       messageApi.open({
-         type: "success",
-         content: userdoc.message,
-       });
-      // message.success(userdoc.message || "Details uploaded successfully!");
-    } catch (error) {
-      const errorData = handleApiError(error);
-      console.error("API error:", errorData);
-       messageApi.open({
-         type: "error",
-         content: errorData.message,
-       });
-      // message.error(errorData.message || "Failed to upload details");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBeforeUpload = async (file) => {
     const formData = new FormData();
     formData.append("attachment", file);
 
-    try {
-      const response = await authAPI.uploadimages(formData);
-      const userdoc = handleApiResponse(response);
+    const carResponse = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(carResponse);
 
-      if (userdoc?.attachment_url) {
-        setImageUrl(userdoc.attachment_url);
-         messageApi.open({
-           type: "success",
-           content: userdoc.message,
-         });
-        // message.success("Upload successful!");
-      } else {
-        message.error(userdoc.message || "Upload failed");
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
+    if (userdoc?.attachment_url) {
+      console.log("Uploaded attachment URL:", userdoc.attachment_url);
+      setUploadedDocUrl(userdoc.attachment_url);
+      form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
       messageApi.open({
-        type: "error",
-        content: errorData.message,
+        type: "success",
+        content: userdoc.message,
       });
-      console.error("Upload error:", errorData);
-      message.error("Upload failed due to network error");
     }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    console.error("API error:", errorData);
+    messageApi.open({
+      type: "error",
+      content: errorData.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
+
+const handleBeforeUpload = async (file) => {
+  const isImage =
+    file.type === "image/png" ||
+    file.type === "image/jpeg" ||
+    file.type === "image/jpg";
+
+  if (!isImage) {
+    messageApi.open({
+      type: "error",
+      content: "Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.",
+    });
     return false;
-  };
+  }
+
+  // 🔥 Show preview immediately
+  const previewUrl = URL.createObjectURL(file);
+  setImageUrl(previewUrl); // show preview before API response
+
+  const formData = new FormData();
+  formData.append("attachment", file);
+
+  try {
+    const response = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(response);
+
+    if (userdoc?.attachment_url) {
+      // 🔄 Replace preview with actual uploaded URL (optional)
+      setImageUrl(userdoc.attachment_url);
+      messageApi.open({
+        type: "success",
+        content: userdoc.message,
+      });
+    } else {
+      message.error(userdoc.message || "Upload failed");
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: "error",
+      content: errorData.message,
+    });
+    console.error("Upload error:", errorData);
+    message.error("Upload failed due to network error");
+  }
+
+  return false; // Prevent default upload behavior
+};
+
+
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === "dob");
@@ -271,18 +294,19 @@ const CreateProfile = () => {
               }}
             >
               {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt="avatar"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              ) : (
-                getInitials() || <UserOutlined />
-              )}
+  <img
+    src={imageUrl}
+    alt="avatar"
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+    }}
+  />
+) : (
+  getInitials() || <UserOutlined />
+)}
+
 
               <PlusCircleFilled
                 style={{
@@ -352,13 +376,13 @@ const CreateProfile = () => {
                   </span>
                 }
                 name="email"
-                rules={[
-                  {
-                    required: true,
-                    type: "email",
-                    message: "Valid email is required",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     type: "email",
+                //     message: "Valid email is required",
+                //   },
+                // ]}
                 required={false}
               >
                 <Input placeholder="Email" size="middle" />
@@ -634,13 +658,15 @@ const CreateProfile = () => {
                     required={false}
                   >
                     {/* {" "} */}
-                    <Input
-                      placeholder="Documents"
-                      size="middle"
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                    />{" "}
+                   <Input
+  type="file"
+  placeholder="Documents"
+  size="middle"
+  ref={fileInputRef}
+  onChange={handleFileChange}
+  accept=".pdf"
+/>
+{" "}
                   </Form.Item>
                 </div>
               </div>

@@ -110,6 +110,8 @@ const LoginScreen = () => {
           captcha_token: verified,
           phone_number: `${selectedCountry.country_code}${phone}`,
         });
+const savephonenumber = `${selectedCountry.country_code}${phone}`
+        localStorage.setItem("phonenumber", savephonenumber)
 
         const data = handleApiResponse(response);
         if (data) {

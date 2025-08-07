@@ -30,6 +30,7 @@ const API_CONFIG = {
     },
     AUTH: {
       LOGIN: "/api/auth/login",
+      RESENDOTP: "/api/auth/resend-otp",
       REGISTER: "/api/auth/register",
       LOGOUT: "/auth/logout",
       FORGOT_PASSWORD: "/auth/forgot-password",

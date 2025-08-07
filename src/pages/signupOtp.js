@@ -7,13 +7,22 @@ import { message } from "antd";
 
 const SignupOtp = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(300);
   const [istimer, setisTimer] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const navigate = useNavigate();
   const [otperrormsg, setOtpErrorMsg] = useState("");
+
+  const formatTime = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs
+    .toString()
+    .padStart(2, "0")}`;
+};
+
 
   useEffect(() => {
     const reqstid = localStorage.getItem("requestid")
@@ -58,9 +67,32 @@ console.log("Access Token", reqstid)
     }
   };
 
-  const handleResend = () => {
-    if (timer === 0) setTimer(60);
-  };
+  const handleResend = async () => {
+  if (timer === 0) setTimer(300); // reset timer
+
+  try {
+    const usermobilenumber = localStorage.getItem("phone_number");
+    setLoading(true);
+
+    const response = await authAPI.resendotp({
+      phone_number: usermobilenumber,
+    });
+
+    const data = handleApiResponse(response);
+
+    if (data) {
+      message.success(data.message || "OTP has been resent successfully.");
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(
+      errorData.message || "Failed to resend OTP. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const validateOtp = () => {
   if (otp.some((digit) => digit === "" || !/^\d$/.test(digit))) {
@@ -153,37 +185,41 @@ console.log("Access Token", reqstid)
         </div>
       )}
       <div className="otp-timer">
-        {timer > 0 ? (
-          <span>
-            Resend in <span className="otp-timer-count">{timer}s</span>
-          </span>
-        ) : (
-          <span
-            className="otp-resend"
-            onClick={handleResend}
-            style={{ cursor: "pointer", color: "#0090d4" }}
-          >
-            Resend
-          </span>
-        )}
-      </div>
-      <div className="otp-btn-row">
-        <button className="otp-btn otp-btn-outline" type="button">
-          Continue as guest
-        </button>
-        <button
-          disabled={!istimer}
-          className={
-            istimer
-              ? "otp-btn otp-btn-filled"
-              : "otp-btn otp-btn-filled-disabled"
-          }
-          type="button"
-          onClick={handleContinue}
-        >
-          Continue
-        </button>
-      </div>
+  {timer > 0 ? (
+    <span>
+      Resend in <span className="otp-timer-count">{formatTime(timer)}</span>
+    </span>
+  ) : (
+    <span
+      className="otp-resend"
+      onClick={handleResend}
+      style={{ cursor: "pointer", color: "#0090d4" }}
+    >
+      Resend
+    </span>
+  )}
+</div>
+
+     <div className="otp-btn-row">
+  <button className="otp-btn otp-btn-outline" type="button">
+    Continue as guest
+  </button>
+
+  <button
+    disabled={!istimer}
+    className={
+      istimer
+        ? "otp-btn otp-btn-filled"
+        : "otp-btn otp-btn-filled-disabled"
+    }
+    type="button"
+    onClick={handleContinue}
+    style={{ cursor: istimer ? "pointer" : "default" }}
+  >
+    Continue
+  </button>
+</div>
+
     </div>
   );
 };

@@ -105,8 +105,8 @@
 }
 
 .otp-btn-filled-disabled {
-  background: #E7EBEF;
-  color: black;
+  background: #0090d4;
+  color: #fff;
   border: "none";
   border-radius: 20;
   padding: 2px 52px;
@@ -114,4 +114,5 @@
   font-family: "Roboto";
   font-weight: 700;
   font-size: 14;
+  opacity: 0.5;
 }

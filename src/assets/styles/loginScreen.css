@@ -13,3 +13,9 @@
 .login-box:hover {
   border-color: #005c99;
 }
+
+.emailerror-msg {
+  color: red;
+  font-size: 12px;
+  font-weight: 400;
+}

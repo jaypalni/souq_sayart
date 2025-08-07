@@ -19,7 +19,8 @@ const LoginScreen = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+   const [emailerrormsg, setEmailErrorMsg] = useState("");
+   const [captchaerrormsg, setCaptchaErrorMsg] = useState("");
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -38,6 +39,7 @@ const LoginScreen = () => {
 
   const handlePhoneChange = (e) => {
     const numb = e.target.value;
+     setEmailErrorMsg("");
 
     if (/^\d*$/.test(numb)) {
       setPhone(numb);
@@ -70,11 +72,19 @@ const LoginScreen = () => {
   const handleCaptchaChange = (value) => {
     console.log("Captcha value:", value);
     setVerified(!!value);
+    setCaptchaErrorMsg("");
   };
 
   const onClickContinue = async () => {
     console.log("continue");
-    try {
+     if (phone === "" ) {
+          setEmailErrorMsg("Phone number is required!");
+     }else if (verified == false) {
+      setCaptchaErrorMsg("Captcha is required!");
+     
+      }else{
+try {
+  console.log("Captcha", verified)
       console.log(selectedCountry, phone);
       setLoading(true);
 
@@ -86,6 +96,7 @@ const LoginScreen = () => {
       const data = handleApiResponse(response);
       if (data) {
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("requestid", data.request_id);
         localStorage.setItem(
           "phone_number",
           `${selectedCountry.country_code}${phone}`
@@ -103,14 +114,16 @@ const LoginScreen = () => {
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      // messageApi.open({
-      //   type: "success",
-      //   content: data.message,
-      // });
+      messageApi.open({
+        type: "success",
+        content: errorData.error,
+      });
       messageApi.error(errorData.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
+      }
+    
   };
   return (
     <div
@@ -241,15 +254,23 @@ const LoginScreen = () => {
                 placeholder="Enter phone number"
                 value={phone}
                 onChange={handlePhoneChange}
+
               />
             </div>
+            {/* ✅ Move error message OUTSIDE the flex row container */}
+<div className="emailerror-msg" style={{ marginLeft: 110 }}>
+  {emailerrormsg}
+</div>
           </div>
-          <div style={{ margin: "10px 0px 20px 20px" }}>
+          <div style={{ margin: "10px 0px 10px 20px" }}>
             <ReCAPTCHA
               sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
               onChange={handleCaptchaChange}
             />
           </div>
+          <div className="emailerror-msg" style={{ marginLeft: 10, marginBottom: 10 }}>
+  {captchaerrormsg}
+</div>
           <div style={{ display: "flex", gap: 12 }}>
             <button
               style={{

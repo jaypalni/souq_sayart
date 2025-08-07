@@ -13,6 +13,16 @@ const SignupOtp = () => {
   const [loading, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const navigate = useNavigate();
+  const [otperrormsg, setOtpErrorMsg] = useState("");
+
+  useEffect(() => {
+    const reqstid = localStorage.getItem("requestid")
+console.log("Access Token", reqstid)
+
+     if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
+      navigate("/")
+     }
+  })
 
   useEffect(() => {
     if (timer > 0) {
@@ -23,6 +33,8 @@ const SignupOtp = () => {
       setisTimer(false);
     }
   }, [timer]);
+
+
 
   const handleChange = (e, idx) => {
     const val = e.target.value.replace(/\D/g, "");
@@ -51,13 +63,14 @@ const SignupOtp = () => {
   };
 
   const validateOtp = () => {
-    if (otp.some((digit) => digit === "" || !/^\d$/.test(digit))) {
-      setError("Please enter the 4-digit verification code.");
-      return false;
-    }
-    setError("");
-    return true;
-  };
+  if (otp.some((digit) => digit === "" || !/^\d$/.test(digit))) {
+    setError("Please enter the OTP.");
+    return false;
+  }
+  setError("");
+  return true;
+};
+
 
   // const handleContinue = (e) => {
   //   e.preventDefault();
@@ -68,36 +81,40 @@ const SignupOtp = () => {
   //   }
   // };
 
-  const handleContinue = async () => {
-    console.log("continue");
-    try {
-      setLoading(true);
+ const handleContinue = async () => {
+  if (!validateOtp()) {
+    return; // Prevent proceeding if OTP is incomplete
+  }
 
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const otpDigits = otp.join("");
-      const response = await authAPI.verifyOtp({
-        otp: otpDigits,
-        request_id: userData.request_id,
-      });
+  try {
+    setLoading(true);
 
-      const data = handleApiResponse(response);
-      if (data) {
-        localStorage.setItem("token", data.access_token);
-        message.success(data.message);
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const otpDigits = otp.join("");
+    const response = await authAPI.verifyOtp({
+      otp: otpDigits,
+      request_id: userData.request_id,
+    });
 
-        if (data.is_registered) {
-          navigate("/landing");
-        } else {
-          navigate("/createProfile");
-        }
+    const data = handleApiResponse(response);
+    if (data) {
+      localStorage.setItem("token", data.access_token);
+      message.success(data.message);
+
+      if (data.is_registered) {
+        navigate("/landing");
+      } else {
+        navigate("/createProfile");
       }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || "Login failed. Please try again.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || "Login failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <div className="otp-container">
       <h2 className="otp-title">Login</h2>

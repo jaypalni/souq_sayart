@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Form,
@@ -28,6 +28,15 @@ const CreateProfile = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [checked, setChecked] = useState(false);
   const [uploadedDocUrl, setUploadedDocUrl] = useState("");
+
+   useEffect(() => {
+      const accesstoken = localStorage.getItem("token")
+  console.log("Access Token", accesstoken)
+  
+       if (accesstoken == "undefined" || accesstoken === "" || accesstoken === null) {
+        navigate("/")
+       }
+    })
 
   const handleChange = (value) => {
     setChecked(value);

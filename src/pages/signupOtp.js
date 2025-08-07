@@ -15,14 +15,14 @@ const SignupOtp = () => {
   const navigate = useNavigate();
   const [otperrormsg, setOtpErrorMsg] = useState("");
 
-  useEffect(() => {
-    const reqstid = localStorage.getItem("requestid")
-console.log("Access Token", reqstid)
+//   useEffect(() => {
+//     const reqstid = localStorage.getItem("requestid")
+// console.log("Access Token", reqstid)
 
-     if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
-      navigate("/")
-     }
-  })
+//      if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
+//       navigate("/")
+//      }
+//   })
 
   useEffect(() => {
     if (timer > 0) {
@@ -126,7 +126,7 @@ console.log("Access Token", reqstid)
           <input
             key={idx}
             ref={inputRefs[idx]}
-            type="number"
+            type="tel"
             className={`otp-input${digit ? " filled" : ""}${
               error && (digit === "" || !/^\d$/.test(digit))
                 ? " otp-input-error"

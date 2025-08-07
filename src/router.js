@@ -68,7 +68,8 @@ const AppRouterContent = () => {
       <Routes>
         {!isLogin && (
           <>
-            <Route path="/" element={<LoginScreen />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<LoginScreen />} />
             <Route path="/verifyOtp" element={<SignupOtp />} />
             <Route path="/createProfile" element={<CreateProfile />} />
             <Route path="/landing" element={<Landing />} />

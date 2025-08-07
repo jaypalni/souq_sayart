@@ -15,7 +15,7 @@ const Banner = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
   const isLoginPage =
-    location.pathname === "/" ||
+    location.pathname === "/login" ||
     location.pathname === "/verifyOtp" ||
     location.pathname === "/createProfile";
 

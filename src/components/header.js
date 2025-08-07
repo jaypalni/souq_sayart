@@ -74,7 +74,7 @@ const Header = () => {
             </div>
             <div
               className="menuLeft mx-2"
-              onClick={() => navigate(`/myProfile`)}
+              onClick={() => navigate(`/login`)}
               style={{
                 cursor: "pointer",
                 fontFamily: "Roboto",

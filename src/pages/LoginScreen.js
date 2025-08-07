@@ -19,8 +19,8 @@ const LoginScreen = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-   const [emailerrormsg, setEmailErrorMsg] = useState("");
-   const [captchaerrormsg, setCaptchaErrorMsg] = useState("");
+  const [emailerrormsg, setEmailErrorMsg] = useState("");
+  const [captchaerrormsg, setCaptchaErrorMsg] = useState("");
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -28,7 +28,26 @@ const LoginScreen = () => {
         const data = handleApiResponse(response);
         if (data && data.length > 0) {
           setCountryOptions(data);
-          setSelectedCountry(data[0]);
+
+          const geoRes = await fetch("https://ipapi.co/json/");
+          const geoData = await geoRes.json();
+          const userCountryCode = geoData.country_calling_code;
+
+          console.log("1234geodata", geoData);
+          console.log("1234data", data);
+
+          const defaultCountry = data.find(
+            (country) =>
+              country.country_code === userCountryCode ||
+              country.country_name?.toLowerCase() ===
+                geoData.country_name?.toLowerCase()
+          );
+
+          if (defaultCountry) {
+            setSelectedCountry(defaultCountry);
+          } else {
+            setSelectedCountry(data[0]);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch countries", error);
@@ -39,7 +58,7 @@ const LoginScreen = () => {
 
   const handlePhoneChange = (e) => {
     const numb = e.target.value;
-     setEmailErrorMsg("");
+    setEmailErrorMsg("");
 
     if (/^\d*$/.test(numb)) {
       setPhone(numb);
@@ -77,53 +96,53 @@ const LoginScreen = () => {
 
   const onClickContinue = async () => {
     console.log("continue");
-     if (phone === "" ) {
-          setEmailErrorMsg("Phone number is required!");
-     }else if (verified == false) {
+    if (phone === "") {
+      setEmailErrorMsg("Phone number is required!");
+    } else if (verified == false) {
       setCaptchaErrorMsg("Captcha is required!");
-     
-      }else{
-try {
-  console.log("Captcha", verified)
-      console.log(selectedCountry, phone);
-      setLoading(true);
+    } else {
+      try {
+        console.log("Captcha", verified);
+        console.log(selectedCountry, phone);
+        setLoading(true);
 
-      const response = await authAPI.login({
-        captcha_token: verified,
-        phone_number: `${selectedCountry.country_code}${phone}`,
-      });
+        const response = await authAPI.login({
+          captcha_token: verified,
+          phone_number: `${selectedCountry.country_code}${phone}`,
+        });
 
-      const data = handleApiResponse(response);
-      if (data) {
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("requestid", data.request_id);
-        localStorage.setItem(
-          "phone_number",
-          `${selectedCountry.country_code}${phone}`
-        );
-
+        const data = handleApiResponse(response);
         if (data) {
-          localStorage.setItem("userData", JSON.stringify(data));
-        }
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("requestid", data.request_id);
+          localStorage.setItem(
+            "phone_number",
+            `${selectedCountry.country_code}${phone}`
+          );
 
+          if (data) {
+            localStorage.setItem("userData", JSON.stringify(data));
+          }
+
+          messageApi.open({
+            type: "success",
+            content: data.message,
+          });
+          navigate("/verifyOtp");
+        }
+      } catch (error) {
+        const errorData = handleApiError(error);
         messageApi.open({
           type: "success",
-          content: data.message,
+          content: errorData.error,
         });
-        navigate("/verifyOtp");
+        messageApi.error(
+          errorData.message || "Login failed. Please try again."
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: "success",
-        content: errorData.error,
-      });
-      messageApi.error(errorData.message || "Login failed. Please try again.");
-    } finally {
-      setLoading(false);
     }
-      }
-    
   };
   return (
     <div
@@ -254,13 +273,12 @@ try {
                 placeholder="Enter phone number"
                 value={phone}
                 onChange={handlePhoneChange}
-
               />
             </div>
-            {/* ✅ Move error message OUTSIDE the flex row container */}
-<div className="emailerror-msg" style={{ marginLeft: 110 }}>
-  {emailerrormsg}
-</div>
+
+            <div className="emailerror-msg" style={{ marginLeft: 110 }}>
+              {emailerrormsg}
+            </div>
           </div>
           <div style={{ margin: "10px 0px 10px 20px" }}>
             <ReCAPTCHA
@@ -268,9 +286,12 @@ try {
               onChange={handleCaptchaChange}
             />
           </div>
-          <div className="emailerror-msg" style={{ marginLeft: 10, marginBottom: 10 }}>
-  {captchaerrormsg}
-</div>
+          <div
+            className="emailerror-msg"
+            style={{ marginLeft: 10, marginBottom: 10 }}
+          >
+            {captchaerrormsg}
+          </div>
           <div style={{ display: "flex", gap: 12 }}>
             <button
               style={{

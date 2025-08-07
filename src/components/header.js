@@ -6,9 +6,10 @@ import MessagesImg from "../assets/images/messages.svg";
 import { CiBellOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Select } from "antd";
+import { Select, message } from "antd";
 
 const Header = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   // const menuList = [
   //   { id: "", name: "Buy", path: "/landing", displayName: "" },
   //   { id: "", name: "Sell", path: "/sell", displayName: "" },
@@ -16,20 +17,31 @@ const Header = () => {
   //   { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "" },
   // ];
 
-    const menuList = [
-      { id: "", name: "Buy", path: "", displayName: "" },
-      { id: "", name: "Sell", path: "", displayName: "" },
-      { id: "", name: "My Listings", path: "", displayName: "" },
-      { id: "", name: "Evaluate My Car", path: "", displayName: "" },
-    ];
+  const menuList = [
+    { id: "", name: "Buy", path: "", displayName: "" },
+    { id: "", name: "Sell", path: "", displayName: "" },
+    { id: "", name: "My Listings", path: "", displayName: "" },
+    { id: "", name: "Evaluate My Car", path: "", displayName: "" },
+  ];
   const navigate = useNavigate();
   const { Option } = Select;
+
+  const comingsoonMessage = (value) => {
+    value.name === "Evaluate My Car"
+      ? messageApi.open({
+          type: "success",
+          content: "Coming soon",
+        })
+      : navigate(value.path);
+  };
+
   return (
     <>
       <div className="header">
+        {contextHolder}
         <div className="row remove_gutter">
           <div className="col-3 d-flex">
-            <img className="headerLogo" src={iconWhite}  />
+            <img className="headerLogo" src={iconWhite} />
           </div>
           <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (
@@ -37,7 +49,7 @@ const Header = () => {
                 className="menuItem mx-3 "
                 key={item.name}
                 onClick={() => {
-                  navigate(item.path);
+                  comingsoonMessage(item);
                 }}
                 style={{ cursor: "pointer" }}
               >

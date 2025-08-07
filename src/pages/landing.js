@@ -65,7 +65,7 @@ const Landing = () => {
         <LandingFilters />
         <CarTypeList />
         <CarListing title={"Featured Car"} cardata={carsData} />
-        <SavedSearches /> 
+        <SavedSearches />
       </div>
 
       <DownloadApp />

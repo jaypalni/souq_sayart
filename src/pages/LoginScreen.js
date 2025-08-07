@@ -10,11 +10,13 @@ import ReCAPTCHA from "react-google-recaptcha";
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState("");
+  const [phonevalidation, setPhoneValidation] = useState("");
   const [countryOptions, setCountryOptions] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -33,6 +35,20 @@ const LoginScreen = () => {
     };
     fetchCountries();
   }, []);
+
+  const handlePhoneChange = (e) => {
+    const numb = e.target.value;
+
+    if (/^\d*$/.test(numb)) {
+      setPhone(numb);
+
+      if (numb.length > 0) {
+        setPhoneValidation("Phone number is required!");
+      } else {
+        setPhoneValidation("");
+      }
+    }
+  };
 
   // const [msg, setMsg] = useState("");
 
@@ -70,17 +86,28 @@ const LoginScreen = () => {
       const data = handleApiResponse(response);
       if (data) {
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem(
+          "phone_number",
+          `${selectedCountry.country_code}${phone}`
+        );
 
         if (data) {
           localStorage.setItem("userData", JSON.stringify(data));
         }
 
-        message.success(data.message);
+        messageApi.open({
+          type: "success",
+          content: data.message,
+        });
         navigate("/verifyOtp");
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Login failed. Please try again.");
+      // messageApi.open({
+      //   type: "success",
+      //   content: data.message,
+      // });
+      messageApi.error(errorData.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -89,6 +116,7 @@ const LoginScreen = () => {
     <div
       style={{ minHeight: "50vh", display: "flex", flexDirection: "column" }}
     >
+      {contextHolder}
       {/* Header */}
 
       {/* Login Form */}
@@ -156,7 +184,7 @@ const LoginScreen = () => {
                   {selectedCountry && (
                     <>
                       <img
-                        src={`http://192.168.2.72:5001/${selectedCountry.country_flag_image}`}
+                        src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
                         alt="flag"
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />
@@ -194,7 +222,7 @@ const LoginScreen = () => {
                         }}
                       >
                         <img
-                          src={`http://your-base-url/${country.country_flag_image}`}
+                          src={`http://192.168.2.72:5001${country.country_flag_image}`}
                           alt="flag"
                           style={{ width: 20, height: 14, marginRight: 6 }}
                         />
@@ -212,16 +240,11 @@ const LoginScreen = () => {
                 type="tel"
                 placeholder="Enter phone number"
                 value={phone}
-                onChange={(e) => {
-                  const numb = e.target.value;
-                  if (/^\d*$/.test(numb)) {
-                    setPhone(numb);
-                  }
-                }}
+                onChange={handlePhoneChange}
               />
             </div>
           </div>
-          <div style={{ margin: "10px 0px 20px 0px" }}>
+          <div style={{ margin: "10px 0px 20px 20px" }}>
             <ReCAPTCHA
               sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
               onChange={handleCaptchaChange}

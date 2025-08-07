@@ -19,7 +19,7 @@ import whatsappIcon from "../assets/images/Whatsup.svg";
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
-  const [isDealer, setIsDealer] = useState(true);
+  const [isDealer, setIsDealer] = useState(false);
   const [form] = Form.useForm();
   const [dobError, setDobError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -126,6 +126,7 @@ const CreateProfile = () => {
       setLoading(true);
       const values = await form.validateFields();
       const formattedDOB = values.dob.format("YYYY-MM-DD");
+      const phoneNumber = localStorage.getItem("phone_number");
       const payload = {
         first_name: values.firstName,
         last_name: values.lastName,
@@ -140,7 +141,7 @@ const CreateProfile = () => {
         facebook_page: values.facebookPage || "",
         instagram_company_profile: values.instagramProfile || "",
         profile_pic: imageUrl || "",
-        phone_number: values.phoneNumber || "",
+        phone_number: phoneNumber || "",
         is_dealer: values.isDealer,
         whatsapp: checked ? "1" : "0",
         document: uploadedDocUrl || "",
@@ -251,7 +252,7 @@ const CreateProfile = () => {
           form={form}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
-          initialValues={{ isDealer: true }}
+          initialValues={{ isDealer: false }}
         >
           <div className="row g-3">
             <div className="col-md-6">
@@ -380,16 +381,17 @@ const CreateProfile = () => {
                     });
                   }
                 }}
+                // value={isDealer}
               >
-                <Radio value={false} style={{ marginRight: 24 }}>
+                <Radio value={true} style={{ marginRight: 24 }}>
                   Yes
                 </Radio>
-                <Radio value={true}>No</Radio>
+                <Radio value={false}>No</Radio>
               </Radio.Group>
             </Form.Item>
           </div>
 
-          {!isDealer && (
+          {isDealer && (
             <>
               <div className="row g-3">
                 <div className="col-md-6">

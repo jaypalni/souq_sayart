@@ -103,3 +103,15 @@
   font-weight: 700;
   font-size: 14;
 }
+
+.otp-btn-filled-disabled {
+  background: #E7EBEF;
+  color: black;
+  border: "none";
+  border-radius: 20;
+  padding: 2px 52px;
+  cursor: "pointer";
+  font-family: "Roboto";
+  font-weight: 700;
+  font-size: 14;
+}

@@ -8,6 +8,7 @@ import { message } from "antd";
 const SignupOtp = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(60);
+  const [istimer, setisTimer] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
@@ -15,8 +16,11 @@ const SignupOtp = () => {
 
   useEffect(() => {
     if (timer > 0) {
+      setisTimer(true);
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
       return () => clearInterval(interval);
+    } else {
+      setisTimer(false);
     }
   }, [timer]);
 
@@ -151,7 +155,12 @@ const SignupOtp = () => {
           Continue as guest
         </button>
         <button
-          className="otp-btn otp-btn-filled"
+          disabled={!istimer}
+          className={
+            istimer
+              ? "otp-btn otp-btn-filled"
+              : "otp-btn otp-btn-filled-disabled"
+          }
           type="button"
           onClick={handleContinue}
         >

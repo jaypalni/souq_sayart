@@ -64,10 +64,10 @@ const CreateProfile = () => {
     const formData = new FormData();
 
     // 🔁 TRY different keys: "file", "image", "images"
-    formData.append("file", file); // ✅ Try "file" first
+    formData.append("attachment", file); // ✅ Try "file" first
 
     // Debug what's being sent
-    for (let [key, value] of formData.entries()) {
+    for ( let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
 
@@ -81,7 +81,7 @@ const CreateProfile = () => {
     }
 
     message.success(userdoc.message || 'Details uploaded successfully!');
-    form.resetFields();
+    // form.resetFields();
   } catch (error) {
     const errorData = handleApiError(error);
     console.error("API error:", errorData);

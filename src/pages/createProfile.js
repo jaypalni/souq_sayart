@@ -366,17 +366,17 @@ const handleBeforeUpload = async (file) => {
                   <span
                     style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
                   >
-                    Email*
+                    Email
                   </span>
                 }
                 name="email"
-                rules={[
-                  {
-                    required: true,
-                    type: "email",
-                    message: "Valid email is required",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     type: "email",
+                //     message: "Valid email is required",
+                //   },
+                // ]}
                 required={false}
               >
                 <Input placeholder="Email" size="middle" />

@@ -53,53 +53,60 @@ const CreateProfile = () => {
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
-  const file = e.target.files[0];
-  console.log("Selected file:", file);
+    const file = e.target.files[0];
+    console.log("Selected file:", file);
 
-  if (!file) return;
+    if (!file) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
+      const formData = new FormData();
+      formData.append("attachment", file);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const carResponse = await authAPI.uploadimages(formData);
+      const userdoc = handleApiResponse(carResponse);
+
+      if (userdoc?.attachment_url) {
+        console.log("Uploaded attachment URL:", userdoc.attachment_url);
+        setUploadedDocUrl(userdoc.attachment_url);
+        form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
+      }
+
+      message.success(userdoc.message || "Details uploaded successfully!");
+    } catch (error) {
+      const errorData = handleApiError(error);
+      console.error("API error:", errorData);
+      message.error(errorData.message || "Failed to upload details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBeforeUpload = async (file) => {
     const formData = new FormData();
+    formData.append("attachment", file);
 
-    // 🔁 TRY different keys: "file", "image", "images"
-    formData.append("attachment", file); // ✅ Try "file" first
+    try {
+      const response = await authAPI.uploadimages(formData);
+      const userdoc = handleApiResponse(response);
 
-    // Debug what's being sent
-    for ( let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+      if (userdoc?.attachment_url) {
+        setImageUrl(userdoc.attachment_url);
+        message.success("Upload successful!");
+      } else {
+        message.error(userdoc.message || "Upload failed");
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      console.error("Upload error:", errorData);
+      message.error("Upload failed due to network error");
     }
 
-    const carResponse = await authAPI.uploadimages(formData);
-    const userdoc = handleApiResponse(carResponse);
-
-    if (userdoc?.attachment_url) {
-      console.log("Uploaded attachment URL:", userdoc.attachment_url);
-      setUploadedDocUrl(userdoc.attachment_url);
-      form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
-    }
-
-    message.success(userdoc.message || 'Details uploaded successfully!');
-    // form.resetFields();
-  } catch (error) {
-    const errorData = handleApiError(error);
-    console.error("API error:", errorData);
-    message.error(errorData.message || 'Failed to upload details');
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-
-  const handleBeforeUpload = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImageUrl(e.target.result);
-    };
-    reader.readAsDataURL(file);
     return false;
   };
 
@@ -661,4 +668,4 @@ const CreateProfile = () => {
   );
 };
 
-export default CreateProfile; 
+export default CreateProfile;

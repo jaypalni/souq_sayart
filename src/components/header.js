@@ -7,7 +7,6 @@ import { CiBellOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Select, message } from "antd";
-
 const Header = () => {
   const [messageApi, contextHolder] = message.useMessage();
   // const menuList = [
@@ -16,6 +15,7 @@ const Header = () => {
   //   { id: "", name: "My Listings", path: "/myListings", displayName: "" },
   //   { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "" },
   // ];
+  const userdetails = useSelector((state) => state.userData);
 
   const menuList = [
     { id: "", name: "Buy", path: "", displayName: "" },
@@ -34,7 +34,7 @@ const Header = () => {
         })
       : navigate(value.path);
   };
-
+  console.log("userdetails", userdetails);
   return (
     <>
       <div className="header">

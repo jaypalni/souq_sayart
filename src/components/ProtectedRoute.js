@@ -9,15 +9,15 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
 
-
-  const isLoggedIn = isAuthenticated && user && customerDetails;
+  // Check if user is logged in - check multiple auth indicators
+  const token = localStorage.getItem('token');
+  const isLoggedIn = isAuthenticated || user || customerDetails || token;
   
   if (!isLoggedIn) {
     messageApi.open({
       type: "warning",
       content: "Please login to access this page",
     });
-
 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

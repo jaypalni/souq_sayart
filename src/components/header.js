@@ -108,8 +108,9 @@ const Header = () => {
   const comingsoonMessage = (value) => {
     // Check if the menu item requires authentication
     if (value.requiresAuth) {
-      // Check if user is logged in
-      const isLoggedIn = isAuthenticated || getUserDisplayName();
+      // Check if user is logged in - check multiple auth indicators
+      const token = localStorage.getItem('token');
+      const isLoggedIn = isAuthenticated || getUserDisplayName() || token;
       
       if (!isLoggedIn) {
         // User is not logged in, redirect to login

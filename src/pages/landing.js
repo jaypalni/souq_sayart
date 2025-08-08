@@ -64,8 +64,8 @@ const Landing = () => {
       <div className="container py-4">
         <LandingFilters />
         <CarTypeList />
+        <SavedSearches title={"Your Saved Searches"} />
         <CarListing title={"Featured Car"} cardata={carsData} />
-        <SavedSearches />
       </div>
 
       <DownloadApp />

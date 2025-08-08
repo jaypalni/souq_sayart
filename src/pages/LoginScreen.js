@@ -29,27 +29,32 @@ const LoginScreen = () => {
         const data = handleApiResponse(response);
         if (data && data.length > 0) {
           setCountryOptions(data);
-
-          // Cached geolocation to avoid hitting rate limits
           const getGeoData = async () => {
             try {
               const cacheKey = "geoDataCache";
               const cached = localStorage.getItem(cacheKey);
               if (cached) {
                 const parsed = JSON.parse(cached);
-                const maxAgeMs = 24 * 60 * 60 * 1000; // 24h
-                if (parsed?.ts && Date.now() - parsed.ts < maxAgeMs && parsed?.data) {
+                const maxAgeMs = 24 * 60 * 60 * 1000;
+                if (
+                  parsed?.ts &&
+                  Date.now() - parsed.ts < maxAgeMs &&
+                  parsed?.data
+                ) {
                   return parsed.data;
                 }
               }
 
               const geoRes = await fetch("https://ipapi.co/json/");
-              if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
+              if (!geoRes.ok)
+                throw new Error(`Geo API error: ${geoRes.status}`);
               const geoData = await geoRes.json();
-              localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: geoData }));
+              localStorage.setItem(
+                cacheKey,
+                JSON.stringify({ ts: Date.now(), data: geoData })
+              );
               return geoData;
             } catch (err) {
-              // Fallback: no geo data
               return null;
             }
           };
@@ -58,27 +63,32 @@ const LoginScreen = () => {
           let defaultCountry = null;
 
           if (geoData) {
-            const userCountryCode = geoData.country_calling_code; // e.g. +91
+            const userCountryCode = geoData.country_calling_code;
             defaultCountry = data.find(
               (country) =>
                 country.country_code === userCountryCode ||
-                country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase()
+                country.country_name?.toLowerCase() ===
+                  geoData.country_name?.toLowerCase()
             );
           }
 
-          // Additional fallback: detect India by time zone or browser locale
           if (!defaultCountry) {
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const tzLower = tz ? tz.toLowerCase() : "";
-            const tzOffset = new Date().getTimezoneOffset(); // IST => -330
-            const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+            const tzOffset = new Date().getTimezoneOffset();
+            const langs = [
+              navigator.language,
+              ...(navigator.languages || []),
+            ].filter(Boolean);
             const isIndiaLocale =
               tzLower === "asia/kolkata" ||
               tzLower === "asia/calcutta" ||
               tzOffset === -330 ||
               langs.some((l) => {
                 const ll = String(l).toLowerCase();
-                return ll.endsWith("-in") || ll === "en-in" || ll.includes("-in");
+                return (
+                  ll.endsWith("-in") || ll === "en-in" || ll.includes("-in")
+                );
               });
             if (isIndiaLocale) {
               defaultCountry =
@@ -88,7 +98,6 @@ const LoginScreen = () => {
             }
           }
 
-          // Final fallback
           if (!defaultCountry) {
             defaultCountry = data[0];
           }
@@ -99,7 +108,6 @@ const LoginScreen = () => {
         }
       } catch (error) {
         console.error("Failed to fetch countries", error);
-        // As a last resort, do nothing; user can select manually
       }
     };
     fetchCountries();

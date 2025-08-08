@@ -15,7 +15,7 @@ const CarListing = ({ title, cardata }) => {
   console.log("cardata123", cardata);
   return (
     <div className="car-listing-container">
-      <div className="car-listing-header">
+      <div className="car-listing-header mt-4">
         <span>{title}</span>
         <a href="#" className="car-listing-seeall">
           See All

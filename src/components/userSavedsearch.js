@@ -83,12 +83,14 @@
 
 import React from "react";
 import "../assets/styles/usersavedsearches.css";
-import mercedesLogo from "../assets/images/souqLogo.png"; 
-import lamborghiniLogo from "../assets/images/souqLogo.png"; 
-import carImage from "../assets/images/subscribecar_icon.png"; 
+import mercedesLogo from "../assets/images/souqLogo.png";
+import lamborghiniLogo from "../assets/images/souqLogo.png";
+import carImage from "../assets/images/subscribecar_icon.png";
 import diamondLogo from "../assets/images/bluediamond_icon.svg";
 import dollarLogo from "../assets/images/bluedollar_icon.svg";
 import like_icon from "../assets/images/like_icon.svg";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const savedSearches = [
   {
@@ -118,7 +120,15 @@ const savedSearches = [
 ];
 
 const UserSavedsearch = () => {
-  const isLoggedIn = true; 
+  const navigate = useNavigate();
+
+  const tokendata = localStorage.getItem("token");
+  let isLoggedIn;
+  if (tokendata === "" || tokendata === null) {
+    isLoggedIn = false;
+  } else {
+    isLoggedIn = true;
+  }
 
   return (
     <div className="user-saved-searches-wrapper">
@@ -194,7 +204,12 @@ const UserSavedsearch = () => {
                   Find your saved searches right here. Get alerts for new
                   listings.
                 </p>
-                <button className="signup-btn">Sign up / log in</button>
+                <button
+                  className="signup-btn"
+                  onClick={() => navigate("/login")}
+                >
+                  Sign up / log in
+                </button>
               </div>
             </div>
           )}
@@ -227,6 +242,4 @@ const UserSavedsearch = () => {
   );
 };
 
-
 export default UserSavedsearch;
-

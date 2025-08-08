@@ -14,7 +14,7 @@ const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
 
 const LandingFilters = () => {
   const [loading, setLoading] = useState(false);
-  const [make, setMake] = useState("All ");
+  const [make, setMake] = useState("All");
   const [carMakes, setCarMakes] = useState([]);
   const [model, setModel] = useState("All Models");
   const [carModels, setCarModels] = useState([]);
@@ -175,6 +175,7 @@ const LandingFilters = () => {
               className="landing-filters-select"
               size="large"
               dropdownClassName="landing-filters-dropdown"
+              placeholder="All Models"
             >
               {carMakes.map((m) => (
                 <Option key={m.id} value={m.name}>

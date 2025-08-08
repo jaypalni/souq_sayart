@@ -133,4 +133,13 @@
   background: #0090d4;
   color: #fff;
   font-weight: 600;
-} 
+}
+
+:where(.css-dev-only-do-not-override-1m2bkf9).ant-select
+  .ant-select-selection-wrap {
+  display: flex;
+  color: #8f8f8f;
+  width: 100%;
+  position: relative;
+  min-width: 0;
+}

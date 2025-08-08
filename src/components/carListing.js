@@ -25,94 +25,96 @@ const CarListing = ({ title, cardata }) => {
         </div>
       )}
       <div className="car-listing-flex-row">
-        {cardata.map((car, idx) => (
-          <div
-            className="car-listing-card"
-            key={idx}
-            style={car.featured ? { cursor: "pointer" } : {}}
-            onClick={() => navigate(`/carDetails/${car.id}`)}
-          >
-            <div className="car-listing-image-wrapper">
-              <img
-                src={carImage}
-                alt={car.title}
-                className="car-listing-image"
-              />
-              <div className="car-listing-badges">
-                {car.featured && (
-                  <div className="car-listing-badge blue-bg">Featured</div>
-                )}
-                {car.certified && (
-                  <div className="car-listing-badge orenge-bg">
-                    <CheckCircleFilled /> Certified Dealer
+        {cardata !== null &&
+          Array.isArray(cardata) &&
+          cardata.map((car, idx) => (
+            <div
+              className="car-listing-card"
+              key={idx}
+              style={car.featured ? { cursor: "pointer" } : {}}
+              onClick={() => navigate(`/carDetails/${car.id}`)}
+            >
+              <div className="car-listing-image-wrapper">
+                <img
+                  src={carImage}
+                  alt={car.title}
+                  className="car-listing-image"
+                />
+                <div className="car-listing-badges">
+                  {car.featured && (
+                    <div className="car-listing-badge blue-bg">Featured</div>
+                  )}
+                  {car.certified && (
+                    <div className="car-listing-badge orenge-bg">
+                      <CheckCircleFilled /> Certified Dealer
+                    </div>
+                  )}
+                </div>
+                <div className="car-listing-fav">
+                  <FaRegHeart />
+                </div>
+              </div>
+              <div className="car-listing-content">
+                <div className="d-flex">
+                  <div className="car-listing-title">{car.title}</div>
+                  <div className="car-listing-price">${car.price}</div>
+                </div>
+                <div className="car-listing-engine">{car.engine}</div>
+                <div className="car-listing-details row">
+                  <div className="col-5">
+                    {" "}
+                    <span>
+                      <img
+                        src={car_type}
+                        alt="Car"
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#003958",
+                        }}
+                      />{" "}
+                      {car.transmission}
+                    </span>
                   </div>
-                )}
-              </div>
-              <div className="car-listing-fav">
-                <FaRegHeart />
+                  <div className="col-3">
+                    <span>
+                      <img
+                        src={country_code}
+                        alt="Car"
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#003958",
+                        }}
+                      />
+                      {car.country}
+                    </span>{" "}
+                  </div>
+                  <div className="col-4">
+                    <span>
+                      <img
+                        src={speed_code}
+                        alt="Car"
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#003958",
+                        }}
+                      />
+                      {car.mileage}{" "}
+                    </span>
+                  </div>
+                  <div className="car-listing-location">{car.location}</div>
+                </div>
               </div>
             </div>
-            <div className="car-listing-content">
-              <div className="d-flex">
-                <div className="car-listing-title">{car.title}</div>
-                <div className="car-listing-price">${car.price}</div>
-              </div>
-              <div className="car-listing-engine">{car.engine}</div>
-              <div className="car-listing-details row">
-                <div className="col-5">
-                  {" "}
-                  <span>
-                    <img
-                      src={car_type}
-                      alt="Car"
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        fontSize: "12px",
-                        fontWeight: 400,
-                        color: "#003958",
-                      }}
-                    />{" "}
-                    {car.transmission}
-                  </span>
-                </div>
-                <div className="col-3">
-                  <span>
-                    <img
-                      src={country_code}
-                      alt="Car"
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        fontSize: "12px",
-                        fontWeight: 400,
-                        color: "#003958",
-                      }}
-                    />
-                    {car.country}
-                  </span>{" "}
-                </div>
-                <div className="col-4">
-                  <span>
-                    <img
-                      src={speed_code}
-                      alt="Car"
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        fontSize: "12px",
-                        fontWeight: 400,
-                        color: "#003958",
-                      }}
-                    />
-                    {car.mileage}{" "}
-                  </span>
-                </div>
-                <div className="car-listing-location">{car.location}</div>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );

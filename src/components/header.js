@@ -280,7 +280,7 @@ const Header = () => {
                 defaultValue="En"
                 bordered={false}
                 style={{
-                  width: 60,
+                  width: 90,
                   color: "#FAFAFA",
                   backgroundColor: "transparent",
                   fontSize: "12px",
@@ -292,9 +292,9 @@ const Header = () => {
                 }}
                 onChange={(value) => console.log("Selected:", value)}
               >
-                <Option value="En">En</Option>
-                <Option value="Ar">Ar</Option>
-                <Option value="Ku">Ku</Option>
+                <Option value="En">English</Option>
+                <Option value="Ar">Arabic</Option>
+                <Option value="Ku">Kurdish</Option>
               </Select>
             </div>
           </div>

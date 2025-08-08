@@ -1,4 +1,4 @@
-.user-saved-searches-outer-card {
+/* .user-saved-searches-outer-card {
   display: flex;
   background: #fff;
   border-radius: 14px;
@@ -115,4 +115,312 @@
     background: #ededed;
     border-radius: 2px;
   }
-} 
+}  */
+
+.Search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  margin-top: 8px;
+}
+
+.car-listing-seeall {
+  color: #ff9100;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.user-saved-searches-wrapper {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.user-saved-searches-top {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+  align-items: stretch; /* Equal height */
+}
+
+/* Saved Searches Box (Left Side) */
+.user-saved-searches-outer-card {
+  display: flex;
+  background: #fff;
+  border-radius: 14px;
+  border: 1.5px solid #eaeaea;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  /* margin: 1px 0; */
+  flex: 2;
+}
+
+/* Individual Car Box */
+.user-saved-search-section {
+  flex: 1 1 0;
+  padding: 18px 18px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  background: #fff;
+}
+
+.user-saved-search-section.with-divider {
+  position: relative;
+}
+
+.user-saved-search-section.with-divider::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  right: 0;
+  width: 1.5px;
+  background: #ededed;
+  border-radius: 2px;
+}
+
+/* Car Header */
+.user-saved-search-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.user-saved-search-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 1px solid #eee;
+}
+
+.user-saved-search-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.user-saved-search-brand {
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: #222;
+}
+
+.user-saved-search-model {
+  font-size: 0.95rem;
+  color: #888;
+  font-weight: 400;
+  margin-top: -2px;
+}
+
+/* Meta: Price, Year */
+.user-saved-search-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.98rem;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.user-saved-search-dot {
+  font-size: 1.1em;
+  color: #bbb;
+}
+
+/* Details List */
+.user-saved-search-details {
+  margin: 0;
+  padding-left: 18px;
+  color: #444;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-align: left;
+}
+
+.user-saved-search-details li {
+  margin-bottom: 2px;
+}
+
+/* Subscribe Image Box (Right Side) */
+.user-saved-search-image-box {
+  position: relative;
+  flex: 1;
+  border: 1.5px solid #eaeaea;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-color: #000;
+}
+
+.user-saved-search-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.user-saved-search-image-text {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Bottom Actions */
+.user-saved-search-actions {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+  width: 100%;
+  /* margin-top: 2px; 🔧 Set the top margin to 5px */
+}
+
+
+.user-saved-search-action-box {
+  display: flex;
+  align-items: center;
+  background-color: #0619c3;
+  padding: 15px;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 280px;
+  gap: 10px;
+}
+
+.action-icon {
+  background: #e0f0ff;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 1.5rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .user-saved-searches-top {
+    flex-direction: column;
+  }
+
+  .user-saved-searches-outer-card {
+    flex-direction: column;
+    border-radius: 10px;
+  }
+
+  .user-saved-search-section.with-divider::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: auto;
+    bottom: 0;
+    height: 1.5px;
+    width: auto;
+    background: #ededed;
+    border-radius: 2px;
+  }
+
+  .user-saved-search-image-box {
+    height: auto;
+    margin-top: 20px;
+  }
+}
+
+.user-saved-searches-left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.user-saved-searches-top {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.user-saved-search-actions {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.user-saved-search-action-box {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center; 
+  justify-content: flex-start;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  gap: 10px;
+  min-height: 80px;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  border: 1px solid #eee;
+  font-size: 16;
+  font-weight: 400;
+}
+
+.user-saved-search-action-box p {
+  margin: 0; 
+  line-height: 1.4;
+}
+
+/* Sign Up */
+
+.user-saved-searches-signup-box {
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; 
+  gap: 1px; 
+  padding: 15px;
+  background-color: #fff;
+  border: 1.5px solid #eaeaea;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.signup-icon img {
+  width: 48px;
+  height: 48px;
+  background: #e3f2ff;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.user-saved-searches-signup-box h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.user-saved-searches-signup-box p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.signup-btn {
+  margin-top: 10px;
+  background-color: #008AD5;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+

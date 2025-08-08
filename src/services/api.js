@@ -18,6 +18,15 @@ const api = axios.create({
   timeout: 30000, // 30 seconds timeout
 });
 
+// Create public axios instance for non-authenticated endpoints
+const publicApi = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  timeout: 30000, // 30 seconds timeout
+});
+
 // Add request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
@@ -90,7 +99,7 @@ export const authAPI = {
     console.log("API endpoint:", API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP);
     return api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData);
   },
-  countrycode: () => api.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
+  countrycode: () => publicApi.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
   uploadimages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
       headers: {
@@ -121,19 +130,19 @@ export const carAPI = {
       },
     }),
   getCarOptions: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_OPTIONS),
-  getCarFeatures: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_FEATURES),
+  getCarFeatures: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_FEATURES),
   getCarRecommended: () =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_RECOMMENDED),
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_RECOMMENDED),
   getCarSpecs: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_SPECS),
-  getMakeCars: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_MAKE_CARS),
+  getMakeCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_MAKE_CARS),
   getModelCars: (make) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_MODEL_CARS(make)),
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_MODEL_CARS(make)),
   getYearData: (make, modalName) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_YEAR_CARS(make, modalName)),
-  getBodyCars: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
-  getLocationCars: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_YEAR_CARS(make, modalName)),
+  getBodyCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
+  getLocationCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
   getSearchCars: (make, model) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_SEARCH_CARS(make, model)),
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_SEARCH_CARS(make, model)),
 };
 
 // User APIs

@@ -3,7 +3,6 @@ import {
   AUTH_LOGIN_SUCCESS,
   AUTH_LOGIN_FAILURE,
   AUTH_LOGOUT,
-  CUSTOMER_DETAILS_CLEAR,
 } from '../actions/authActions';
 
 const initialState = {
@@ -45,13 +44,6 @@ const authReducer = (state = initialState, action) => {
         token: null,
         isAuthenticated: false,
         error: null,
-      };
-    case CUSTOMER_DETAILS_CLEAR:
-      return {
-        ...state,
-        user: null,
-        token: null,
-        isAuthenticated: false,
       };
 
     default:

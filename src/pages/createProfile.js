@@ -42,6 +42,16 @@ const CreateProfile = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { customerDetails } = useSelector((state) => state.customerDetails);
+  const token = localStorage.getItem("token");
+  const isLoggedIn = customerDetails;
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/landing");
+    }
+  }, []);
+
   useEffect(() => {
     const accesstoken = localStorage.getItem("token");
     console.log("Access Token", accesstoken);

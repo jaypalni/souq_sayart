@@ -10,9 +10,9 @@ const ProtectedRoute = ({ children }) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   // Check if user is logged in - check multiple auth indicators
-  const token = localStorage.getItem('token');
-  const isLoggedIn = isAuthenticated || user || customerDetails || token;
-  
+  const token = localStorage.getItem("token");
+  const isLoggedIn = customerDetails;
+
   if (!isLoggedIn) {
     messageApi.open({
       type: "warning",

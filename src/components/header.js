@@ -19,14 +19,39 @@ const Header = () => {
   //   { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "" },
   // ];
   const userdetails = useSelector((state) => state.userData);
-  const { customerDetails, customerDetailsLoading, customerDetailsError } = useSelector((state) => state.customerDetails);
+  const { customerDetails, customerDetailsLoading, customerDetailsError } =
+    useSelector((state) => state.customerDetails);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const menuList = [
-    { id: "", name: "Buy", path: "/landing", displayName: "", requiresAuth: false },
-    { id: "", name: "Sell", path: "/sell", displayName: "", requiresAuth: true },
-    { id: "", name: "My Listings", path: "/myListings", displayName: "", requiresAuth: true },
-    { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "", requiresAuth: false },
+    {
+      id: "",
+      name: "Buy",
+      path: "/landing",
+      displayName: "",
+      requiresAuth: false,
+    },
+    {
+      id: "",
+      name: "Sell",
+      path: "/sell",
+      displayName: "",
+      requiresAuth: true,
+    },
+    {
+      id: "",
+      name: "My Listings",
+      path: "/myListings",
+      displayName: "",
+      requiresAuth: true,
+    },
+    {
+      id: "",
+      name: "Evaluate My Car",
+      path: "/evaluate",
+      displayName: "",
+      requiresAuth: false,
+    },
   ];
   const navigate = useNavigate();
   const { Option } = Select;
@@ -35,70 +60,71 @@ const Header = () => {
   const getUserDisplayName = () => {
     // Check if user is authenticated and has user data
     if (isAuthenticated && user) {
-      const firstName = user.first_name || user.firstName || '';
+      const firstName = user.first_name || user.firstName || "";
       return firstName.trim();
     }
-    
+
     // Check if customer details are available
     if (customerDetails) {
-      const firstName = customerDetails.first_name || customerDetails.firstName || '';
+      const firstName =
+        customerDetails.first_name || customerDetails.firstName || "";
       return firstName.trim();
     }
-    
+
     return null;
   };
 
   // Dropdown menu items for logged-in user
   const userMenuItems = [
     {
-      key: 'myProfile',
-      label: 'My Profile',
+      key: "myProfile",
+      label: "My Profile",
       icon: <UserOutlined />,
-      onClick: () => navigate('/myProfile'),
+      onClick: () => navigate("/myProfile"),
     },
     {
-      key: 'settings',
-      label: 'Settings',
+      key: "settings",
+      label: "Settings",
       icon: <SettingOutlined />,
-      onClick: () => navigate('/settings'),
+      onClick: () => navigate("/settings"),
     },
     {
-      key: 'changePassword',
-      label: 'Change Password',
-      onClick: () => navigate('/changePassword'),
+      key: "changePassword",
+      label: "Change Password",
+      onClick: () => navigate("/changePassword"),
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'logout',
-      label: 'Logout',
+      key: "logout",
+      label: "Logout",
       onClick: async () => {
         try {
           // Clear all localStorage data
           localStorage.clear();
-          
+
           // Dispatch logout action to clear Redux state
           await dispatch(logoutUser());
-          
+
           // Clear customer details from Redux
           dispatch(clearCustomerDetails());
-          
+
           // Clear user data from Redux
-          dispatch({ type: 'CLEAR_USER_DATA' });
-          
+          dispatch({ type: "CLEAR_USER_DATA" });
+
           messageApi.open({
-            type: 'success',
-            content: 'Logged out successfully',
+            type: "success",
+            content: "Logged out successfully",
           });
-          
+
           // Navigate to login screen
-          navigate('/login');
+          navigate("/login");
         } catch (error) {
-          console.error('Logout error:', error);
+          console.error("Logout error:", error);
           messageApi.open({
-            type: 'error',
-            content: 'Logout failed',
+            type: "error",
+            content: "Logout failed",
           });
         }
       },
@@ -109,20 +135,20 @@ const Header = () => {
     // Check if the menu item requires authentication
     if (value.requiresAuth) {
       // Check if user is logged in - check multiple auth indicators
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const isLoggedIn = isAuthenticated || getUserDisplayName() || token;
-      
+
       if (!isLoggedIn) {
         // User is not logged in, redirect to login
         messageApi.open({
           type: "warning",
           content: "Please login to access this feature",
         });
-        navigate('/login');
+        navigate("/login");
         return;
       }
     }
-    
+
     // Handle special cases
     if (value.name === "Evaluate My Car") {
       messageApi.open({
@@ -131,7 +157,7 @@ const Header = () => {
       });
       return;
     }
-    
+
     // Navigate to the respective screen
     navigate(value.path);
   };
@@ -141,13 +167,13 @@ const Header = () => {
   console.log("Customer Details Loading:", customerDetailsLoading);
   console.log("Customer Details Error:", customerDetailsError);
   console.log("=== END CUSTOMER DETAILS ===");
-  
+
   console.log("=== USER AUTH FROM REDUX ===");
   console.log("User:", user);
   console.log("Is Authenticated:", isAuthenticated);
   console.log("User Display Name:", getUserDisplayName());
   console.log("=== END USER AUTH ===");
-  
+
   return (
     <>
       <div className="header">
@@ -205,7 +231,7 @@ const Header = () => {
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
-                trigger={['click']}
+                trigger={["click"]}
               >
                 <div
                   className="menuLeft mx-2"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
@@ -21,6 +21,16 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
   const [emailerrormsg, setEmailErrorMsg] = useState("");
   const [captchaerrormsg, setCaptchaErrorMsg] = useState("");
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { customerDetails } = useSelector((state) => state.customerDetails);
+  const token = localStorage.getItem("token");
+  const isLoggedIn = customerDetails;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/landing");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCountries = async () => {

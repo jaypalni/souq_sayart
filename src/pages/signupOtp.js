@@ -21,6 +21,16 @@ const SignupOtp = () => {
   const navigate = useNavigate();
   const [otperrormsg, setOtpErrorMsg] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { customerDetails } = useSelector((state) => state.customerDetails);
+  const token = localStorage.getItem("token");
+  const isLoggedIn = customerDetails;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/landing");
+    }
+  }, []);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);

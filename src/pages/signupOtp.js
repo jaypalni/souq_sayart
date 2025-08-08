@@ -24,7 +24,7 @@ const SignupOtp = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const token = localStorage.getItem("token");
-  const isLoggedIn = customerDetails;
+  const isLoggedIn = customerDetails && user;
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -171,9 +171,9 @@ const SignupOtp = () => {
         //message.success("OTP verified successfully!");
 
         if (result.data.is_registered) {
-          navigate("/landing", { replace: true });
+          navigate("/landing");
         } else {
-          navigate("/createProfile", { replace: true });
+          navigate("/createProfile");
         }
       } else {
         console.log("OTP verification failed:", result.error);

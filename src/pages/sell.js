@@ -517,9 +517,9 @@ const Sell = () => {
     setMediaPreviewImage(file.url || file.preview);
     setMediaPreviewOpen(true);
   };
-  
+
   const handleMediaChange = ({ fileList: newFileList }) => {
-    const filteredList = newFileList.filter((file) => {
+    const filteredList = newFileList?.filter((file) => {
       return (file.size || file.originFileObj?.size) / 1024 / 1024 < 5;
     });
     setMediaFileList(filteredList);
@@ -624,7 +624,7 @@ const Sell = () => {
                         style={{ display: "none" }}
                         onChange={(e) => {
                           const files = Array.from(e.target.files);
-                          const newFileList = files.map((file, idx) => ({
+                          const newFileList = files?.map((file, idx) => ({
                             uid: `${Date.now()}-${idx}`,
                             name: file.name,
                             status: "done",
@@ -751,12 +751,12 @@ const Sell = () => {
                     />
                     <div className="brand-modal-grid">
                       {carMakes
-                        .filter((opt) =>
-                          opt.name
-                            .toLowerCase()
-                            .includes(brandSearch.toLowerCase())
+                        ?.filter((opt) =>
+                          opt?.name
+                            ?.toLowerCase()
+                            ?.includes(brandSearch?.toLowerCase())
                         )
-                        .map((opt) => (
+                        ?.map((opt) => (
                           <div
                             key={opt.name}
                             className={`brand-option${
@@ -803,12 +803,12 @@ const Sell = () => {
                     />
                     <div className="trim-modal-list">
                       {carModels
-                        .filter((opt) =>
+                        ?.filter((opt) =>
                           opt.model_name
                             .toLowerCase()
                             .includes(trimSearch.toLowerCase())
                         )
-                        .map((opt) => (
+                        ?.map((opt) => (
                           <div
                             key={opt.model_name}
                             className={`trim-modal-option${
@@ -926,12 +926,12 @@ const Sell = () => {
                     />
                     <div className="trim-modal-list">
                       {trimData
-                        .filter((opt) =>
-                          opt.trim_name
-                            .toLowerCase()
-                            .includes(trimSearch.toLowerCase())
+                        ?.filter((opt) =>
+                          opt?.trim_name
+                            ?.toLowerCase()
+                            ?.includes(trimSearch.toLowerCase())
                         )
-                        .map((opt) => (
+                        ?.map((opt) => (
                           <div
                             key={opt.trim_name}
                             className={`trim-modal-option${
@@ -981,12 +981,12 @@ const Sell = () => {
                     />
                     <div className="regionalspecs-modal-list">
                       {updateData?.regional_specs
-                        .filter((opt) =>
-                          opt.regional_spec
-                            .toLowerCase()
-                            .includes(regionalSpecsSearch.toLowerCase())
+                        ?.filter((opt) =>
+                          opt?.regional_spec
+                            ?.toLowerCase()
+                            ?.includes(regionalSpecsSearch.toLowerCase())
                         )
-                        .map((opt) => (
+                        ?.map((opt) => (
                           <div
                             key={opt.regional_spec}
                             className={`regionalspecs-modal-option${
@@ -1021,7 +1021,7 @@ const Sell = () => {
                     name="bodyType"
                   >
                     <div className="option-box-group">
-                      {bodyTypes.map((opt) => (
+                      {bodyTypes?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1049,7 +1049,7 @@ const Sell = () => {
                     name="condition"
                   >
                     <div className="option-box-group">
-                      {conditionOptions.map((opt) => (
+                      {conditionOptions?.map((opt) => (
                         <div
                           key={opt.value}
                           className={`option-box${
@@ -1079,7 +1079,7 @@ const Sell = () => {
                     name="badges"
                   >
                     <div className="option-box-group">
-                      {badges.map((opt) => (
+                      {badges?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1088,7 +1088,7 @@ const Sell = () => {
                           onClick={() => {
                             let newBadges;
                             if (selectedBadges.includes(opt)) {
-                              newBadges = selectedBadges.filter(
+                              newBadges = selectedBadges?.filter(
                                 (b) => b !== opt
                               );
                             } else {
@@ -1164,7 +1164,7 @@ const Sell = () => {
                     <div className="year-modal-list">
                       {yearData
                         ?.filter((opt) => opt.year.includes(yearSearch))
-                        .map((opt) => (
+                        ?.map((opt) => (
                           <div
                             key={opt.year}
                             className={`year-modal-option${
@@ -1214,24 +1214,26 @@ const Sell = () => {
                     />
                     <div className="region-modal-list">
                       {updateData?.locations
-                        .filter((opt) =>
-                          opt.location
-                            .toLowerCase()
-                            .includes(regionSearch.toLowerCase())
+                        ?.filter((opt) =>
+                          opt?.location
+                            ?.toLowerCase()
+                            ?.includes(regionSearch?.toLowerCase())
                         )
-                        .map((opt) => (
+                        ?.map((opt) => (
                           <div
-                            key={opt.location}
+                            key={opt?.location}
                             className={`region-modal-option${
-                              selectedRegion === opt.location ? " selected" : ""
+                              selectedRegion === opt?.location
+                                ? " selected"
+                                : ""
                             }`}
                             onClick={() => {
-                              setSelectedRegion(opt.location);
+                              setSelectedRegion(opt?.location);
                               setRegionModalOpen(false);
-                              form.setFieldsValue({ region: opt.location });
+                              form.setFieldsValue({ region: opt?.location });
                             }}
                           >
-                            {opt.location}
+                            {opt?.location}
                           </div>
                         ))}
                     </div>
@@ -1263,7 +1265,7 @@ const Sell = () => {
                     name="accidentHistory"
                   >
                     <Select placeholder="Select The accident history of your car">
-                      {updateData?.accident_histories.map((hist) => (
+                      {updateData?.accident_histories?.map((hist) => (
                         <Option key={hist.id} value={hist.id}>
                           {hist.accident_history}
                         </Option>
@@ -1282,7 +1284,7 @@ const Sell = () => {
                     name="regionalSpecs2"
                   >
                     <Select placeholder="Select the specs of your car">
-                      {updateData?.regional_specs.map((spec) => (
+                      {updateData?.regional_specs?.map((spec) => (
                         <Option key={spec.id} value={spec.id}>
                           {spec.regional_spec}
                         </Option>
@@ -1307,7 +1309,7 @@ const Sell = () => {
                     name="seats"
                   >
                     <div className="option-box-group">
-                      {seats.map((opt) => (
+                      {seats?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1335,7 +1337,7 @@ const Sell = () => {
                     name="doors"
                   >
                     <div className="option-box-group">
-                      {doors.map((opt) => (
+                      {doors?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1363,7 +1365,7 @@ const Sell = () => {
                     name="fuelType"
                   >
                     <div className="option-box-group">
-                      {fuelTypes.map((opt) => (
+                      {fuelTypes?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1391,7 +1393,7 @@ const Sell = () => {
                     name="transmissionType"
                   >
                     <div className="option-box-group">
-                      {transmissionTypes.map((opt) => (
+                      {transmissionTypes?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1419,7 +1421,7 @@ const Sell = () => {
                     name="driveType"
                   >
                     <div className="option-box-group">
-                      {driveTypes.map((opt) => (
+                      {driveTypes?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${
@@ -1489,7 +1491,7 @@ const Sell = () => {
                     name="extraFeatures"
                   >
                     <Select placeholder="Choose">
-                      {updateData?.extra_features.map((int1) => (
+                      {updateData?.extra_features?.map((int1) => (
                         <Option key={int1.id} value={int1.id}>
                           {int1.extra_feature}
                         </Option>
@@ -1508,7 +1510,7 @@ const Sell = () => {
                     name="interior"
                   >
                     <Select placeholder="Choose">
-                      {updateData?.interiors.map((int) => (
+                      {updateData?.interiors?.map((int) => (
                         <Option key={int.id} value={int.id}>
                           {int.interior}
                         </Option>
@@ -1529,7 +1531,7 @@ const Sell = () => {
                     name="cylinders"
                   >
                     <div className="option-box-group">
-                      {cylinders.map((opt) => (
+                      {cylinders?.map((opt) => (
                         <div
                           key={opt}
                           className={`option-box${

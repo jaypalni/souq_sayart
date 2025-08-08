@@ -45,7 +45,8 @@ const CreateProfile = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const token = localStorage.getItem("token");
-  const isLoggedIn = customerDetails;
+  const isLoggedIn = customerDetails?.first_name;
+  console.log("customerDetails user", user, customerDetails);
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/landing");

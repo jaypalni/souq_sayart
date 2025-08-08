@@ -23,9 +23,14 @@ import UserProfile from "./pages/userProfile";
 import TermsAndConditions from "./pages/termsAndconditions";
 import Captcha from "./pages/captcha";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useDispatch } from "react-redux";
+import { logout, clearCustomerDetails } from "./redux/actions/authActions";
 
 const AppRouterContent = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { customerDetails } = useSelector((state) => state.customerDetails);
   const hidebannerList = [
     "/carDetails",
     "/sell",
@@ -53,6 +58,24 @@ const AppRouterContent = () => {
     location.pathname.startsWith("/carDetails/");
 
   const hideFooter = hidefooterList.includes(location.pathname);
+
+  // Ensure auth state is cleared when token is missing or user/customer details are empty
+  React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    const isEmpty = (obj) => !obj || (typeof obj === "object" && Object.keys(obj).length === 0);
+
+    // If no token OR both user and customer details are empty, force logout/clear
+    if (!token || (isEmpty(user) && isEmpty(customerDetails))) {
+      try {
+        localStorage.removeItem("token");
+        dispatch(logout());
+        dispatch(clearCustomerDetails());
+        dispatch({ type: "CLEAR_USER_DATA" });
+      } catch (e) {
+        // no-op
+      }
+    }
+  }, [dispatch, user, customerDetails]);
 
   return (
     <>

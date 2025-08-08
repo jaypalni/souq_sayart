@@ -30,28 +30,76 @@ const LoginScreen = () => {
         if (data && data.length > 0) {
           setCountryOptions(data);
 
-          const geoRes = await fetch("https://ipapi.co/json/");
-          const geoData = await geoRes.json();
-          const userCountryCode = geoData.country_calling_code;
+          // Cached geolocation to avoid hitting rate limits
+          const getGeoData = async () => {
+            try {
+              const cacheKey = "geoDataCache";
+              const cached = localStorage.getItem(cacheKey);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                const maxAgeMs = 24 * 60 * 60 * 1000; // 24h
+                if (parsed?.ts && Date.now() - parsed.ts < maxAgeMs && parsed?.data) {
+                  return parsed.data;
+                }
+              }
 
-          console.log("1234geodata", geoData);
-          console.log("1234data", data);
+              const geoRes = await fetch("https://ipapi.co/json/");
+              if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
+              const geoData = await geoRes.json();
+              localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: geoData }));
+              return geoData;
+            } catch (err) {
+              // Fallback: no geo data
+              return null;
+            }
+          };
 
-          const defaultCountry = data.find(
-            (country) =>
-              country.country_code === userCountryCode ||
-              country.country_name?.toLowerCase() ===
-                geoData.country_name?.toLowerCase()
-          );
+          const geoData = await getGeoData();
+          let defaultCountry = null;
+
+          if (geoData) {
+            const userCountryCode = geoData.country_calling_code; // e.g. +91
+            defaultCountry = data.find(
+              (country) =>
+                country.country_code === userCountryCode ||
+                country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase()
+            );
+          }
+
+          // Additional fallback: detect India by time zone or browser locale
+          if (!defaultCountry) {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const tzLower = tz ? tz.toLowerCase() : "";
+            const tzOffset = new Date().getTimezoneOffset(); // IST => -330
+            const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+            const isIndiaLocale =
+              tzLower === "asia/kolkata" ||
+              tzLower === "asia/calcutta" ||
+              tzOffset === -330 ||
+              langs.some((l) => {
+                const ll = String(l).toLowerCase();
+                return ll.endsWith("-in") || ll === "en-in" || ll.includes("-in");
+              });
+            if (isIndiaLocale) {
+              defaultCountry =
+                data.find((c) => c.country_code === "+91") ||
+                data.find((c) => c.country_name?.toLowerCase() === "india") ||
+                null;
+            }
+          }
+
+          // Final fallback
+          if (!defaultCountry) {
+            defaultCountry = data[0];
+          }
 
           if (defaultCountry) {
             setSelectedCountry(defaultCountry);
-          } else {
-            setSelectedCountry(data[0]);
           }
         }
       } catch (error) {
         console.error("Failed to fetch countries", error);
+        // As a last resort, do nothing; user can select manually
       }
     };
     fetchCountries();

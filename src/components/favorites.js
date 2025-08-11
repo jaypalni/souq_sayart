@@ -27,7 +27,7 @@ const MyFavoritesCars = () => {
         limit,
       });
       const newcars = handleApiResponse(response);
-      console.log("API Response:", newcars?.data?.cars);
+     
       if (newcars?.favorites) {
         setCarsData(newcars.favorites);
       }
@@ -42,7 +42,7 @@ const MyFavoritesCars = () => {
   };
 
   const Deletecarapi = async (carId) => {
-    console.log("Delete clicked for ID:", carId);
+    
     try {
       setLoading(true);
 

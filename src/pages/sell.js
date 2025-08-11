@@ -166,7 +166,6 @@ const Sell = () => {
       setLoading(true);
       const response = await carAPI.uploadOptionDetails({});
       const data1 = handleApiResponse(response);
-      console.log("API Update Options:", data1?.data);
       if (data1) {
         setUpdateData(data1?.data);
       }
@@ -186,7 +185,7 @@ const Sell = () => {
       setLoading(true);
       const response = await carAPI.trimDetails(make, modalName, yearData);
       const data1 = handleApiResponse(response);
-      console.log("API Trim:", data1?.data);
+
       if (data1) {
         setTrimData(data1?.data);
       }
@@ -206,7 +205,7 @@ const Sell = () => {
       setLoading(true);
       const response = await carAPI.getYearData(make, modalName);
       const data1 = handleApiResponse(response);
-      console.log("API ResponseYear:", data1?.data);
+    
       if (data1) {
         setYearData(data1?.data);
       }
@@ -257,7 +256,7 @@ const Sell = () => {
     formData.append("no_of_cylinders", values?.cylinders);
     formData.append("payment_option", "");
     formData.append("draft", "");
-    console.log("Image Data:", values?.media);
+   
 
     values.media?.forEach((file, index) => {
       formData.append("car_image", file.originFileObj);
@@ -267,7 +266,7 @@ const Sell = () => {
 
       const response = await carAPI.createCar(formData);
       const data1 = handleApiResponse(response);
-      console.log("API Update Options:", data1?.data);
+     
       if (data1) {
         setAddData(data1?.data);
       }
@@ -321,7 +320,7 @@ const Sell = () => {
       regionalSpecs: selectedRegionalSpecs,
       media: images,
     };
-    console.log(allValues);
+   
     message.success("Form submitted! Check console for output.");
   };
 
@@ -472,7 +471,7 @@ const Sell = () => {
     formData.append("no_of_cylinders", values?.cylinders);
     formData.append("payment_option", "");
     formData.append("draft", "");
-    console.log("Values Data:", values);
+
 
     values.media?.forEach((file, index) => {
       formData.append("car_image", file.originFileObj);
@@ -481,7 +480,7 @@ const Sell = () => {
       setLoading(true);
       const response = await carAPI.saveDraftCar(formData);
       const data1 = handleApiResponse(response);
-      console.log("API Update Options:", data1);
+
       if (data1) {
         setDraftData(data1);
       }

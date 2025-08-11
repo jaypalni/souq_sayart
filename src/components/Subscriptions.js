@@ -302,8 +302,6 @@ const Subscriptions = () => {
        const res = await userAPI.getsubscriptions(); 
        const result = res.data; 
 
-       console.log("API Result:", result); // 👈 add this to check response
-
        if (result.success) {
          const { individual_packages = [], dealer_packages = [] } = result.data;
 

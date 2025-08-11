@@ -59,7 +59,7 @@ const LandingFilters = () => {
       setLoading(true);
       const response = await carAPI.getBodyCars({});
       const data1 = handleApiResponse(response);
-      console.log("API ResponseBodyType:", data1?.data);
+      
       if (data1) {
         setCarBodyTypes(data1?.data);
       }
@@ -94,7 +94,7 @@ const LandingFilters = () => {
   };
 
   const handleChange = (name, value) => {
-    console.log(`${name} changed:`, value);
+    
   };
 
   const handleSearch = async () => {
@@ -102,7 +102,7 @@ const LandingFilters = () => {
       setLoading(true);
       const response = await carAPI.getSearchCars(make, model);
       const data1 = handleApiResponse(response);
-      console.log("API ResponseSearchData:", data1?.data);
+      
       if (data1) {
         setCarSearch(data1?.data);
       }

@@ -35,7 +35,6 @@ const CarListing = () => {
       setLoading(true);
       const response = await carAPI.getAllCars({});
       const newcars = handleApiResponse(response);
-      console.log("API Response:", newcars?.data?.cars);
       if (newcars?.data?.cars) {
         setCarsData(newcars.data.cars);
       }
@@ -52,7 +51,6 @@ const CarListing = () => {
   // Add Fav API
 
   const Addfavcarapi = async (carId) => {
-      console.log("Added clicked for ID:", carId);
       try {
         setLoading(true);
   
@@ -87,8 +85,10 @@ const CarListing = () => {
         </a>
       </div>
       <div className="row">
-        {carsData.map((car, idx) => (
-          <div className="col-3 p-0" key={idx}>
+        {/* {carsData.map((car, idx) => (
+          <div className="col-3 p-0" key={idx}> */}
+          {carsData.map((car) => (
+            <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
             <div
               className="allcars-listing-card"
               onClick={() => navigate(`/carDetails/${car.id}`)}

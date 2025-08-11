@@ -156,8 +156,6 @@ const MyProfileForm = () => {
       formData.append("whatsapp", "efrg"); // Change if needed
       //  formData.append("whatsapp", values.phone || "");
 
-      console.log("Sending FormData payload", formData);
-
       const response = await userAPI.updateProfile(formData);
 
       const result = handleApiResponse(response);

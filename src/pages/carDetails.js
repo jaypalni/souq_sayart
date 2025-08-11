@@ -43,7 +43,6 @@ const { Panel } = Collapse;
 
 const CarDetails = () => {
   const { id } = useParams();
-  console.log("Newid", id);
   const handleImageClick = (img) => setMainImageIdx(carImages.indexOf(img));
   const handleCollapseChange = (key) => setActiveKey(key);
 
@@ -129,7 +128,6 @@ const CarDetails = () => {
       setLoading(true);
       const response = await carAPI.getCarFeatures({});
       const data1 = handleApiResponse(response);
-      console.log("API Response123:", data1?.data?.cars);
       if (data1) {
         setCarsData(data1?.data?.cars);
       }

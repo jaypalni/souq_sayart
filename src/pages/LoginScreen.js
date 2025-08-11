@@ -26,7 +26,7 @@ const LoginScreen = () => {
   const token = localStorage.getItem("token");
 
   const isLoggedIn = customerDetails && user;
-  console.log("customerDetails", customerDetails, user);
+
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/landing");
@@ -143,11 +143,11 @@ const LoginScreen = () => {
 
   // useEffect(() => {
   //   socket.on("connect", () => {
-  //     console.log("Connected to WebSocket");
+ 
   //   });
 
   //   socket.on("newMessage", (data) => {
-  //     console.log("New message:", data);
+  
   //     setMsg(data);
   //   });
 
@@ -157,21 +157,18 @@ const LoginScreen = () => {
   // }, []);
 
   const handleCaptchaChange = (value) => {
-    console.log("Captcha value:", value);
     setVerified(!!value);
     setCaptchaErrorMsg("");
   };
 
   const onClickContinue = async () => {
-    console.log("continue");
     if (phone === "") {
       setEmailErrorMsg("Phone number is required!");
     } else if (verified == false) {
       setCaptchaErrorMsg("Captcha is required!");
     } else {
       try {
-        console.log("Captcha", verified);
-        console.log(selectedCountry, phone);
+   
         setLoading(true);
 
         const response = await authAPI.login({

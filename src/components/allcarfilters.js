@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Select, Button } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import FilterIcon from "../assets/images/filter_icon.svg";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Cardetailsfilter from "../components/cardetailsfilter";
 import "../assets/styles/allcarfilters.css";
@@ -47,19 +46,11 @@ const LandingFilters = () => {
   };
 
   const handleChange = (name, value) => {
-    console.log(`${name} changed:`, value);
+    
   };
 
   const handleSearch = () => {
-    console.log({
-      make,
-      model,
-      bodyType,
-      location,
-      newUsed,
-      priceMin,
-      priceMax,
-    });
+    
   };
 
   const [filterVisible, setFilterVisible] = useState(false);

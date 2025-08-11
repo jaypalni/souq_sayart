@@ -46,7 +46,6 @@ const CreateProfile = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const token = localStorage.getItem("token");
   const isLoggedIn = customerDetails?.first_name;
-  console.log("customerDetails user", user, customerDetails);
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/landing");
@@ -55,7 +54,6 @@ const CreateProfile = () => {
 
   useEffect(() => {
     const accesstoken = localStorage.getItem("token");
-    console.log("Access Token", accesstoken);
 
     if (
       accesstoken == "undefined" ||
@@ -71,7 +69,6 @@ const CreateProfile = () => {
   };
 
   const onFinish = (values) => {
-    console.log("Form values:", values);
     if (!values.isDealer) {
       delete values.companyName;
       delete values.ownerName;
@@ -83,7 +80,6 @@ const CreateProfile = () => {
       delete values.uploadDocuments;
     }
     setDobError("");
-    console.log("Form values:", values);
     message.success("Form submitted successfully!");
   };
 
@@ -91,7 +87,6 @@ const CreateProfile = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    console.log("Selected file:", file);
 
     if (!file) return;
 
@@ -115,7 +110,7 @@ const CreateProfile = () => {
       const userdoc = handleApiResponse(carResponse);
 
       if (userdoc?.attachment_url) {
-        console.log("Uploaded attachment URL:", userdoc.attachment_url);
+     
         setUploadedDocUrl(userdoc.attachment_url);
         form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
         messageApi.open({
@@ -217,7 +212,7 @@ const CreateProfile = () => {
         whatsapp: checked ? "1" : "0",
         document: uploadedDocUrl || "",
       };
-      console.log("12345789", payload);
+
       const result = await dispatch(registerUser(payload));
 
       if (result.success) {

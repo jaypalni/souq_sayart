@@ -97,7 +97,6 @@ const SavedSearches = () => {
         limit,
       });
       const newcars = handleApiResponse(response);
-      console.log("API Response:", newcars);
       if (newcars?.favorites) {
         setSearches(newcars.favorites);
       } else {

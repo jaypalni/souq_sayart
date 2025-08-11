@@ -201,7 +201,7 @@ const UsersProfile = () => {
   const [location, setLocation] = useState("Baghdad");
 
   const handleChange = (name, value) => {
-    console.log(`${name} changed:`, value);
+   
   };
 
   return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import mylistingcar_icon from "../assets/images/mylistingcar_icon.png";
 import "../assets/styles/mycarslisting.css";
 import { Radio, Select, Button, Pagination, Tag } from "antd";
-import mylistingcard_icon from "../assets/images/mylistingcard_icon.svg";
+import mylistingcard_icon from "../assets/images/mylistingcard_icon.png";
 import chat_icon from "../assets/images/chat_icon.svg";
 import like_icon from "../assets/images/like_icon.svg";
 import view_icon from "../assets/images/view_icon.svg";
@@ -81,7 +81,7 @@ const Mycarslisting = () => {
         });
 
         const cardetail = handleApiResponse(response);
-        console.log("API data:", cardetail.data);
+       
 
         // Map the status to the correct key in the response
         if (
@@ -115,7 +115,7 @@ const Mycarslisting = () => {
   }, [page, limit, value, filterStatus]);
 
   const handleDeleteMethod = async (carId) => {
-    console.log("id from delete :", carId);
+    
     try {
       setLoading(true);
       const response = await carAPI.deleteCar(carId);
@@ -132,7 +132,7 @@ const Mycarslisting = () => {
     }
   };
 
-  console.log("dev11234", carDetails);
+  
   return (
     <div>
       {/* Blue header section */}

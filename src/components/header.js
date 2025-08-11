@@ -161,18 +161,7 @@ const Header = () => {
     // Navigate to the respective screen
     navigate(value.path);
   };
-  console.log("userdetails", userdetails);
-  console.log("=== CUSTOMER DETAILS FROM REDUX ===");
-  console.log("Customer Details:", customerDetails);
-  console.log("Customer Details Loading:", customerDetailsLoading);
-  console.log("Customer Details Error:", customerDetailsError);
-  console.log("=== END CUSTOMER DETAILS ===");
 
-  console.log("=== USER AUTH FROM REDUX ===");
-  console.log("User:", user);
-  console.log("Is Authenticated:", isAuthenticated);
-  console.log("User Display Name:", getUserDisplayName());
-  console.log("=== END USER AUTH ===");
 
   return (
     <>

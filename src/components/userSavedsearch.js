@@ -130,6 +130,8 @@ const UserSavedsearch = () => {
     isLoggedIn = true;
   }
 
+
+  
   return (
     <div className="user-saved-searches-wrapper">
       <div className="Search-header">

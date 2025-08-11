@@ -42,7 +42,7 @@ const SignupOtp = () => {
 
   useEffect(() => {
     const reqstid = localStorage.getItem("requestid");
-    console.log("Access Token", reqstid);
+
 
     if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
       navigate("/");
@@ -130,39 +130,33 @@ const SignupOtp = () => {
   //   if (validateOtp()) {
   //     setError("");
   //     // Submit OTP logic here
-  //     console.log("OTP submitted:", otp.join(""));
+
   //   }
   // };
 
   const handleContinue = async () => {
-    console.log("=== OTP VERIFICATION START ===");
-    console.log("OTP digits:", otp.join(""));
+  
 
     if (!validateOtp()) {
-      console.log("OTP validation failed");
+     
       return;
     }
 
     try {
       setLoading(true);
-      console.log("Loading set to true");
+    
 
       const userData = JSON.parse(localStorage.getItem("userData"));
-      console.log("User data from localStorage:", userData);
+     
 
       const otpDigits = otp.join("");
       const otpPayload = {
         otp: otpDigits,
         request_id: userData.request_id,
       };
-      console.log("OTP payload:", otpPayload);
-
-      console.log("Dispatching verifyOTP action...");
       const result = await dispatch(verifyOTP(otpPayload));
-      console.log("verifyOTP result:", result);
 
       if (result.success) {
-        console.log("OTP verification successful");
         localStorage.setItem("token", result.data.access_token);
         messageApi.open({
           type: "success",
@@ -176,7 +170,6 @@ const SignupOtp = () => {
           navigate("/createProfile");
         }
       } else {
-        console.log("OTP verification failed:", result.error);
         messageApi.open({
           type: "error",
           content: result.error,
@@ -188,7 +181,6 @@ const SignupOtp = () => {
       message.error("OTP verification failed. Please try again.");
     } finally {
       setLoading(false);
-      console.log("Loading set to false");
     }
   };
 

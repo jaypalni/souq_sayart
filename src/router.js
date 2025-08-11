@@ -46,7 +46,7 @@ const AppRouterContent = () => {
 
   const hidefooterList = ["/captchatoken"];
 
-  console.log("s666", location.pathname);
+  
   const hideBanner =
     hidebannerList.includes(location.pathname) ||
     location.pathname.startsWith("/carDetails/");

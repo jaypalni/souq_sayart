@@ -8,7 +8,7 @@ const fetchMakeCars = async ({ setLoading, setCarMakes }) => {
     setLoading(true);
     const response = await carAPI.getMakeCars({});
     const data1 = handleApiResponse(response);
-    console.log("API ResponseMake:", data1?.data);
+   
     if (data1) {
       setCarMakes(data1?.data);
     }
@@ -24,12 +24,12 @@ const fetchMakeCars = async ({ setLoading, setCarMakes }) => {
 };
 
 const fetchModelCars = async ({ setLoading, setCarModels, make }) => {
-  console.log("make", make);
+ 
   try {
     setLoading(true);
     const response = await carAPI.getModelCars(make);
     const data1 = handleApiResponse(response);
-    console.log("API ResponseModel:", data1?.data);
+   
     if (data1) {
       setCarModels(data1?.data);
     }

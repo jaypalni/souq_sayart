@@ -12,7 +12,7 @@ import speed_code from "../assets/images/speed_dashboard.png";
 
 const CarListing = ({ title, cardata }) => {
   const navigate = useNavigate();
-  console.log("cardata123", cardata);
+ 
   return (
     <div className="car-listing-container">
       {cardata?.length > 0 && (

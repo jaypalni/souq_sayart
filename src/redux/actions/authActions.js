@@ -62,7 +62,6 @@ export const login = (credentials) => async (dispatch) => {
     dispatch(loginRequest());
     const response = await authAPI.login(credentials);
     const { user, token } = response.data;
-    console.log("resp11", response);
     // Store token in localStorage
     localStorage.setItem("token", token);
 
@@ -81,7 +80,7 @@ export const logoutUser = () => async (dispatch) => {
     try {
       await authAPI.logout();
     } catch (apiError) {
-      console.log("Logout API call failed, continuing with local logout");
+     
     }
     
     // Clear all localStorage data
@@ -118,18 +117,15 @@ export const registerUser = (userData) => async (dispatch) => {
 
 export const verifyOTP = (otpData) => async (dispatch) => {
   try {
-    console.log("verifyOTP action called with:", otpData);
+
     dispatch(customerDetailsRequest());
-    console.log("Dispatching customerDetailsRequest");
+ 
     
     const response = await authAPI.verifyOtp(otpData);
-    console.log("API response:", response);
     
     const customerDetails = response.data.user || response.data;
-    console.log("Customer details extracted:", customerDetails);
     
     dispatch(customerDetailsSuccess(customerDetails));
-    console.log("Dispatching customerDetailsSuccess");
     
     return { success: true, data: customerDetails };
   } catch (error) {

@@ -95,8 +95,6 @@ export const authAPI = {
   resetPassword: (data) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD, data),
   verifyOtp: (otpData) => {
-    console.log("API verifyOtp called with:", otpData);
-    console.log("API endpoint:", API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP);
     return api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData);
   },
   countrycode: () => publicApi.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),

@@ -4,7 +4,6 @@ import ReCAPTCHA from "react-google-recaptcha";
 const Captcha = () => {
   const [verified, setVerified] = useState(false);
   const handleCaptchaChange = (value) => {
-    console.log("Captcha value:", value);
     setVerified(!!value);
 
     // Send token to Flutter WebView

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Car_icon from "../assets/images/Car_icon.png";
-import banner_icon from "../assets/images/homecar_icon.svg";
+
 
 const countryOptions = [
   { code: "+961", name: "Lebanon", flag: "🇱🇧" },

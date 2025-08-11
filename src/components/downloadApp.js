@@ -1,8 +1,8 @@
 import React from 'react';
 import '../assets/styles/downloadApp.css';
-import googlePlay from '../assets/images/windowsDownload.svg';
-import appStore from '../assets/images/appleDownload.svg';
-import appMockup from '../assets/images/downloadMobiles.svg'; // This should be the right-side image
+import googlePlay from '../assets/images/windowsDownload.png';
+import appStore from '../assets/images/appleDownload.png';
+import appMockup from '../assets/images/downloadMobiles.png'; 
 
 const DownloadApp = () => {
   return (

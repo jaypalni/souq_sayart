@@ -24,6 +24,7 @@ const Allcars = () => {
   );
 };
 const CarListing = () => {
+  console.log("Hi All")
   const [carsData, setCarsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();

@@ -28,7 +28,7 @@ const AppRouterContent = () => {
   const hidebannerList = [
     "/carDetails",
     "/sell",
-    "/allCars",
+    "/allcars",
     "/myListings",
     "/myProfile",
     "/userProfile",
@@ -65,7 +65,7 @@ const AppRouterContent = () => {
         <Route path="/createProfile" element={<CreateProfile />} />
         <Route path="/landing" element={<Landing />} />
         <Route path="/carDetails/:id" element={<CarDetails />} />
-        <Route path="/allCars" element={<AllCars />} />
+        <Route path="/allcars" element={<AllCars />} />
         <Route path="/userProfile" element={<UserProfile />} />
         <Route
           path="/termsAndconditions"

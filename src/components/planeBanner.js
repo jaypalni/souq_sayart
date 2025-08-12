@@ -43,7 +43,7 @@ const PlaneBanner = () => {
       <div
         style={{
           width: "100%",
-          height: 155,
+          height: 125,
           background: "#008ad5",
           display: "flex",
           alignItems: "center",

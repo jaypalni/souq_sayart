@@ -6,6 +6,7 @@ import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message } from "antd";
 import { fetchMakeCars, fetchModelCars } from "../commonFunction/fetchMakeCars";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
 const newUsedOptions = ["New & Used", "New", "Used"];
@@ -28,6 +29,7 @@ const LandingFilters = () => {
   const [priceMax, setPriceMax] = useState("Price Max");
   const [carCount] = useState(342642);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const navigate = useNavigate();
   const dropdownRefs = {
     newUsed: useRef(),
     priceMin: useRef(),
@@ -50,9 +52,9 @@ const LandingFilters = () => {
     bodyType && fetchRegionCars();
   }, []);
 
-  useEffect(() => {
-    make && model && bodyType && location && handleSearch();
-  }, [make, model]);
+  // useEffect(() => {
+  //   make && model && bodyType && location && handleSearch();
+  // }, [make, model]);
 
   const fetchBodyTypeCars = async () => {
     try {
@@ -106,7 +108,7 @@ const LandingFilters = () => {
       if (data1) {
         setCarSearch(data1?.data);
       }
-
+       navigate("/allcars")
       message.success(data1.message || "Fetched successfully");
     } catch (error) {
       const errorData = handleApiError(error);

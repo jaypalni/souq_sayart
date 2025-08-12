@@ -12,12 +12,10 @@ const SellYourCar = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
 
   const handleGetStarted = () => {
-    // Check if user is logged in - check multiple auth indicators
     const token = localStorage.getItem("token");
     const isLoggedIn = customerDetails;
 
     if (!isLoggedIn) {
-      // User is not logged in, show message and redirect to login
       messageApi.open({
         type: "warning",
         content: "Please login to sell your car",
@@ -25,8 +23,6 @@ const SellYourCar = () => {
       navigate("/login");
       return;
     }
-
-    // User is logged in, navigate to sell page
     navigate("/sell");
   };
 

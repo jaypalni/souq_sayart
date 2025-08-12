@@ -81,7 +81,7 @@
 
 // export default UserSavedsearch;
 
-import React from "react";
+import { useState } from "react";
 import "../assets/styles/usersavedsearches.css";
 import mercedesLogo from "../assets/images/souqLogo.png";
 import lamborghiniLogo from "../assets/images/souqLogo.png";
@@ -91,6 +91,7 @@ import dollarLogo from "../assets/images/bluedollar_icon.svg";
 import like_icon from "../assets/images/like_icon.svg";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import diamondGif from "../assets/images/diamondGif.gif";
 
 const savedSearches = [
   {
@@ -121,6 +122,7 @@ const savedSearches = [
 
 const UserSavedsearch = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const tokendata = localStorage.getItem("token");
   let isLoggedIn;
@@ -130,8 +132,6 @@ const UserSavedsearch = () => {
     isLoggedIn = true;
   }
 
-
-  
   return (
     <div className="user-saved-searches-wrapper">
       <div className="Search-header">
@@ -151,7 +151,6 @@ const UserSavedsearch = () => {
       </div>
       <div className="user-saved-searches-top">
         <div className="user-saved-searches-left">
-          {/* 🔁 Only this section is conditionally rendered */}
           {isLoggedIn ? (
             <div className="user-saved-searches-outer-card">
               {savedSearches.map((item, idx) => (
@@ -216,20 +215,71 @@ const UserSavedsearch = () => {
             </div>
           )}
 
-          {/* 🔁 Always show these two action boxes */}
           <div className="user-saved-search-actions">
             <div className="user-saved-search-action-box">
               <img src={diamondLogo} alt="Diamond" className="action-icon" />
-              <p>Value your car with our free online valuation</p>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "#0A0A0B",
+                  cursor: "pointer",
+                }}
+                onClick={() => setIsModalOpen(true)}
+              >
+                Value your car with our free online valuation
+              </p>
             </div>
+
             <div className="user-saved-search-action-box">
               <img src={dollarLogo} alt="Dollar" className="action-icon" />
-              <p>List your car or get a free Instant Offer</p>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "#0A0A0B",
+                  cursor: "pointer",
+                }}
+                onClick={() => setIsModalOpen(true)}
+              >
+                List your car or get a free Instant Offer
+              </p>
             </div>
           </div>
+
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <img src={diamondGif} alt="Diamond" className="modal-image" />
+                <p
+                  style={{
+                    fontSize: "16px",
+                    color: "#0A0A0B",
+                    fontWeight: 700,
+                    marginBottom: "4px",
+                  }}
+                >
+                  This Feature is coming soon
+                </p>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: "#898384",
+                    fontWeight: 400,
+                    marginTop: "0",
+                  }}
+                >
+                  you could try to remove some filters:
+                </p>
+                <button
+                  className="modal-your-close-btn"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* 🔁 Always show the image box */}
         <div className="user-saved-search-image-box">
           <img src={carImage} alt="Car" className="user-saved-search-image" />
           <div className="user-saved-search-image-text">

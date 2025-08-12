@@ -61,7 +61,7 @@ const LandingFilters = () => {
       setLoading(true);
       const response = await carAPI.getBodyCars({});
       const data1 = handleApiResponse(response);
-      
+
       if (data1) {
         setCarBodyTypes(data1?.data);
       }
@@ -95,20 +95,18 @@ const LandingFilters = () => {
     }
   };
 
-  const handleChange = (name, value) => {
-    
-  };
+  const handleChange = (name, value) => {};
 
   const handleSearch = async () => {
     try {
       setLoading(true);
       const response = await carAPI.getSearchCars(make, model);
       const data1 = handleApiResponse(response);
-      
+
       if (data1) {
         setCarSearch(data1?.data);
       }
-       navigate("/allcars")
+      navigate("/allcars");
       message.success(data1.message || "Fetched successfully");
     } catch (error) {
       const errorData = handleApiError(error);

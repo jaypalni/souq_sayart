@@ -56,10 +56,10 @@ const CarListing = ({ title, cardata }) => {
               </div>
               <div className="car-listing-content">
                 <div className="d-flex">
-                  <div className="car-listing-title">{car.title}</div>
+                  <div className="car-listing-title">{car.year + " " + car.make + " " + car.model}</div>
                   <div className="car-listing-price">${car.price}</div>
                 </div>
-                <div className="car-listing-engine">{car.engine}</div>
+                <div className="car-listing-engine">{car.engine_cc + "cc " + car.fuel_type}</div>
                 <div className="car-listing-details row">
                   <div className="col-5">
                     {" "}

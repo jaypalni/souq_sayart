@@ -1,8 +1,9 @@
 .car-type-list-container {
   width: 100%;
   background: #fff;
-  padding: 24px 0 8px 0;
+  padding: 0px 0 8px 0;
   margin-bottom: 0;
+  margin: -44px 0px, 0px,0px;
 }
 
 .car-type-list-title {

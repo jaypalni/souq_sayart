@@ -428,10 +428,7 @@
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0; /* shorthand for top, right, bottom, left = 0 */
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -440,16 +437,18 @@
 }
 
 .modal-content {
-  background: #fff;
-  padding: 16px;
-  border-radius: 8px;
-  max-width: 320px;
+  background: #fff; /* White card background */
+  padding: 24px; /* More padding for space */
+  border-radius: 12px; /* Rounded corners */
+  max-width: 400px; /* Slightly larger width */
+  width: 90%; /* Scale for mobile */
   text-align: center;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Card shadow */
 }
 
 .modal-close {
@@ -465,6 +464,9 @@
 .modal-image {
   max-width: 40%;
   height: auto;
+  background: white; /* ensures image background is visible */
+  padding: 8px;
+  border-radius: 8px;
 }
 
 .modal-your-close-btn {

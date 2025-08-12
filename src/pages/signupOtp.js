@@ -43,7 +43,6 @@
 //   useEffect(() => {
 //     const reqstid = localStorage.getItem("requestid");
 
-
 //     if (reqstid == "undefined" || reqstid === "" || reqstid === null) {
 //       navigate("/");
 //     }
@@ -135,19 +134,16 @@
 //   // };
 
 //   const handleContinue = async () => {
-  
 
 //     if (!validateOtp()) {
-     
+
 //       return;
 //     }
 
 //     try {
 //       setLoading(true);
-    
 
 //       const userData = JSON.parse(localStorage.getItem("userData"));
-     
 
 //       const otpDigits = otp.join("");
 //       const otpPayload = {
@@ -260,7 +256,6 @@
 
 // export default SignupOtp;
 
-
 import React, { useState, useRef, useEffect } from "react";
 import "../assets/styles/signupOtp.css";
 import { useNavigate } from "react-router-dom";
@@ -287,7 +282,6 @@ const SignupOtp = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const isLoggedIn = customerDetails && user;
 
-  // Redirect if already logged in
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/landing");
@@ -309,28 +303,29 @@ const SignupOtp = () => {
   // }, []);
 
   // Always run on mount
-useEffect(() => {
-  const savedEndTime = localStorage.getItem("otpEndTime");
-
-  if (savedEndTime) {
+  useEffect(() => {
+    const savedEndTime = localStorage.getItem("otpEndTime");
     const now = Date.now();
-    const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
 
-    if (timeLeft > 0) {
-      setTimer(timeLeft);
-      setIsTimerRunning(true);
+    if (savedEndTime) {
+      const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
+
+      if (timeLeft > 0) {
+        setTimer(timeLeft);
+        setIsTimerRunning(true);
+      } else {
+        const newEndTime = now + 60 * 1000;
+        localStorage.setItem("otpEndTime", newEndTime);
+        setTimer(60);
+        setIsTimerRunning(true);
+      }
     } else {
-      setTimer(0);
-      setIsTimerRunning(false);
+      const endTime = now + 60 * 1000;
+      localStorage.setItem("otpEndTime", endTime);
+      setTimer(60);
+      setIsTimerRunning(true);
     }
-  } else {
-    const endTime = Date.now() + 60 * 1000;
-    localStorage.setItem("otpEndTime", endTime);
-    setTimer(60);
-    setIsTimerRunning(true);
-  }
-}, []);
-
+  }, []);
 
   // Countdown effect
   useEffect(() => {
@@ -350,21 +345,20 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, [isTimerRunning, timer]);
 
- const handleChange = (e, idx) => {
-  const val = e.target.value.replace(/\D/g, "");
+  const handleChange = (e, idx) => {
+    const val = e.target.value.replace(/\D/g, "");
 
-  const newOtp = [...otp];
-  if (val) {
-    newOtp[idx] = val[val.length - 1];
-    setOtp(newOtp);
-    setError("");
-    if (idx < 3) inputRefs[idx + 1].current.focus();
-  } else {
-    newOtp[idx] = "";
-    setOtp(newOtp);
-  }
-};
-
+    const newOtp = [...otp];
+    if (val) {
+      newOtp[idx] = val[val.length - 1];
+      setOtp(newOtp);
+      setError("");
+      if (idx < 3) inputRefs[idx + 1].current.focus();
+    } else {
+      newOtp[idx] = "";
+      setOtp(newOtp);
+    }
+  };
 
   const handleKeyDown = (e, idx) => {
     if (e.key === "Backspace") {
@@ -533,4 +527,3 @@ useEffect(() => {
 };
 
 export default SignupOtp;
-

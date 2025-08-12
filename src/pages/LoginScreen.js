@@ -200,8 +200,8 @@ const LoginScreen = () => {
       } catch (error) {
         const errorData = handleApiError(error);
         messageApi.open({
-          type: "success",
-          content: errorData.error,
+          type: "error",
+          content: errorData?.error,
         });
         messageApi.error(
           errorData.message || "Login failed. Please try again."

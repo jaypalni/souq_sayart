@@ -481,3 +481,15 @@
   width: 100%;
   display: block;
 }
+
+.user-saved-search-price {
+  font-size: 14px;
+  font-weight: 400;
+  color: #000;
+}
+
+.user-saved-search-year {
+  font-size: 14px;
+  font-weight: 400;
+  columns: #000;
+}

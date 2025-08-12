@@ -4,9 +4,10 @@ import { SearchOutlined } from "@ant-design/icons";
 import "../assets/styles/landingFilters.css";
 import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { message } from "antd";
+import { message, Modal, Tag } from "antd";
 import { fetchMakeCars, fetchModelCars } from "../commonFunction/fetchMakeCars";
 import { useNavigate } from "react-router-dom";
+import emptysearch from "../assets/images/emptysearch.gif";
 const { Option } = Select;
 
 const newUsedOptions = ["New & Used", "New", "Used"];
@@ -30,6 +31,11 @@ const LandingFilters = () => {
   const [carCount] = useState(342642);
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
+
+  // New Code 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+//-- End
   const dropdownRefs = {
     newUsed: useRef(),
     priceMin: useRef(),
@@ -106,7 +112,8 @@ const LandingFilters = () => {
       if (data1) {
         setCarSearch(data1?.data);
       }
-      navigate("/allcars");
+     // navigate("/allcars");
+      setIsModalOpen(true);
       message.success(data1.message || "Fetched successfully");
     } catch (error) {
       const errorData = handleApiError(error);
@@ -300,6 +307,78 @@ const LandingFilters = () => {
           </div>
         </div>
       </div>
+      
+{isModalOpen && (
+  <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <img
+        src={emptysearch}
+        alt="No Results"
+        className="modal-image"
+        style={{ maxWidth: "100px", marginBottom: "15px" }}
+      />
+
+      <p
+        style={{
+          fontSize: "16px",
+          color: "#0A0A0B",
+          fontWeight: 700,
+          marginBottom: "4px",
+          textAlign: "center",
+        }}
+      >
+        We didn’t find anything that matches this search
+      </p>
+
+      <p
+        style={{
+          fontSize: "12px",
+          color: "#898384",
+          fontWeight: 400,
+          marginTop: "0",
+          textAlign: "center",
+        }}
+      >
+        you could try to remove some filters:
+      </p>
+
+      {/* Filters as tags */}
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+        {make !== "All" && (
+          <span
+            style={{
+              background: "#f0f0f0",
+              padding: "5px 10px",
+              borderRadius: "6px",
+              margin: "5px",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+            onClick={() => setMake("All")}
+          >
+            {make}
+          </span>
+        )}
+        {model !== "All Models" && (
+          <span
+            style={{
+              background: "#f0f0f0",
+              padding: "5px 10px",
+              borderRadius: "6px",
+              margin: "5px",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+            onClick={() => setModel("All Models")}
+          >
+            {model}
+          </span>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

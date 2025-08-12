@@ -25,8 +25,9 @@ const API_CONFIG = {
         `/api/cars/years?make_name=${make}&model_name=${modalName}`,
       GET_BODY_TYPE_CARS: "/api/cars/body-types",
       GET_LOCATION_CARS: "/api/cars/regions",
-      GET_SEARCH_CARS: (make, model) =>
-        `/api/search/search?make=${make}&model=${model}`,
+      // GET_SEARCH_CARS: (params) =>
+      //   `/api/search/search?make=${make}&model=${model}`,
+      GET_SEARCH_CARS: "/api/search/search"
     },
     AUTH: {
       LOGIN: "/api/auth/login",

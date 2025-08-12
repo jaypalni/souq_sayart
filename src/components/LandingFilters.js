@@ -112,7 +112,7 @@ const LandingFilters = () => {
       if (data1) {
         setCarSearch(data1?.data);
       }
-     // navigate("/allcars");
+      navigate("/allcars");
       setIsModalOpen(true);
       message.success(data1.message || "Fetched successfully");
     } catch (error) {

@@ -58,8 +58,9 @@
 
 .car-price {
   color: #D67900;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
+  margin-top: 6px;
   margin-bottom: 4px;
 }
 

@@ -46,21 +46,6 @@ const CarDetails = () => {
   const handleImageClick = (img) => setMainImageIdx(carImages.indexOf(img));
   const handleCollapseChange = (key) => setActiveKey(key);
 
-  useEffect(() => {
-    fetchFeaturedCars();
-  }, []);
-
-  const features = [
-    "Keyless Entry",
-    "Rear AC Vents",
-    "Push Start Button",
-    "Cruise Control",
-    "LED Headlights",
-    "Rear Defogger",
-    "Alloy Wheels",
-    "Automatic Climate Control",
-  ];
-
   const safetyFeatures = [
     "Airbags",
     "ABS",
@@ -72,17 +57,6 @@ const CarDetails = () => {
     "Tire Pressure Monitor",
   ];
 
-  const additionalFeatures = [
-    "Sunroof",
-    "Leather Seats",
-    "Bluetooth",
-    "Navigation",
-    "Heated Seats",
-    "Apple CarPlay",
-    "Android Auto",
-    "Premium Sound",
-  ];
-
   const goToPrevImage = () => {
     setMainImageIdx((prev) => (prev === 0 ? carImages.length - 1 : prev - 1));
   };
@@ -92,12 +66,9 @@ const CarDetails = () => {
 
   const [mainImageIdx, setMainImageIdx] = useState(0);
   const [activeKey, setActiveKey] = useState(["1"]);
-  const [openFeatures, setOpenFeatures] = useState(true);
   const [openSafety, setOpenSafety] = useState(false);
-  const [openAdditional, setOpenAdditional] = useState(false);
   const [carDetails, setCarDetails] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [carsData, setCarsData] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -123,44 +94,13 @@ const CarDetails = () => {
     }
   }, [id]);
 
-  const fetchFeaturedCars = async () => {
-    try {
-      setLoading(true);
-      const response = await carAPI.getCarFeatures({});
-      const data1 = handleApiResponse(response);
-      if (data1) {
-        setCarsData(data1?.data?.cars);
-      }
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-      message.success(data1.message || "Fetched successfully");
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to load car data");
-      setCarsData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const Allcarsapi = async () => {
-    try {
-      setLoading(true);
-      const response = await carAPI.getCarById(Number(id));
-      const cardetail = handleApiResponse(response);
-      if (cardetail?.data) {
-        setCarDetails(cardetail.data);
-      }
-      message.success(cardetail.message || "Fetched successfully");
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to load car data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (!carDetails) return <div>No data found</div>;
+  if (!carDetails) {
+    return <div>No data found</div>;
+  }
 
   const carImages = carDetails?.images?.length
     ? carDetails.images
@@ -270,12 +210,24 @@ const CarDetails = () => {
 
             <div className="row">
               {[
-                { label: "Year", value: "2021", icon: calender_image },
-                { label: "Fuel Type", value: "Petrol", icon: fuel_image },
-                { label: "Condition", value: "New", icon: gear_image },
+                {
+                  label: "Year",
+                  value: carDetails.year || "-",
+                  icon: calender_image,
+                },
+                {
+                  label: "Fuel Type",
+                  value: carDetails.fuel_type || "-",
+                  icon: fuel_image,
+                },
+                {
+                  label: "Condition",
+                  value: carDetails.condition || "-",
+                  icon: gear_image,
+                },
                 {
                   label: "Kilometers",
-                  value: "45,000",
+                  value: carDetails.kilometers || "-",
                   icon: speed_code,
                 },
               ].map((item, index) => (
@@ -368,44 +320,8 @@ const CarDetails = () => {
               <div className="car-details-features-h1">
                 <span>Features - {carDetails.ad_title}</span>
               </div>
-              <div className="border-bottom">
-                <div className="car-details-features-header collapsed">
-                  <span
-                    style={{
-                      fontWeight: 500,
-                      fontSize: "14px",
-                    }}
-                  >
-                    Safety Features
-                  </span>
-                  <span
-                    onClick={() => setOpenFeatures(!openFeatures)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {openFeatures ? <FaChevronUp /> : <FaChevronDown />}
-                  </span>
-                </div>
-                {openFeatures && (
-                  <div>
-                    <div className="car-details-feature-title"></div>
-                    <div className="row">
-                      {features.map((f, idx) => (
-                        <div className="col-md-3 col-6 mb-2" key={idx}>
-                          <span className="car-details-feature-item">
-                            <FaCheckCircle
-                              color="#4fc3f7"
-                              style={{ marginRight: 6 }}
-                            />
-                            {f}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
               {/* Safety Features Section */}
-              <div className="border-bottom">
+              { <div className="border-bottom">
                 <div className="car-details-features-header collapsed">
                   <span
                     style={{
@@ -437,41 +353,7 @@ const CarDetails = () => {
                     ))}
                   </div>
                 )}
-              </div>
-              {/* Additional Features Section */}
-              <div className="border-bottom">
-                <div className="car-details-features-header collapsed">
-                  <span
-                    style={{
-                      fontWeight: 500,
-                      fontSize: "14px",
-                    }}
-                  >
-                    Additional Features
-                  </span>
-                  <span
-                    onClick={() => setOpenAdditional(!openAdditional)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {openAdditional ? <FaChevronUp /> : <FaChevronDown />}
-                  </span>
-                </div>
-                {openAdditional && (
-                  <div className="row mb-2 mt-2">
-                    {additionalFeatures.map((f, idx) => (
-                      <div className="col-md-3 col-6 mb-2" key={idx}>
-                        <span className="car-details-feature-item">
-                          <FaCheckCircle
-                            color="#4fc3f7"
-                            style={{ marginRight: 6 }}
-                          />
-                          {f}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              </div>}
             </div>
           </div>
         </div>
@@ -491,51 +373,39 @@ const CarDetails = () => {
                   {carDetails.ad_title}
                 </h5>
                 <div className="car-price">${carDetails.price}</div>
-                <div className="row align-items-center mt-2 mb-2">
-                  <div className="col-4 d-flex align-items-center gap-1">
+                <div
+                  className="d-flex align-items-center mt-2 mb-2"
+                  style={{ marginLeft: "7px" }}
+                >
+                  <div className="d-flex align-items-center gap-1">
                     <img
                       src={car_type}
-                      alt="Car"
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        fontSize: "12px",
-                        fontWeight: 400,
-                        color: "#003958",
-                      }}
+                      alt="Car Type"
+                      style={{ width: "14px", height: "14px" }}
                     />
                     <span>{carDetails.transmission_type}</span>
                   </div>
-                  <div className="col-4 d-flex align-items-center gap-1">
+                  <span className="mx-2">|</span>
+
+                  <div className="d-flex align-items-center gap-1">
                     <img
                       src={country_code}
-                      alt="Car"
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        fontSize: "12px",
-                        fontWeight: 400,
-                        color: "#003958",
-                      }}
+                      alt="Country"
+                      style={{ width: "16px", height: "16px" }}
                     />
-                    <span>country</span>
+                    <span>{carDetails.country_code}</span>
                   </div>
-                  <div className="col-4 d-flex align-items-center gap-1">
+                  <span className="mx-2">|</span>
+                  <div className="d-flex align-items-center gap-1">
                     <img
                       src={speed_code}
-                      alt="Car"
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        fontSize: "10px",
-                        fontWeight: 400,
-                        color: "#003958",
-                        display: "inline",
-                      }}
+                      alt="Kilometers"
+                      style={{ width: "16px", height: "16px" }}
                     />
                     <span>{carDetails.kilometers}</span>
                   </div>
                 </div>
+
                 <div
                   className="mt-2 text-muted"
                   style={{ fontSize: 16, fontWeight: 700, color: "#0A0A0B" }}
@@ -543,7 +413,11 @@ const CarDetails = () => {
                   Listed by Private User
                 </div>
                 <div className="d-flex align-items-center gap-2 mt-2">
-                  <Avatar icon={<UserOutlined />} />
+                  <Avatar
+                    //src={carDetails.seller.profile_pic}
+                    icon={<UserOutlined />}
+                    alt="User Avatar"
+                  />
                   <div>
                     <div
                       style={{
@@ -552,7 +426,7 @@ const CarDetails = () => {
                         color: "#0A0A0B",
                       }}
                     >
-                      Moe
+                      {carDetails.seller.first_name}
                     </div>
                     <div
                       className="text-muted"
@@ -562,7 +436,7 @@ const CarDetails = () => {
                         color: "#0A0A0B",
                       }}
                     >
-                      Member since July 2016
+                      Member since {carDetails.seller.member_since}
                     </div>
                     <Link
                       to="/profile"
@@ -594,15 +468,21 @@ const CarDetails = () => {
                 icon={<FaWhatsapp />}
                 className="w-100"
                 style={{
-                  background: "#E3E3E3",
+                  background:
+                    carDetails.seller.whatsapp === "False"
+                      ? "#D3D3D3"
+                      : "#20B648",
+                  border: "none",
                   color: "#fff",
                   fontWeight: 500,
                   fontSize: "12px",
-                  border: "#E3E3E3",
+                  pointerEvents:
+                    carDetails.seller.whatsapp === "False" ? "none" : "auto",
                 }}
               >
                 Whatsapp
               </Button>
+
               <Button
                 icon={<FaPhoneAlt />}
                 className="w-100"
@@ -611,7 +491,8 @@ const CarDetails = () => {
                   color: "#fff",
                   fontWeight: 500,
                   fontSize: "12px",
-                  border: "#323F49",
+                  border: "none",
+                  pointerEvents: "none",
                 }}
               >
                 Call
@@ -626,7 +507,10 @@ const CarDetails = () => {
           marginTop: 50,
         }}
       >
-        <CarListing title={"Used " + carDetails.ad_title} cardata={carsData} />
+        <CarListing
+          title={"Used " + carDetails.ad_title}
+          cardata={carDetails.similar_cars}
+        />
       </div>
     </div>
   );

@@ -64,12 +64,11 @@ const CarListing = ({ title, cardata }) => {
                 {car.featured && (
                   <div className="car-listing-badge blue-bg">Featured</div>
                 )}
-               {Number(car.is_verified) === 1 && (
-  <div className="car-listing-badge orenge-bg">
-    <CheckCircleFilled /> Certified Dealer
-  </div>
-)}
-
+                {Number(car.is_verified) === 1 && (
+                  <div className="car-listing-badge orenge-bg">
+                    <CheckCircleFilled /> Certified Dealer
+                  </div>
+                )}
               </div>
               <div className="car-listing-fav">
                 <FaRegHeart />
@@ -77,15 +76,17 @@ const CarListing = ({ title, cardata }) => {
             </div>
             <div className="car-listing-content">
               <div className="d-flex">
-                <div className="car-listing-title">
-                  {car.ad_title}
+                <div className="car-listing-title">{car.ad_title}</div>
+                <div className="car-listing-price">
+                  {"$" + Number(car.price).toLocaleString()}
                 </div>
-                 <div className="car-listing-price">
-  {"$" + Number(car.price).toLocaleString()}
-</div>
               </div>
               <div className="car-listing-engine">
-                {car.no_of_cylinders + "cyl " + car.engine_cc + "cc " +  car.fuel_type}
+                {car.no_of_cylinders +
+                  "cyl " +
+                  car.engine_cc +
+                  "cc " +
+                  car.fuel_type}
               </div>
               <div className="car-listing-details row">
                 <div className="col-5">

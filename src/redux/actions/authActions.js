@@ -115,19 +115,40 @@ export const registerUser = (userData) => async (dispatch) => {
   }
 };
 
-export const verifyOTP = (otpData) => async (dispatch) => {
-  try {
+// export const verifyOTP = (otpData) => async (dispatch) => {
+//   try {
 
-    dispatch(customerDetailsRequest());
+//     dispatch(customerDetailsRequest());
  
     
+//     const response = await authAPI.verifyOtp(otpData);
+    
+//     const customerDetails = response.data.user || response.data;
+    
+//     dispatch(customerDetailsSuccess(customerDetails));
+    
+//     return { success: true, data: customerDetails };
+//   } catch (error) {
+//     console.error("verifyOTP error:", error);
+//     const errorMessage = error.response?.data?.message || "OTP verification failed";
+//     dispatch(customerDetailsFailure(errorMessage));
+//     return { success: false, error: errorMessage };
+//   }
+// };
+
+export const verifyOTP = (otpData) => async (dispatch) => {
+  try {
+    dispatch(customerDetailsRequest());
+
     const response = await authAPI.verifyOtp(otpData);
-    
-    const customerDetails = response.data.user || response.data;
-    
-    dispatch(customerDetailsSuccess(customerDetails));
-    
-    return { success: true, data: customerDetails };
+
+    // ✅ Keep the full API response
+    const apiData = response.data;
+
+    // You can still send just the user details to Redux if needed
+    dispatch(customerDetailsSuccess(apiData.user));
+
+    return { success: true, data: apiData }; // returns token + user
   } catch (error) {
     console.error("verifyOTP error:", error);
     const errorMessage = error.response?.data?.message || "OTP verification failed";
@@ -135,3 +156,4 @@ export const verifyOTP = (otpData) => async (dispatch) => {
     return { success: false, error: errorMessage };
   }
 };
+

@@ -139,8 +139,10 @@ export const carAPI = {
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_YEAR_CARS(make, modalName)),
   getBodyCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
   getLocationCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
-  getSearchCars: (params) =>
-    publicApi.post(API_CONFIG.ENDPOINTS.CARS.GET_SEARCH_CARS(params)),
+  // getSearchCars: (params) =>
+  //   api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS(params)),
+    getSearchCars: (params) =>
+    api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params),
 };
 
 // User APIs

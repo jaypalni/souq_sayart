@@ -429,24 +429,27 @@ const SignupOtp = () => {
       };
       const result = await dispatch(verifyOTP(otpPayload));
 
-      if (result.success) {
-        localStorage.setItem("token", result.data.access_token);
-        messageApi.open({
-          type: "success",
-          content: result.message,
-        });
+if (result.success) {
+  console.log("Access Token:", result.data.access_token);
 
-        if (result.data.is_registered) {
-          navigate("/landing");
-        } else {
-          navigate("/createProfile");
-        }
-      } else {
-        messageApi.open({
-          type: "error",
-          content: result.error,
-        });
-      }
+  localStorage.setItem("token", result.data.access_token);
+
+  messageApi.open({
+    type: "success",
+    content: result.message,
+  });
+
+  if (result.data.is_registered) {
+    navigate("/landing");
+  } else {
+    navigate("/createProfile");
+  }
+} else {
+  messageApi.open({
+    type: "error",
+    content: result.error,
+  });
+}
     } catch (error) {
       console.error("OTP verification error:", error);
       message.error("OTP verification failed. Please try again.");

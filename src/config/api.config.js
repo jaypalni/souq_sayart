@@ -27,7 +27,7 @@ const API_CONFIG = {
       GET_LOCATION_CARS: "/api/cars/regions",
       // GET_SEARCH_CARS: (params) =>
       //   `/api/search/search?make=${make}&model=${model}`,
-      GET_SEARCH_CARS: "/api/search/search"
+      POST_SEARCH_CARS: "/api/search/search"
     },
     AUTH: {
       LOGIN: "/api/auth/login",

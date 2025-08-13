@@ -13,6 +13,7 @@ import speed_code from "../assets/images/speed_dashboard.png";
 import { useState, useEffect } from "react";
 
 const CarListing = ({ title, cardata }) => {
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [visibleCars, setVisibleCars] = useState([]);
 
@@ -79,7 +80,9 @@ const CarListing = ({ title, cardata }) => {
                 <div className="car-listing-title">
                   {car.ad_title}
                 </div>
-                <div className="car-listing-price">${car.price}</div>
+                 <div className="car-listing-price">
+  {"$" + Number(car.price).toLocaleString()}
+</div>
               </div>
               <div className="car-listing-engine">
                 {car.no_of_cylinders + "cyl " + car.engine_cc + "cc " +  car.fuel_type}

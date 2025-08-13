@@ -321,39 +321,41 @@ const CarDetails = () => {
                 <span>Features - {carDetails.ad_title}</span>
               </div>
               {/* Safety Features Section */}
-              { <div className="border-bottom">
-                <div className="car-details-features-header collapsed">
-                  <span
-                    style={{
-                      fontWeight: 500,
-                      fontSize: "14px",
-                    }}
-                  >
-                    Safety Features
-                  </span>
-                  <span
-                    onClick={() => setOpenSafety(!openSafety)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {openSafety ? <FaChevronUp /> : <FaChevronDown />}
-                  </span>
-                </div>
-                {openSafety && (
-                  <div className="row mb-2 mt-2">
-                    {safetyFeatures.map((f, idx) => (
-                      <div className="col-md-3 col-6 mb-2" key={idx}>
-                        <span className="car-details-feature-item">
-                          <FaCheckCircle
-                            color="#4fc3f7"
-                            style={{ marginRight: 6 }}
-                          />
-                          {f}
-                        </span>
-                      </div>
-                    ))}
+              {
+                <div className="border-bottom">
+                  <div className="car-details-features-header collapsed">
+                    <span
+                      style={{
+                        fontWeight: 500,
+                        fontSize: "14px",
+                      }}
+                    >
+                      Safety Features
+                    </span>
+                    <span
+                      onClick={() => setOpenSafety(!openSafety)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {openSafety ? <FaChevronUp /> : <FaChevronDown />}
+                    </span>
                   </div>
-                )}
-              </div>}
+                  {openSafety && (
+                    <div className="row mb-2 mt-2">
+                      {safetyFeatures.map((f, idx) => (
+                        <div className="col-md-3 col-6 mb-2" key={idx}>
+                          <span className="car-details-feature-item">
+                            <FaCheckCircle
+                              color="#4fc3f7"
+                              style={{ marginRight: 6 }}
+                            />
+                            {f}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              }
             </div>
           </div>
         </div>

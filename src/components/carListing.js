@@ -82,11 +82,9 @@ const CarListing = ({ title, cardata }) => {
                 </div>
               </div>
               <div className="car-listing-engine">
-                {car.no_of_cylinders +
-                  "cyl " +
-                  car.engine_cc +
-                  "cc " +
-                  car.fuel_type}
+                {car.fuel_type === "Electric"
+                  ? car.fuel_type
+                  : `${car.no_of_cylinders}cyl ${car.engine_cc}cc ${car.fuel_type}`}
               </div>
               <div className="car-listing-details row">
                 <div className="col-5">

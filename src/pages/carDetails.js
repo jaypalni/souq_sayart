@@ -70,6 +70,8 @@ const CarDetails = () => {
   const [carDetails, setCarDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const Allcarsapi = async () => {
@@ -80,10 +82,16 @@ const CarDetails = () => {
         if (cardetail?.data) {
           setCarDetails(cardetail.data);
         }
-        message.success(cardetail.message || "Fetched successfully");
+        messageApi.open({
+          type: "success",
+          content: cardetail.message,
+        });
       } catch (error) {
         const errorData = handleApiError(error);
-        message.error(errorData.message || "Failed to load car data");
+        messageApi.open({
+          type: "error",
+          content: errorData.error,
+        });
       } finally {
         setLoading(false);
       }
@@ -101,6 +109,17 @@ const CarDetails = () => {
   if (!carDetails) {
     return <div>No data found</div>;
   }
+
+  const openWhatsApp = (phoneNumber) => {
+    const url = `https://wa.me/${phoneNumber}`;
+    window.open(url, "_blank");
+  };
+
+  //  const carImages = carDetails?.car_image?.length
+  //    ? carDetails.car_image.map((img) =>
+  //        img.startsWith("http") ? img : `${BASE_URL}${img}`
+  //      )
+  //    : [redcar_icon];
 
   const carImages = carDetails?.images?.length
     ? carDetails.images
@@ -124,8 +143,8 @@ const CarDetails = () => {
 
   return (
     <div className="container py-4 car-details-page">
+      {contextHolder}
       <div className="row">
-        {/* Left: Images */}
         <div className="col-md-8">
           <Card className="main-image-card">
             <div className="main-image-wrapper">
@@ -163,7 +182,6 @@ const CarDetails = () => {
               ))}
             </div>
           </Card>
-          {/* <Card > */}
           <h3 className="text-title">{carDetails.ad_title}</h3>
           <p className="text-muted">
             Indulge in the ultimate driving experience with our Mercedes AMG G63
@@ -175,14 +193,9 @@ const CarDetails = () => {
             className="d-flex align-items-center gap-3 mb-2"
             style={{ color: "#2B2829", fontWeight: 400, fontSize: "14px" }}
           >
-            {/* <Tag color="blue"> */}
-            {carDetails.no_of_cylinders +
-              " Cyl " +
-              carDetails.engine_cc +
-              " " +
-              carDetails.fuel_type}
-            {/* </Tag> */}
-            {/* <span className="text-muted">ID: 234567</span> */}
+            {(carDetails.fuel_type !== "Electric"
+              ? `${carDetails.no_of_cylinders}cyl `
+              : "") + `${carDetails.engine_cc} ${carDetails.fuel_type}`}
           </div>
           <div className="d-flex align-items-center gap-1 mb-2">
             <img
@@ -295,10 +308,8 @@ const CarDetails = () => {
                   ))}
                 </tbody>
               </table>
-              {/* </Card> */}
             </div>
             <div className="col-md-6">
-              {/* <Card className="car-details-table-card"> */}
               <div className="car-details-table-title">Additional Details</div>
               <table className="car-details-table">
                 <tbody>
@@ -310,18 +321,15 @@ const CarDetails = () => {
                   ))}
                 </tbody>
               </table>
-              {/* </Card> */}
             </div>
           </div>
 
           <div>
             <div className="car-details-features-section">
-              {/* Main Features Section */}
               <div className="car-details-features-h1">
                 <span>Features - {carDetails.ad_title}</span>
               </div>
-              {/* Safety Features Section */}
-              {
+              {/* {
                 <div className="border-bottom">
                   <div className="car-details-features-header collapsed">
                     <span
@@ -355,7 +363,7 @@ const CarDetails = () => {
                     </div>
                   )}
                 </div>
-              }
+              } */}
             </div>
           </div>
         </div>
@@ -441,7 +449,7 @@ const CarDetails = () => {
                       Member since {carDetails.seller.member_since}
                     </div>
                     <Link
-                      to="/profile"
+                      // to="/profile"
                       className="car-details-view-profile-link"
                     >
                       View Profile{" "}
@@ -467,6 +475,7 @@ const CarDetails = () => {
                 Message
               </Button>
               <Button
+                onClick={() => openWhatsApp(carDetails.seller.phone_number)}
                 icon={<FaWhatsapp />}
                 className="w-100"
                 style={{
@@ -486,15 +495,21 @@ const CarDetails = () => {
               </Button>
 
               <Button
-                icon={<FaPhoneAlt />}
-                className="w-100"
+                icon={<FaPhoneAlt style={{ color: "#fff" }} />}
+                className="w-100 no-hover-bg"
                 style={{
                   background: "#323F49",
                   color: "#fff",
                   fontWeight: 500,
                   fontSize: "12px",
                   border: "none",
-                  pointerEvents: "none",
+                  pointerEvents:"none"
+                }}
+                onClick={() => {
+                  messageApi.open({
+                    type: "success",
+                    content: carDetails.seller.phone_number,
+                  });
                 }}
               >
                 Call

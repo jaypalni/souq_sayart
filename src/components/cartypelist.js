@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Slider from "react-slick";
 import { FaCarSide, FaShuttleVan, FaCar, FaCarAlt } from "react-icons/fa";
 import { MdOutlineDirectionsCar } from "react-icons/md";
@@ -16,6 +16,12 @@ import suvIcon from "../assets/images/suv_icon.svg";
 import sedanIcon from "../assets/images/sedan_icon.svg";
 import rightarrow from "../assets/images/rightarrow_icon.svg";
 import leftarrow from "../assets/images/leftarrow_icon.svg";
+import { carAPI } from "../services/api";
+import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import { message, Modal } from "antd";
+import { useNavigate } from "react-router-dom";
+import Searchemptymodal from "../components/searchemptymodal";
+
 
 const bodyTypes = [
   {
@@ -93,7 +99,12 @@ const Arrow = (props) => {
   );
 };
 
-const CarTypeList = () => {
+const CarTypeList = ({setSearchBodyType}) => {
+  const [loading, setLoading] = useState(false);
+    const [carSearch, setCarSearch] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [bodyType, setBodyType] = useState("All Body Types");
+     const navigate = useNavigate();
   const settings = {
     dots: false,
     infinite: false,
@@ -108,17 +119,71 @@ const CarTypeList = () => {
     ],
   };
 
+
+  const handleSearch = async (item) => {
+
+    console.log("Button Clicked");
+  const token = localStorage.getItem("token");
+  console.log("Token value:", token);
+    try {
+      setLoading(true);
+  
+      const params = {
+        make: "",
+        model: "",
+        body_type: item,
+        location: "",
+      };
+  
+      console.log("AllParams", params);
+  
+      const response = await carAPI.getSearchCars(params);
+      const data1 = handleApiResponse(response);
+  
+      console.log("Full data", response)
+  
+      if (data1) {
+        const results = data1?.data?.cars || [];
+        setCarSearch(results);
+  
+        if (results.length === 0) {
+           console.log("success")
+          setIsModalOpen(true);
+        } else {
+          navigate("/allcars", { state: { cars: results,pagination: data1?.data?.pagination  } });
+         localStorage.setItem("searchcardata", JSON.stringify(params));
+  
+        }
+      }
+    } catch (error) {
+      console.log("error1")
+  
+      const errorData = handleApiError(error);
+      message.error(errorData.message || "Failed to search car data");
+      setCarSearch([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="car-type-list-container">
       <h2 className="car-type-list-title">Body Types</h2>
       <Slider {...settings} className="car-type-slider">
         {bodyTypes.map((type) => (
-          <div key={type.name} className="car-type-item">
+          <div key={type.name} className="car-type-item" onClick={() => handleSearch(type.name)}>
             <div className="car-type-icon">{type.icon}</div>
             <div className="car-type-name">{type.name}</div>
           </div>
         ))}
       </Slider>
+      <Searchemptymodal
+  visible={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  bodyType={bodyType}
+  setBodyType={setBodyType}
+  onSave={handleSearch}
+/>
     </div>
   );
 };

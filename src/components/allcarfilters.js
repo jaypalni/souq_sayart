@@ -296,7 +296,7 @@ const newUsedOptions = ["New & Used", "New", "Used"];
 const priceMinOptions = ["Price Min", 5000, 10000, 20000, 30000, 40000];
 const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
 
-const LandingFilters = () => {
+const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
   const [loading, setLoading] = useState(false);
    const [carSearch, setCarSearch] = useState([]);
   const [make, setMake] = useState("All Make");
@@ -404,14 +404,16 @@ const LandingFilters = () => {
     console.log("Full data", response);
 
     if (data1) {
-      const results = data1?.data?.cars || [];
+      const results = data1?.data || [];
       setCarSearch(results);
 
       if (results.length === 0) {
         console.log("success");
          setIsModalOpen(true);
       } else {
-        navigate("/allcars", { state: { cars: results } });
+        console.log("all car s11",results)
+        setFilterCarsData(results)
+        // navigate("/allcars", { state: { cars: results } });
         localStorage.setItem("searchcardata", JSON.stringify(apiParams));
          messageApi.open({
             type: "success",

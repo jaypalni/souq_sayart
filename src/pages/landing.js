@@ -14,6 +14,7 @@ const Landing = () => {
   const [loading, setLoading] = useState(false);
   const [carsData, setCarsData] = useState([]);
   const [carsRecomData, setCarsRecomData] = useState([]);
+  const [searchbodytype, setSearchBodyType] = useState();
 
   useEffect(() => {
     fetchFeaturedCars();
@@ -61,8 +62,8 @@ const Landing = () => {
   return (
     <>
       <div className="container py-4">
-        <LandingFilters />
-        <CarTypeList />
+        <LandingFilters searchbodytype={searchbodytype} />
+        <CarTypeList setSearchBodyType={setSearchBodyType} />
         <SavedSearches title={"Your Saved Searches"} />
         <CarListing title={"Featured Car"} cardata={carsData} />
       </div>

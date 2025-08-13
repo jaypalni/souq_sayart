@@ -195,6 +195,7 @@ const LoginScreen = () => {
             type: "success",
             content: data.message,
           });
+          localStorage.setItem("fromLogin", "true");
           navigate("/verifyOtp");
         }
       } catch (error) {

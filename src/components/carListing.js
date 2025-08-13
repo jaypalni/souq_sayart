@@ -52,7 +52,7 @@ const CarListing = ({ title, cardata }) => {
             className="car-listing-card"
             key={idx}
             style={car.featured ? { cursor: "pointer" } : {}}
-            onClick={() => navigate(`/carDetails/${car.id}`)}
+            onClick={() => navigate(`/carDetails/${car.car_id}`)}
           >
             <div className="car-listing-image-wrapper">
               <img

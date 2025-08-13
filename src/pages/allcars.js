@@ -120,7 +120,7 @@ const onPageChange = (page, pageSize) => {
           <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
             <div
               className="allcars-listing-card"
-              onClick={() => navigate(`/carDetails/${car.id}`)}
+              onClick={() => navigate(`/carDetails/${car.car_id}`)}
             >
               <div className="car-listing-image-wrapper">
                <img

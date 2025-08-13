@@ -16,7 +16,7 @@ const newUsedOptions = ["New & Used", "New", "Used"];
 const priceMinOptions = ["Price Min", 5000, 10000, 20000, 30000, 40000];
 const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
 
-const LandingFilters = () => {
+const LandingFilters = ({searchbodytype}) => {
   const [loading, setLoading] = useState(false);
   const [make, setMake] = useState("All");
   const [carMakes, setCarMakes] = useState([]);
@@ -59,6 +59,14 @@ const LandingFilters = () => {
   useEffect(() => {
     bodyType && fetchRegionCars();
   }, []);
+
+  useEffect(() => {
+setBodyType(searchbodytype)
+  }, [searchbodytype])
+
+
+
+  console.log("Body Type", searchbodytype)
 
   // useEffect(() => {
   //   make && model && bodyType && location && handleSearch();
@@ -169,7 +177,7 @@ console.log("Token value:", token);
          console.log("success")
         setIsModalOpen(true);
       } else {
-        navigate("/allcars", { state: { cars: results } });
+        navigate("/allcars", { state: { cars: results,pagination: data1?.data?.pagination  } });
        localStorage.setItem("searchcardata", JSON.stringify(params));
 
       }

@@ -13,166 +13,27 @@ import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import car_type from "../assets/images/car_type.png";
 import country_code from "../assets/images/country_code.png";
 import speed_code from "../assets/images/speed_dashboard.png";
-import { message } from "antd";
+import { message,Pagination } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 const Allcars = () => {
+  const [filtercarsData, setFilterCarsData] = useState([]);
+
+  console.log("all car filters",filtercarsData)
   return (
     <div>
       <PlaneBanner name={"jdi"} />
-      <AllCarFilters />
-      <CarListing />
+      <AllCarFilters filtercarsData={filtercarsData} setFilterCarsData={setFilterCarsData}  />
+      <CarListing filtercarsData={filtercarsData} setFilterCarsData={setFilterCarsData}  />
       <Bestcarsalebytype />
       
     </div>
   );
 };
-// const CarListing = () => {
-//   console.log("Hi All")
-//   const [carsData, setCarsData] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const navigate = useNavigate();
-//   useEffect(() => {
-//     Allcarsapi();
-//   }, []);
-//   const Allcarsapi = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await carAPI.getAllCars({});
-//       const newcars = handleApiResponse(response);
-//       if (newcars?.data?.cars) {
-//         setCarsData(newcars.data.cars);
-//       }
-//       message.success(newcars.message || "Fetched successfully");
-//     } catch (error) {
-//       const errorData = handleApiError(error);
-//       message.error(errorData.message || "Failed to load car data");
-//       setCarsData([]);
-//     } finally {
-//       setLoading(false);
-//     } 
-//   };
 
-//   // Add Fav API
-
-  // const Addfavcarapi = async (carId) => {
-  //     try {
-  //       setLoading(true);
-  
-  //       const response = await userAPI.addFavorite(carId); 
-  //       const data = handleApiResponse(response);
-  
-  //       if (data.success) {
-  //         message.success(data.message || "Added to favorites");
-  //       } else {
-  //         message.error(data.message || "Something went wrong");
-  //       }
-  //     } catch (error) {
-  //       const errorData = handleApiError(error);
-  //       message.error(
-  //         errorData.message || "Failed to remove car from favorites."
-  //       );
-  //     } finally {
-  //       setLoading(false);
-  //     }       
-  //   };
-
-//   return (
-//     <div className="car-listing-container">
-//       <div className="car-listing-header">
-//         <span>Showing 1 - {carsData.length} Cars</span>
-//         <a
-//           href="#"
-//           className="allcars-sortingtitle"
-//           style={{ color: "#000000", fontSize: "16px", fontWeight: "700" }}
-//         >
-//           Sort : Newest Listing
-//         </a>
-//       </div>
-//       <div className="row">
-//         {/* {carsData.map((car, idx) => (
-//           <div className="col-3 p-0" key={idx}> */}
-//           {carsData.map((car) => (
-//             <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
-//             <div
-//               className="allcars-listing-card"
-//               onClick={() => navigate(`/carDetails/${car.id}`)}
-//             >
-//               <div className="car-listing-image-wrapper">
-//                 <img
-//                   src={car.image_url || redcar_icon} // fallback image
-//                   alt={car.ad_title || "Car Image"}
-//                   className="car-listing-image"
-//                 />
-//                 <div className="car-listing-badges">
-//                   {car.featured && (
-//                     <div className="car-listing-badge blue-bg">Featured</div>
-//                   )}
-//                   {car.certified && (
-//                     <div className="car-listing-badge orenge-bg">
-//                       <CheckCircleFilled /> Certified Dealer
-//                     </div>
-//                   )}
-//                 </div>
-//                 {/* <div className="car-listing-fav">
-//                   <FaRegHeart />
-//                 </div> */}
-//                 <button
-//                   className="car-listing-fav"
-//                   style={{
-//                     backgroundColor: "#ffffff",
-//                     color: "#008ad5",
-//                     border: "none",
-//                     cursor: "pointer",
-//                   }}
-//                   onClick={() => Addfavcarapi(car.id)}
-//                 >
-//                   <FaRegHeart />
-//                 </button>
-//               </div>
-//               <div className="car-listing-content">
-//                 <div className="d-flex">
-//                   <div className="car-listing-title">
-//                     {car.ad_title || "No Title Available"}
-//                   </div>
-//                   <div className="car-listing-price">{"$" + car.price}</div>
-//                 </div>
-//                 <div className="car-listing-engine">
-//                   {car.no_of_cylinders +
-//                     "Cyl " +
-//                     car.engine_cc +
-//                     " " +
-//                     car.fuel_type}
-//                 </div>
-//                 <div className="car-listing-details row">
-//                   <div className="col-5">
-//                     <span>
-//                       <TbManualGearbox /> {car.transmission_type}
-//                     </span>
-//                   </div>
-//                   <div className="col-3">
-//                     <span>
-//                       <FaGlobe /> {car.consumption}
-//                     </span>
-//                   </div>
-//                   <div className="col-4">
-//                     <span>
-//                       <FaMapMarkerAlt /> {car.kilometers}
-//                     </span>
-//                   </div>
-//                   <div className="car-listing-location">{car.location}</div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
 
 // -- New Code --
 
-const CarListing = () => {
+const CarListing = ({filtercarsData}) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -180,17 +41,24 @@ const CarListing = () => {
 
   // Read cars from previous page if available
   const passedCars = location.state?.cars || [];
-
+  const passedPagination = location.state?.pagination || {};
   const [carsData, setCarsData] = useState(passedCars);
+  const [paginationData, setPaginationData] = useState(passedPagination);
+
   const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
     // If no passed data, fetch all cars
-    if (passedCars.length === 0) {
-      fetchAllCars();
+    if (filtercarsData.length === 0) {
+      setCarsData(passedCars)
+      setPaginationData(passedPagination)
+    }else{
+      setCarsData(filtercarsData?.cars)
+      setPaginationData(filtercarsData?.pagination)
     }
-  }, []);
+  }, [filtercarsData]);
+  console.log("paginationData",paginationData)
 
    const Addfavcarapi = async (carId) => {
       try {
@@ -214,26 +82,31 @@ const CarListing = () => {
       }       
     };
 
-  const fetchAllCars = async () => {
-    try {
-      setLoading(true);
-      const response = await carAPI.getAllCars({});
-      const newCars = handleApiResponse(response);
-      setCarsData(newCars?.data?.cars || []);
-      message.success(newCars.message || "Fetched successfully");
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to load car data");
-      setCarsData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // const fetchAllCars = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await carAPI.getAllCars({});
+  //     const newCars = handleApiResponse(response);
+  //     setCarsData(newCars?.data?.cars || []);
+  //     message.success(newCars.message || "Fetched successfully");
+  //   } catch (error) {
+  //     const errorData = handleApiError(error);
+  //     message.error(errorData.message || "Failed to load car data");
+  //     setCarsData([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+const onShowSizeChange = (current, pageSize) => {
+  console.log(current, pageSize);
+};
+const onPageChange = (page, pageSize) => {
+  console.log(page, pageSize);
+};
   return (
     <div className="car-listing-container">
       <div className="car-listing-header">
-        <span>Showing 1 - {carsData.length} Cars</span>
+        <span>Showing 1 - {carsData?.length} Cars</span>
         <a
           href="#"
           className="allcars-sortingtitle"
@@ -243,7 +116,7 @@ const CarListing = () => {
         </a>
       </div>
       <div className="row">
-        {carsData.map((car) => (
+        {carsData?.map((car) => (
           <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
             <div
               className="allcars-listing-card"
@@ -335,6 +208,18 @@ const CarListing = () => {
             </div>
           </div>
         ))}
+      </div>
+      <div className="row" >
+        <div className="col-12 d-flex justify-content-center">
+         <Pagination
+      showSizeChanger
+      onShowSizeChange={onShowSizeChange}
+      onChange={onPageChange}
+      defaultCurrent={paginationData?.page}
+      total={paginationData?.total}
+    />
+    </div>
+  
       </div>
     </div>
   );

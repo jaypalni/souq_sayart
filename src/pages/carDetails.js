@@ -19,7 +19,6 @@ import { MdCarRental } from "react-icons/md";
 import { TbManualGearbox } from "react-icons/tb";
 import { MessageOutlined, UserOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-// import CarDetailsMock from '../components/cardetailsmock';
 import "../assets/styles/cardetails.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import redcar_icon from "../assets/images/redcar_icon.jpg";
@@ -38,8 +37,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CarListing from "../components/carListing";
 const { Panel } = Collapse;
-
-//const carImages = [redcar_icon, bluecar_icon, redcar_icon, bluecar_icon];
 
 const CarDetails = () => {
   const { id } = useParams();

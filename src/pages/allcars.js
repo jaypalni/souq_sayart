@@ -30,16 +30,12 @@ const Allcars = () => {
   );
 };
 
-
-// -- New Code --
-
 const CarListing = ({filtercarsData}) => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
 
-  // Read cars from previous page if available
   const passedCars = location.state?.cars || [];
   const passedPagination = location.state?.pagination || {};
   const [carsData, setCarsData] = useState(passedCars);
@@ -49,7 +45,7 @@ const CarListing = ({filtercarsData}) => {
 
 
   useEffect(() => {
-    // If no passed data, fetch all cars
+   
     if (filtercarsData.length === 0) {
       setCarsData(passedCars)
       setPaginationData(passedPagination)
@@ -82,21 +78,6 @@ const CarListing = ({filtercarsData}) => {
       }       
     };
 
-  // const fetchAllCars = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await carAPI.getAllCars({});
-  //     const newCars = handleApiResponse(response);
-  //     setCarsData(newCars?.data?.cars || []);
-  //     message.success(newCars.message || "Fetched successfully");
-  //   } catch (error) {
-  //     const errorData = handleApiError(error);
-  //     message.error(errorData.message || "Failed to load car data");
-  //     setCarsData([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 const onShowSizeChange = (current, pageSize) => {
   console.log(current, pageSize);
 };

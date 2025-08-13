@@ -378,13 +378,6 @@ const CreateProfile = () => {
                   </span>
                 }
                 name="email"
-                // rules={[
-                //   {
-                //     required: true,
-                //     type: "email",
-                //     message: "Valid email is required",
-                //   },
-                // ]}
                 required={false}
               >
                 <Input placeholder="Email" size="middle" />

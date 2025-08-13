@@ -6,7 +6,7 @@ const Captcha = () => {
   const handleCaptchaChange = (value) => {
     setVerified(!!value);
 
-    // Send token to Flutter WebView
+   
     if (window.Captcha) {
       window.Captcha.postMessage(value);
     }

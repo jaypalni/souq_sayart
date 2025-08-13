@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import CarTypeList from "../components/cartypelist";
-//import SavedSearches from "../components/savedSearches";
 import LandingFilters from "../components/LandingFilters";
 import CarListing from "../components/carListing";
 import DownloadApp from "../components/downloadApp";

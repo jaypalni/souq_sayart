@@ -187,7 +187,10 @@ const CarDetails = () => {
           >
             {(carDetails.fuel_type !== "Electric"
               ? `${carDetails.no_of_cylinders}cyl `
-              : "") + `${carDetails.engine_cc} ${carDetails.fuel_type}`}
+              : "") +
+              `${(carDetails.engine_cc / 1000).toFixed(1)}L ${
+                carDetails.fuel_type
+              }`}
           </div>
           <div className="d-flex align-items-center gap-1 mb-2">
             <img
@@ -516,10 +519,7 @@ const CarDetails = () => {
           marginTop: 50,
         }}
       >
-        <CarListing
-          title={"Used " + carDetails.ad_title}
-          cardata={carDetails.similar_cars}
-        />
+        <CarListing title={"Used " + carDetails.ad_title} cardata={carDetails.similar_cars} />
       </div>
     </div>
   );

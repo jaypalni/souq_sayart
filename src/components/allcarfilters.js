@@ -34,9 +34,9 @@ const newUsedOptions = ["New & Used", "New", "Used"];
 const priceMinOptions = ["Price Min", 5000, 10000, 20000, 30000, 40000];
 const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
 
-const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
   const [loading, setLoading] = useState(false);
-   const [carSearch, setCarSearch] = useState([]);
+  const [carSearch, setCarSearch] = useState([]);
   const [make, setMake] = useState("All Make");
   const [model, setModel] = useState("All Models");
   const [bodyType, setBodyType] = useState("All Body Types");
@@ -47,8 +47,8 @@ const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [carCount] = useState(342642);
-    const navigate = useNavigate();
-  const [openDropdown, setOpenDropdown] = useState(null); // 'newUsed' | 'priceMin' | 'priceMax' | null
+  const navigate = useNavigate();
+  const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRefs = {
     newUsed: useRef(),
     priceMin: useRef(),
@@ -68,23 +68,21 @@ const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
     setStoredSearchParams(params);
     console.log("Storedcardata", params);
   }, []);
-  
+
   useEffect(() => {
-  try {
-    const saved = JSON.parse(localStorage.getItem("searchcardata"));
-    if (saved) {
-      setMake(saved.make || "All Make");
-      setModel(saved.model || "All Models");
-      setBodyType(saved.body_type || "All Body Types");
-      setLocation(saved.location || "Baghdad");
+    try {
+      const saved = JSON.parse(localStorage.getItem("searchcardata"));
+      if (saved) {
+        setMake(saved.make || "All Make");
+        setModel(saved.model || "All Models");
+        setBodyType(saved.body_type || "All Body Types");
+        setLocation(saved.location || "Baghdad");
+      }
+    } catch (e) {
+      console.warn("Failed to parse searchcardata:", e);
     }
-  } catch (e) {
-    console.warn("Failed to parse searchcardata:", e);
-  }
-}, []);
+  }, []);
 
-
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -100,84 +98,70 @@ const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
   }, [openDropdown]);
 
   const handleChange = (name, value) => {
-    // Optional: Add any side-effects on filter change here
-    // For example, you could clear models if make changes:
     if (name === "Make") {
       setModel("All Models");
     }
   };
 
   const handleSearch = async () => {
-  // Save current filters to localStorage first
-  const saveParams = {
-    make,
-    model,
-    body_type: bodyType,
-    location,
-    newUsed,
-    priceMin,
-    priceMax,
-  };
-
-  localStorage.setItem("searchcardata", JSON.stringify(saveParams));
-  message.success("Filters saved!");
-  console.log("Saved search filters:", saveParams);
-
-  try {
-    setLoading(true);
-
-    // Prepare params to send to API (with defaults handled)
-    const apiParams = {
-      make: make !== "All" ? make : "",
-      model: model !== "All Models" ? model : "",
-      body_type: bodyType !== "All Body Types" ? bodyType : "",
-      location: location !== "Baghdad" ? location : "",
+    const saveParams = {
+      make,
+      model,
+      body_type: bodyType,
+      location,
+      newUsed,
+      priceMin,
+      priceMax,
     };
 
-    console.log("AllParams", apiParams);
+    localStorage.setItem("searchcardata", JSON.stringify(saveParams));
+    message.success("Filters saved!");
 
-    const response = await carAPI.getSearchCars(apiParams);
-    const data1 = handleApiResponse(response);
+    try {
+      setLoading(true);
+      const apiParams = {
+        make: make !== "All" ? make : "",
+        model: model !== "All Models" ? model : "",
+        body_type: bodyType !== "All Body Types" ? bodyType : "",
+        location: location !== "Baghdad" ? location : "",
+      };
 
-    console.log("Full data", response);
+      const response = await carAPI.getSearchCars(apiParams);
+      const data1 = handleApiResponse(response);
 
-    if (data1) {
-      const results = data1?.data || [];
-      setCarSearch(results);
+      if (data1) {
+        const results = data1?.data || [];
+        setCarSearch(results);
 
-      if (results.length === 0) {
-        console.log("success");
-         setIsModalOpen(true);
-      } else {
-        console.log("all car s11",results)
-        setFilterCarsData(results)
-        // navigate("/allcars", { state: { cars: results } });
-        localStorage.setItem("searchcardata", JSON.stringify(apiParams));
-         messageApi.open({
+        if (results.length === 0) {
+          setIsModalOpen(true);
+        } else {
+          setFilterCarsData(results);
+          // navigate("/allcars", { state: { cars: results } });
+          localStorage.setItem("searchcardata", JSON.stringify(apiParams));
+          messageApi.open({
             type: "success",
             content: data1?.message,
-            
           });
+        }
       }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || "Failed to search car data");
+      setCarSearch([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.log("error1");
-
-    const errorData = handleApiError(error);
-    message.error(errorData.message || "Failed to search car data");
-    setCarSearch([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const renderDropdown = (type, options, value, setValue) => (
     <div className="allcars-filters-dropdown-menu" ref={dropdownRefs[type]}>
       {options.map((opt) => (
         <div
           key={opt}
-          className={`allcars-filters-dropdown-item${value === opt ? " selected" : ""}`}
+          className={`allcars-filters-dropdown-item${
+            value === opt ? " selected" : ""
+          }`}
           onClick={() => {
             setValue(opt);
             handleChange(
@@ -208,7 +192,6 @@ const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
               value={make}
               onChange={(value) => {
                 setMake(value);
-                // Reset model if make changes
                 setModel("All Models");
                 handleChange("Make", value);
               }}
@@ -327,7 +310,12 @@ const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
               <MdKeyboardArrowDown />
             </span>
             {openDropdown === "priceMin" &&
-              renderDropdown("priceMin", priceMinOptions, priceMin, setPriceMin)}
+              renderDropdown(
+                "priceMin",
+                priceMinOptions,
+                priceMin,
+                setPriceMin
+              )}
           </div>
           <div
             className="allcars-filters-text"
@@ -341,27 +329,30 @@ const LandingFilters = ({setFilterCarsData,filtercarsData}) => {
               <MdKeyboardArrowDown />
             </span>
             {openDropdown === "priceMax" &&
-              renderDropdown("priceMax", priceMaxOptions, priceMax, setPriceMax)}
+              renderDropdown(
+                "priceMax",
+                priceMaxOptions,
+                priceMax,
+                setPriceMax
+              )}
           </div>
         </div>
       </div>
-     <Searchemptymodal
-  visible={isModalOpen}
-  onClose={() => setIsModalOpen(false)}
-  make={make}
-  setMake={setMake}
-  model={model}
-  setModel={setModel}
-  bodyType={bodyType}
-  setBodyType={setBodyType}
-  selectedLocation={location}       
-  setSelectedLocation={setLocation}  
-  onSave={handleSearch}
-/>
-
+      <Searchemptymodal
+        visible={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        make={make}
+        setMake={setMake}
+        model={model}
+        setModel={setModel}
+        bodyType={bodyType}
+        setBodyType={setBodyType}
+        selectedLocation={location}
+        setSelectedLocation={setLocation}
+        onSave={handleSearch}
+      />
     </div>
   );
 };
 
 export default LandingFilters;
-

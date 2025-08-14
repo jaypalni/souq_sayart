@@ -145,8 +145,8 @@ const Cardetailsfilter = () => {
         width={380}
         bodyStyle={{
           paddingBottom: 80,
-          height: "calc(100% - 108px)", // Account for header and footer
-          overflow: "hidden", // Prevent double scrollbars
+          height: "calc(100% - 108px)", 
+          overflow: "hidden", 
         }}
       >
         <div
@@ -559,7 +559,6 @@ const Cardetailsfilter = () => {
               <Option value="Installment">Installment</Option>
             </Select>
           </div>
-          {/* Add more filter fields as needed */}
           <Divider />
           <Button type="primary" block>
             Apply Filters
@@ -567,11 +566,11 @@ const Cardetailsfilter = () => {
         </div>
       </Drawer>
       <Drawer
-        title={null} // no default title
-        closeIcon={null} // hides the default "X" close icon
+        title={null}
+        closeIcon={null} 
         placement="left"
         onClose={() => setextrafeaturesvisible(false)}
-        open={extrafeaturesvisible} // use `open` instead of deprecated `visible` if you're on AntD v5+
+        open={extrafeaturesvisible} 
         width={380}
         bodyStyle={{
           padding: 0,
@@ -625,7 +624,6 @@ const Cardetailsfilter = () => {
             }}
           />
         </div>
-        {/* Features List */}
         <div
           style={{
             height: "calc(100vh - 120px)",
@@ -637,7 +635,6 @@ const Cardetailsfilter = () => {
           }}
         >
           {extraFeaturesData.map((section) => {
-            // Filter features by search
             const filtered = section.features.filter((f) =>
               f.toLowerCase().includes(search.toLowerCase())
             );

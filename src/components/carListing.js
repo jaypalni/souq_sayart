@@ -16,25 +16,25 @@ const CarListing = ({ title, cardata }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [visibleCars, setVisibleCars] = useState([]);
+  console.log("123456",cardata)
 
-  useEffect(() => {
-    if (Array.isArray(cardata) && cardata.length > 0) {
-      const featuredCars = cardata.filter((car) => car.featured);
+ useEffect(() => {
+   if (Array.isArray(cardata) && cardata.length > 0) {
+     let startIndex = 0;
 
-      let startIndex = 0;
+     const updateVisibleCars = () => {
+       const slice = cardata.slice(startIndex, startIndex + 10);
+       setVisibleCars(slice);
+       startIndex = (startIndex + 10) % cardata.length;
+     };
 
-      const updateVisibleCars = () => {
-        const slice = featuredCars.slice(startIndex, startIndex + 10);
-        setVisibleCars(slice);
-        startIndex = (startIndex + 10) % featuredCars.length;
-      };
+     updateVisibleCars();
+     const interval = setInterval(updateVisibleCars, 900000);
 
-      updateVisibleCars();
-      const interval = setInterval(updateVisibleCars, 900000);
+     return () => clearInterval(interval);
+   }
+ }, [cardata]);
 
-      return () => clearInterval(interval);
-    }
-  }, [cardata]);
 
   return (
     <div className="car-listing-container">
@@ -61,7 +61,7 @@ const CarListing = ({ title, cardata }) => {
                 className="car-listing-image"
               />
               <div className="car-listing-badges">
-                {car.featured && (
+                {Number(car.featured) === 1 && (
                   <div className="car-listing-badge blue-bg">Featured</div>
                 )}
                 {Number(car.is_verified) === 1 && (
@@ -84,7 +84,9 @@ const CarListing = ({ title, cardata }) => {
               <div className="car-listing-engine">
                 {car.fuel_type === "Electric"
                   ? car.fuel_type
-                  : `${car.no_of_cylinders}cyl ${car.engine_cc}cc ${car.fuel_type}`}
+                  : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
+                      1
+                    )}L  ${car.fuel_type}`}
               </div>
               <div className="car-listing-details row">
                 <div className="col-5">

@@ -143,11 +143,11 @@ const LoginScreen = () => {
 
   // useEffect(() => {
   //   socket.on("connect", () => {
- 
+
   //   });
 
   //   socket.on("newMessage", (data) => {
-  
+
   //     setMsg(data);
   //   });
 
@@ -168,7 +168,6 @@ const LoginScreen = () => {
       setCaptchaErrorMsg("Captcha is required!");
     } else {
       try {
-   
         setLoading(true);
 
         const response = await authAPI.login({
@@ -202,13 +201,14 @@ const LoginScreen = () => {
         const errorData = handleApiError(error);
         messageApi.open({
           type: "error",
-          content: errorData?.error,
+          content: errorData.message,
         });
       } finally {
         setLoading(false);
       }
     }
   };
+
   return (
     <div
       style={{ minHeight: "50vh", display: "flex", flexDirection: "column" }}

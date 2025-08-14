@@ -28,6 +28,7 @@ const LandingFilters = ({ searchbodytype }) => {
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [location, setLocation] = useState("Baghdad");
   const [carLocation, setCarLocation] = useState([]);
+  const [carLocationCountry, setCarLocationCountry] = useState([]);
   const [carSearch, setCarSearch] = useState([]);
   const [newUsed, setNewUsed] = useState("New & Used");
   const [priceMin, setPriceMin] = useState("Price Min");
@@ -89,7 +90,85 @@ const LandingFilters = ({ searchbodytype }) => {
       const response = await carAPI.getLocationCars({});
       const data1 = handleApiResponse(response);
       if (data1) {
-        setCarLocation(data1?.data);
+        const locations = data1?.data;
+        setCarLocation(locations);
+        const getGeoData = async () => {
+          try {
+            const cacheKey = "geoDataCache";
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              const maxAgeMs = 24 * 60 * 60 * 1000;
+              if (
+                parsed?.ts &&
+                Date.now() - parsed.ts < maxAgeMs &&
+                parsed?.data
+              ) {
+                return parsed.data;
+              }
+            }
+
+            const geoRes = await fetch("https://ipapi.co/json/");
+            if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
+            const geoData = await geoRes.json();
+            localStorage.setItem(
+              cacheKey,
+              JSON.stringify({ ts: Date.now(), data: geoData })
+            );
+            return geoData;
+          } catch (err) {
+            return null;
+          }
+        };
+
+        const geoData = await getGeoData();
+        let defaultLocation = null;
+
+        if (geoData) {
+          const userCountry = geoData?.country_name?.toLowerCase();
+          defaultLocation = locations.find(
+            (loc) => loc.location.toLowerCase() === userCountry
+          );
+        }
+
+        if (!defaultLocation) {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const tzLower = tz ? tz.toLowerCase() : "";
+          const tzOffset = new Date().getTimezoneOffset();
+          const langs = [
+            navigator.language,
+            ...(navigator.languages || []),
+          ].filter(Boolean);
+
+          const isIndiaLocale =
+            tzLower === "asia/kolkata" ||
+            tzLower === "asia/calcutta" ||
+            tzOffset === -330 ||
+            langs.some((l) => {
+              const ll = String(l).toLowerCase();
+              return ll.endsWith("-in") || ll === "en-in" || ll.includes("-in");
+            });
+          if (isIndiaLocale) {
+            defaultLocation = locations.find(
+              (loc) => loc.location.toLowerCase() === "india"
+            );
+
+            if (!defaultLocation) {
+              defaultLocation = locations.find(
+                (loc) => loc.location.toLowerCase() === "dubai"
+              );
+            }
+          }
+        }
+
+        if (!defaultLocation && locations.length > 0) {
+          defaultLocation = locations[0];
+        }
+
+        if (defaultLocation) {
+          setCarLocationCountry(defaultLocation);
+          setLocation(defaultLocation.location);
+        }
       }
 
       message.success(data1.message || "Fetched successfully");

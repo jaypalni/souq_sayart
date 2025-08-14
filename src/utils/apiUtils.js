@@ -13,7 +13,7 @@ export const handleApiError = (error) => {
     const { status, data } = error.response;
     return {
       status,
-      message: data.message || 'An error occurred',
+      message: data.message || data.error || 'An error occurred',
       errors: data.errors || [],
     };
   } else if (error.request) {

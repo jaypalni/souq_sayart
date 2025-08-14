@@ -16,25 +16,23 @@ const CarListing = ({ title, cardata }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [visibleCars, setVisibleCars] = useState([]);
-  console.log("123456",cardata)
 
- useEffect(() => {
-   if (Array.isArray(cardata) && cardata.length > 0) {
-     let startIndex = 0;
+  useEffect(() => {
+    if (Array.isArray(cardata) && cardata.length > 0) {
+      let startIndex = 0;
 
-     const updateVisibleCars = () => {
-       const slice = cardata.slice(startIndex, startIndex + 10);
-       setVisibleCars(slice);
-       startIndex = (startIndex + 10) % cardata.length;
-     };
+      const updateVisibleCars = () => {
+        const slice = cardata.slice(startIndex, startIndex + 10);
+        setVisibleCars(slice);
+        startIndex = (startIndex + 10) % cardata.length;
+      };
 
-     updateVisibleCars();
-     const interval = setInterval(updateVisibleCars, 900000);
+      updateVisibleCars();
+      const interval = setInterval(updateVisibleCars, 900000);
 
-     return () => clearInterval(interval);
-   }
- }, [cardata]);
-
+      return () => clearInterval(interval);
+    }
+  }, [cardata]);
 
   return (
     <div className="car-listing-container">

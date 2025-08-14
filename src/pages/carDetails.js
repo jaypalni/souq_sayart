@@ -180,12 +180,7 @@ const CarDetails = () => {
             </div>
           </Card>
           <h3 className="text-title">{carDetails.ad_title}</h3>
-          <p className="text-muted">
-            Indulge in the ultimate driving experience with our Mercedes AMG G63
-            2021. The high performance car combines cutting edge technologies &
-            design, delivering a unique experience with our Mercedes AMG G63
-            2021. The high performance car technology.
-          </p>
+          <p className="text-muted">{carDetails.description}</p>
           <div
             className="d-flex align-items-center gap-3 mb-2"
             style={{ color: "#2B2829", fontWeight: 400, fontSize: "14px" }}
@@ -500,7 +495,7 @@ const CarDetails = () => {
                   fontWeight: 500,
                   fontSize: "12px",
                   border: "none",
-                  pointerEvents:"none"
+                  pointerEvents: "none",
                 }}
                 onClick={() => {
                   messageApi.open({

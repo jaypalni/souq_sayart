@@ -56,15 +56,12 @@ const Header = () => {
   const navigate = useNavigate();
   const { Option } = Select;
 
-  // Function to get user display name
   const getUserDisplayName = () => {
-    // Check if user is authenticated and has user data
     if (isAuthenticated && user) {
       const firstName = user.first_name || user.firstName || "";
       return firstName.trim();
     }
 
-    // Check if customer details are available
     if (customerDetails) {
       const firstName =
         customerDetails.first_name || customerDetails.firstName || "";
@@ -74,7 +71,6 @@ const Header = () => {
     return null;
   };
 
-  // Dropdown menu items for logged-in user
   const userMenuItems = [
     {
       key: "myProfile",
@@ -101,16 +97,9 @@ const Header = () => {
       label: "Logout",
       onClick: async () => {
         try {
-          // Clear all localStorage data
           localStorage.clear();
-
-          // Dispatch logout action to clear Redux state
           await dispatch(logoutUser());
-
-          // Clear customer details from Redux
           dispatch(clearCustomerDetails());
-
-          // Clear user data from Redux
           dispatch({ type: "CLEAR_USER_DATA" });
 
           messageApi.open({
@@ -118,7 +107,6 @@ const Header = () => {
             content: "Logged out successfully",
           });
 
-          // Navigate to login screen
           navigate("/login");
         } catch (error) {
           console.error("Logout error:", error);
@@ -132,14 +120,11 @@ const Header = () => {
   ];
 
   const comingsoonMessage = (value) => {
-    // Check if the menu item requires authentication
     if (value.requiresAuth) {
-      // Check if user is logged in - check multiple auth indicators
       const token = localStorage.getItem("token");
       const isLoggedIn = isAuthenticated || getUserDisplayName() || token;
 
       if (!isLoggedIn) {
-        // User is not logged in, redirect to login
         messageApi.open({
           type: "warning",
           content: "Please login to access this feature",
@@ -149,7 +134,6 @@ const Header = () => {
       }
     }
 
-    // Handle special cases
     if (value.name === "Evaluate My Car") {
       messageApi.open({
         type: "success",
@@ -158,7 +142,6 @@ const Header = () => {
       return;
     }
 
-    // Navigate to the respective screen
     navigate(value.path);
   };
 

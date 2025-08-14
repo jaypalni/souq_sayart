@@ -25,8 +25,6 @@ const API_CONFIG = {
         `/api/cars/years?make_name=${make}&model_name=${modalName}`,
       GET_BODY_TYPE_CARS: "/api/cars/body-types",
       GET_LOCATION_CARS: "/api/cars/regions",
-      // GET_SEARCH_CARS: (params) =>
-      //   `/api/search/search?make=${make}&model=${model}`,
       POST_SEARCH_CARS: "/api/search/search"
     },
     AUTH: {
@@ -55,7 +53,6 @@ const API_CONFIG = {
   },
 };
 
-// Validate environment variables
 if (!process.env.REACT_APP_API_URL) {
   console.warn("REACT_APP_API_URL is not defined in environment variables");
 }

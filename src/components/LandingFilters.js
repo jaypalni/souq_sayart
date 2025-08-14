@@ -7,16 +7,18 @@ import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { message, Modal, Tag } from "antd";
 import { fetchMakeCars, fetchModelCars } from "../commonFunction/fetchMakeCars";
 import { useNavigate } from "react-router-dom";
-import emptysearch from "../assets/images/emptysearch.gif";
-import searchicon from "../assets/images/search_icon.png";
 import Searchemptymodal from "../components/searchemptymodal";
+import { useDispatch } from "react-redux";
+import { logoutUser, clearCustomerDetails } from "../redux/actions/authActions";
 const { Option } = Select;
 
 const newUsedOptions = ["New & Used", "New", "Used"];
 const priceMinOptions = ["Price Min", 5000, 10000, 20000, 30000, 40000];
 const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
 
-const LandingFilters = ({searchbodytype}) => {
+const LandingFilters = ({ searchbodytype }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [make, setMake] = useState("All");
   const [carMakes, setCarMakes] = useState([]);
@@ -32,12 +34,9 @@ const LandingFilters = ({searchbodytype}) => {
   const [priceMax, setPriceMax] = useState("Price Max");
   const [carCount] = useState(342642);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const navigate = useNavigate();
-
-  // New Code 
+  const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-//-- End
   const dropdownRefs = {
     newUsed: useRef(),
     priceMin: useRef(),
@@ -61,16 +60,8 @@ const LandingFilters = ({searchbodytype}) => {
   }, []);
 
   useEffect(() => {
-setBodyType(searchbodytype)
-  }, [searchbodytype])
-
-
-
-  console.log("Body Type", searchbodytype)
-
-  // useEffect(() => {
-  //   make && model && bodyType && location && handleSearch();
-  // }, [make, model]);
+    setBodyType(searchbodytype);
+  }, [searchbodytype]);
 
   const fetchBodyTypeCars = async () => {
     try {
@@ -113,88 +104,69 @@ setBodyType(searchbodytype)
 
   const handleChange = (name, value) => {};
 
-  // const handleSearch = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await carAPI.getSearchCars(params);
-      // const data1 = handleApiResponse(response);
+  const handleSearch = async () => {
+    const token = localStorage.getItem("token");
 
-      // if (data1) {
-      //   setCarSearch(data1?.data);
-      // }
-      // navigate("/allcars");
-      // setIsModalOpen(true);
-      // message.success(data1.message || "Fetched successfully");
-  //   } catch (error) {
-  //     const errorData = handleApiError(error);
-  //     message.error(errorData.message || "Failed to Search car data");
-  //     setCarSearch([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    try {
+      setLoading(true);
 
-  // New Code--
+      const params = {
+        make: make !== "All" ? make : "",
+        model: model !== "All Models" ? model : "",
+        body_type: bodyType !== "All Body Types" ? bodyType : "",
+        location: location !== "Baghdad" ? location : "",
+      };
 
-const handleSearch = async () => {
-  console.log("Button Clicked");
-const token = localStorage.getItem("token");
-console.log("Token value:", token);
+      const response = await carAPI.getSearchCars(params);
+      const data1 = handleApiResponse(response);
 
-  // Validation: At least one filter must be selected
-  // if (
-  //   (make === "All" || !make) &&
-  //   (model === "All Models" || !model) &&
-  //   (bodyType === "All Body Types" || !bodyType) &&
-  //   (location === "Baghdad" || !location)
-  // ) {
-  //   message.warning("Please select at least one field");
-  //   return;
-  // }
+      if (data1) {
+        const results = data1?.data?.cars || [];
+        setCarSearch(results);
 
-  try {
-    setLoading(true);
-
-    const params = {
-      make: make !== "All" ? make : "",
-      model: model !== "All Models" ? model : "",
-      body_type: bodyType !== "All Body Types" ? bodyType : "",
-      location: location !== "Baghdad" ? location : "",
-    };
-
-    console.log("AllParams", params);
-
-    const response = await carAPI.getSearchCars(params);
-    const data1 = handleApiResponse(response);
-
-    console.log("Full data", response)
-
-    if (data1) {
-      const results = data1?.data?.cars || [];
-      setCarSearch(results);
-
-      if (results.length === 0) {
-         console.log("success")
-        setIsModalOpen(true);
-      } else {
-        navigate("/allcars", { state: { cars: results,pagination: data1?.data?.pagination  } });
-       localStorage.setItem("searchcardata", JSON.stringify(params));
-
+        if (results.length === 0) {
+          setIsModalOpen(true);
+        } else {
+          navigate("/allcars", {
+            state: { cars: results, pagination: data1?.data?.pagination },
+          });
+          localStorage.setItem("searchcardata", JSON.stringify(params));
+        }
       }
+    } catch (error) {
+      const errorData = handleApiError(error);
+
+      if (errorData.status === 401) {
+        messageApi.open({
+          type: "error",
+          content: "Your session has expired. Please log in again.",
+        });
+
+        setTimeout(() => {
+          (async () => {
+            localStorage.removeItem("token");
+            localStorage.clear();
+
+            await dispatch(logoutUser());
+            dispatch(clearCustomerDetails());
+            dispatch({ type: "CLEAR_USER_DATA" });
+
+            navigate("/login");
+          })();
+        }, 2000);
+      } else {
+        messageApi.open({
+          type: "error",
+          content: errorData.message,
+        });
+      }
+
+      setCarSearch([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.log("error1")
+  };
 
-    const errorData = handleApiError(error);
-    message.error(errorData.message || "Failed to search car data");
-    setCarSearch([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // Handle click outside to close dropdown
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -238,6 +210,7 @@ console.log("Token value:", token);
 
   return (
     <div className="landing-filters-outer">
+      {contextHolder}
       <div className="landing-filters-bar">
         <div className="landing-filters-row">
           <div className="landing-filters-col">
@@ -377,22 +350,20 @@ console.log("Token value:", token);
           </div>
         </div>
       </div>
-      
-<Searchemptymodal
-  visible={isModalOpen}
-  onClose={() => setIsModalOpen(false)}
-  make={make}
-  setMake={setMake}
-  model={model}
-  setModel={setModel}
-  bodyType={bodyType}
-  setBodyType={setBodyType}
-  selectedLocation={location}        // renamed here
-  setSelectedLocation={setLocation}  // renamed here
-  onSave={handleSearch}
-/>
 
-
+      <Searchemptymodal
+        visible={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        make={make}
+        setMake={setMake}
+        model={model}
+        setModel={setModel}
+        bodyType={bodyType}
+        setBodyType={setBodyType}
+        selectedLocation={location} // renamed here
+        setSelectedLocation={setLocation} // renamed here
+        onSave={handleSearch}
+      />
     </div>
   );
 };

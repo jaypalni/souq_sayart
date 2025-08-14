@@ -46,32 +46,31 @@ const SignupOtp = () => {
 
   // Always run on mount
   useEffect(() => {
-  const fromLogin = localStorage.getItem("fromLogin");
-  const now = Date.now();
+    const fromLogin = localStorage.getItem("fromLogin");
+    const now = Date.now();
 
-  if (fromLogin === "true") {
-    // Reset timer if coming from login
-    const newEndTime = now + 60 * 1000;
-    localStorage.setItem("otpEndTime", newEndTime);
-    localStorage.removeItem("fromLogin"); // clear flag
-    setTimer(60);
-    setIsTimerRunning(true);
-  } else {
-    // Continue timer if just refresh or direct load
-    const savedEndTime = localStorage.getItem("otpEndTime");
-    if (savedEndTime) {
-      const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
-      if (timeLeft > 0) {
-        setTimer(timeLeft);
-        setIsTimerRunning(true);
-      } else {
-        setTimer(0);
-        setIsTimerRunning(false);
+    if (fromLogin === "true") {
+      // Reset timer if coming from login
+      const newEndTime = now + 60 * 1000;
+      localStorage.setItem("otpEndTime", newEndTime);
+      localStorage.removeItem("fromLogin"); // clear flag
+      setTimer(60);
+      setIsTimerRunning(true);
+    } else {
+      // Continue timer if just refresh or direct load
+      const savedEndTime = localStorage.getItem("otpEndTime");
+      if (savedEndTime) {
+        const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
+        if (timeLeft > 0) {
+          setTimer(timeLeft);
+          setIsTimerRunning(true);
+        } else {
+          setTimer(0);
+          setIsTimerRunning(false);
+        }
       }
     }
-  }
-}, []);
-
+  }, []);
 
   // Countdown effect
   useEffect(() => {
@@ -175,27 +174,25 @@ const SignupOtp = () => {
       };
       const result = await dispatch(verifyOTP(otpPayload));
 
-if (result.success) {
-  console.log("Access Token:", result.data.access_token);
+      if (result.success) {
+        localStorage.setItem("token", result.data.access_token);
 
-  localStorage.setItem("token", result.data.access_token);
+        messageApi.open({
+          type: "success",
+          content: result.message,
+        });
 
-  messageApi.open({
-    type: "success",
-    content: result.message,
-  });
-
-  if (result.data.is_registered) {
-    navigate("/landing");
-  } else {
-    navigate("/createProfile");
-  }
-} else {
-  messageApi.open({
-    type: "error",
-    content: result.error,
-  });
-}
+        if (result.data.is_registered) {
+          navigate("/landing");
+        } else {
+          navigate("/createProfile");
+        }
+      } else {
+        messageApi.open({
+          type: "error",
+          content: result.error,
+        });
+      }
     } catch (error) {
       console.error("OTP verification error:", error);
       message.error("OTP verification failed. Please try again.");

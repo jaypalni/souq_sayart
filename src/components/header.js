@@ -68,6 +68,10 @@ const Header = () => {
       return firstName.trim();
     }
 
+    if (localStorage.getItem("isGuest") === "true") {
+      return "Guest";
+    }
+
     return null;
   };
 
@@ -199,7 +203,7 @@ const Header = () => {
                 </div>
               </>
             )}
-            {getUserDisplayName() ? (
+            {getUserDisplayName() && getUserDisplayName() !== "Guest" ? (
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
@@ -225,7 +229,10 @@ const Header = () => {
             ) : (
               <div
                 className="menuLeft mx-2"
-                onClick={() => navigate(`/login`)}
+                onClick={() => {
+                  localStorage.removeItem("isGuest");
+                  navigate("/login");
+                }}
                 style={{
                   cursor: "pointer",
                   fontFamily: "Roboto",

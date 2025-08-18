@@ -373,6 +373,7 @@ const LoginScreen = () => {
               }}
               onClick={() => {
                 dispatch({ type: "SET_LOGIN", payload: false });
+                localStorage.setItem("isGuest", "true");
                 navigate("/landing");
               }}
             >

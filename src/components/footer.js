@@ -16,17 +16,18 @@ const Footer = () => {
     { name: "WhatsApp", icon: whatsapp_icon },
   ];
 
-  // App store badges (replace src with actual badge images if available)
   const appBadges = [
     {
       alt: "Get it on Google Play",
       src: "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg",
       style: { height: 40, marginRight: 8 },
+      link: "https://play.google.com/store/apps/"
     },
     {
       alt: "Download on the App Store",
       src: "https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg",
       style: { height: 40 },
+      link: "https://apps.apple.com/app/id1234567890"
     },
   ];
 
@@ -57,7 +58,7 @@ const Footer = () => {
       <div className="footer-main-row">
         {/* Logo and Social */}
         <div className="footer-logo-col">
-          <img  className="footerLogoImg" src={footerLogo} alt="Souq Logo" />
+          <img className="footerLogoImg" src={footerLogo} alt="Souq Logo" />
           <div className="footer-names">
             {socialIcons.map((icon) => (
               <img key={icon.name} src={icon.icon} alt={icon.name} />
@@ -79,14 +80,17 @@ const Footer = () => {
           {/* App Download Column */}
           <div className="footer-app-col">
             <div className="footer-download">Download Our App on</div>
+
             <div className="footer-app-badge">
               {appBadges.map((badge) => (
-                <img
+                <a
                   key={badge.alt}
-                  src={badge.src}
-                  alt={badge.alt}
-                  style={badge.style}
-                />
+                  href={badge.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={badge.src} alt={badge.alt} style={badge.style} />
+                </a>
               ))}
             </div>
           </div>

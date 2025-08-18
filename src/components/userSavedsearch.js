@@ -24,11 +24,6 @@ const UserSavedsearch = () => {
   useEffect(() => {
     if (isLoggedIn) {
       fetchSavedSearches();
-    } else {
-      messageApi.open({
-        type: "error",
-        content: "Please Log in/ Signup.",
-      });
     }
   }, [isLoggedIn]);
 

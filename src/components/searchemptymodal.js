@@ -205,7 +205,6 @@
 
 // export default Searchemptymodal;
 
-
 // src/components/NoResultsModal.js
 import React from "react";
 import emptysearch from "../assets/images/emptysearch.gif";
@@ -225,8 +224,8 @@ const Searchemptymodal = ({
   setBodyType,
   selectedLocation,
   setSelectedLocation,
-  toastmessage
-//   onSave,
+  toastmessage,
+  //   onSave,
 }) => {
   if (!visible) return null;
 
@@ -234,9 +233,8 @@ const Searchemptymodal = ({
 
   const handleSaveSearch = async () => {
     try {
-      // ✅ Build request body
       const searchparams = {
-        search_query: "", // you can pass from props/state if available
+        search_query: "",
         make: make || "",
         model: model || "",
         year_min: "",
@@ -262,27 +260,20 @@ const Searchemptymodal = ({
         limit: 10,
         newest_listing: true,
       };
-
-      // ✅ Call API
       const response = await carAPI.postsavesearches(searchparams);
       const data = handleApiResponse(response);
 
       if (data?.message) {
-        message.success(data.message); 
-        console.log("Response", data.message)
-        
         messageApi.open({
-                    type: "success",
-                    content: data?.message,
-                  });
+          type: "success",
+          content: data?.message,
+        });
       } else {
         message.success("Search saved successfully!");
       }
 
       onClose();
       toastmessage(data.message);
-      console.log("Toast", toastmessage)
-    //   if (onSave) onSave();
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(errorData.message || "Failed to save search");
@@ -291,7 +282,7 @@ const Searchemptymodal = ({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-        {contextHolder}
+      {contextHolder}
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         {/* Image */}
         <img
@@ -328,21 +319,21 @@ const Searchemptymodal = ({
         </p>
 
         {/* Filters */}
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
           {make !== "All" && (
-            <span
-              style={filterStyle}
-              onClick={() => setMake("All")}
-            >
+            <span style={filterStyle} onClick={() => setMake("All")}>
               {make}
             </span>
           )}
 
           {model !== "All Models" && (
-            <span
-              style={filterStyle}
-              onClick={() => setModel("All Models")}
-            >
+            <span style={filterStyle} onClick={() => setModel("All Models")}>
               {model}
             </span>
           )}
@@ -375,7 +366,8 @@ const Searchemptymodal = ({
             marginTop: "15px",
           }}
         >
-          Or save the search and be notified as soon as we have something for you.
+          Or save the search and be notified as soon as we have something for
+          you.
         </p>
 
         {/* Buttons */}
@@ -389,16 +381,10 @@ const Searchemptymodal = ({
             marginRight: "10px",
           }}
         >
-          <button
-            style={cancelBtnStyle}
-            onClick={onClose}
-          >
+          <button style={cancelBtnStyle} onClick={onClose}>
             Cancel
           </button>
-          <button
-            style={saveBtnStyle}
-            onClick={handleSaveSearch}
-          >
+          <button style={saveBtnStyle} onClick={handleSaveSearch}>
             <img src={searchicon} alt="Save Search" /> Save Search
           </button>
         </div>

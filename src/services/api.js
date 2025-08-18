@@ -147,7 +147,7 @@ export const carAPI = {
   postsavesearches: (searchparams) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams),
   getsavedsearches: (page, limit) =>
-    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
 };
 
 // User APIs

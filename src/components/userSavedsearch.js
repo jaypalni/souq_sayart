@@ -12,7 +12,7 @@ import { message } from "antd";
 
 const UserSavedsearch = () => {
   const navigate = useNavigate();
-
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,10 +34,10 @@ const UserSavedsearch = () => {
 
       if (response?.data?.searches) {
         setSavedSearches(response.data.searches.slice(0, 3));
-        messageApi.open({
-          type: "success",
-          content: response.data.message,
-        });
+        // messageApi.open({
+        //   type: "success",
+        //   content: response.data.message,
+        // });
       }
     } catch (error) {
       const errorData = handleApiError(error);
@@ -86,11 +86,12 @@ const UserSavedsearch = () => {
                   >
                     <div className="user-saved-search-header">
                       <img
-                        src={
-                          item.make_image
-                            ? `${process.env.REACT_APP_BASE_URL}${item.make_image}`
-                            : carImage
-                        }
+                      src={
+  item.make_image
+    ? `http://13.202.75.187:5002${item.make_image}`
+    : carImage
+}
+
                         alt={item.search_params?.make || "Car"}
                         className="user-saved-search-logo"
                       />

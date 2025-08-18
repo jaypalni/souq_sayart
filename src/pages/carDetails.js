@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Card, Button, Tag, Collapse, Avatar } from "antd";
+import { Card, Button, Tag, Collapse, Avatar,message } from "antd";
 import {
   FaCheckCircle,
   FaGlobe,
@@ -32,7 +32,6 @@ import calender_image from "../assets/images/Layer_1.png";
 import bluecar_icon from "../assets/images/blackcar_icon.png";
 import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CarListing from "../components/carListing";
@@ -59,7 +58,7 @@ const CarDetails = () => {
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [messageApi, contextHolder] = message.useMessage();
-   const [mainImageIdx, setMainImageIdx] = useState(0);
+  const [mainImageIdx, setMainImageIdx] = useState(0);
 
   useEffect(() => {
     const Allcarsapi = async () => {

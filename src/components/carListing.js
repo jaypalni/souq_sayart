@@ -16,6 +16,7 @@ const CarListing = ({ title, cardata }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [visibleCars, setVisibleCars] = useState([]);
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (Array.isArray(cardata) && cardata.length > 0) {
@@ -54,7 +55,7 @@ const CarListing = ({ title, cardata }) => {
           >
             <div className="car-listing-image-wrapper">
               <img
-                src={carImage}
+                src={`${BASE_URL}${car.car_image}`}
                 alt={car.title}
                 className="car-listing-image"
               />

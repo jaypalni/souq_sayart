@@ -37,6 +37,7 @@ const LandingFilters = ({ searchbodytype }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [toastMsg, setToastMsg] = useState("");
 
   const dropdownRefs = {
     newUsed: useRef(),
@@ -178,6 +179,14 @@ const LandingFilters = ({ searchbodytype }) => {
       setCarLocation([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToast = (msg) => {
+    console.message("Here it done")
+    setToastMsg(msg);
+    if (msg) {
+      message.success(msg); // or your custom toast component
     }
   };
 
@@ -433,6 +442,7 @@ const LandingFilters = ({ searchbodytype }) => {
       <Searchemptymodal
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+         toastmessage={handleToast}
         make={make}
         setMake={setMake}
         model={model}

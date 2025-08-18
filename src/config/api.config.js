@@ -25,7 +25,10 @@ const API_CONFIG = {
         `/api/cars/years?make_name=${make}&model_name=${modalName}`,
       GET_BODY_TYPE_CARS: "/api/cars/body-types",
       GET_LOCATION_CARS: "/api/cars/regions",
-      POST_SEARCH_CARS: "/api/search/search"
+      POST_SEARCH_CARS: "/api/search/search",
+      POST_SAVE_SEARCHES: "/api/users/saved-searches",
+      GET_SAVED_SEARCHES: (page, limit) =>
+        `/api/users/saved-searches?page=${page}&limit=${limit}`,
     },
     AUTH: {
       LOGIN: "/api/auth/login",
@@ -36,7 +39,7 @@ const API_CONFIG = {
       RESET_PASSWORD: "/auth/reset-password",
       VERIFY_OTP: "/api/auth/verify-otp",
       COUNTRY_CODE: "/api/country-codes",
-      UPLOAD_DOCUMENTS: "/api/search/upload-attachment"
+      UPLOAD_DOCUMENTS: "/api/search/upload-attachment",
     },
     USER: {
       PROFILE: "/api/users/profile",

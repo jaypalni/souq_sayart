@@ -26,6 +26,9 @@ const API_CONFIG = {
       GET_BODY_TYPE_CARS: "/api/cars/body-types",
       GET_LOCATION_CARS: "/api/cars/regions",
       POST_SEARCH_CARS: "/api/search/search",
+      POST_SAVE_SEARCHES: "/api/users/saved-searches",
+      GET_SAVED_SEARCHES: (page, limit) =>
+        `/api/users/saved-searches?page=${page}&limit=${limit}`,
     },
     AUTH: {
       LOGIN: "/api/auth/login",

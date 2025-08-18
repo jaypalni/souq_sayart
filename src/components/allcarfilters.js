@@ -46,6 +46,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
   const [priceMax, setPriceMax] = useState("Price Max");
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const [carCount] = useState(342642);
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -102,6 +103,14 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
       setModel("All Models");
     }
   };
+
+  const handleToast = (msg) => {
+    
+  setToastMsg(msg);
+  if (msg) {
+    message.success(msg); // or your custom toast component
+  }
+};
 
   const handleSearch = async () => {
     const saveParams = {
@@ -341,6 +350,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
       <Searchemptymodal
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        toastmessage={handleToast}
         make={make}
         setMake={setMake}
         model={model}

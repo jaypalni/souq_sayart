@@ -40,7 +40,6 @@ const { Panel } = Collapse;
 
 const CarDetails = () => {
   const { id } = useParams();
-  const handleImageClick = (img) => setMainImageIdx(carImages.indexOf(img));
   const handleCollapseChange = (key) => setActiveKey(key);
 
   const safetyFeatures = [
@@ -53,22 +52,14 @@ const CarDetails = () => {
     "Parking Sensors",
     "Tire Pressure Monitor",
   ];
-
-  const goToPrevImage = () => {
-    setMainImageIdx((prev) => (prev === 0 ? carImages.length - 1 : prev - 1));
-  };
-  const goToNextImage = () => {
-    setMainImageIdx((prev) => (prev === carImages.length - 1 ? 0 : prev + 1));
-  };
-
-  const [mainImageIdx, setMainImageIdx] = useState(0);
   const [activeKey, setActiveKey] = useState(["1"]);
   const [openSafety, setOpenSafety] = useState(false);
   const [carDetails, setCarDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const BASE_URL = process.env.REACT_APP_API_URL;
   const [messageApi, contextHolder] = message.useMessage();
+   const [mainImageIdx, setMainImageIdx] = useState(0);
 
   useEffect(() => {
     const Allcarsapi = async () => {
@@ -112,16 +103,24 @@ const CarDetails = () => {
     window.open(url, "_blank");
   };
 
-  //  const carImages = carDetails?.car_image?.length
-  //    ? carDetails.car_image.map((img) =>
-  //        img.startsWith("http") ? img : `${BASE_URL}${img}`
-  //      )
-  //    : [redcar_icon];
-
-  const carImages = carDetails?.images?.length
-    ? carDetails.images
+  const carImages1 = carDetails?.car_image?.length
+    ? carDetails.car_image.map((img) => {
+        const finalImg = img.startsWith("http") ? img : `${BASE_URL}${img}`;
+        return finalImg;
+      })
     : [redcar_icon];
 
+  const handleThumbnailClick = (index) => {
+    setMainImageIdx(index);
+  };
+
+  const goToNextImage = () => {
+    setMainImageIdx((prev) => (prev + 1) % carImages1.length);
+  };
+
+  const goToPrevImage = () => {
+    setMainImageIdx((prev) => (prev === 0 ? carImages1.length - 1 : prev - 1));
+  };
   const carInfo = [
     { label: "Body Type", value: carDetails.body_type || "-" },
     { label: "Regional Specs", value: carDetails.regional_specs || "-" },
@@ -146,7 +145,7 @@ const CarDetails = () => {
           <Card className="main-image-card">
             <div className="main-image-wrapper">
               <img
-                src={carImages[mainImageIdx]}
+                src={carImages1[mainImageIdx]}
                 alt="Car"
                 className="main-car-image"
               />
@@ -166,7 +165,7 @@ const CarDetails = () => {
               </button>
             </div>
             <div className="thumbnail-row mt-3 d-flex gap-2">
-              {carImages.map((img, idx) => (
+              {carImages1.map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
@@ -519,7 +518,10 @@ const CarDetails = () => {
           marginTop: 50,
         }}
       >
-        <CarListing title={"Used " + carDetails.ad_title} cardata={carDetails.similar_cars} />
+        <CarListing
+          title={"Used " + carDetails.ad_title}
+          cardata={carDetails.similar_cars}
+        />
       </div>
     </div>
   );

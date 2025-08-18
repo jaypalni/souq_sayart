@@ -85,7 +85,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (credentials) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials),
-   resendotp: (credentials) =>
+  resendotp: (credentials) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.RESENDOTP, credentials),
   register: (userData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.REGISTER, userData),
@@ -104,6 +104,9 @@ export const authAPI = {
         "Content-Type": "multipart/form-data",
       },
     }),
+
+  refresh: (credentials) =>
+    api.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
 };
 
 // Car APIs

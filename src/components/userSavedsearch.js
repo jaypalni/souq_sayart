@@ -34,17 +34,9 @@ const UserSavedsearch = () => {
 
       if (response?.data?.searches) {
         setSavedSearches(response.data.searches.slice(0, 3));
-        // messageApi.open({
-        //   type: "success",
-        //   content: response.data.message,
-        // });
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      // messageApi.open({
-      //   type: "error",
-      //   content: errorData.message || "Something went wrong.",
-      // });
       setSavedSearches([]);
     } finally {
       setLoading(false);

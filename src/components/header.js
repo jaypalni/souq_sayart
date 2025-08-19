@@ -12,12 +12,6 @@ import { logoutUser, clearCustomerDetails } from "../redux/actions/authActions";
 const Header = () => {
   const dispatch = useDispatch();
   const [messageApi, contextHolder] = message.useMessage();
-  // const menuList = [
-  //   { id: "", name: "Buy", path: "/landing", displayName: "" },
-  //   { id: "", name: "Sell", path: "/sell", displayName: "" },
-  //   { id: "", name: "My Listings", path: "/myListings", displayName: "" },
-  //   { id: "", name: "Evaluate My Car", path: "/evaluate", displayName: "" },
-  // ];
   const userdetails = useSelector((state) => state.userData);
   const { customerDetails, customerDetailsLoading, customerDetailsError } =
     useSelector((state) => state.customerDetails);

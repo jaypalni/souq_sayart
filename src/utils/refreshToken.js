@@ -7,7 +7,7 @@
  * via any medium is strictly prohibited.
  */
 
-import React from "react";
+import React from 'react';
 
 const refreshToken = () => {
   return <div>refreshToken</div>;

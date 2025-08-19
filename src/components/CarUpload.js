@@ -7,9 +7,9 @@
  * via any medium is strictly prohibited.
  */
 
-import React, { useState } from "react";
-import { Form, Input, Button, message } from "antd";
-import { carAPI } from "../services/api";
+import React, { useState } from 'react';
+import { Form, Input, Button, message } from 'antd';
+import { carAPI } from '../services/api';
 
 const CarUpload = () => {
   const [loading, setLoading] = useState(false);
@@ -19,11 +19,11 @@ const CarUpload = () => {
     try {
       setLoading(true);
       const response = await carAPI.uploadOptionDetails(values);
-      message.success("Car details uploaded successfully!");
+      message.success('Car details uploaded successfully!');
       form.resetFields();
     } catch (error) {
       message.error(
-        error.response?.data?.message || "Failed to upload car details"
+        error.response?.data?.message || 'Failed to upload car details'
       );
     } finally {
       setLoading(false);
@@ -42,7 +42,7 @@ const CarUpload = () => {
         <Form.Item
           name="make"
           label="Car Make"
-          rules={[{ required: true, message: "Please enter car make" }]}
+          rules={[{ required: true, message: 'Please enter car make' }]}
         >
           <Input placeholder="Enter car make" />
         </Form.Item>
@@ -50,7 +50,7 @@ const CarUpload = () => {
         <Form.Item
           name="model"
           label="Car Model"
-          rules={[{ required: true, message: "Please enter car model" }]}
+          rules={[{ required: true, message: 'Please enter car model' }]}
         >
           <Input placeholder="Enter car model" />
         </Form.Item>
@@ -58,7 +58,7 @@ const CarUpload = () => {
         <Form.Item
           name="year"
           label="Year"
-          rules={[{ required: true, message: "Please enter year" }]}
+          rules={[{ required: true, message: 'Please enter year' }]}
         >
           <Input type="number" placeholder="Enter year" />
         </Form.Item>
@@ -66,7 +66,7 @@ const CarUpload = () => {
         <Form.Item
           name="price"
           label="Price"
-          rules={[{ required: true, message: "Please enter price" }]}
+          rules={[{ required: true, message: 'Please enter price' }]}
         >
           <Input type="number" placeholder="Enter price" />
         </Form.Item>

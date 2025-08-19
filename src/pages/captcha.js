@@ -7,8 +7,8 @@
  * via any medium is strictly prohibited.
  */
 
-import React, { useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import React, { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const Captcha = () => {
   const [setVerified] = useState(false);

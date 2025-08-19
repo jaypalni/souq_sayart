@@ -7,10 +7,10 @@
  * via any medium is strictly prohibited.
  */
 
-import { combineReducers } from "redux";
-import authReducer from "./authReducer";
-import customerDetailsReducer from "./customerDetailsReducer";
-import userDataReducer from "./userDataReducer";
+import { combineReducers } from 'redux';
+import authReducer from './authReducer';
+import customerDetailsReducer from './customerDetailsReducer';
+import userDataReducer from './userDataReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,

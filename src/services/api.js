@@ -7,19 +7,19 @@
  * via any medium is strictly prohibited.
  */
 
-import axios from "axios";
-import API_CONFIG from "../config/api.config";
+import axios from 'axios';
+import API_CONFIG from '../config/api.config';
 
 if (!API_CONFIG.BASE_URL) {
   throw new Error(
-    "API base URL is not configured. Please set REACT_APP_API_URL in your .env file"
+    'API base URL is not configured. Please set REACT_APP_API_URL in your .env file'
   );
 }
 
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   timeout: 30000,
 });
@@ -27,14 +27,14 @@ const api = axios.create({
 const publicApi = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   timeout: 30000,
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -84,7 +84,7 @@ export const authAPI = {
   uploadimages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }),
 
@@ -109,7 +109,7 @@ export const carAPI = {
   uploadImages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.UPLOAD_IMAGES, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }),
   getCarOptions: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_OPTIONS),

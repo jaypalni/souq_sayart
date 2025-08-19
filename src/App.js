@@ -7,10 +7,10 @@
  * via any medium is strictly prohibited.
  */
 
-import React from "react";
-import { Provider } from "react-redux";
-import store from "./redux/store";
-import AppRouter from "./router";
+import React from 'react';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import AppRouter from './router';
 
 function App() {
   return (

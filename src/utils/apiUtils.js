@@ -19,19 +19,19 @@ export const handleApiError = (error) => {
     const { status, data } = error.response;
     return {
       status,
-      message: data.message || data.error || "An error occurred",
+      message: data.message || data.error || 'An error occurred',
       errors: data.errors || [],
     };
   } else if (error.request) {
     return {
       status: 0,
-      message: "No response from server",
+      message: 'No response from server',
       errors: [],
     };
   } else {
     return {
       status: 0,
-      message: error.message || "Request failed",
+      message: error.message || 'Request failed',
       errors: [],
     };
   }

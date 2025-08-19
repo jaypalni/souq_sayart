@@ -7,11 +7,11 @@
  * via any medium is strictly prohibited.
  */
 
-import React from "react";
-import "../assets/styles/downloadApp.css";
-import googlePlay from "../assets/images/windowsDownload.png";
-import appStore from "../assets/images/appleDownload.png";
-import appMockup from "../assets/images/downloadMobiles.png";
+import React from 'react';
+import '../assets/styles/downloadApp.css';
+import googlePlay from '../assets/images/windowsDownload.png';
+import appStore from '../assets/images/appleDownload.png';
+import appMockup from '../assets/images/downloadMobiles.png';
 
 const DownloadApp = () => {
   return (

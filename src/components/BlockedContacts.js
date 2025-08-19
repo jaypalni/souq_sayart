@@ -7,45 +7,45 @@
  * via any medium is strictly prohibited.
  */
 
-import React, { useState } from "react";
-import { Button, Popconfirm } from "antd";
-import { CheckCircleFilled } from "@ant-design/icons";
+import React, { useState } from 'react';
+import { Button, Popconfirm } from 'antd';
+import { CheckCircleFilled } from '@ant-design/icons';
 
 const blockedContactsData = [
   {
     id: 1,
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    name: "Moe",
+    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+    name: 'Moe',
     verified: true,
   },
   {
     id: 2,
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    name: "Ziad",
+    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+    name: 'Ziad',
     verified: false,
   },
   {
     id: 3,
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    name: "Ayoub",
+    avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+    name: 'Ayoub',
     verified: false,
   },
   {
     id: 4,
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    name: "Moe",
+    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+    name: 'Moe',
     verified: true,
   },
   {
     id: 5,
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    name: "Ziad",
+    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+    name: 'Ziad',
     verified: false,
   },
 ];
 
 const EmptyState = () => (
-  <div style={{ textAlign: "center", padding: 40 }}>
+  <div style={{ textAlign: 'center', padding: 40 }}>
     <h3>No Blocked Contacts</h3>
     <p>You have not blocked any contacts.</p>
   </div>
@@ -84,7 +84,7 @@ const BlockedContacts = () => {
                 {contact.verified && (
                   <CheckCircleFilled
                     style={{
-                      color: "#1890ff",
+                      color: '#1890ff',
                       fontSize: 16,
                       marginLeft: 6,
                       verticalAlign: -2,

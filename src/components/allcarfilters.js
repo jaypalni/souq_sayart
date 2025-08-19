@@ -7,55 +7,55 @@
  * via any medium is strictly prohibited.
  */
 
-import React, { useState, useRef, useEffect } from "react";
-import { Select, Button, message } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
-import { MdKeyboardArrowDown } from "react-icons/md";
-import Cardetailsfilter from "../components/cardetailsfilter";
-import { carAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { useNavigate } from "react-router-dom";
-import "../assets/styles/allcarfilters.css";
-import Searchemptymodal from "../components/searchemptymodal";
+import React, { useState, useRef, useEffect } from 'react';
+import { Select, Button, message } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { MdKeyboardArrowDown } from 'react-icons/md';
+import Cardetailsfilter from '../components/cardetailsfilter';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { useNavigate } from 'react-router-dom';
+import '../assets/styles/allcarfilters.css';
+import Searchemptymodal from '../components/searchemptymodal';
 
 const { Option } = Select;
 
-const carMakes = ["All Make", "Toyota", "Honda", "BMW", "Mercedes", "Hyundai"];
+const carMakes = ['All Make', 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai'];
 
 const carModels = {
-  Toyota: ["All Models", "Corolla", "Camry", "Yaris"],
-  Honda: ["All Models", "Civic", "Accord", "CR-V"],
-  BMW: ["All Models", "3 Series", "5 Series", "X5"],
-  Mercedes: ["All Models", "C-Class", "E-Class", "GLA"],
-  Hyundai: ["All Models", "Elantra", "Sonata", "Tucson"],
+  Toyota: ['All Models', 'Corolla', 'Camry', 'Yaris'],
+  Honda: ['All Models', 'Civic', 'Accord', 'CR-V'],
+  BMW: ['All Models', '3 Series', '5 Series', 'X5'],
+  Mercedes: ['All Models', 'C-Class', 'E-Class', 'GLA'],
+  Hyundai: ['All Models', 'Elantra', 'Sonata', 'Tucson'],
 };
 
 const bodyTypes = [
-  "All Body Types",
-  "Sedan",
-  "SUV",
-  "Hatchback",
-  "Coupe",
-  "Convertible",
+  'All Body Types',
+  'Sedan',
+  'SUV',
+  'Hatchback',
+  'Coupe',
+  'Convertible',
 ];
-const locations = ["Baghdad", "Beirut", "Dubai", "Riyadh", "Cairo"];
-const newUsedOptions = ["New & Used", "New", "Used"];
-const priceMinOptions = ["Price Min", 5000, 10000, 20000, 30000, 40000];
-const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
+const locations = ['Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+const newUsedOptions = ['New & Used', 'New', 'Used'];
+const priceMinOptions = ['Price Min', 5000, 10000, 20000, 30000, 40000];
+const priceMaxOptions = ['Price Max', 20000, 30000, 40000, 50000, 100000];
 
 const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
   const [loading, setLoading] = useState(false);
   const [carSearch, setCarSearch] = useState([]);
-  const [make, setMake] = useState("All Make");
-  const [model, setModel] = useState("All Models");
-  const [bodyType, setBodyType] = useState("All Body Types");
-  const [location, setLocation] = useState("Baghdad");
-  const [newUsed, setNewUsed] = useState("New & Used");
-  const [priceMin, setPriceMin] = useState("Price Min");
-  const [priceMax, setPriceMax] = useState("Price Max");
+  const [make, setMake] = useState('All Make');
+  const [model, setModel] = useState('All Models');
+  const [bodyType, setBodyType] = useState('All Body Types');
+  const [location, setLocation] = useState('Baghdad');
+  const [newUsed, setNewUsed] = useState('New & Used');
+  const [priceMin, setPriceMin] = useState('Price Min');
+  const [priceMax, setPriceMax] = useState('Price Max');
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [toastMsg, setToastMsg] = useState("");
+  const [toastMsg, setToastMsg] = useState('');
   const [carCount] = useState(342642);
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -70,7 +70,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
   useEffect(() => {
     let params = null;
     try {
-      params = JSON.parse(localStorage.getItem("searchcardata"));
+      params = JSON.parse(localStorage.getItem('searchcardata'));
     } catch (e) {
       params = null;
     }
@@ -79,12 +79,12 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem("searchcardata"));
+      const saved = JSON.parse(localStorage.getItem('searchcardata'));
       if (saved) {
-        setMake(saved.make || "All Make");
-        setModel(saved.model || "All Models");
-        setBodyType(saved.body_type || "All Body Types");
-        setLocation(saved.location || "Baghdad");
+        setMake(saved.make || 'All Make');
+        setModel(saved.model || 'All Models');
+        setBodyType(saved.body_type || 'All Body Types');
+        setLocation(saved.location || 'Baghdad');
       }
     } catch (e) {}
   }, []);
@@ -99,13 +99,13 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
         setOpenDropdown(null);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdown]);
 
   const handleChange = (name, value) => {
-    if (name === "Make") {
-      setModel("All Models");
+    if (name === 'Make') {
+      setModel('All Models');
     }
   };
 
@@ -127,16 +127,16 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
       priceMax,
     };
 
-    localStorage.setItem("searchcardata", JSON.stringify(saveParams));
-    message.success("Filters saved!");
+    localStorage.setItem('searchcardata', JSON.stringify(saveParams));
+    message.success('Filters saved!');
 
     try {
       setLoading(true);
       const apiParams = {
-        make: make !== "All" ? make : "",
-        model: model !== "All Models" ? model : "",
-        body_type: bodyType !== "All Body Types" ? bodyType : "",
-        location: location !== "Baghdad" ? location : "",
+        make: make !== 'All' ? make : '',
+        model: model !== 'All Models' ? model : '',
+        body_type: bodyType !== 'All Body Types' ? bodyType : '',
+        location: location !== 'Baghdad' ? location : '',
       };
 
       const response = await carAPI.getSearchCars(apiParams);
@@ -150,16 +150,16 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
           setIsModalOpen(true);
         } else {
           setFilterCarsData(results);
-          localStorage.setItem("searchcardata", JSON.stringify(apiParams));
+          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
           messageApi.open({
-            type: "success",
+            type: 'success',
             content: data1?.message,
           });
         }
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to search car data");
+      message.error(errorData.message || 'Failed to search car data');
       setCarSearch([]);
     } finally {
       setLoading(false);
@@ -172,16 +172,16 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
         <div
           key={opt}
           className={`allcars-filters-dropdown-item${
-            value === opt ? " selected" : ""
+            value === opt ? ' selected' : ''
           }`}
           onClick={() => {
             setValue(opt);
             handleChange(
-              type === "newUsed"
-                ? "New & Used"
-                : type === "priceMin"
-                ? "Price Min"
-                : "Price Max",
+              type === 'newUsed'
+                ? 'New & Used'
+                : type === 'priceMin'
+                ? 'Price Min'
+                : 'Price Max',
               opt
             );
             setOpenDropdown(null);
@@ -204,8 +204,8 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
               value={make}
               onChange={(value) => {
                 setMake(value);
-                setModel("All Models");
-                handleChange("Make", value);
+                setModel('All Models');
+                handleChange('Make', value);
               }}
               className="allcars-filters-select"
               size="large"
@@ -224,14 +224,14 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
               value={model}
               onChange={(value) => {
                 setModel(value);
-                handleChange("Model", value);
+                handleChange('Model', value);
               }}
               className="allcars-filters-select"
               size="large"
               dropdownClassName="allcars-filters-dropdown"
-              disabled={make === "All Make"}
+              disabled={make === 'All Make'}
             >
-              {(carModels[make] || ["All Models"]).map((m) => (
+              {(carModels[make] || ['All Models']).map((m) => (
                 <Option key={m} value={m}>
                   {m}
                 </Option>
@@ -244,7 +244,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
               value={bodyType}
               onChange={(value) => {
                 setBodyType(value);
-                handleChange("Body Type", value);
+                handleChange('Body Type', value);
               }}
               className="allcars-filters-select"
               size="large"
@@ -263,7 +263,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
               value={location}
               onChange={(value) => {
                 setLocation(value);
-                handleChange("Location", value);
+                handleChange('Location', value);
               }}
               className="allcars-filters-select"
               size="large"
@@ -299,31 +299,31 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
           <div
             className="allcars-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === "newUsed" ? null : "newUsed")
+              setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed')
             }
             tabIndex={0}
           >
-            {newUsed}{" "}
+            {newUsed}{' '}
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
-            {openDropdown === "newUsed" &&
-              renderDropdown("newUsed", newUsedOptions, newUsed, setNewUsed)}
+            {openDropdown === 'newUsed' &&
+              renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
           </div>
           <div
             className="allcars-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === "priceMin" ? null : "priceMin")
+              setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin')
             }
             tabIndex={0}
           >
-            {priceMin}{" "}
+            {priceMin}{' '}
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
-            {openDropdown === "priceMin" &&
+            {openDropdown === 'priceMin' &&
               renderDropdown(
-                "priceMin",
+                'priceMin',
                 priceMinOptions,
                 priceMin,
                 setPriceMin
@@ -332,17 +332,17 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
           <div
             className="allcars-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === "priceMax" ? null : "priceMax")
+              setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax')
             }
             tabIndex={0}
           >
-            {priceMax}{" "}
+            {priceMax}{' '}
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
-            {openDropdown === "priceMax" &&
+            {openDropdown === 'priceMax' &&
               renderDropdown(
-                "priceMax",
+                'priceMax',
                 priceMaxOptions,
                 priceMax,
                 setPriceMax

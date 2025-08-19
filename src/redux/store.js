@@ -7,17 +7,17 @@
  * via any medium is strictly prohibited.
  */
 
-import { createStore, applyMiddleware } from "redux";
-import { thunk } from "redux-thunk"; 
-import rootReducer from "./reducers";
-import throttle from "lodash/throttle";
+import { createStore, applyMiddleware } from 'redux';
+import { thunk } from 'redux-thunk'; 
+import rootReducer from './reducers';
+import throttle from 'lodash/throttle';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 let lastUserData;
 let lastCustomerDetails;
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   store.subscribe(
     throttle(() => {
       const state = store.getState();
@@ -25,17 +25,17 @@ if (typeof window !== "undefined") {
       if (state.userData?.userData !== lastUserData) {
         lastUserData = state.userData?.userData;
         if (lastUserData) {
-          localStorage.setItem("userData", JSON.stringify(lastUserData));
+          localStorage.setItem('userData', JSON.stringify(lastUserData));
         }
       }
 
       if (state.customerDetails?.customerDetails !== lastCustomerDetails) {
         lastCustomerDetails = state.customerDetails?.customerDetails;
         if (lastCustomerDetails === null) {
-          localStorage.removeItem("customerDetails");
+          localStorage.removeItem('customerDetails');
         } else if (lastCustomerDetails !== undefined) {
           localStorage.setItem(
-            "customerDetails",
+            'customerDetails',
             JSON.stringify(lastCustomerDetails)
           );
         }

@@ -7,14 +7,14 @@
  * via any medium is strictly prohibited.
  */
 
-import React from "react";
-import { Typography } from "antd";
+import React from 'react';
+import { Typography } from 'antd';
 
 const { Title, Paragraph, Text } = Typography;
 
 const TermsAndconditions = () => {
   return (
-    <div style={{ maxWidth: 800, margin: "5 auto", padding: "2rem" }}>
+    <div style={{ maxWidth: 800, margin: '5 auto', padding: '2rem' }}>
       <Typography>
         <Title level={3}>Terms & Conditions</Title>
 

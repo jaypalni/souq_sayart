@@ -7,8 +7,8 @@
  * via any medium is strictly prohibited.
  */
 
-import React from "react";
-import "../assets/styles/cardetails.css";
+import React from 'react';
+import '../assets/styles/cardetails.css';
 
 const CarDetailsMock = () => {
   return <div>ssss</div>;

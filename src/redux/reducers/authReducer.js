@@ -12,14 +12,14 @@ import {
   AUTH_LOGIN_SUCCESS,
   AUTH_LOGIN_FAILURE,
   AUTH_LOGOUT,
-} from "../actions/authActions";
+} from '../actions/authActions';
 
 const initialState = {
   user: null,
-  token: localStorage.getItem("token"),
+  token: localStorage.getItem('token'),
   loading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem("token"),
+  isAuthenticated: !!localStorage.getItem('token'),
 };
 
 const authReducer = (state = initialState, action) => {

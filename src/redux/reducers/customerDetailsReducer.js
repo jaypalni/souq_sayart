@@ -13,14 +13,14 @@ import {
   CUSTOMER_DETAILS_FAILURE,
   CUSTOMER_DETAILS_UPDATE,
   CUSTOMER_DETAILS_CLEAR,
-} from "../actions/authActions";
+} from '../actions/authActions';
 
 const loadPersistedCustomerDetails = () => {
   try {
-    const raw = localStorage.getItem("customerDetails");
+    const raw = localStorage.getItem('customerDetails');
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : null;
+    return parsed && typeof parsed === 'object' ? parsed : null;
   } catch (_) {
     return null;
   }

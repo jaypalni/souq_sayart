@@ -7,38 +7,38 @@
  * via any medium is strictly prohibited.
  */
 
-import React, { useState, useEffect } from "react";
-import Slider from "react-slick";
-import "../assets/styles/cartypelist.css";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import rightarrow from "../assets/images/rightarrow_icon.svg";
-import leftarrow from "../assets/images/leftarrow_icon.svg";
-import { carAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { message } from "antd";
-import { useNavigate } from "react-router-dom";
-import Searchemptymodal from "../components/searchemptymodal";
+import React, { useState, useEffect } from 'react';
+import Slider from 'react-slick';
+import '../assets/styles/cartypelist.css';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import rightarrow from '../assets/images/rightarrow_icon.svg';
+import leftarrow from '../assets/images/leftarrow_icon.svg';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import Searchemptymodal from '../components/searchemptymodal';
 
 const Arrow = (props) => {
   const { className, style, onClick, left } = props;
   return (
     <div
-      className={className + " car-type-arrow"}
+      className={className + ' car-type-arrow'}
       style={{
         ...style,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "none",
-        color: "#222",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'none',
+        color: '#222',
         fontSize: 36,
         width: 48,
         height: 48,
-        left: left ? -40 : "unset",
-        right: !left ? -40 : "unset",
+        left: left ? -40 : 'unset',
+        right: !left ? -40 : 'unset',
         zIndex: 3,
-        cursor: "pointer",
+        cursor: 'pointer',
       }}
       onClick={onClick}
     >
@@ -56,7 +56,7 @@ const CarTypeList = () => {
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [setCarSearch] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bodyType, setBodyType] = useState("All Body Types");
+  const [bodyType, setBodyType] = useState('All Body Types');
   const navigate = useNavigate();
 
   const settings = {
@@ -83,10 +83,10 @@ const CarTypeList = () => {
         setCarBodyTypes(data1.data);
       }
 
-      message.success(data1.message || "Fetched successfully");
+      message.success(data1.message || 'Fetched successfully');
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to fetch body types");
+      message.error(errorData.message || 'Failed to fetch body types');
       setCarBodyTypes([]);
     } finally {
       setLoading(false);
@@ -102,10 +102,10 @@ const CarTypeList = () => {
       setLoading(true);
 
       const params = {
-        make: "",
-        model: "",
+        make: '',
+        model: '',
         body_type: item,
-        location: "",
+        location: '',
       };
 
       const response = await carAPI.getSearchCars(params);
@@ -117,15 +117,15 @@ const CarTypeList = () => {
         if (results.length === 0) {
           setIsModalOpen(true);
         } else {
-          navigate("/allcars", {
+          navigate('/allcars', {
             state: { cars: results, pagination: data1?.data?.pagination },
           });
-          localStorage.setItem("searchcardata", JSON.stringify(params));
+          localStorage.setItem('searchcardata', JSON.stringify(params));
         }
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to search car data");
+      message.error(errorData.message || 'Failed to search car data');
       setCarSearch([]);
     } finally {
       setLoading(false);

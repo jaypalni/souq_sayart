@@ -7,9 +7,9 @@
  * via any medium is strictly prohibited.
  */
 
-import React from "react";
+import React from 'react';
 
-import Mycarslisting from "../components/mycarslisting";
+import Mycarslisting from '../components/mycarslisting';
 const MyListings = () => {
   return (
     <div>

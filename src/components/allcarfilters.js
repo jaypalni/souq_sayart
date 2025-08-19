@@ -67,7 +67,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
       params = null;
     }
     setStoredSearchParams(params);
-    console.log("Storedcardata", params);
+    
   }, []);
 
   useEffect(() => {
@@ -113,7 +113,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
 };
 
   const handleSearch = async () => {
-    console.log("Print1")
+    
     const saveParams = {
       make,
       model,

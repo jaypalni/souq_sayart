@@ -17,8 +17,6 @@ import { message,Pagination } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState([]);
-
-  console.log("all car filters",filtercarsData)
   return (
     <div>
       <PlaneBanner name={"jdi"} />
@@ -54,7 +52,6 @@ const CarListing = ({filtercarsData}) => {
       setPaginationData(filtercarsData?.pagination)
     }
   }, [filtercarsData]);
-  console.log("paginationData",paginationData)
 
    const Addfavcarapi = async (carId) => {
       try {

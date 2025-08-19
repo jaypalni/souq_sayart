@@ -121,10 +121,7 @@ const CarTypeList = ({setSearchBodyType}) => {
 
 
   const handleSearch = async (item) => {
-
-    console.log("Button Clicked");
   const token = localStorage.getItem("token");
-  console.log("Token value:", token);
     try {
       setLoading(true);
   
@@ -135,19 +132,13 @@ const CarTypeList = ({setSearchBodyType}) => {
         location: "",
       };
   
-      console.log("AllParams", params);
-  
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
-  
-      console.log("Full data", response)
-  
       if (data1) {
         const results = data1?.data?.cars || [];
         setCarSearch(results);
   
         if (results.length === 0) {
-           console.log("success")
           setIsModalOpen(true);
         } else {
           navigate("/allcars", { state: { cars: results,pagination: data1?.data?.pagination  } });
@@ -156,8 +147,6 @@ const CarTypeList = ({setSearchBodyType}) => {
         }
       }
     } catch (error) {
-      console.log("error1")
-  
       const errorData = handleApiError(error);
       message.error(errorData.message || "Failed to search car data");
       setCarSearch([]);

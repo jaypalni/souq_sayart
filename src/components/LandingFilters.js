@@ -183,8 +183,6 @@ const LandingFilters = ({ searchbodytype }) => {
   };
 
   const handleToast = (msg) => {
-    console.log("Print2")
-    console.message("Here it done");
     setToastMsg(msg);
     if (msg) {
       message.success(msg);

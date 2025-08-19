@@ -2,21 +2,11 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Card, Button, Tag, Collapse, Avatar,message } from "antd";
 import {
-  FaCheckCircle,
-  FaGlobe,
-  FaMapMarkerAlt,
-  FaRegHeart,
   FaWhatsapp,
   FaPhoneAlt,
   FaChevronLeft,
   FaChevronRight,
-  FaChevronUp,
-  FaChevronDown,
 } from "react-icons/fa";
-import { FaCalendarAlt } from "react-icons/fa";
-import { GiGasPump, GiCarWheel } from "react-icons/gi";
-import { MdCarRental } from "react-icons/md";
-import { TbManualGearbox } from "react-icons/tb";
 import { MessageOutlined, UserOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import "../assets/styles/cardetails.css";
@@ -29,7 +19,6 @@ import pin_location from "../assets/images/pin_location.png";
 import gear_image from "../assets/images/gear_image.png";
 import fuel_image from "../assets/images/fuel_image.png";
 import calender_image from "../assets/images/Layer_1.png";
-import bluecar_icon from "../assets/images/blackcar_icon.png";
 import { carAPI } from "../services/api";
 import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { useNavigate } from "react-router-dom";

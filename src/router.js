@@ -18,6 +18,7 @@ import CreateProfile from "./pages/createProfile";
 import Landing from "./pages/landing";
 import CarDetails from "./pages/carDetails";
 import Sell from "./pages/sell";
+import NewSell from "./pages/newsell";
 import UserProfile from "./pages/userProfile";
 import TermsAndConditions from "./pages/termsAndconditions";
 import Captcha from "./pages/captcha";
@@ -28,6 +29,7 @@ const AppRouterContent = () => {
   const hidebannerList = [
     "/carDetails",
     "/sell",
+    "/newsell",
     "/allcars",
     "/myListings",
     "/myProfile",
@@ -79,6 +81,14 @@ const AppRouterContent = () => {
           element={
             <ProtectedRoute>
               <Sell />
+            </ProtectedRoute>
+          } 
+        />
+         <Route 
+          path="/newsell" 
+          element={
+            <ProtectedRoute>
+              <NewSell />
             </ProtectedRoute>
           } 
         />

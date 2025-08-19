@@ -335,36 +335,54 @@ const CreateProfile = () => {
           <div className="row g-3">
             <div className="col-md-6">
               <Form.Item
-                label={
-                  <span
-                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
-                  >
-                    First Name<span style={{ color: "#637D92" }}>*</span>
-                  </span>
-                }
-                name="firstName"
-                rules={[{ required: true, message: "First name is required" }]}
-                style={{ marginBottom: 12 }}
-                required={false}
-              >
-                <Input placeholder="First Name" size="middle" />
-              </Form.Item>
+  label={
+    <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
+      First Name<span style={{ color: "#637D92" }}>*</span>
+    </span>
+  }
+  name="firstName"
+  rules={[
+    { required: true, message: "First name is required" },
+    {
+      pattern: /^[A-Za-z]+$/,
+      message: "First name should contain only letters",
+    },
+    {
+      max: 50,
+      message: "First name cannot exceed 50 characters",
+    },
+  ]}
+  style={{ marginBottom: 12 }}
+  required={false}
+>
+  <Input placeholder="First Name" size="middle" maxLength={50} />
+</Form.Item>
+
             </div>
             <div className="col-md-6">
-              <Form.Item
-                label={
-                  <span
-                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
-                  >
-                    Last Name*
-                  </span>
-                }
-                name="lastName"
-                rules={[{ required: true, message: "Last name is required" }]}
-                required={false}
-              >
-                <Input placeholder="Last Name" size="middle" />
-              </Form.Item>
+                <Form.Item
+  label={
+    <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
+      First Name<span style={{ color: "#637D92" }}>*</span>
+    </span>
+  }
+  name="lastName"
+  rules={[
+    { required: true, message: "Last name is required" },
+    {
+      pattern: /^[A-Za-z]+$/,
+      message: "Last name should contain only letters",
+    },
+    {
+      max: 50,
+      message: "Last name cannot exceed 50 characters",
+    },
+  ]}
+  style={{ marginBottom: 12 }}
+  required={false}
+>
+  <Input placeholder="Last Name" size="middle" maxLength={50} />
+</Form.Item>
             </div>
           </div>
           <div className="row g-3">

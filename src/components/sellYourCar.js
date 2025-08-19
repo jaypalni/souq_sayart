@@ -23,7 +23,8 @@ const SellYourCar = () => {
       navigate("/login");
       return;
     }
-    //navigate("/sell");
+    // navigate("/sell");
+    navigate("/newsell");
   };
 
   return (

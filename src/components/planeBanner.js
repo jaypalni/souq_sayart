@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import Car_icon from "../assets/images/Car_icon.png";
 
 
@@ -53,6 +53,14 @@ const PlaneBanner = () => {
           borderBottomRightRadius: "12px",
         }}
       > 
+     <p style={{ fontSize: "14px", color: "#fff", marginTop: "-52px", marginLeft: "-980px" }}>
+  <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
+    Home
+  </Link>
+  <span style={{ color: "#fff" }}> &gt; </span>
+  New Cars Sale in Dubai
+</p>
+
         <h1
           style={{
             position: "absolute",

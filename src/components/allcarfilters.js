@@ -108,11 +108,12 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
     
   setToastMsg(msg);
   if (msg) {
-    message.success(msg); // or your custom toast component
+    message.success(msg); 
   }
 };
 
   const handleSearch = async () => {
+    console.log("Print1")
     const saveParams = {
       make,
       model,

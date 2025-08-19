@@ -225,60 +225,71 @@ const Searchemptymodal = ({
   selectedLocation,
   setSelectedLocation,
   toastmessage,
-  //   onSave,
+     
 }) => {
   if (!visible) return null;
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  const handleSaveSearch = async () => {
-    try {
-      const searchparams = {
-        search_query: "",
-        make: make || "",
-        model: model || "",
-        year_min: "",
-        year_max: "",
-        price_min: "",
-        price_max: "",
-        location: selectedLocation || "",
-        body_type: bodyType || "",
-        fuel_type: "",
-        transmission: "",
-        min_kilometers: "",
-        max_kilometers: "",
-        number_of_cylinders: "",
-        min_consumption: "",
-        max_consumption: "",
-        colour: "",
-        number_of_seats: "",
-        extra_features: [],
-        number_of_doors: "",
-        interior: "",
-        payment_options: "",
-        page: 1,
-        limit: 10,
-        newest_listing: true,
-      };
-      const response = await carAPI.postsavesearches(searchparams);
-      const data = handleApiResponse(response);
+ const handleSaveSearch = async () => {
+  try {
+    const searchparams = {
+      search_query: "",
+      make: make || "",
+      model: model || "",
+      year_min: "",
+      year_max: "",
+      price_min: "",
+      price_max: "",
+      location: selectedLocation || "",
+      body_type: bodyType || "",
+      fuel_type: "",
+      transmission: "",
+      min_kilometers: "",
+      max_kilometers: "",
+      number_of_cylinders: "",
+      min_consumption: "",
+      max_consumption: "",
+      colour: "",
+      number_of_seats: "",
+      extra_features: [],
+      number_of_doors: "",
+      interior: "",
+      payment_options: "",
+      page: 1,
+      limit: 10,
+      newest_listing: true,
+    };
 
-      if (data?.message) {
-        messageApi.open({
-          type: "success",
-          content: data?.message,
-        });
-      } else {
-        message.success("Search saved successfully!");
-      }
+    const response = await carAPI.postsavesearches(searchparams);
+    const data = handleApiResponse(response);
 
-      onClose();
-      toastmessage(data.message);
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to save search");
+    if (data?.message) {
+      messageApi.open({
+        type: "success",
+        content: data?.message,
+        onClose: () => {
+         
+          onClose();
+        },
+      });
+    } else {
+      message.success({
+        content: "Search saved successfully!",
+        onClose: () => {
+          onClose();
+        },
+      });
     }
-  };
+
+    // ✅ also trigger parent toast immediately (if you still want that)
+    toastmessage(data?.message);
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || "Failed to save search");
+  }
+};
+
 
   return (
     <div className="modal-overlay" onClick={onClose}>

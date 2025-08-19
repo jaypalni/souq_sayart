@@ -183,6 +183,7 @@ const LandingFilters = ({ searchbodytype }) => {
   };
 
   const handleToast = (msg) => {
+    console.log("Print2")
     console.message("Here it done");
     setToastMsg(msg);
     if (msg) {
@@ -193,6 +194,7 @@ const LandingFilters = ({ searchbodytype }) => {
   const handleChange = (name, value) => {};
 
   const handleSearch = async () => {
+    
     const token = localStorage.getItem("token");
 
     try {

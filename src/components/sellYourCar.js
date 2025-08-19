@@ -1,9 +1,18 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { message } from 'antd';
-import '../assets/styles/sellYourCar.css';
-import carBg from '../assets/images/Car_icon.png';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { message } from "antd";
+import "../assets/styles/sellYourCar.css";
+import carBg from "../assets/images/Car_icon.png";
 
 const SellYourCar = () => {
   const navigate = useNavigate();
@@ -15,19 +24,19 @@ const SellYourCar = () => {
 
     if (!isLoggedIn) {
       messageApi.open({
-        type: 'warning',
-        content: 'Please login to sell your car',
+        type: "warning",
+        content: "Please login to sell your car",
       });
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    navigate('/newsell');
+    navigate("/newsell");
   };
 
   return (
     <div
       className="sell-your-car-section"
-      style={{ width: '100%', backgroundImage: `url(${carBg})` }}
+      style={{ width: "100%", backgroundImage: `url(${carBg})` }}
     >
       {contextHolder}
       <div className="sell-your-car-overlay">

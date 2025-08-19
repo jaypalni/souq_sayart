@@ -1,43 +1,52 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Select, Button } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import '../assets/styles/landingFilters.css';
-import { carAPI } from '../services/api';
-import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message } from 'antd';
-import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
-import { useNavigate } from 'react-router-dom';
-import Searchemptymodal from '../components/searchemptymodal';
-import { useDispatch } from 'react-redux';
-import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import React, { useState, useRef, useEffect } from "react";
+import { Select, Button } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import "../assets/styles/landingFilters.css";
+import { carAPI } from "../services/api";
+import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import { message } from "antd";
+import { fetchMakeCars, fetchModelCars } from "../commonFunction/fetchMakeCars";
+import { useNavigate } from "react-router-dom";
+import Searchemptymodal from "../components/searchemptymodal";
+import { useDispatch } from "react-redux";
+import { logoutUser, clearCustomerDetails } from "../redux/actions/authActions";
 const { Option } = Select;
 
-const newUsedOptions = ['New & Used', 'New', 'Used'];
-const priceMinOptions = ['Price Min', 5000, 10000, 20000, 30000, 40000];
-const priceMaxOptions = ['Price Max', 20000, 30000, 40000, 50000, 100000];
+const newUsedOptions = ["New & Used", "New", "Used"];
+const priceMinOptions = ["Price Min", 5000, 10000, 20000, 30000, 40000];
+const priceMaxOptions = ["Price Max", 20000, 30000, 40000, 50000, 100000];
 
 const LandingFilters = ({ searchbodytype }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [setLoading] = useState(false);
-  const [make, setMake] = useState('All');
+  const [make, setMake] = useState("All");
   const [carMakes, setCarMakes] = useState([]);
-  const [model, setModel] = useState('All Models');
+  const [model, setModel] = useState("All Models");
   const [carModels, setCarModels] = useState([]);
-  const [bodyType, setBodyType] = useState('All Body Types');
+  const [bodyType, setBodyType] = useState("All Body Types");
   const [carBodyTypes, setCarBodyTypes] = useState([]);
-  const [location, setLocation] = useState('Baghdad');
+  const [location, setLocation] = useState("Baghdad");
   const [carLocation, setCarLocation] = useState([]);
   const [setCarLocationCountry] = useState([]);
   const [setCarSearch] = useState([]);
-  const [newUsed, setNewUsed] = useState('New & Used');
-  const [priceMin, setPriceMin] = useState('Price Min');
-  const [priceMax, setPriceMax] = useState('Price Max');
+  const [newUsed, setNewUsed] = useState("New & Used");
+  const [priceMin, setPriceMin] = useState("Price Min");
+  const [priceMax, setPriceMax] = useState("Price Max");
   const [carCount] = useState(342642);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [setToastMsg] = useState('');
+  const [setToastMsg] = useState("");
 
   const dropdownRefs = {
     newUsed: useRef(),
@@ -75,10 +84,10 @@ const LandingFilters = ({ searchbodytype }) => {
         setCarBodyTypes(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || "Fetched successfully");
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Make car data');
+      message.error(errorData.message || "Failed to Make car data");
       setCarBodyTypes([]);
     } finally {
       setLoading(false);
@@ -95,7 +104,7 @@ const LandingFilters = ({ searchbodytype }) => {
         setCarLocation(locations);
         const getGeoData = async () => {
           try {
-            const cacheKey = 'geoDataCache';
+            const cacheKey = "geoDataCache";
             const cached = localStorage.getItem(cacheKey);
             if (cached) {
               const parsed = JSON.parse(cached);
@@ -109,7 +118,7 @@ const LandingFilters = ({ searchbodytype }) => {
               }
             }
 
-            const geoRes = await fetch('https://ipapi.co/json/');
+            const geoRes = await fetch("https://ipapi.co/json/");
             if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
             const geoData = await geoRes.json();
             localStorage.setItem(
@@ -134,7 +143,7 @@ const LandingFilters = ({ searchbodytype }) => {
 
         if (!defaultLocation) {
           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          const tzLower = tz ? tz.toLowerCase() : '';
+          const tzLower = tz ? tz.toLowerCase() : "";
           const tzOffset = new Date().getTimezoneOffset();
           const langs = [
             navigator.language,
@@ -142,21 +151,21 @@ const LandingFilters = ({ searchbodytype }) => {
           ].filter(Boolean);
 
           const isIndiaLocale =
-            tzLower === 'asia/kolkata' ||
-            tzLower === 'asia/calcutta' ||
+            tzLower === "asia/kolkata" ||
+            tzLower === "asia/calcutta" ||
             tzOffset === -330 ||
             langs.some((l) => {
               const ll = String(l).toLowerCase();
-              return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
+              return ll.endsWith("-in") || ll === "en-in" || ll.includes("-in");
             });
           if (isIndiaLocale) {
             defaultLocation = locations.find(
-              (loc) => loc.location.toLowerCase() === 'india'
+              (loc) => loc.location.toLowerCase() === "india"
             );
 
             if (!defaultLocation) {
               defaultLocation = locations.find(
-                (loc) => loc.location.toLowerCase() === 'dubai'
+                (loc) => loc.location.toLowerCase() === "dubai"
               );
             }
           }
@@ -172,10 +181,10 @@ const LandingFilters = ({ searchbodytype }) => {
         }
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || "Fetched successfully");
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Locations car data');
+      message.error(errorData.message || "Failed to Locations car data");
       setCarLocation([]);
     } finally {
       setLoading(false);
@@ -192,15 +201,14 @@ const LandingFilters = ({ searchbodytype }) => {
   const handleChange = () => {};
 
   const handleSearch = async () => {
-
     try {
       setLoading(true);
 
       const params = {
-        make: make !== 'All' ? make : '',
-        model: model !== 'All Models' ? model : '',
-        body_type: bodyType !== 'All Body Types' ? bodyType : '',
-        location: location !== 'Baghdad' ? location : '',
+        make: make !== "All" ? make : "",
+        model: model !== "All Models" ? model : "",
+        body_type: bodyType !== "All Body Types" ? bodyType : "",
+        location: location !== "Baghdad" ? location : "",
       };
 
       const response = await carAPI.getSearchCars(params);
@@ -213,10 +221,10 @@ const LandingFilters = ({ searchbodytype }) => {
         if (results.length === 0) {
           setIsModalOpen(true);
         } else {
-          navigate('/allcars', {
+          navigate("/allcars", {
             state: { cars: results, pagination: data1?.data?.pagination },
           });
-          localStorage.setItem('searchcardata', JSON.stringify(params));
+          localStorage.setItem("searchcardata", JSON.stringify(params));
         }
       }
     } catch (error) {
@@ -224,25 +232,25 @@ const LandingFilters = ({ searchbodytype }) => {
 
       if (errorData.status === 401) {
         messageApi.open({
-          type: 'error',
-          content: 'Your session has expired. Please log in again.',
+          type: "error",
+          content: "Your session has expired. Please log in again.",
         });
 
         setTimeout(() => {
           (async () => {
-            localStorage.removeItem('token');
+            localStorage.removeItem("token");
             localStorage.clear();
 
             await dispatch(logoutUser());
             dispatch(clearCustomerDetails());
-            dispatch({ type: 'CLEAR_USER_DATA' });
+            dispatch({ type: "CLEAR_USER_DATA" });
 
-            navigate('/login');
+            navigate("/login");
           })();
         }, 2000);
       } else {
         messageApi.open({
-          type: 'error',
+          type: "error",
           content: errorData.message,
         });
       }
@@ -263,8 +271,8 @@ const LandingFilters = ({ searchbodytype }) => {
         setOpenDropdown(null);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown]);
 
   const renderDropdown = (type, options, value, setValue) => (
@@ -273,16 +281,16 @@ const LandingFilters = ({ searchbodytype }) => {
         <div
           key={opt}
           className={`landing-filters-dropdown-item${
-            value === opt ? ' selected' : ''
+            value === opt ? " selected" : ""
           }`}
           onClick={() => {
             setValue(opt);
             handleChange(
-              type === 'newUsed'
-                ? 'New & Used'
-                : type === 'priceMin'
-                ? 'Price Min'
-                : 'Price Max',
+              type === "newUsed"
+                ? "New & Used"
+                : type === "priceMin"
+                ? "Price Min"
+                : "Price Max",
               opt
             );
             setOpenDropdown(null);
@@ -305,8 +313,8 @@ const LandingFilters = ({ searchbodytype }) => {
               value={make}
               onChange={(value) => {
                 setMake(value);
-                setModel('All Models');
-                handleChange('Make', value);
+                setModel("All Models");
+                handleChange("Make", value);
               }}
               className="landing-filters-select"
               size="large"
@@ -326,12 +334,12 @@ const LandingFilters = ({ searchbodytype }) => {
               value={model}
               onChange={(value) => {
                 setModel(value);
-                handleChange('Model', value);
+                handleChange("Model", value);
               }}
               className="landing-filters-select"
               size="large"
               dropdownClassName="landing-filters-dropdown"
-              disabled={make === 'All Make'}
+              disabled={make === "All Make"}
             >
               {carModels?.map((m) => (
                 <Option key={m.id} value={m.model_name}>
@@ -346,7 +354,7 @@ const LandingFilters = ({ searchbodytype }) => {
               value={bodyType}
               onChange={(value) => {
                 setBodyType(value);
-                handleChange('Body Type', value);
+                handleChange("Body Type", value);
               }}
               className="landing-filters-select"
               size="large"
@@ -365,7 +373,7 @@ const LandingFilters = ({ searchbodytype }) => {
               value={location}
               onChange={(value) => {
                 setLocation(value);
-                handleChange('Location', value);
+                handleChange("Location", value);
               }}
               className="landing-filters-select"
               size="large"
@@ -394,25 +402,25 @@ const LandingFilters = ({ searchbodytype }) => {
           <div
             className="landing-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed')
+              setOpenDropdown(openDropdown === "newUsed" ? null : "newUsed")
             }
             tabIndex={0}
           >
             {newUsed} <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'newUsed' &&
-              renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
+            {openDropdown === "newUsed" &&
+              renderDropdown("newUsed", newUsedOptions, newUsed, setNewUsed)}
           </div>
           <div
             className="landing-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin')
+              setOpenDropdown(openDropdown === "priceMin" ? null : "priceMin")
             }
             tabIndex={0}
           >
             {priceMin} <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'priceMin' &&
+            {openDropdown === "priceMin" &&
               renderDropdown(
-                'priceMin',
+                "priceMin",
                 priceMinOptions,
                 priceMin,
                 setPriceMin
@@ -421,14 +429,14 @@ const LandingFilters = ({ searchbodytype }) => {
           <div
             className="landing-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax')
+              setOpenDropdown(openDropdown === "priceMax" ? null : "priceMax")
             }
             tabIndex={0}
           >
             {priceMax} <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'priceMax' &&
+            {openDropdown === "priceMax" &&
               renderDropdown(
-                'priceMax',
+                "priceMax",
                 priceMaxOptions,
                 priceMax,
                 setPriceMax
@@ -447,8 +455,8 @@ const LandingFilters = ({ searchbodytype }) => {
         setModel={setModel}
         bodyType={bodyType}
         setBodyType={setBodyType}
-        selectedLocation={location} 
-        setSelectedLocation={setLocation} 
+        selectedLocation={location}
+        setSelectedLocation={setLocation}
         onSave={handleSearch}
       />
     </div>

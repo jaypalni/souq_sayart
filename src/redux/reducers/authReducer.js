@@ -1,16 +1,25 @@
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
 import {
   AUTH_LOGIN_REQUEST,
   AUTH_LOGIN_SUCCESS,
   AUTH_LOGIN_FAILURE,
   AUTH_LOGOUT,
-} from '../actions/authActions';
+} from "../actions/authActions";
 
 const initialState = {
   user: null,
-  token: localStorage.getItem('token'),
+  token: localStorage.getItem("token"),
   loading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem("token"),
 };
 
 const authReducer = (state = initialState, action) => {
@@ -51,4 +60,4 @@ const authReducer = (state = initialState, action) => {
   }
 };
 
-export default authReducer; 
+export default authReducer;

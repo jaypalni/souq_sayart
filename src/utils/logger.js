@@ -1,14 +1,22 @@
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export const logger = {
   log: (...args) => {
     if (isDevelopment) {
-      }
+    }
   },
   warn: (...args) => {
     if (isDevelopment) {
-      }
+    }
   },
   error: (...args) => {
     if (isDevelopment) {
@@ -17,8 +25,8 @@ export const logger = {
   },
   info: (...args) => {
     if (isDevelopment) {
-      }
-  }
+    }
+  },
 };
 
-export default logger; 
+export default logger;

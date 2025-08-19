@@ -1,32 +1,40 @@
-import axios from 'axios';
-import API_CONFIG from '../config/api.config';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import axios from "axios";
+import API_CONFIG from "../config/api.config";
 
 if (!API_CONFIG.BASE_URL) {
   throw new Error(
-    'API base URL is not configured. Please set REACT_APP_API_URL in your .env file'
+    "API base URL is not configured. Please set REACT_APP_API_URL in your .env file"
   );
 }
 
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  timeout: 30000, 
+  timeout: 30000,
 });
 
 const publicApi = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 30000,
 });
 
-
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -37,14 +45,11 @@ api.interceptors.request.use(
   }
 );
 
-
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-     
       switch (error.response.status) {
-       
         case 403:
           break;
         case 404:
@@ -59,7 +64,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 export const authAPI = {
   login: (credentials) =>
@@ -80,7 +84,7 @@ export const authAPI = {
   uploadimages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     }),
 
@@ -105,11 +109,12 @@ export const carAPI = {
   uploadImages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.UPLOAD_IMAGES, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     }),
   getCarOptions: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_OPTIONS),
-  getCarFeatures: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_FEATURES),
+  getCarFeatures: () =>
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_FEATURES),
   getCarRecommended: () =>
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_RECOMMENDED),
   getCarSpecs: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_SPECS),
@@ -118,8 +123,10 @@ export const carAPI = {
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_MODEL_CARS(make)),
   getYearData: (make, modalName) =>
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_YEAR_CARS(make, modalName)),
-  getBodyCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
-  getLocationCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
+  getBodyCars: () =>
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
+  getLocationCars: () =>
+    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
   getSearchCars: (params) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params),
   postsavesearches: (searchparams) =>

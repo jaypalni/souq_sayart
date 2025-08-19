@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2025 Palni.
+/**
+ * Copyright (c) 2025 Palni
  * All rights reserved.
  *
  * This file is part of the ss-frontend project.
@@ -7,10 +7,10 @@
  * via any medium is strictly prohibited.
  */
 
-import React from 'react';
-import { carAPI } from '../services/api';
-import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message } from 'antd';
+import React from "react";
+import { carAPI } from "../services/api";
+import { handleApiResponse, handleApiError } from "../utils/apiUtils";
+import { message } from "antd";
 
 const fetchMakeCars = async ({ setLoading, setCarMakes }) => {
   try {
@@ -22,10 +22,10 @@ const fetchMakeCars = async ({ setLoading, setCarMakes }) => {
       setCarMakes(data1?.data);
     }
 
-    message.success(data1.message || 'Fetched successfully');
+    message.success(data1.message || "Fetched successfully");
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to Make car data');
+    message.error(errorData.message || "Failed to Make car data");
     setCarMakes([]);
   } finally {
     setLoading(false);
@@ -42,10 +42,10 @@ const fetchModelCars = async ({ setLoading, setCarModels, make }) => {
       setCarModels(data1?.data);
     }
 
-    message.success(data1.message || 'Fetched successfully');
+    message.success(data1.message || "Fetched successfully");
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to Make car data');
+    message.error(errorData.message || "Failed to Make car data");
     setCarModels([]);
   } finally {
     setLoading(false);

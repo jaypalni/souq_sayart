@@ -1,42 +1,51 @@
-import React, { useState } from 'react';
-import { Button, Popconfirm } from 'antd';
-import { CheckCircleFilled } from '@ant-design/icons';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import React, { useState } from "react";
+import { Button, Popconfirm } from "antd";
+import { CheckCircleFilled } from "@ant-design/icons";
 
 const blockedContactsData = [
   {
     id: 1,
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    name: 'Moe',
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    name: "Moe",
     verified: true,
   },
   {
     id: 2,
-    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-    name: 'Ziad',
+    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+    name: "Ziad",
     verified: false,
   },
   {
     id: 3,
-    avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-    name: 'Ayoub',
+    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
+    name: "Ayoub",
     verified: false,
   },
   {
     id: 4,
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    name: 'Moe',
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    name: "Moe",
     verified: true,
   },
   {
     id: 5,
-    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-    name: 'Ziad',
+    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+    name: "Ziad",
     verified: false,
   },
 ];
 
 const EmptyState = () => (
-  <div style={{ textAlign: 'center', padding: 40 }}>
+  <div style={{ textAlign: "center", padding: 40 }}>
     <h3>No Blocked Contacts</h3>
     <p>You have not blocked any contacts.</p>
   </div>
@@ -49,7 +58,7 @@ const BlockedContacts = () => {
   const handleUnblock = (id) => {
     setUnblockLoading(id);
     setTimeout(() => {
-      setContacts(contacts.filter(contact => contact.id !== id));
+      setContacts(contacts.filter((contact) => contact.id !== id));
       setUnblockLoading(null);
     }, 500);
   };
@@ -62,14 +71,25 @@ const BlockedContacts = () => {
     <div className="blocked-contacts-main">
       <div className="blocked-contacts-header">Blocked Contacts</div>
       <div className="blocked-contacts-list">
-        {contacts.map(contact => (
+        {contacts.map((contact) => (
           <div className="blocked-contact-item" key={contact.id}>
-            <img src={contact.avatar} alt={contact.name} className="blocked-contact-avatar" />
+            <img
+              src={contact.avatar}
+              alt={contact.name}
+              className="blocked-contact-avatar"
+            />
             <div className="blocked-contact-info">
               <span className="blocked-contact-name">
                 {contact.name}
                 {contact.verified && (
-                  <CheckCircleFilled style={{ color: '#1890ff', fontSize: 16, marginLeft: 6, verticalAlign: -2 }} />
+                  <CheckCircleFilled
+                    style={{
+                      color: "#1890ff",
+                      fontSize: 16,
+                      marginLeft: 6,
+                      verticalAlign: -2,
+                    }}
+                  />
                 )}
               </span>
             </div>
@@ -81,7 +101,11 @@ const BlockedContacts = () => {
                 cancelText="No"
                 placement="left"
               >
-                <Button type="link" loading={unblockLoading === contact.id} style={{ padding: 0, fontWeight: 500 }}>
+                <Button
+                  type="link"
+                  loading={unblockLoading === contact.id}
+                  style={{ padding: 0, fontWeight: 500 }}
+                >
                   Unblock
                 </Button>
               </Popconfirm>
@@ -93,4 +117,4 @@ const BlockedContacts = () => {
   );
 };
 
-export default BlockedContacts; 
+export default BlockedContacts;

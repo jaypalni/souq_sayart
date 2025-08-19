@@ -1,30 +1,39 @@
-import React from 'react';
-import { Button } from 'antd';
-import lightbluetick from '../assets/images/lightbluetick_icon.svg'
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import React from "react";
+import { Button } from "antd";
+import lightbluetick from "../assets/images/lightbluetick_icon.svg";
 
 const SubscriptionCard = ({ title, price, duration, features }) => (
   <div
     className="subscription-card"
     style={{
-      background: '#ffffff',
-      borderColor: '#CED7DE',
+      background: "#ffffff",
+      borderColor: "#CED7DE",
       borderRadius: 12,
       minWidth: 240,
-      boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
+      boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
       height: 340,
     }}
   >
-    <div style={{ width: '109%', boxSizing: 'border-box' }}>
+    <div style={{ width: "109%", boxSizing: "border-box" }}>
       <div
         style={{
-          backgroundColor: '#7991A4',
+          backgroundColor: "#7991A4",
           borderRadius: 6,
-          padding: '12px',
+          padding: "12px",
           height: 160,
-          padding: '12px',
+          padding: "12px",
         }}
       >
         <div
@@ -32,7 +41,7 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
             fontWeight: 600,
             fontSize: 20,
             marginBottom: 8,
-            color: '#fff',
+            color: "#fff",
             marginBottom: 24,
           }}
         >
@@ -43,37 +52,37 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
             fontSize: 28,
             fontWeight: 700,
             marginBottom: 4,
-            color: '#fff',
+            color: "#fff",
           }}
         >
-          ${price}{' '}
+          ${price}{" "}
           <span
             style={{
               fontSize: 14,
               fontWeight: 400,
-              color: '#888',
-              color: '#fff',
+              color: "#888",
+              color: "#fff",
             }}
           >
             {duration}
           </span>
         </div>
-        <div style={{ width: '100%', padding: '0 10px 10px' }}>
+        <div style={{ width: "100%", padding: "0 10px 10px" }}>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'center',
+              display: "flex",
+              justifyContent: "center",
               gap: 10,
             }}
           >
             <Button
               type="primary"
               style={{
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                borderColor: '#fff',
+                color: "#000000",
+                backgroundColor: "#ffffff",
+                borderColor: "#fff",
                 borderRadius: 12,
-                marginTop: '12',
+                marginTop: "12",
                 marginLeft: 5,
                 marginRight: 5,
               }}
@@ -84,13 +93,13 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
         </div>
       </div>
     </div>
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
+    <ul style={{ listStyle: "none", padding: 0, margin: 0, width: "100%" }}>
       {features.map((f, i) => (
         <li
           key={i}
-          style={{ display: 'flex', alignItems: 'center', margin: '8px 0' }}
+          style={{ display: "flex", alignItems: "center", margin: "8px 0" }}
         >
-          <span style={{ color: '#039be5', fontWeight: 700, marginRight: 8 }}>
+          <span style={{ color: "#039be5", fontWeight: 700, marginRight: 8 }}>
             <img
               src={lightbluetick}
               alt="tick"
@@ -99,7 +108,7 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
                 height: 16,
               }}
             />
-          </span>{' '}
+          </span>{" "}
           {f}
         </li>
       ))}
@@ -107,5 +116,4 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
   </div>
 );
 
-export default SubscriptionCard; 
-
+export default SubscriptionCard;

@@ -1,47 +1,55 @@
-import React from 'react';
-import '../assets/styles/header.css';
-import iconWhite from '../assets/images/souqLogo.svg';
-import NotifiyImg from '../assets/images/bell.svg';
-import MessagesImg from '../assets/images/messages.svg';
-import { UserOutlined, SettingOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { Select, message, Dropdown } from 'antd';
-import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import React from "react";
+import "../assets/styles/header.css";
+import iconWhite from "../assets/images/souqLogo.svg";
+import NotifiyImg from "../assets/images/bell.svg";
+import MessagesImg from "../assets/images/messages.svg";
+import { UserOutlined, SettingOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { Select, message, Dropdown } from "antd";
+import { logoutUser, clearCustomerDetails } from "../redux/actions/authActions";
 const Header = () => {
   const dispatch = useDispatch();
   const [messageApi, contextHolder] = message.useMessage();
-  const { customerDetails } =
-    useSelector((state) => state.customerDetails);
+  const { customerDetails } = useSelector((state) => state.customerDetails);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const menuList = [
     {
-      id: '',
-      name: 'Buy',
-      path: '/landing',
-      displayName: '',
+      id: "",
+      name: "Buy",
+      path: "/landing",
+      displayName: "",
       requiresAuth: false,
     },
     {
-      id: '',
-      name: 'Sell',
-       path: '',
-      displayName: '',
+      id: "",
+      name: "Sell",
+      path: "",
+      displayName: "",
       requiresAuth: true,
     },
     {
-      id: '',
-      name: 'My Listings',
-      path: '',
-      displayName: '',
+      id: "",
+      name: "My Listings",
+      path: "",
+      displayName: "",
       requiresAuth: true,
     },
     {
-      id: '',
-      name: 'Evaluate My Car',
-      path: '/evaluate',
-      displayName: '',
+      id: "",
+      name: "Evaluate My Car",
+      path: "/evaluate",
+      displayName: "",
       requiresAuth: false,
     },
   ];
@@ -50,18 +58,18 @@ const Header = () => {
 
   const getUserDisplayName = () => {
     if (isAuthenticated && user) {
-      const firstName = user.first_name || user.firstName || '';
+      const firstName = user.first_name || user.firstName || "";
       return firstName.trim();
     }
 
     if (customerDetails) {
       const firstName =
-        customerDetails.first_name || customerDetails.firstName || '';
+        customerDetails.first_name || customerDetails.firstName || "";
       return firstName.trim();
     }
 
-    if (localStorage.getItem('isGuest') === 'true') {
-      return 'Guest';
+    if (localStorage.getItem("isGuest") === "true") {
+      return "Guest";
     }
 
     return null;
@@ -69,46 +77,46 @@ const Header = () => {
 
   const userMenuItems = [
     {
-      key: 'myProfile',
-      label: 'My Profile',
+      key: "myProfile",
+      label: "My Profile",
       icon: <UserOutlined />,
-      onClick: () => navigate('/myProfile'),
+      onClick: () => navigate("/myProfile"),
     },
     {
-      key: 'settings',
-      label: 'Settings',
+      key: "settings",
+      label: "Settings",
       icon: <SettingOutlined />,
-      onClick: () => navigate('/settings'),
+      onClick: () => navigate("/settings"),
     },
     {
-      key: 'changePassword',
-      label: 'Change Password',
-      onClick: () => navigate('/changePassword'),
+      key: "changePassword",
+      label: "Change Password",
+      onClick: () => navigate("/changePassword"),
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'logout',
-      label: 'Logout',
+      key: "logout",
+      label: "Logout",
       onClick: async () => {
         try {
           localStorage.clear();
           await dispatch(logoutUser());
           dispatch(clearCustomerDetails());
-          dispatch({ type: 'CLEAR_USER_DATA' });
+          dispatch({ type: "CLEAR_USER_DATA" });
 
           messageApi.open({
-            type: 'success',
-            content: 'Logged out successfully',
+            type: "success",
+            content: "Logged out successfully",
           });
 
-          navigate('/login');
+          navigate("/login");
         } catch (error) {
-          console.error('Logout error:', error);
+          console.error("Logout error:", error);
           messageApi.open({
-            type: 'error',
-            content: 'Logout failed',
+            type: "error",
+            content: "Logout failed",
           });
         }
       },
@@ -117,26 +125,25 @@ const Header = () => {
 
   const comingsoonMessage = (value) => {
     if (value.requiresAuth) {
-      const token = localStorage.getItem('token');
-      const isGuest = localStorage.getItem('isGuest');
-      const isLoggedIn =
-        isAuthenticated || getUserDisplayName() || token;
+      const token = localStorage.getItem("token");
+      const isGuest = localStorage.getItem("isGuest");
+      const isLoggedIn = isAuthenticated || getUserDisplayName() || token;
 
       if (!isLoggedIn || isGuest) {
         messageApi.open({
-          type: 'warning',
-          content: 'Please login to access this feature',
+          type: "warning",
+          content: "Please login to access this feature",
         });
-        localStorage.removeItem('isGuest');
-        navigate('/login');
+        localStorage.removeItem("isGuest");
+        navigate("/login");
         return;
       }
     }
 
-    if (value.name === 'Evaluate My Car') {
+    if (value.name === "Evaluate My Car") {
       messageApi.open({
-        type: 'success',
-        content: 'Coming soon',
+        type: "success",
+        content: "Coming soon",
       });
       return;
     }
@@ -160,7 +167,7 @@ const Header = () => {
                 onClick={() => {
                   comingsoonMessage(item);
                 }}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
               >
                 {item.name}
               </div>
@@ -174,11 +181,11 @@ const Header = () => {
                     className="headerLogo"
                     src={MessagesImg}
                     style={{
-                      width: '20px',
-                      height: '20px',
-                      objectFit: 'contain',
-                      marginBottom: '8px',
-                      marginLeft: '0px',
+                      width: "20px",
+                      height: "20px",
+                      objectFit: "contain",
+                      marginBottom: "8px",
+                      marginLeft: "0px",
                     }}
                   />
                 </div>
@@ -187,51 +194,51 @@ const Header = () => {
                     className="headerLogo"
                     src={NotifiyImg}
                     style={{
-                      width: '20px',
-                      height: '20px',
-                      objectFit: 'contain',
-                      marginBottom: '8px',
-                      marginLeft: '0px',
+                      width: "20px",
+                      height: "20px",
+                      objectFit: "contain",
+                      marginBottom: "8px",
+                      marginLeft: "0px",
                     }}
                   />
                 </div>
               </>
             )}
-            {getUserDisplayName() && getUserDisplayName() !== 'Guest' ? (
+            {getUserDisplayName() && getUserDisplayName() !== "Guest" ? (
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
-                trigger={['click']}
+                trigger={["click"]}
               >
                 <div
                   className="menuLeft mx-2"
                   style={{
-                    cursor: 'pointer',
-                    fontFamily: 'Roboto',
+                    cursor: "pointer",
+                    fontFamily: "Roboto",
                     fontSize: 14,
-                    fontWeight: '400',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
+                    fontWeight: "400",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
                   }}
                 >
-                  <UserOutlined style={{ fontSize: '16px' }} />
+                  <UserOutlined style={{ fontSize: "16px" }} />
                   {getUserDisplayName()}
-                  <span style={{ fontSize: '12px' }}>▼</span>
+                  <span style={{ fontSize: "12px" }}>▼</span>
                 </div>
               </Dropdown>
             ) : (
               <div
                 className="menuLeft mx-2"
                 onClick={() => {
-                  localStorage.removeItem('isGuest');
-                  navigate('/login');
+                  localStorage.removeItem("isGuest");
+                  navigate("/login");
                 }}
                 style={{
-                  cursor: 'pointer',
-                  fontFamily: 'Roboto',
+                  cursor: "pointer",
+                  fontFamily: "Roboto",
                   fontSize: 14,
-                  fontWeight: '400',
+                  fontWeight: "400",
                 }}
               >
                 Sign up / Login
@@ -243,10 +250,10 @@ const Header = () => {
             <div
               className="menuLeft mx-1"
               style={{
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 gap: 10,
-                color: '#FAFAFA',
+                color: "#FAFAFA",
               }}
             >
               <Select
@@ -254,16 +261,16 @@ const Header = () => {
                 bordered={false}
                 style={{
                   width: 90,
-                  color: '#FAFAFA',
-                  backgroundColor: 'transparent',
-                  fontSize: '12px',
+                  color: "#FAFAFA",
+                  backgroundColor: "transparent",
+                  fontSize: "12px",
                   fontWeight: 700,
                 }}
                 dropdownStyle={{
-                  backgroundColor: 'white',
-                  boxShadow: 'none',
+                  backgroundColor: "white",
+                  boxShadow: "none",
                 }}
-                onChange={(value) => console.log('Selected:', value)}
+                onChange={(value) => console.log("Selected:", value)}
               >
                 <Option value="En">English</Option>
                 <Option value="Ar">Arabic</Option>

@@ -1,29 +1,44 @@
-import React, { useState } from 'react';
-import { Button, Modal, Input, Form, Dropdown, Menu } from 'antd';
-import { LeftOutlined, PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import React, { useState } from "react";
+import { Button, Modal, Input, Form, Dropdown, Menu } from "antd";
+import {
+  LeftOutlined,
+  PlusOutlined,
+  EllipsisOutlined,
+} from "@ant-design/icons";
 
 const initialCards = [
   {
     id: 1,
-    type: 'Visa',
-    last4: '8456',
+    type: "Visa",
+    last4: "8456",
     isDefault: true,
-    brandIcon: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png',
-    number: '4130 0000 0000 8456',
-    exp: '03/24',
-    cvv: '123',
-    name: 'Jane Doe',
+    brandIcon:
+      "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png",
+    number: "4130 0000 0000 8456",
+    exp: "03/24",
+    cvv: "123",
+    name: "Jane Doe",
   },
   {
     id: 2,
-    type: 'Mastercard',
-    last4: '8456',
+    type: "Mastercard",
+    last4: "8456",
     isDefault: false,
-    brandIcon: 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png',
-    number: '5100 0000 0000 8456',
-    exp: '04/25',
-    cvv: '456',
-    name: 'Jane Doe',
+    brandIcon:
+      "https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png",
+    number: "5100 0000 0000 8456",
+    exp: "04/25",
+    cvv: "456",
+    name: "Jane Doe",
   },
 ];
 
@@ -33,7 +48,7 @@ const Payments = () => {
   const [showDelete, setShowDelete] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState(null);
   const [form] = Form.useForm();
-  const [view, setView] = useState('list');
+  const [view, setView] = useState("list");
 
   const handleDelete = (id) => {
     setDeleteCardId(id);
@@ -41,7 +56,7 @@ const Payments = () => {
   };
 
   const confirmDelete = () => {
-    setCards(cards.filter(card => card.id !== deleteCardId));
+    setCards(cards.filter((card) => card.id !== deleteCardId));
     setShowDelete(false);
     setDeleteCardId(null);
   };
@@ -49,7 +64,7 @@ const Payments = () => {
   const handleAdd = () => {
     setEditCard(null);
     form.resetFields();
-    setView('add');
+    setView("add");
   };
 
   const handleEdit = (card) => {
@@ -60,108 +75,243 @@ const Payments = () => {
       cvv: card.cvv,
       name: card.name,
     });
-    setView('edit');
+    setView("edit");
   };
 
   const handleFormFinish = (values) => {
     if (editCard) {
-      setCards(cards.map(card => card.id === editCard.id ? { ...card, ...values } : card));
+      setCards(
+        cards.map((card) =>
+          card.id === editCard.id ? { ...card, ...values } : card
+        )
+      );
     } else {
       setCards([
         ...cards,
         {
           id: Date.now(),
-          type: values.number.startsWith('4') ? 'Visa' : 'Mastercard',
+          type: values.number.startsWith("4") ? "Visa" : "Mastercard",
           last4: values.number.slice(-4),
           isDefault: false,
-          brandIcon: values.number.startsWith('4')
-            ? 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png'
-            : 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png',
+          brandIcon: values.number.startsWith("4")
+            ? "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
+            : "https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png",
           ...values,
         },
       ]);
     }
-    setView('list');
+    setView("list");
     setEditCard(null);
     form.resetFields();
   };
 
   const CardMenu = (card) => (
     <Menu>
-      <Menu.Item key="edit" onClick={() => handleEdit(card)}>Edit</Menu.Item>
-      <Menu.Item key="delete" onClick={() => handleDelete(card.id)} style={{ color: '#f5222d' }}>Delete Card</Menu.Item>
+      <Menu.Item key="edit" onClick={() => handleEdit(card)}>
+        Edit
+      </Menu.Item>
+      <Menu.Item
+        key="delete"
+        onClick={() => handleDelete(card.id)}
+        style={{ color: "#f5222d" }}
+      >
+        Delete Card
+      </Menu.Item>
     </Menu>
   );
 
   return (
-    <div style={{ maxWidth: 420, margin: '0', background: '#fff', borderRadius: 12, padding: 24 }}>
-      <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 24 }}>Payments</div>
-      {view === 'list' && (
+    <div
+      style={{
+        maxWidth: 420,
+        margin: "0",
+        background: "#fff",
+        borderRadius: 12,
+        padding: 24,
+      }}
+    >
+      <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 24 }}>
+        Payments
+      </div>
+      {view === "list" && (
         <>
-          <div style={{ fontWeight: 600, marginBottom: 8 }}><span style={{ marginRight: 8 }}>🪪</span>Default Card</div>
-          <div style={{ borderBottom: '1px solid #eee', marginBottom: 12 }} />
-          {cards.map(card => (
-            <div key={card.id} style={{ display: 'flex', alignItems: 'center', background: card.isDefault ? '#fafcff' : '#fff', borderRadius: 8, padding: 12, marginBottom: 10, position: 'relative' }}>
-              <img src={card.brandIcon} alt={card.type} style={{ width: 38, height: 24, objectFit: 'contain', marginRight: 12 }} />
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>
+            <span style={{ marginRight: 8 }}>🪪</span>Default Card
+          </div>
+          <div style={{ borderBottom: "1px solid #eee", marginBottom: 12 }} />
+          {cards.map((card) => (
+            <div
+              key={card.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: card.isDefault ? "#fafcff" : "#fff",
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 10,
+                position: "relative",
+              }}
+            >
+              <img
+                src={card.brandIcon}
+                alt={card.type}
+                style={{
+                  width: 38,
+                  height: 24,
+                  objectFit: "contain",
+                  marginRight: 12,
+                }}
+              />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>{card.type} <span style={{ color: '#888', fontWeight: 400 }}> *{card.last4}</span></div>
+                <div style={{ fontWeight: 600 }}>
+                  {card.type}{" "}
+                  <span style={{ color: "#888", fontWeight: 400 }}>
+                    {" "}
+                    *{card.last4}
+                  </span>
+                </div>
               </div>
-              <Dropdown overlay={CardMenu(card)} trigger={['click']} placement="bottomRight">
-                <Button type="text" icon={<EllipsisOutlined />} style={{ fontSize: 20 }} />
+              <Dropdown
+                overlay={CardMenu(card)}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  icon={<EllipsisOutlined />}
+                  style={{ fontSize: 20 }}
+                />
               </Dropdown>
             </div>
           ))}
-          <Button type="primary" icon={<PlusOutlined />} style={{ width: '100%', borderRadius: 24, marginTop: 16 }} onClick={handleAdd}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{ width: "100%", borderRadius: 24, marginTop: 16 }}
+            onClick={handleAdd}
+          >
             Add new Card
           </Button>
         </>
       )}
-      {(view === 'add' || view === 'edit') && (
+      {(view === "add" || view === "edit") && (
         <>
-          <Button type="text" icon={<LeftOutlined />} style={{ marginBottom: 16 }} onClick={() => { setView('list'); setEditCard(null); }} />
-          <div style={{ fontWeight: 600, color: '#1890ff', marginBottom: 16 }}>Card details</div>
-          <Form form={form} layout="vertical" onFinish={handleFormFinish} initialValues={{ number: '', exp: '', cvv: '', name: '' }}>
-            <Form.Item name="number" label="Card Number" rules={[{ required: true, message: 'Please enter card number' }]}
-              normalize={val => val.replace(/[^0-9 ]/g, '').replace(/(\d{4})/g, '$1 ').trim()}
+          <Button
+            type="text"
+            icon={<LeftOutlined />}
+            style={{ marginBottom: 16 }}
+            onClick={() => {
+              setView("list");
+              setEditCard(null);
+            }}
+          />
+          <div style={{ fontWeight: 600, color: "#1890ff", marginBottom: 16 }}>
+            Card details
+          </div>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleFormFinish}
+            initialValues={{ number: "", exp: "", cvv: "", name: "" }}
+          >
+            <Form.Item
+              name="number"
+              label="Card Number"
+              rules={[{ required: true, message: "Please enter card number" }]}
+              normalize={(val) =>
+                val
+                  .replace(/[^0-9 ]/g, "")
+                  .replace(/(\d{4})/g, "$1 ")
+                  .trim()
+              }
             >
-              <Input suffix={
-                <img
-                  src={form.getFieldValue('number')?.startsWith('4')
-                    ? 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png'
-                    : form.getFieldValue('number')?.startsWith('5')
-                    ? 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png'
-                    : undefined}
-                  alt="brand"
-                  style={{ width: 32, height: 20, objectFit: 'contain' }}
-                />
-              } placeholder="Card Number" maxLength={19} />
+              <Input
+                suffix={
+                  <img
+                    src={
+                      form.getFieldValue("number")?.startsWith("4")
+                        ? "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
+                        : form.getFieldValue("number")?.startsWith("5")
+                        ? "https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
+                        : undefined
+                    }
+                    alt="brand"
+                    style={{ width: 32, height: 20, objectFit: "contain" }}
+                  />
+                }
+                placeholder="Card Number"
+                maxLength={19}
+              />
             </Form.Item>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <Form.Item name="exp" label="Exp Date" rules={[{ required: true, message: 'Enter exp date' }]} style={{ flex: 1 }}>
+            <div style={{ display: "flex", gap: 12 }}>
+              <Form.Item
+                name="exp"
+                label="Exp Date"
+                rules={[{ required: true, message: "Enter exp date" }]}
+                style={{ flex: 1 }}
+              >
                 <Input placeholder="MM/YY" maxLength={5} />
               </Form.Item>
-              <Form.Item name="cvv" label="CVV" rules={[{ required: true, message: 'Enter CVV' }]} style={{ flex: 1 }}>
+              <Form.Item
+                name="cvv"
+                label="CVV"
+                rules={[{ required: true, message: "Enter CVV" }]}
+                style={{ flex: 1 }}
+              >
                 <Input placeholder="CVV" maxLength={4} />
               </Form.Item>
             </div>
-            <Form.Item name="name" label="Name On The Card" rules={[{ required: true, message: 'Enter name' }]}> 
+            <Form.Item
+              name="name"
+              label="Name On The Card"
+              rules={[{ required: true, message: "Enter name" }]}
+            >
               <Input placeholder="Name On The Card" />
             </Form.Item>
-            <Button type="primary" htmlType="submit" style={{ width: '100%', borderRadius: 24, marginTop: 8 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ width: "100%", borderRadius: 24, marginTop: 8 }}
+            >
               Add new Card
             </Button>
           </Form>
         </>
       )}
-      <Modal open={showDelete} onCancel={() => setShowDelete(false)} footer={null} centered>
-        <div style={{ fontWeight: 600, fontSize: 20, textAlign: 'center', marginBottom: 24 }}>Are You Sure You Want To Delete This Card</div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-          <Button onClick={() => setShowDelete(false)} style={{ width: 100, borderRadius: 24 }}>No</Button>
-          <Button type="primary" style={{ width: 100, borderRadius: 24 }} onClick={confirmDelete}>Yes</Button>
+      <Modal
+        open={showDelete}
+        onCancel={() => setShowDelete(false)}
+        footer={null}
+        centered
+      >
+        <div
+          style={{
+            fontWeight: 600,
+            fontSize: 20,
+            textAlign: "center",
+            marginBottom: 24,
+          }}
+        >
+          Are You Sure You Want To Delete This Card
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+          <Button
+            onClick={() => setShowDelete(false)}
+            style={{ width: 100, borderRadius: 24 }}
+          >
+            No
+          </Button>
+          <Button
+            type="primary"
+            style={{ width: 100, borderRadius: 24 }}
+            onClick={confirmDelete}
+          >
+            Yes
+          </Button>
         </div>
       </Modal>
     </div>
   );
 };
 
-export default Payments; 
+export default Payments;

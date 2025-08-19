@@ -1,19 +1,28 @@
-import { useParams } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { message } from 'antd';
-import { FaGlobe, FaMapMarkerAlt, FaRegHeart } from 'react-icons/fa';
-import redcar_icon from '../assets/images/redcar_icon.jpg';
-import { TbManualGearbox } from 'react-icons/tb';
-import { userAPI } from '../services/api';
-import { CheckCircleFilled } from '@ant-design/icons';
-import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
+
+import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { message } from "antd";
+import { FaGlobe, FaMapMarkerAlt, FaRegHeart } from "react-icons/fa";
+import redcar_icon from "../assets/images/redcar_icon.jpg";
+import { TbManualGearbox } from "react-icons/tb";
+import { userAPI } from "../services/api";
+import { CheckCircleFilled } from "@ant-design/icons";
+import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 
 const MyFavoritesCars = () => {
   const [carsData, setCarsData] = useState([]);
   const [setLoading] = useState(false);
   const [page] = useState(1);
-  const [limit] = useState(15); 
-  
+  const [limit] = useState(15);
+
   useEffect(() => {
     Allcarsapi();
   }, []);
@@ -26,14 +35,14 @@ const MyFavoritesCars = () => {
         limit,
       });
       const newcars = handleApiResponse(response);
-     
+
       if (newcars?.favorites) {
         setCarsData(newcars.favorites);
       }
-      message.success(newcars.message || 'Fetched successfully');
+      message.success(newcars.message || "Fetched successfully");
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to load car data');
+      message.error(errorData.message || "Failed to load car data");
       setCarsData([]);
     } finally {
       setLoading(false);
@@ -41,23 +50,22 @@ const MyFavoritesCars = () => {
   };
 
   const Deletecarapi = async (carId) => {
-    
     try {
       setLoading(true);
 
-      const response = await userAPI.removeFavorite(carId); 
+      const response = await userAPI.removeFavorite(carId);
       const data = handleApiResponse(response);
 
       if (data.success) {
-        message.success(data.message || 'Removed from favorites');
-        await Allcarsapi(); 
+        message.success(data.message || "Removed from favorites");
+        await Allcarsapi();
       } else {
-        message.error(data.message || 'Something went wrong');
+        message.error(data.message || "Something went wrong");
       }
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(
-        errorData.message || 'Failed to remove car from favorites.'
+        errorData.message || "Failed to remove car from favorites."
       );
     } finally {
       setLoading(false);
@@ -75,8 +83,8 @@ const MyFavoritesCars = () => {
             <div className="allcars-listing-card">
               <div className="car-listing-image-wrapper">
                 <img
-                  src={car.image_url || redcar_icon} 
-                  alt={car.ad_title || 'Car Image'}
+                  src={car.image_url || redcar_icon}
+                  alt={car.ad_title || "Car Image"}
                   className="car-listing-image"
                 />
                 <div className="car-listing-badges">
@@ -92,10 +100,10 @@ const MyFavoritesCars = () => {
                 <button
                   className="car-listing-fav"
                   style={{
-                    backgroundColor: '#008ad5',
-                    color: '#ffffff',
-                    border: 'none',
-                    cursor: 'pointer',
+                    backgroundColor: "#008ad5",
+                    color: "#ffffff",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                   onClick={() => Deletecarapi(car.id)}
                 >
@@ -105,10 +113,10 @@ const MyFavoritesCars = () => {
               <div className="car-listing-content">
                 <div className="d-flex">
                   <div className="car-listing-title">
-                    {car.year + ' ' + car.make + ' ' + car.model ||
-                      'No Title Available'}
+                    {car.year + " " + car.make + " " + car.model ||
+                      "No Title Available"}
                   </div>
-                  <div className="car-listing-price">{'$' + car.price}</div>
+                  <div className="car-listing-price">{"$" + car.price}</div>
                 </div>
                 <div className="car-listing-engine">{car.fuel_type}</div>
                 <div className="car-listing-details row">
@@ -119,7 +127,7 @@ const MyFavoritesCars = () => {
                   </div>
                   <div className="col-3">
                     <span>
-                      <FaGlobe /> {car.consumption || 'UAE'}
+                      <FaGlobe /> {car.consumption || "UAE"}
                     </span>
                   </div>
                   <div className="col-4">

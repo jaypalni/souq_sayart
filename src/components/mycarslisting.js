@@ -1,3 +1,12 @@
+
+/**
+ * Copyright (c) 2025 Palni
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying or distribution of this file,
+ * via any medium is strictly prohibited.
+ */
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/mycarslisting.css';
 import { Radio, Select, Button, Pagination, Tag } from 'antd';

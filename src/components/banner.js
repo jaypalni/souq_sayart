@@ -33,7 +33,7 @@ const Banner = () => {
             <h2
               style={{
                 margin: 0,
-                fontFamily: 700,
+                fontWeight: 700,
                 fontSize: 25,
                 fontFamily: 'Roboto',
               }}
@@ -44,7 +44,7 @@ const Banner = () => {
               style={{
                 margin: 0,
                 marginTop: 5,
-                fontFamily: 400,
+                fontWeight: 400,
                 fontSize: 12,
                 fontFamily: 'Roboto',
               }}

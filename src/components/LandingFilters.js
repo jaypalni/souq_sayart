@@ -28,7 +28,7 @@ const priceMaxOptions = ['Price Max', 20000, 30000, 40000, 50000, 100000];
 const LandingFilters = ({ searchbodytype }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
   const [make, setMake] = useState('All');
   const [carMakes, setCarMakes] = useState([]);
   const [model, setModel] = useState('All Models');

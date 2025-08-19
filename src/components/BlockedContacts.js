@@ -15,7 +15,7 @@ const blockedContactsData = [
   {
     id: 1,
     avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    name: 'Moe',
+    name:'Moe',
     verified: true,
   },
   {
@@ -55,10 +55,10 @@ const BlockedContacts = () => {
   const [contacts, setContacts] = useState(blockedContactsData);
   const [unblockLoading, setUnblockLoading] = useState(null);
 
-  const handleUnblock = (id) => {
+  const handleUnblock = id => {
     setUnblockLoading(id);
     setTimeout(() => {
-      setContacts(contacts.filter((contact) => contact.id !== id));
+      setContacts(contacts.filter(contact => contact.id !== id));
       setUnblockLoading(null);
     }, 500);
   };
@@ -71,7 +71,7 @@ const BlockedContacts = () => {
     <div className="blocked-contacts-main">
       <div className="blocked-contacts-header">Blocked Contacts</div>
       <div className="blocked-contacts-list">
-        {contacts.map((contact) => (
+        {contacts.map(contact => (
           <div className="blocked-contact-item" key={contact.id}>
             <img
               src={contact.avatar}

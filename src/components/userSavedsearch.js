@@ -25,7 +25,6 @@ const UserSavedsearch = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [ contextHolder] = message.useMessage();
 
   const tokendata = localStorage.getItem('token');
   const isLoggedIn = !!tokendata;
@@ -53,7 +52,6 @@ const UserSavedsearch = () => {
 
   return (
     <div className="user-saved-searches-wrapper">
-      {contextHolder}
       <div className="Search-header">
         <h1
           style={{

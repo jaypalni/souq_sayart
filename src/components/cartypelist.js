@@ -52,7 +52,7 @@ const Arrow = (props) => {
 };
 
 const CarTypeList = () => {
-  const [setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [setCarSearch] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);

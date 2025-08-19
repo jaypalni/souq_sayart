@@ -6,7 +6,6 @@
  * Unauthorized copying or distribution of this file,
  * via any medium is strictly prohibited.
  */
-
 import { useEffect, useState } from 'react';
 import CarTypeList from '../components/cartypelist';
 import LandingFilters from '../components/LandingFilters';
@@ -19,7 +18,7 @@ import { message } from 'antd';
 import SavedSearches from '../components/userSavedsearch';
 
 const Landing = () => {
-  const [setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
   const [carsData, setCarsData] = useState([]);
   const [carsRecomData, setCarsRecomData] = useState([]);
   const [searchbodytype, setSearchBodyType] = useState();

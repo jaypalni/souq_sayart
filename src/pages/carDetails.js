@@ -24,6 +24,8 @@ import { handleApiResponse, handleApiError } from "../utils/apiUtils";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CarListing from "../components/carListing";
+import { FaChevronUp, FaChevronDown, FaCheckCircle } from "react-icons/fa";
+
 const { Panel } = Collapse;
 
 const CarDetails = () => {
@@ -115,6 +117,8 @@ const CarDetails = () => {
     { label: "Door Count", value: carDetails.number_of_doors || "-" },
     { label: "Number of seats", value: carDetails.number_of_seats || "-" },
     { label: "Version", value: carDetails.trim || "-" },
+    { label: "Exterior Color", value: carDetails.exterior_color || "-" },
+     { label: "Interior Color", value: carDetails.interior_color || "-" },
   ];
 
   const additionalDetails = [
@@ -123,6 +127,8 @@ const CarDetails = () => {
     { label: "Consumption", value: carDetails.consumption || "-" },
     { label: "Transmission", value: carDetails.transmission_type || "-" },
     { label: "Drive Type", value: carDetails.drive_type || "-" },
+    { label: "Vehicle Type", value: carDetails.vechile_type || "-" },
+    { label: "Horse Power", value: carDetails.horse_power || "-" },
   ];
 
   return (
@@ -307,47 +313,50 @@ const CarDetails = () => {
           </div>
 
           <div>
-            <div className="car-details-features-section">
-              <div className="car-details-features-h1">
-                <span>Features - {carDetails.ad_title}</span>
-              </div>
-              {/* {
-                <div className="border-bottom">
-                  <div className="car-details-features-header collapsed">
-                    <span
-                      style={{
-                        fontWeight: 500,
-                        fontSize: "14px",
-                      }}
-                    >
-                      Safety Features
-                    </span>
-                    <span
-                      onClick={() => setOpenSafety(!openSafety)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {openSafety ? <FaChevronUp /> : <FaChevronDown />}
-                    </span>
-                  </div>
-                  {openSafety && (
-                    <div className="row mb-2 mt-2">
-                      {safetyFeatures.map((f, idx) => (
-                        <div className="col-md-3 col-6 mb-2" key={idx}>
-                          <span className="car-details-feature-item">
-                            <FaCheckCircle
-                              color="#4fc3f7"
-                              style={{ marginRight: 6 }}
-                            />
-                            {f}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+  <div className="car-details-features-section">
+    <div className="car-details-features-h1">
+      <span>Features - {carDetails.ad_title}</span>
+    </div>
+    <div className="border-bottom">
+      <div className="car-details-features-header collapsed">
+        <span
+          style={{
+            fontWeight: 500,
+            fontSize: "14px",
+          }}
+        >
+          Extra Features
+        </span>
+        <span
+          onClick={() => setOpenSafety(!openSafety)}
+          style={{ cursor: "pointer" }}
+        >
+          {openSafety ? <FaChevronUp /> : <FaChevronDown />}
+        </span>
+      </div>
+
+      {openSafety && (
+        <div className="row mb-2 mt-2">
+          {carDetails.extra_features &&
+            carDetails.extra_features
+              .split(",") // split by comma
+              .map((feature, idx) => (
+                <div className="col-md-3 col-6 mb-2" key={idx}>
+                  <span className="car-details-feature-item">
+                    <FaCheckCircle
+                      color="#4fc3f7"
+                      style={{ marginRight: 6 }}
+                    />
+                    {feature.trim()} {/* remove extra spaces */}
+                  </span>
                 </div>
-              } */}
-            </div>
-          </div>
+              ))}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
         </div>
         {/* Right: Seller Info */}
         <div className="col-md-4">

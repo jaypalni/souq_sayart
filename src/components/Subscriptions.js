@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Tabs, Modal, Input, Radio } from "antd";
+import { Button, Modal, Input, Radio } from 'antd';
 import SubscriptionCard from './SubscriptionCard';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { message } from "antd";
-import { useNavigate } from "react-router-dom";
-import { userAPI } from "../services/api";
+import { handleApiError } from '../utils/apiUtils';
+import { message } from 'antd';
+import { userAPI } from '../services/api';
 
 
 const plansData = {
@@ -105,53 +104,41 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
 );
 
 const Subscriptions = () => {
-  const [activeTab, setActiveTab] = useState("Individual");
+  const [activeTab, setActiveTab] = useState('Individual');
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [cancelStep, setCancelStep] = useState(null); // null | 'number' | 'otp' | 'done' | 'confirm'
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [cancelStep, setCancelStep] = useState(null); 
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(60);
-  const [loading, setLoading] = useState(false); // loading spinner
-
-  const [value, setValue] = useState("Individual");
-
-  
-
-  const handleChange = (e) => {
-    setActiveTab(e.target.value);
-  };
 
   const [newplansData, setNewPlansData] = useState(plansData);
 
 
-
-  // OTP timer effect
   React.useEffect(() => {
     let timer;
-    if (cancelStep === "otp" && otpTimer > 0) {
+    if (cancelStep === 'otp' && otpTimer > 0) {
       timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
     }
     return () => clearTimeout(timer);
   }, [cancelStep, otpTimer]);
 
-  const plans = newplansData[activeTab]; // ✅ uses fetched plans
+  const plans = newplansData[activeTab]; 
 
-  // Modal content for cancel flow
   const renderCancelModal = () => {
-    if (cancelStep === "confirm") {
+    if (cancelStep === 'confirm') {
       return (
         <>
           <div
             style={{
               fontWeight: 600,
               fontSize: 18,
-              textAlign: "center",
+              textAlign: 'center',
               marginBottom: 24,
             }}
           >
             Are You Sure You Want To Cancel This Subscription?
           </div>
-          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
             <Button onClick={() => setCancelStep(null)} style={{ width: 100 }}>
               No
             </Button>
@@ -159,7 +146,7 @@ const Subscriptions = () => {
               type="primary"
               danger
               style={{ width: 100 }}
-              onClick={() => setCancelStep("number")}
+              onClick={() => setCancelStep('number')}
             >
               Yes
             </Button>
@@ -167,20 +154,20 @@ const Subscriptions = () => {
         </>
       );
     }
-    if (cancelStep === "number") {
+    if (cancelStep === 'number') {
       return (
         <>
           <div
             style={{
               fontWeight: 600,
               fontSize: 18,
-              textAlign: "center",
+              textAlign: 'center',
               marginBottom: 12,
             }}
           >
             Enter Number To Cancel Subscriptions
           </div>
-          <div style={{ fontSize: 14, textAlign: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
             Enter Your New Phone Number to change
           </div>
           <Input
@@ -188,39 +175,39 @@ const Subscriptions = () => {
             placeholder="71 000 000"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            style={{ marginBottom: 16, width: "100%" }}
+            style={{ marginBottom: 16, width: '100%' }}
             maxLength={8}
           />
           <Button
             type="primary"
-            style={{ width: "100%" }}
-            onClick={() => setCancelStep("otp")}
+            style={{ width: '100%' }}
+            onClick={() => setCancelStep('otp')}
           >
             Continue
           </Button>
         </>
       );
     }
-    if (cancelStep === "otp") {
+    if (cancelStep === 'otp') {
       return (
         <>
           <div
             style={{
               fontWeight: 600,
               fontSize: 18,
-              textAlign: "center",
+              textAlign: 'center',
               marginBottom: 12,
             }}
           >
             Enter OTP Sent To Cancel Subscriptions
           </div>
-          <div style={{ fontSize: 14, textAlign: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
             Enter Your New Phone Number to change
           </div>
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
+              display: 'flex',
+              justifyContent: 'center',
               gap: 8,
               marginBottom: 12,
             }}
@@ -230,11 +217,10 @@ const Subscriptions = () => {
                 key={idx}
                 value={digit}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "").slice(0, 1);
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 1);
                   const newOtp = [...otp];
                   newOtp[idx] = val;
                   setOtp(newOtp);
-                  // Move to next input
                   if (val && idx < 3) {
                     document.getElementById(`otp-input-${idx + 1}`).focus();
                   }
@@ -243,7 +229,7 @@ const Subscriptions = () => {
                 style={{
                   width: 40,
                   height: 40,
-                  textAlign: "center",
+                  textAlign: 'center',
                   fontSize: 20,
                 }}
                 maxLength={1}
@@ -251,28 +237,28 @@ const Subscriptions = () => {
             ))}
           </div>
           <div
-            style={{ textAlign: "center", marginBottom: 16, color: "#039be5" }}
+            style={{ textAlign: 'center', marginBottom: 16, color: '#039be5' }}
           >
             Resend in {otpTimer}s
           </div>
           <Button
             type="primary"
-            style={{ width: "100%" }}
-            onClick={() => setCancelStep("done")}
+            style={{ width: '100%' }}
+            onClick={() => setCancelStep('done')}
           >
             Continue
           </Button>
         </>
       );
     }
-    if (cancelStep === "done") {
+    if (cancelStep === 'done') {
       return (
         <>
           <div
             style={{
               fontWeight: 600,
               fontSize: 20,
-              textAlign: "center",
+              textAlign: 'center',
               marginBottom: 24,
             }}
           >
@@ -280,7 +266,7 @@ const Subscriptions = () => {
           </div>
           <Button
             type="primary"
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             onClick={() => {
               setCancelStep(null);
               setSelectedPlan(null);
@@ -293,8 +279,6 @@ const Subscriptions = () => {
     }
     return null;
   };
-
-  // API CALL
 
  useEffect(() => {
    const fetchPlans = async () => {
@@ -312,23 +296,23 @@ const Subscriptions = () => {
              price: parseFloat(item.price),
              duration: `${item.duration_days} Days`,
              features: [
-               `Price Model: Per Car`,
+               'Price Model: Per Car',
                `${item.listing_limit} Posts Allowed`,
                `${item.photo_limit || 10} Photos Allowed`,
              ],
              details: {
                price: `USD ${item.price}`,
-               priceModel: "Per Car",
+               priceModel: 'Per Car',
                postsAllowed: item.listing_limit,
                photosAllowed: item.photo_limit || 10,
-               videosAllowed: item.video_limit || "-",
+               videosAllowed: item.video_limit || '-',
                postDuration: `${item.duration_days} Days`,
-               featured: item.featured || "-",
-               banner: item.banner || "-",
-               analytics: item.analytics || "-",
-               additionalCar: item.additional_car || "-",
-               emailNewsletter: item.email_newsletter || "-",
-               sponsoredContent: item.sponsored_content || "-",
+               featured: item.featured || '-',
+               banner: item.banner || '-',
+               analytics: item.analytics || '-',
+               additionalCar: item.additional_car || '-',
+               emailNewsletter: item.email_newsletter || '-',
+               sponsoredContent: item.sponsored_content || '-',
              },
              highlight: item.highlight || false,
              current: item.current || false,
@@ -339,10 +323,10 @@ const Subscriptions = () => {
            Dealer: mapPlanData(dealer_packages),
          });
        } else {
-         message.error("Failed to fetch plans.");
+         message.error('Failed to fetch plans.');
        }
      } catch (error) {
-       console.error("Error fetching plans:", error);
+       console.error('Error fetching plans:', error);
        handleApiError(error);
      }
    };
@@ -357,7 +341,7 @@ const Subscriptions = () => {
           <div className="subscriptions-header">Subcriptions</div>
           <div
             className="subscriptions-desc"
-            style={{ fontSize: 16, fontWeight: 400, color: "#0A0A0B" }}
+            style={{ fontSize: 16, fontWeight: 400, color: '#0A0A0B' }}
           >
             Lorem ipsum dolor sit amet consectetur. Leo vitae tellus turpis
             adipiscing in. Eget in vehicula ut egestas risus sit lacus. Sit et
@@ -366,27 +350,27 @@ const Subscriptions = () => {
           <div style={{ marginBottom: 16, marginLeft: 24 }}>
             <Radio.Group
               onChange={(e) => setActiveTab(e.target.value)}
-              value={activeTab} // activeTab controls selected radio
+              value={activeTab} 
               style={{
-                display: "flex", // buttons side by side
-                gap: "1px", // spacing
+                display: 'flex', 
+                gap: '1px', 
               }}
             >
               <Radio.Button
                 value="Individual"
                 className="custom-radio-button"
                 style={{
-                  width: "10%",
-                  textAlign: "center",
-                  marginRight: "10px",
-                  borderRadius: "4px",
-                  color: activeTab === "Individual" ? "#D67900" : "#000",
-                  fontSize: activeTab === "Individual" ? "14px" : "14px", // You can simplify this, both are 14px
-                  fontWeight: activeTab === "Individual" ? "700" : "400",
+                  width: '10%',
+                  textAlign: 'center',
+                  marginRight: '10px',
+                  borderRadius: '4px',
+                  color: activeTab === 'Individual' ? '#D67900' : '#000',
+                  fontSize: activeTab === 'Individual' ? '14px' : '14px', 
+                  fontWeight: activeTab === 'Individual' ? '700' : '400',
                   borderColor:
-                    activeTab === "Individual" ? "#FFEDD5" : "#ffffff",
+                    activeTab === 'Individual' ? '#FFEDD5' : '#ffffff',
                   backgroundColor:
-                    activeTab === "Individual" ? "#FFEDD5" : undefined,
+                    activeTab === 'Individual' ? '#FFEDD5' : undefined,
                 }}
               >
                 Individual
@@ -396,16 +380,16 @@ const Subscriptions = () => {
                 value="Dealer"
                 className="custom-radio-button"
                 style={{
-                  width: "7%",
-                  textAlign: "center",
-                  borderRadius: "4px",
-                  color: activeTab === "Dealer" ? "#D67900" : "#000",
-                  fontSize: "14px",
-                  fontWeight: activeTab === "Dealer" ? "700" : "400",
-                  borderLeft: "1px solid #D67900",
-                  borderColor: activeTab === "Dealer" ? "#FFEDD5" : "#ffffff",
+                  width: '7%',
+                  textAlign: 'center',
+                  borderRadius: '4px',
+                  color: activeTab === 'Dealer' ? '#D67900' : '#000',
+                  fontSize: '14px',
+                  fontWeight: activeTab === 'Dealer' ? '700' : '400',
+                  borderLeft: '1px solid #D67900',
+                  borderColor: activeTab === 'Dealer' ? '#FFEDD5' : '#ffffff',
                   backgroundColor:
-                    activeTab === "Dealer" ? "#FFEDD5" : undefined,
+                    activeTab === 'Dealer' ? '#FFEDD5' : undefined,
                 }}
               >
                 Dealer
@@ -414,7 +398,7 @@ const Subscriptions = () => {
           </div>
           <div
             className="subscriptions-list"
-            style={{ display: "flex", gap: 24, marginTop: 24 }}
+            style={{ display: 'flex', gap: 24, marginTop: 24 }}
           >
             {plans.length === 0 ? (
               <EmptyState />
@@ -422,7 +406,7 @@ const Subscriptions = () => {
               plans.map((plan) => (
                 <div
                   key={plan.id}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => setSelectedPlan(plan)}
                 >
                   <SubscriptionCard {...plan} />
@@ -436,7 +420,7 @@ const Subscriptions = () => {
           plan={selectedPlan}
           isCurrent={selectedPlan.current}
           onBack={() => setSelectedPlan(null)}
-          onCancel={() => setCancelStep("confirm")}
+          onCancel={() => setCancelStep('confirm')}
         />
       )}
       <Modal

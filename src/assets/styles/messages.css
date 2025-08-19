@@ -32,7 +32,6 @@
   margin-right: 340px;
 }
 
-/* Chat List Styles */
 .chat-list {
   flex: 1;
   overflow-y: auto;
@@ -114,7 +113,6 @@
   font-size: 20px;
 }
 
-/* Chat View Styles */
 .chat-view {
   display: flex;
   flex-direction: column;
@@ -232,7 +230,6 @@
   justify-content: center;
 }
 
-/* Tabs Customization */
 .messages-sidebar .ant-tabs {
   padding: 0 12px;
 }
@@ -306,7 +303,6 @@
   flex-direction: column;
   justify-content: flex-start;
   overflow-y: auto;
-  /* position: relative; */
   animation: none;
 }
 

@@ -29,7 +29,6 @@ const initialCards = [
 
 const Payments = () => {
   const [cards, setCards] = useState(initialCards);
-  const [showAddEdit, setShowAddEdit] = useState(false);
   const [editCard, setEditCard] = useState(null);
   const [showDelete, setShowDelete] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState(null);
@@ -107,7 +106,7 @@ const Payments = () => {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600 }}>{card.type} <span style={{ color: '#888', fontWeight: 400 }}> *{card.last4}</span></div>
               </div>
-              <Dropdown overlay={CardMenu(card)} trigger={["click"]} placement="bottomRight">
+              <Dropdown overlay={CardMenu(card)} trigger={['click']} placement="bottomRight">
                 <Button type="text" icon={<EllipsisOutlined />} style={{ fontSize: 20 }} />
               </Dropdown>
             </div>

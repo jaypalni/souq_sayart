@@ -1,4 +1,4 @@
-// API Response Handler
+
 export const handleApiResponse = (response) => {
   if (response && response.data) {
     return response.data;
@@ -6,10 +6,9 @@ export const handleApiResponse = (response) => {
   return null;
 };
 
-// API Error Handler
 export const handleApiError = (error) => {
   if (error.response) {
-    // Server responded with error
+
     const { status, data } = error.response;
     return {
       status,
@@ -17,14 +16,13 @@ export const handleApiError = (error) => {
       errors: data.errors || [],
     };
   } else if (error.request) {
-    // Request made but no response
+ 
     return {
       status: 0,
       message: 'No response from server',
       errors: [],
     };
   } else {
-    // Request setup error
     return {
       status: 0,
       message: error.message || 'Request failed',
@@ -33,7 +31,6 @@ export const handleApiError = (error) => {
   }
 };
 
-// Form Data Helper
 export const createFormData = (data) => {
   const formData = new FormData();
   Object.keys(data).forEach(key => {
@@ -44,7 +41,7 @@ export const createFormData = (data) => {
   return formData;
 };
 
-// Query String Helper
+
 export const createQueryString = (params) => {
   const queryParams = new URLSearchParams();
   Object.keys(params).forEach(key => {

@@ -1,36 +1,32 @@
-import axios from "axios";
-import API_CONFIG from "../config/api.config";
+import axios from 'axios';
+import API_CONFIG from '../config/api.config';
 
-// Validate base URL
 if (!API_CONFIG.BASE_URL) {
   throw new Error(
-    "API base URL is not configured. Please set REACT_APP_API_URL in your .env file"
+    'API base URL is not configured. Please set REACT_APP_API_URL in your .env file'
   );
 }
 
-// Create axios instance with default config
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   headers: {
-    "Content-Type": "application/json",
-    //"Content-Type": "multipart/form-data",
+    'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000, 
 });
 
-// Create public axios instance for non-authenticated endpoints
 const publicApi = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000,
 });
 
-// Add request interceptor to add auth token
+
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -41,47 +37,30 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle common errors
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
+     
       switch (error.response.status) {
-        // case 401:
-        //   // Handle unauthorized access
-        //   localStorage.removeItem("token");
-        //   //alert("401");
-        //   window.location.href = "/login";
-        //   break;
+       
         case 403:
-          // Handle forbidden access
-          console.error("Access forbidden");
           break;
         case 404:
-          // Handle not found
-          console.error("Resource not found");
           break;
         case 500:
-          // Handle server error
-          console.error("Server error");
           break;
         default:
-          console.error("API error:", error.response.data);
       }
     } else if (error.request) {
-      // The request was made but no response was received
-      console.error("No response received:", error.request);
     } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error("Request error:", error.message);
     }
     return Promise.reject(error);
   }
 );
 
-// Auth APIs
+
 export const authAPI = {
   login: (credentials) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials),
@@ -101,7 +80,7 @@ export const authAPI = {
   uploadimages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }),
 
@@ -109,7 +88,6 @@ export const authAPI = {
     api.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
 };
 
-// Car APIs
 export const carAPI = {
   getAllCars: (params) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_ALL, { params }),
@@ -127,7 +105,7 @@ export const carAPI = {
   uploadImages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.UPLOAD_IMAGES, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }),
   getCarOptions: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_OPTIONS),
@@ -150,7 +128,6 @@ export const carAPI = {
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
 };
 
-// User APIs
 export const userAPI = {
   getProfile: () => api.get(API_CONFIG.ENDPOINTS.USER.PROFILE),
   updateProfile: (data) =>

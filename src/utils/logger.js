@@ -1,4 +1,4 @@
-// Logger utility that only logs in development mode
+
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 export const logger = {

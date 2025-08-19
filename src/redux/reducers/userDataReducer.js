@@ -1,4 +1,3 @@
-// Load persisted data from localStorage if available
 const persistedUserData = localStorage.getItem('userData')
   ? JSON.parse(localStorage.getItem('userData'))
   : { isLogin: false };

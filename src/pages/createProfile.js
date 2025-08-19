@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Form,
   Input,
@@ -12,55 +12,50 @@ import {
   Switch,
   Upload,
   Modal,
-} from "antd";
-import { PlusCircleFilled, UserOutlined } from "@ant-design/icons";
-import moment from "moment";
-import { authAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { registerUser } from "../redux/actions/authActions";
-import whatsappIcon from "../assets/images/Whatsup.svg";
-import TermsAndconditions from "./termsAndconditions";
+} from 'antd';
+import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import { authAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { registerUser } from '../redux/actions/authActions';
+import whatsappIcon from '../assets/images/Whatsup.svg';
+import TermsAndconditions from './termsAndconditions';
 
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
   const dispatch = useDispatch();
-  const { customerDetailsLoading, customerDetailsError } = useSelector(
-    (state) => state.customerDetails
-  );
   const [isDealer, setIsDealer] = useState(false);
   const [form] = Form.useForm();
-  const [dobError, setDobError] = useState("");
+  const [dobError, setDobError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [checked, setChecked] = useState(false);
-  const [uploadedDocUrl, setUploadedDocUrl] = useState("");
+  const [uploadedDocUrl, setUploadedDocUrl] = useState('');
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [setIsChecked] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { customerDetails } = useSelector((state) => state.customerDetails);
-  const token = localStorage.getItem("token");
   const isLoggedIn = customerDetails?.first_name;
+
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/landing");
+      navigate('/landing');
     }
   }, []);
 
   useEffect(() => {
-    const accesstoken = localStorage.getItem("token");
+    const accesstoken = localStorage.getItem('token');
 
     if (
-      accesstoken == "undefined" ||
-      accesstoken === "" ||
+      accesstoken == 'undefined' ||
+      accesstoken === '' ||
       accesstoken === null
     ) {
-      navigate("/");
+      navigate('/');
     }
   });
 
@@ -79,8 +74,8 @@ const CreateProfile = () => {
       delete values.instagramProfile;
       delete values.uploadDocuments;
     }
-    setDobError("");
-    message.success("Form submitted successfully!");
+    setDobError('');
+    message.success('Form submitted successfully!');
   };
 
   const fileInputRef = useRef(null);
@@ -90,12 +85,12 @@ const CreateProfile = () => {
 
     if (!file) return;
 
-    const isPDF = file.type === "application/pdf";
+    const isPDF = file.type === 'application/pdf';
 
     if (!isPDF) {
       messageApi.open({
-        type: "error",
-        content: "Upload failed. Only .pdf documents are allowed.",
+        type: 'error',
+        content: 'Upload failed. Only .pdf documents are allowed.',
       });
       return;
     }
@@ -104,7 +99,7 @@ const CreateProfile = () => {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("attachment", file);
+      formData.append('attachment', file);
 
       const carResponse = await authAPI.uploadimages(formData);
       const userdoc = handleApiResponse(carResponse);
@@ -114,15 +109,15 @@ const CreateProfile = () => {
         setUploadedDocUrl(userdoc.attachment_url);
         form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
         messageApi.open({
-          type: "success",
+          type: 'success',
           content: userdoc.message,
         });
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      console.error("API error:", errorData);
+      console.error('API error:', errorData);
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: errorData.message,
       });
     } finally {
@@ -132,15 +127,15 @@ const CreateProfile = () => {
 
   const handleBeforeUpload = async (file) => {
     const isImage =
-      file.type === "image/png" ||
-      file.type === "image/jpeg" ||
-      file.type === "image/jpg";
+      file.type === 'image/png' ||
+      file.type === 'image/jpeg' ||
+      file.type === 'image/jpg';
 
     if (!isImage) {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content:
-          "Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.",
+          'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
       });
       return false;
     }
@@ -148,7 +143,7 @@ const CreateProfile = () => {
     const previewUrl = URL.createObjectURL(file);
     setImageUrl(previewUrl);
     const formData = new FormData();
-    formData.append("attachment", file);
+    formData.append('attachment', file);
 
     try {
       const response = await authAPI.uploadimages(formData);
@@ -157,74 +152,74 @@ const CreateProfile = () => {
       if (userdoc?.attachment_url) {
         setImageUrl(userdoc.attachment_url);
         messageApi.open({
-          type: "success",
+          type: 'success',
           content: userdoc.message,
         });
       } else {
-        message.error(userdoc.message || "Upload failed");
+        message.error(userdoc.message || 'Upload failed');
       }
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: errorData.message,
       });
-      console.error("Upload error:", errorData);
-      message.error("Upload failed due to network error");
+      console.error('Upload error:', errorData);
+      message.error('Upload failed due to network error');
     }
 
     return false;
   };
 
   const onFinishFailed = ({ errorFields }) => {
-    const dobErr = errorFields.find((f) => f.name[0] === "dob");
-    setDobError(dobErr ? dobErr.errors[0] : "");
+    const dobErr = errorFields.find((f) => f.name[0] === 'dob');
+    setDobError(dobErr ? dobErr.errors[0] : '');
   };
 
   const getInitials = () => {
-    const first = form.getFieldValue("firstName") || "";
-    const last = form.getFieldValue("lastName") || "";
-    return (first[0] || "").toUpperCase() + (last[0] || "").toUpperCase();
+    const first = form.getFieldValue('firstName') || '';
+    const last = form.getFieldValue('lastName') || '';
+    return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
   const onClickContinue = async () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
-      const formattedDOB = values.dob.format("YYYY-MM-DD");
-      const phoneNumber = localStorage.getItem("phone_number");
+      const formattedDOB = values.dob.format('YYYY-MM-DD');
+      const phoneNumber = localStorage.getItem('phone_number');
       const payload = {
         first_name: values.firstName,
         last_name: values.lastName,
         email: values.email,
         date_of_birth: formattedDOB,
-        user_type: values.isDealer ? "dealer" : "individual",
-        company_name: values.companyName || "",
-        owner_name: values.ownerName || "",
-        company_address: values.companyAddress || "",
-        company_phone_number: values.phoneNumber || "",
-        company_registration_number: values.companyCR || "",
-        facebook_page: values.facebookPage || "",
-        instagram_company_profile: values.instagramProfile || "",
-        profile_pic: imageUrl || "",
-        phone_number: phoneNumber || "",
+        user_type: values.isDealer ? 'dealer' : 'individual',
+        company_name: values.companyName || '',
+        owner_name: values.ownerName || '',
+        company_address: values.companyAddress || '',
+        company_phone_number: values.phoneNumber || '',
+        company_registration_number: values.companyCR || '',
+        facebook_page: values.facebookPage || '',
+        instagram_company_profile: values.instagramProfile || '',
+        profile_pic: imageUrl || '',
+        phone_number: phoneNumber || '',
         is_dealer: values.isDealer,
-        whatsapp: checked ? "1" : "0",
-        document: uploadedDocUrl || "",
+        whatsapp: checked ? '1' : '0',
+        document: uploadedDocUrl || '',
       };
 
       const result = await dispatch(registerUser(payload));
 
       if (result.success) {
         messageApi.open({
-          type: "success",
-          content: "Registration successful!",
+          type: 'success',
+          content: 'Registration successful!',
         });
-        navigate("/landing");
+        navigate('/landing');
       } else {
         messageApi.open({
-          type: "error",
-          content: result.error || "Registration failed",
+          type: 'error',
+          content: result.error || 'Registration failed',
         });
       }
     } catch (error) {
@@ -233,11 +228,11 @@ const CreateProfile = () => {
       } else {
         const errorData = handleApiError(error);
         messageApi.open({
-          type: "error",
+          type: 'error',
           content: errorData.message,
         });
         message.error(
-          errorData.message || "Registration failed. Please try again."
+          errorData.message || 'Registration failed. Please try again.'
         );
       }
     } finally {
@@ -249,19 +244,19 @@ const CreateProfile = () => {
     <div
       className="d-flex justify-content-center align-items-center"
       style={{
-        minHeight: "100vh",
-        padding: "16px",
+        minHeight: '100vh',
+        padding: '16px',
       }}
     >
       {contextHolder}
       <div
         className="bg-white p-4 rounded"
-        style={{ minWidth: 320, maxWidth: 480, width: "100%" }}
+        style={{ minWidth: 320, maxWidth: 480, width: '100%' }}
       >
         <Title
           level={3}
           style={{
-            textAlign: "center",
+            textAlign: 'center',
             marginBottom: 24,
             fontWeight: 700,
             fontSize: 20,
@@ -271,9 +266,9 @@ const CreateProfile = () => {
         </Title>
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             marginBottom: 24,
           }}
         >
@@ -282,18 +277,18 @@ const CreateProfile = () => {
               style={{
                 width: 90,
                 height: 90,
-                borderRadius: "50%",
-                background: "#e6f4ff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                borderRadius: '50%',
+                background: '#e6f4ff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 fontSize: 36,
-                color: "#1890ff",
-                position: "relative",
+                color: '#1890ff',
+                position: 'relative',
                 fontWeight: 700,
                 marginBottom: 8,
-                overflow: "hidden",
-                cursor: "pointer",
+                overflow: 'hidden',
+                cursor: 'pointer',
               }}
             >
               {imageUrl ? (
@@ -301,9 +296,9 @@ const CreateProfile = () => {
                   src={imageUrl}
                   alt="avatar"
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
                   }}
                 />
               ) : (
@@ -312,14 +307,14 @@ const CreateProfile = () => {
 
               <PlusCircleFilled
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   bottom: 6,
                   right: 6,
                   fontSize: 28,
-                  color: "#1890ff",
-                  background: "#fff",
-                  borderRadius: "50%",
-                  border: "2px solid #fff",
+                  color: '#1890ff',
+                  background: '#fff',
+                  borderRadius: '50%',
+                  border: '2px solid #fff',
                 }}
               />
             </div>
@@ -336,20 +331,20 @@ const CreateProfile = () => {
             <div className="col-md-6">
               <Form.Item
   label={
-    <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
-      First Name<span style={{ color: "#637D92" }}>*</span>
+    <span style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}>
+      First Name<span style={{ color: '#637D92' }}>*</span>
     </span>
   }
   name="firstName"
   rules={[
-    { required: true, message: "First name is required" },
+    { required: true, message: 'First name is required' },
     {
       pattern: /^[A-Za-z]+$/,
-      message: "First name should contain only letters",
+      message: 'First name should contain only letters',
     },
     {
       max: 50,
-      message: "First name cannot exceed 50 characters",
+      message: 'First name cannot exceed 50 characters',
     },
   ]}
   style={{ marginBottom: 12 }}
@@ -362,20 +357,20 @@ const CreateProfile = () => {
             <div className="col-md-6">
                 <Form.Item
   label={
-    <span style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}>
-      First Name<span style={{ color: "#637D92" }}>*</span>
+    <span style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}>
+      First Name<span style={{ color: '#637D92' }}>*</span>
     </span>
   }
   name="lastName"
   rules={[
-    { required: true, message: "Last name is required" },
+    { required: true, message: 'Last name is required' },
     {
       pattern: /^[A-Za-z]+$/,
-      message: "Last name should contain only letters",
+      message: 'Last name should contain only letters',
     },
     {
       max: 50,
-      message: "Last name cannot exceed 50 characters",
+      message: 'Last name cannot exceed 50 characters',
     },
   ]}
   style={{ marginBottom: 12 }}
@@ -390,7 +385,7 @@ const CreateProfile = () => {
               <Form.Item
                 label={
                   <span
-                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                    style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
                     Email
                   </span>
@@ -405,7 +400,7 @@ const CreateProfile = () => {
               <Form.Item
                 label={
                   <span
-                    style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                    style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
                     Date Of Birth*
                   </span>
@@ -414,33 +409,33 @@ const CreateProfile = () => {
                 rules={[
                   {
                     required: true,
-                    message: "this field is mandatory please fill it",
+                    message: 'this field is mandatory please fill it',
                   },
                 ]}
                 required={false}
-                validateStatus={dobError ? "error" : ""}
-                help={dobError || ""}
+                validateStatus={dobError ? 'error' : ''}
+                help={dobError || ''}
               >
                 <DatePicker
                   style={{
-                    width: "100%",
-                    borderColor: dobError ? "#ff4d4f" : undefined,
+                    width: '100%',
+                    borderColor: dobError ? '#ff4d4f' : undefined,
                   }}
                   format="DD / MM / YYYY"
                   placeholder="DD / MM / YYYY"
                   size="middle"
                   disabledDate={(current) =>
-                    current && current > moment().endOf("day")
+                    current && current > moment().endOf('day')
                   }
                 />
               </Form.Item>
             </div>
           </div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Form.Item
               label={
                 <span
-                  style={{ fontWeight: 400, color: "#637D92", fontSize: 12 }}
+                  style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                 >
                   Are You A Dealer?*
                 </span>
@@ -449,7 +444,7 @@ const CreateProfile = () => {
               rules={[
                 {
                   required: true,
-                  message: "Please select if you are a dealer",
+                  message: 'Please select if you are a dealer',
                 },
               ]}
               required={false}
@@ -470,7 +465,6 @@ const CreateProfile = () => {
                     });
                   }
                 }}
-                // value={isDealer}
               >
                 <Radio value={true} style={{ marginRight: 24 }}>
                   Yes
@@ -489,7 +483,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -500,7 +494,7 @@ const CreateProfile = () => {
                     rules={[
                       {
                         required: isDealer,
-                        message: "Company name is required",
+                        message: 'Company name is required',
                       },
                     ]}
                     required={false}
@@ -514,7 +508,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -523,7 +517,7 @@ const CreateProfile = () => {
                     }
                     name="ownerName"
                     rules={[
-                      { required: isDealer, message: "Owner name is required" },
+                      { required: isDealer, message: 'Owner name is required' },
                     ]}
                     required={false}
                   >
@@ -538,7 +532,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -549,12 +543,11 @@ const CreateProfile = () => {
                     rules={[
                       {
                         required: isDealer,
-                        message: "Company address is required",
+                        message: 'Company address is required',
                       },
                     ]}
                     required={false}
                   >
-                    {/* {" "} */}
                     <Input placeholder="Company Address" size="middle" />
                   </Form.Item>
                 </div>
@@ -564,7 +557,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -575,11 +568,11 @@ const CreateProfile = () => {
                     rules={[
                       {
                         required: isDealer,
-                        message: "Phone number is required",
+                        message: 'Phone number is required',
                       },
                       {
                         pattern: /^\d{8,15}$/,
-                        message: "Enter a valid phone number",
+                        message: 'Enter a valid phone number',
                       },
                     ]}
                     required={false}
@@ -595,7 +588,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -604,11 +597,10 @@ const CreateProfile = () => {
                     }
                     name="companyCR"
                     rules={[
-                      { required: isDealer, message: "CR number is required" },
+                      { required: isDealer, message: 'CR number is required' },
                     ]}
                     required={false}
                   >
-                    {/* {" "} */}
                     <Input placeholder="000000000000" size="middle" />
                   </Form.Item>
                 </div>
@@ -618,7 +610,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -628,8 +620,7 @@ const CreateProfile = () => {
                     name="facebookPage"
                     required={false}
                   >
-                    {/* {" "} */}
-                    <Input placeholder="Name" size="middle" />{" "}
+                    <Input placeholder="Name" size="middle" />{' '}
                   </Form.Item>
                 </div>
               </div>
@@ -640,7 +631,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 11,
                         }}
                       >
@@ -650,8 +641,7 @@ const CreateProfile = () => {
                     name="instagramProfile"
                     required={false}
                   >
-                    {/* {" "} */}
-                    <Input placeholder="Name" size="middle" />{" "}
+                    <Input placeholder="Name" size="middle" />{' '}
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
@@ -660,7 +650,7 @@ const CreateProfile = () => {
                       <span
                         style={{
                           fontWeight: 400,
-                          color: "#637D92",
+                          color: '#637D92',
                           fontSize: 12,
                         }}
                       >
@@ -670,7 +660,6 @@ const CreateProfile = () => {
                     name="uploadDocuments"
                     required={false}
                   >
-                    {/* {" "} */}
                     <Input
                       type="file"
                       placeholder="Documents"
@@ -678,21 +667,21 @@ const CreateProfile = () => {
                       ref={fileInputRef}
                       onChange={handleFileChange}
                       accept=".pdf"
-                    />{" "}
+                    />{' '}
                   </Form.Item>
                 </div>
               </div>
               <div className="row g-3">
                 <div
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
                   }}
                 >
                   <span
-                    style={{ fontWeight: 700, color: "#0A0A0B", fontSize: 13 }}
+                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
                   >
                     <img
                       src={whatsappIcon}
@@ -706,14 +695,14 @@ const CreateProfile = () => {
                     checked={checked}
                     onChange={handleChange}
                     style={{
-                      backgroundColor: checked ? "#008AD5" : "#ccc",
+                      backgroundColor: checked ? '#008AD5' : '#ccc',
                     }}
                   />
                 </div>
               </div>
             </>
           )}
-          <Form.Item style={{ textAlign: "center" }}>
+          <Form.Item style={{ textAlign: 'center' }}>
             <Button
               type="primary"
               htmlType="submit"
@@ -726,7 +715,7 @@ const CreateProfile = () => {
                 borderRadius: 20,
                 fontWeight: 700,
                 fontSize: 16,
-                background: "#008AD5",
+                background: '#008AD5',
               }}
               onClick={onClickContinue}
             >
@@ -737,19 +726,15 @@ const CreateProfile = () => {
           <Text
             type="secondary"
             style={{
-              display: "block",
-              textAlign: "center",
+              display: 'block',
+              textAlign: 'center',
               marginTop: 4,
               fontSize: 13,
             }}
           >
             <a
-              // href="https://example.com"
-              // target="_blank"
-              // rel="noopener noreferrer"
-              // onClick={() => navigate("/termsAndconditions")}
               onClick={() => setShowModal(true)}
-              style={{ color: "#1890ff", textDecoration: "none" }}
+              style={{ color: '#1890ff', textDecoration: 'none' }}
             >
               By registering you agree with our terms & conditions and privacy
               policy

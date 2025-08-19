@@ -1,24 +1,23 @@
-import { useState, useEffect } from "react";
-import "../assets/styles/usersavedsearches.css";
-import carImage from "../assets/images/subscribecar_icon.png";
-import diamondLogo from "../assets/images/bluediamond_icon.svg";
-import dollarLogo from "../assets/images/bluedollar_icon.svg";
-import like_icon from "../assets/images/like_icon.svg";
-import { useNavigate } from "react-router-dom";
-import diamondGif from "../assets/images/diamondGif.gif";
-import { carAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { message } from "antd";
+import { useState, useEffect } from 'react';
+import '../assets/styles/usersavedsearches.css';
+import carImage from '../assets/images/subscribecar_icon.png';
+import diamondLogo from '../assets/images/bluediamond_icon.svg';
+import dollarLogo from '../assets/images/bluedollar_icon.svg';
+import like_icon from '../assets/images/like_icon.svg';
+import { useNavigate } from 'react-router-dom';
+import diamondGif from '../assets/images/diamondGif.gif';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { message } from 'antd';
 
 const UserSavedsearch = () => {
   const navigate = useNavigate();
-  const baseUrl = process.env.REACT_APP_BASE_URL;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [messageApi, contextHolder] = message.useMessage();
+  const [ contextHolder] = message.useMessage();
 
-  const tokendata = localStorage.getItem("token");
+  const tokendata = localStorage.getItem('token');
   const isLoggedIn = !!tokendata;
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const UserSavedsearch = () => {
         setSavedSearches(response.data.searches.slice(0, 3));
       }
     } catch (error) {
-      const errorData = handleApiError(error);
       setSavedSearches([]);
     } finally {
       setLoading(false);
@@ -49,10 +47,10 @@ const UserSavedsearch = () => {
       <div className="Search-header">
         <h1
           style={{
-            fontWeight: "700",
-            fontSize: "32px",
-            marginBottom: "24px",
-            marginTop: "24px",
+            fontWeight: '700',
+            fontSize: '32px',
+            marginBottom: '24px',
+            marginTop: '24px',
           }}
         >
           Your Saved Searches
@@ -72,7 +70,7 @@ const UserSavedsearch = () => {
                 {savedSearches.map((item, idx) => (
                   <div
                     className={`user-saved-search-section${
-                      idx < savedSearches.length - 1 ? " with-divider" : ""
+                      idx < savedSearches.length - 1 ? ' with-divider' : ''
                     }`}
                     key={item.id}
                   >
@@ -84,12 +82,12 @@ const UserSavedsearch = () => {
     : carImage
 }
 
-                        alt={item.search_params?.make || "Car"}
+                        alt={item.search_params?.make || 'Car'}
                         className="user-saved-search-logo"
                       />
                       <div className="user-saved-search-title">
                         <span className="user-saved-search-brand">
-                          {item.search_params?.make || "Unknown Make"}
+                          {item.search_params?.make || 'Unknown Make'}
                         </span>
                         {item.search_params?.model && (
                           <span className="user-saved-search-model">
@@ -104,20 +102,20 @@ const UserSavedsearch = () => {
                         <span className="user-saved-search-price">
                           {item.search_params?.price_min
                             ? `$${item.search_params.price_min}`
-                            : ""}
+                            : ''}
                           {item.search_params?.price_to
                             ? ` - $${item.search_params.price_to}`
-                            : ""}
+                            : ''}
                         </span>
                       ) : (
                         <span className="user-saved-search-price">$0</span>
                       )}
                       <span className="user-saved-search-dot">•</span>
                       <span className="user-saved-search-year">
-                        From{" "}
+                        From{' '}
                         {item.search_params?.year_min
                           ? item.search_params.year_min
-                          : "N/A"}
+                          : 'N/A'}
                       </span>
                     </div>
 
@@ -138,14 +136,14 @@ const UserSavedsearch = () => {
                 </div>
                 <div>
                   <h1>You have no Saved searches</h1>
-                  <p style={{ fontSize: "16px", fontWeight: "400" }}>
+                  <p style={{ fontSize: '16px', fontWeight: '400' }}>
                     Find your saved searches right here. Get alerts for new
                     listings.
                   </p>
                   <button
                     className="signup-btn"
                     onClick={() =>
-                      window.scrollTo({ top: 260, behavior: "smooth" })
+                      window.scrollTo({ top: 260, behavior: 'smooth' })
                     }
                   >
                     Start Searching
@@ -166,7 +164,7 @@ const UserSavedsearch = () => {
                 </p>
                 <button
                   className="signup-btn"
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate('/login')}
                 >
                   Sign up / log in
                 </button>
@@ -179,9 +177,9 @@ const UserSavedsearch = () => {
               <img src={diamondLogo} alt="Diamond" className="action-icon" />
               <p
                 style={{
-                  fontSize: "14px",
-                  color: "#0A0A0B",
-                  cursor: "pointer",
+                  fontSize: '14px',
+                  color: '#0A0A0B',
+                  cursor: 'pointer',
                 }}
                 onClick={() => setIsModalOpen(true)}
               >
@@ -193,9 +191,9 @@ const UserSavedsearch = () => {
               <img src={dollarLogo} alt="Dollar" className="action-icon" />
               <p
                 style={{
-                  fontSize: "14px",
-                  color: "#0A0A0B",
-                  cursor: "pointer",
+                  fontSize: '14px',
+                  color: '#0A0A0B',
+                  cursor: 'pointer',
                 }}
                 onClick={() => setIsModalOpen(true)}
               >
@@ -210,20 +208,20 @@ const UserSavedsearch = () => {
                 <img src={diamondGif} alt="Diamond" className="modal-image" />
                 <p
                   style={{
-                    fontSize: "16px",
-                    color: "#0A0A0B",
+                    fontSize: '16px',
+                    color: '#0A0A0B',
                     fontWeight: 700,
-                    marginBottom: "4px",
+                    marginBottom: '4px',
                   }}
                 >
                   This Feature is coming soon
                 </p>
                 <p
                   style={{
-                    fontSize: "12px",
-                    color: "#898384",
+                    fontSize: '12px',
+                    color: '#898384',
                     fontWeight: 400,
-                    marginTop: "0",
+                    marginTop: '0',
                   }}
                 >
                   you could try to remove some filters:

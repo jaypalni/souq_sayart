@@ -1,22 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
-import "../assets/styles/signupOtp.css";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { authAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import { verifyOTP } from "../redux/actions/authActions";
-import { message } from "antd";
+import React, { useState, useRef, useEffect } from 'react';
+import '../assets/styles/signupOtp.css';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { authAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { verifyOTP } from '../redux/actions/authActions';
+import { message } from 'antd';
 
 const SignupOtp = () => {
   const dispatch = useDispatch();
-  const { customerDetailsLoading, customerDetailsError } = useSelector(
-    (state) => state.customerDetails
-  );
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
@@ -26,39 +23,31 @@ const SignupOtp = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/landing");
+      navigate('/landing');
     }
   }, [isLoggedIn, navigate]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
+    return `${mins.toString().padStart(2, '0')}:${secs
       .toString()
-      .padStart(2, "0")}`;
+      .padStart(2, '0')}`;
   };
 
-  // Always start the timer at 60 seconds on page load
-  // useEffect(() => {
-  //   setTimer(60);
-  //   setIsTimerRunning(true);
-  // }, []);
 
-  // Always run on mount
   useEffect(() => {
-    const fromLogin = localStorage.getItem("fromLogin");
+    const fromLogin = localStorage.getItem('fromLogin');
     const now = Date.now();
 
-    if (fromLogin === "true") {
-      // Reset timer if coming from login
+    if (fromLogin === 'true') {
       const newEndTime = now + 60 * 1000;
-      localStorage.setItem("otpEndTime", newEndTime);
-      localStorage.removeItem("fromLogin"); // clear flag
+      localStorage.setItem('otpEndTime', newEndTime);
+      localStorage.removeItem('fromLogin'); 
       setTimer(60);
       setIsTimerRunning(true);
     } else {
-      // Continue timer if just refresh or direct load
-      const savedEndTime = localStorage.getItem("otpEndTime");
+      const savedEndTime = localStorage.getItem('otpEndTime');
       if (savedEndTime) {
         const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
         if (timeLeft > 0) {
@@ -72,7 +61,6 @@ const SignupOtp = () => {
     }
   }, []);
 
-  // Countdown effect
   useEffect(() => {
     let interval;
     if (isTimerRunning && timer > 0) {
@@ -91,25 +79,25 @@ const SignupOtp = () => {
   }, [isTimerRunning, timer]);
 
   const handleChange = (e, idx) => {
-    const val = e.target.value.replace(/\D/g, "");
+    const val = e.target.value.replace(/\D/g, '');
 
     const newOtp = [...otp];
     if (val) {
       newOtp[idx] = val[val.length - 1];
       setOtp(newOtp);
-      setError("");
+      setError('');
       if (idx < 3) inputRefs[idx + 1].current.focus();
     } else {
-      newOtp[idx] = "";
+      newOtp[idx] = '';
       setOtp(newOtp);
     }
   };
 
   const handleKeyDown = (e, idx) => {
-    if (e.key === "Backspace") {
+    if (e.key === 'Backspace') {
       if (otp[idx]) {
         const newOtp = [...otp];
-        newOtp[idx] = "";
+        newOtp[idx] = '';
         setOtp(newOtp);
       } else if (idx > 0) {
         inputRefs[idx - 1].current.focus();
@@ -124,7 +112,7 @@ const SignupOtp = () => {
     }
 
     try {
-      const usermobilenumber = localStorage.getItem("phone_number");
+      const usermobilenumber = localStorage.getItem('phone_number');
       setLoading(true);
 
       const response = await authAPI.resendotp({
@@ -133,16 +121,16 @@ const SignupOtp = () => {
       const data = handleApiResponse(response);
 
       if (data) {
-        localStorage.setItem("userData", JSON.stringify(data));
+        localStorage.setItem('userData', JSON.stringify(data));
         messageApi.open({
-          type: "success",
+          type: 'success',
           content: data.message,
         });
       }
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: errorData.message,
       });
     } finally {
@@ -151,11 +139,11 @@ const SignupOtp = () => {
   };
 
   const validateOtp = () => {
-    if (otp.some((digit) => digit === "" || !/^\d$/.test(digit))) {
-      setError("Please enter the OTP.");
+    if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
+      setError('Please enter the OTP.');
       return false;
     }
-    setError("");
+    setError('');
     return true;
   };
 
@@ -166,8 +154,8 @@ const SignupOtp = () => {
 
     try {
       setLoading(true);
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const otpDigits = otp.join("");
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      const otpDigits = otp.join('');
       const otpPayload = {
         otp: otpDigits,
         request_id: userData.request_id,
@@ -175,27 +163,26 @@ const SignupOtp = () => {
       const result = await dispatch(verifyOTP(otpPayload));
 
       if (result.success) {
-        localStorage.setItem("token", result.data.access_token);
+        localStorage.setItem('token', result.data.access_token);
 
         messageApi.open({
-          type: "success",
+          type: 'success',
           content: result.message,
         });
 
         if (result.data.is_registered) {
-          navigate("/landing");
+          navigate('/landing');
         } else {
-          navigate("/createProfile");
+          navigate('/createProfile');
         }
       } else {
         messageApi.open({
-          type: "error",
+          type: 'error',
           content: result.error,
         });
       }
     } catch (error) {
-      console.error("OTP verification error:", error);
-      message.error("OTP verification failed. Please try again.");
+      message.error('OTP verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -214,10 +201,10 @@ const SignupOtp = () => {
             key={idx}
             ref={inputRefs[idx]}
             type="tel"
-            className={`otp-input${digit ? " filled" : ""}${
-              error && (digit === "" || !/^\d$/.test(digit))
-                ? " otp-input-error"
-                : ""
+            className={`otp-input${digit ? ' filled' : ''}${
+              error && (digit === '' || !/^\d$/.test(digit))
+                ? ' otp-input-error'
+                : ''
             }`}
             maxLength={1}
             value={digit}
@@ -230,10 +217,10 @@ const SignupOtp = () => {
         <div
           className="otp-error"
           style={{
-            color: "#ff4d4f",
+            color: '#ff4d4f',
             marginTop: 8,
             marginBottom: 4,
-            textAlign: "center",
+            textAlign: 'center',
           }}
         >
           {error}
@@ -242,14 +229,14 @@ const SignupOtp = () => {
       <div className="otp-timer">
         {isTimerRunning ? (
           <span>
-            Resend in{" "}
+            Resend in{' '}
             <span className="otp-timer-count">{formatTime(timer)}</span>
           </span>
         ) : (
           <span
             className="otp-resend"
             onClick={handleResend}
-            style={{ cursor: "pointer", color: "#0090d4" }}
+            style={{ cursor: 'pointer', color: '#0090d4' }}
           >
             Resend
           </span>

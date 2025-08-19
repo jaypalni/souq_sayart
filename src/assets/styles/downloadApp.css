@@ -9,7 +9,6 @@
 
 .download-app-left {
   flex: 1;
-  /* max-width: 420px; */
   padding: 0 32px 0 8vw;
   display: flex;
   flex-direction: column;
@@ -27,7 +26,6 @@
   font-size: 16px;
   color: #444;
   margin-bottom: 18px;
-  /* max-width: 350px; */
   font-weight: 400;
 }
 

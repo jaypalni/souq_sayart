@@ -1,5 +1,5 @@
-import React from "react";
-import AppRouter from "./router";
+import React from 'react';
+import AppRouter from './router';
 
 const Main = () => {
     return <AppRouter />;

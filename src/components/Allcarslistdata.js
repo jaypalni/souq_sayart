@@ -1,7 +1,7 @@
-import React from "react";
-import { CheckCircleFilled } from "@ant-design/icons";
-import { FaRegHeart, FaGlobe, FaMapMarkerAlt } from "react-icons/fa";
-import { TbManualGearbox } from "react-icons/tb";
+import React from 'react';
+import { CheckCircleFilled } from '@ant-design/icons';
+import { FaRegHeart, FaGlobe, FaMapMarkerAlt } from 'react-icons/fa';
+import { TbManualGearbox } from 'react-icons/tb';
 
 const Allcarslistdata = ({ car, idx }) => {
   return (

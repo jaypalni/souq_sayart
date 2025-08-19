@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import FilterIcon from "../assets/images/filter_icon.svg";
+import React, { useState } from 'react';
+import FilterIcon from '../assets/images/filter_icon.svg';
 import {
   Drawer,
   Button,
@@ -10,81 +10,74 @@ import {
   Divider,
   Row,
   Col,
-} from "antd";
-import { FaArrowLeft, FaCheck, FaRegDotCircle } from "react-icons/fa";
-import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
-import { FiChevronDown } from "react-icons/fi";
-
-import Comforticon from "../assets/images/comfort_icon.svg";
-import Mediaicon from "../assets/images/media_icon.svg";
-import Extrasicon from "../assets/images/extras_icon.svg";
-import Safetyicon from "../assets/images/safety_icon.svg";
-import Searchicon from "../assets/images/search_icon.svg";
-import Backarrowicon from "../assets/images/backarrow_icon.svg";
-
+} from 'antd';
+import { FaCheck } from 'react-icons/fa';
+import { MdOutlineCheckBoxOutlineBlank } from 'react-icons/md';
+import Comforticon from '../assets/images/comfort_icon.svg';
+import Mediaicon from '../assets/images/media_icon.svg';
+import Extrasicon from '../assets/images/extras_icon.svg';
+import Safetyicon from '../assets/images/safety_icon.svg';
+import Searchicon from '../assets/images/search_icon.svg';
+import Backarrowicon from '../assets/images/backarrow_icon.svg';
 
 const { Option } = Select;
 
-const fuelOptions = ["Any", "Petrol", "Diesel", "Hybrid", "Electric"];
+const fuelOptions = ['Any', 'Petrol', 'Diesel', 'Hybrid', 'Electric'];
 
-const transmissionOptions = ["Any", "Automatic", "Manual", "Steptonic"];
+const transmissionOptions = ['Any', 'Automatic', 'Manual', 'Steptonic'];
 
 const cylinderOptions = [
-  "3",
-  "4",
-  "5",
-  "6",
-  "8",
-  "12",
-  "N/A",
-  "Electric",
-  "Not Sure",
+  '3',
+  '4',
+  '5',
+  '6',
+  '8',
+  '12',
+  'N/A',
+  'Electric',
+  'Not Sure',
 ];
 
 const extraFeaturesData = [
   {
-    title: "Comfort & Convenience",
+    title: 'Comfort & Convenience',
     icon: <img src={Comforticon} alt="Comfort Icon" />,
-    features: ["Heated seats", "Keyless entry", "power mirrors"],
+    features: ['Heated seats', 'Keyless entry', 'power mirrors'],
   },
   {
-    title: "Entertainment & Media",
+    title: 'Entertainment & Media',
     icon: <img src={Mediaicon} alt="Media Icon" />,
-    features: ["Bluetooth", "Cd Play", "Radio"],
+    features: ['Bluetooth', 'Cd Play', 'Radio'],
   },
   {
-    title: "Extras",
+    title: 'Extras',
     icon: <img src={Extrasicon} alt="Extras Icon" />,
-    features: ["Navigation", "Alloy wheels", "Power locks"],
+    features: ['Navigation', 'Alloy wheels', 'Power locks'],
   },
   {
-    title: "Safety & Security",
+    title: 'Safety & Security',
     icon: <img src={Safetyicon} alt="Safety Icon" />,
-    features: ["Diesel", "Electric"],
+    features: ['Diesel', 'Electric'],
   },
 ];
 
 
-const numberofdoors = ["Any", "2/3", "4/5"];
+const numberofdoors = ['Any', '2/3', '4/5'];
 
 const Cardetailsfilter = () => {
   const [visible, setVisible] = useState(false);
 
    const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
 
-  const [value, setValue] = useState("Any");
+  const [value, setValue] = useState('Any');
 
   const handleChange = (e) => {
     setValue(e.target.value);
   };
 
-  const [selectedValues, setSelectedValues] = useState(["Any"]);
+  const [selectedValues, setSelectedValues] = useState(['Any']);
 
-  const fuelhandleChange = (checkedValues) => {
-    setSelectedValues(checkedValues);
-  };
-
-  const [transmissionselectedValues, settransmissionselectedValues] = useState(["Any"]);
+  const [transmissionselectedValues, settransmissionselectedValues] = useState(['Any']);
   
 
   const transmissionhandleChange = (option) => {
@@ -117,7 +110,7 @@ const Cardetailsfilter = () => {
     }
   };   
   
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [selectedFeatures, setSelectedFeatures] = useState([]);
 
   const handleFeatureToggle = (feature) => {
@@ -134,7 +127,7 @@ const Cardetailsfilter = () => {
         <img
           src={FilterIcon}
           alt="Filter Icon"
-          style={{ width: "30px", height: "30px" }}
+          style={{ width: '30px', height: '30px' }}
         />
       </div>
       <Drawer
@@ -145,22 +138,22 @@ const Cardetailsfilter = () => {
         width={380}
         bodyStyle={{
           paddingBottom: 80,
-          height: "calc(100% - 108px)", 
-          overflow: "hidden", 
+          height: 'calc(100% - 108px)', 
+          overflow: 'hidden', 
         }}
       >
         <div
           style={{
-            height: "100%",
-            overflowY: "auto",
-            paddingRight: "8px", // Add some padding for the scrollbar
+            height: '100%',
+            overflowY: 'auto',
+            paddingRight: '8px', 
           }}
         >
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontWeight: 500, fontSize: "14px" }}>Trim</div>
+            <div style={{ fontWeight: 500, fontSize: '14px' }}>Trim</div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "10px" }}
+              style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Base">Base</Option>
@@ -171,8 +164,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Verified
@@ -181,23 +174,23 @@ const Cardetailsfilter = () => {
               onChange={handleChange}
               value={value}
               style={{
-                display: "flex", // make buttons stay side by side
-                gap: "10px", // spacing instead of marginRight
+                display: 'flex', 
+                gap: '10px', 
               }}
             >
               <Radio.Button
                 value="Any"
                 className="custom-radio-button"
                 style={{
-                  width: "20%",
-                  textAlign: "center",
-                  marginRight: "10px",
-                  borderRadius: "4px",
-                  color: value === "Any" ? "#000" : "#000",
-                  fontSize: "12px",
-                  fontWeight: "400",
-                  borderColor: value === "Any" ? "#D67900" : undefined,
-                  backgroundColor: value === "Any" ? "#FFEDD5" : undefined, // optional highlight
+                  width: '20%',
+                  textAlign: 'center',
+                  marginRight: '10px',
+                  borderRadius: '4px',
+                  color: value === 'Any' ? '#000' : '#000',
+                  fontSize: '12px',
+                  fontWeight: '400',
+                  borderColor: value === 'Any' ? '#D67900' : undefined,
+                  backgroundColor: value === 'Any' ? '#FFEDD5' : undefined, 
                 }}
               >
                 Any
@@ -206,16 +199,16 @@ const Cardetailsfilter = () => {
                 value="Available"
                 className="custom-radio-button"
                 style={{
-                  width: "30%",
-                  textAlign: "center",
-                  borderRadius: "4px",
-                  color: value === "Available" ? "#000" : "#000",
-                  fontSize: "12px",
-                  fontWeight: "400",
-                  borderLeft: "1px solid #D67900",
-                  borderColor: value === "Available" ? "#D67900" : undefined,
+                  width: '30%',
+                  textAlign: 'center',
+                  borderRadius: '4px',
+                  color: value === 'Available' ? '#000' : '#000',
+                  fontSize: '12px',
+                  fontWeight: '400',
+                  borderLeft: '1px solid #D67900',
+                  borderColor: value === 'Available' ? '#D67900' : undefined,
                   backgroundColor:
-                    value === "Available" ? "#FFEDD5" : undefined,
+                    value === 'Available' ? '#FFEDD5' : undefined,
                 }}
               >
                 Available
@@ -226,8 +219,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Kilometers
@@ -245,8 +238,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Year
@@ -264,8 +257,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Fuel Type
@@ -275,7 +268,7 @@ const Cardetailsfilter = () => {
                 <label
                   key={option}
                   className={`checkbox-button ${
-                    selectedValues.includes(option) ? "selected" : ""
+                    selectedValues.includes(option) ? 'selected' : ''
                   }`}
                 >
                   <Checkbox
@@ -290,7 +283,7 @@ const Cardetailsfilter = () => {
                         setSelectedValues([...selectedValues, option]);
                       }
                     }}
-                    style={{ display: "none" }} // hide the default checkbox box
+                    style={{ display: 'none' }} 
                   />
                   {option}
                 </label>
@@ -301,8 +294,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Transmission
@@ -313,14 +306,14 @@ const Cardetailsfilter = () => {
                   key={option}
                   className={`checkbox-button ${
                     transmissionselectedValues.includes(option)
-                      ? "selected"
-                      : ""
+                      ? 'selected'
+                      : ''
                   }`}
                 >
                   <Checkbox
                     checked={transmissionselectedValues.includes(option)}
                     onChange={() => transmissionhandleChange(option)}
-                    style={{ display: "none" }} // Hide default checkbox box
+                    style={{ display: 'none' }} 
                   />
                   {option}
                 </label>
@@ -331,8 +324,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Number of Cylinders
@@ -342,13 +335,13 @@ const Cardetailsfilter = () => {
                 <label
                   key={option}
                   className={`checkbox-button ${
-                    cylinderselectedValues.includes(option) ? "selected" : ""
+                    cylinderselectedValues.includes(option) ? 'selected' : ''
                   }`}
                 >
                   <Checkbox
                     checked={cylinderselectedValues.includes(option)}
                     onChange={() => cylinderhandleChange(option)}
-                    style={{ display: "none" }}
+                    style={{ display: 'none' }}
                   />
                   {option}
                 </label>
@@ -359,8 +352,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Power (1hp)
@@ -378,8 +371,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Consumption (l/100)
@@ -397,15 +390,15 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "3px",
+                fontSize: '14px',
+                marginBottom: '3px',
               }}
             >
               Air Conditioning
             </div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "10px" }}
+              style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Yes">Yes</Option>
@@ -416,15 +409,15 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "3px",
+                fontSize: '14px',
+                marginBottom: '3px',
               }}
             >
               Color
             </div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "10px" }}
+              style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Black">Black</Option>
@@ -441,8 +434,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Number Of Seats
@@ -460,15 +453,15 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "3px",
+                fontSize: '14px',
+                marginBottom: '3px',
               }}
             >
               Extra Features
             </div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "10px" }}
+              style={{ width: '100%', marginTop: '10px' }}
               onClick={() => setextrafeaturesvisible(true)}
             >
               <Select.Option value="Any">Any</Select.Option>
@@ -478,8 +471,8 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Number of Doors
@@ -489,13 +482,13 @@ const Cardetailsfilter = () => {
                 <label
                   key={option}
                   className={`checkbox-button ${
-                    doorselectedValues.includes(option) ? "selected" : ""
+                    doorselectedValues.includes(option) ? 'selected' : ''
                   }`}
                 >
                   <Checkbox
                     checked={doorselectedValues.includes(option)}
                     onChange={() => doorhandleChange(option)}
-                    style={{ display: "none" }}
+                    style={{ display: 'none' }}
                   />
                   {option}
                 </label>
@@ -506,15 +499,15 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "3px",
+                fontSize: '14px',
+                marginBottom: '3px',
               }}
             >
               Interior
             </div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "10px" }}
+              style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Leather">Leather</Option>
@@ -525,15 +518,15 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "3px",
+                fontSize: '14px',
+                marginBottom: '3px',
               }}
             >
               Source
             </div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "10px" }}
+              style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Private">Private</Option>
@@ -544,15 +537,15 @@ const Cardetailsfilter = () => {
             <div
               style={{
                 fontWeight: 500,
-                fontSize: "14px",
-                marginBottom: "10px",
+                fontSize: '14px',
+                marginBottom: '10px',
               }}
             >
               Payment Options
             </div>
             <Select
               defaultValue="Any"
-              style={{ width: "100%", marginTop: "3px" }}
+              style={{ width: '100%', marginTop: '3px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Cash">Cash</Option>
@@ -574,17 +567,16 @@ const Cardetailsfilter = () => {
         width={380}
         bodyStyle={{
           padding: 0,
-          height: "100%",
-          overflow: "hidden",
+          height: '100%',
+          overflow: 'hidden',
         }}
       >
-        {/* Custom Header */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
             padding: 16,
-            borderBottom: "1px solid #eee",
+            borderBottom: '1px solid #eee',
           }}
         >
           <img
@@ -598,13 +590,12 @@ const Cardetailsfilter = () => {
               fontWeight: 700,
               fontSize: 16,
               marginLeft: 16,
-              color: "#0A0A0B",
+              color: '#0A0A0B',
             }}
           >
             Extra Features
           </span>
         </div>
-        {/* Search Bar */}
         <div style={{ padding: 16 }}>
           <Input
             placeholder="Search Here..."
@@ -620,15 +611,14 @@ const Cardetailsfilter = () => {
             style={{
               borderRadius: 8,
               height: 44,
-              boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.07)",
+              boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.07)',
             }}
           />
         </div>
         <div
           style={{
-            height: "calc(100vh - 120px)",
-            overflowY: "auto",
-            //padding: 16,
+            height: 'calc(100vh - 120px)',
+            overflowY: 'auto',
             marginTop: 0,
             marginLeft: 16,
             marginRight: 16,
@@ -645,9 +635,9 @@ const Cardetailsfilter = () => {
                   style={{
                     fontWeight: 700,
                     fontSize: 16,
-                    margin: "16px 0 8px",
-                    display: "flex",
-                    alignItems: "center",
+                    margin: '16px 0 8px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   <span style={{ marginRight: 8 }}>{section.icon}</span>
@@ -658,27 +648,27 @@ const Cardetailsfilter = () => {
                     key={feature}
                     onClick={() => handleFeatureToggle(feature)}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "10px 12px",
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 12px',
                       height: 36,
                       fontSize: 12,
                       fontWeight: 400,
                       background: selectedFeatures.includes(feature)
-                        ? "#f5f5f5"
-                        : "#fff",
-                      cursor: "pointer",
+                        ? '#f5f5f5'
+                        : '#fff',
+                      cursor: 'pointer',
                     }}
                   >
-                    <span style={{ textTransform: "capitalize" }}>
+                    <span style={{ textTransform: 'capitalize' }}>
                       {feature}
                     </span>
                     {selectedFeatures.includes(feature) ? (
-                      <FaCheck style={{ color: "#222" }} />
+                      <FaCheck style={{ color: '#222' }} />
                     ) : (
                       <MdOutlineCheckBoxOutlineBlank
-                        style={{ color: "#fff" }}
+                        style={{ color: '#fff' }}
                       />
                     )}
                   </div>

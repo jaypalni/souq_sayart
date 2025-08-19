@@ -30,17 +30,17 @@
 // export default store;
 
 
-import { createStore, applyMiddleware } from "redux";
-import { thunk } from "redux-thunk"; // ✅ Correct import
-import rootReducer from "./reducers";
-import throttle from "lodash/throttle"; // npm install lodash
+import { createStore, applyMiddleware } from 'redux';
+import { thunk } from 'redux-thunk'; // ✅ Correct import
+import rootReducer from './reducers';
+import throttle from 'lodash/throttle'; // npm install lodash
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 let lastUserData;
 let lastCustomerDetails;
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   store.subscribe(
     throttle(() => {
       const state = store.getState();
@@ -49,7 +49,7 @@ if (typeof window !== "undefined") {
       if (state.userData?.userData !== lastUserData) {
         lastUserData = state.userData?.userData;
         if (lastUserData) {
-          localStorage.setItem("userData", JSON.stringify(lastUserData));
+          localStorage.setItem('userData', JSON.stringify(lastUserData));
         }
       }
 
@@ -57,9 +57,9 @@ if (typeof window !== "undefined") {
       if (state.customerDetails?.customerDetails !== lastCustomerDetails) {
         lastCustomerDetails = state.customerDetails?.customerDetails;
         if (lastCustomerDetails === null) {
-          localStorage.removeItem("customerDetails");
+          localStorage.removeItem('customerDetails');
         } else if (lastCustomerDetails !== undefined) {
-          localStorage.setItem("customerDetails", JSON.stringify(lastCustomerDetails));
+          localStorage.setItem('customerDetails', JSON.stringify(lastCustomerDetails));
         }
       }
     }, 1000) // run max once per second

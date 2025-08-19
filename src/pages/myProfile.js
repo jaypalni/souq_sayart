@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Layout, Menu, Avatar, Button, Modal } from "antd";
+import React, { useState } from 'react';
+import { Layout, Menu, Avatar, Button, Modal } from 'antd';
 import {
   UserOutlined,
   CreditCardOutlined,
@@ -13,53 +13,53 @@ import {
   DeleteOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import {
   Routes,
   Route,
   Link,
   useLocation,
   useNavigate,
-} from "react-router-dom";
-import MyProfileForm from "../components/MyProfileForm";
-import "../assets/styles/myProfile.css";
-import ManageNotifications from "../components/ManageNotifications";
-import SavedSearches from "../components/savedSearches";
-import BlockedContacts from "../components/BlockedContacts";
-import Subscriptions from "../components/Subscriptions";
-import Messages from "../components/Messages";
-import Payments from "../components/Payments";
-import Favorites from "../components/favorites";
+} from 'react-router-dom';
+import MyProfileForm from '../components/MyProfileForm';
+import '../assets/styles/myProfile.css';
+import ManageNotifications from '../components/ManageNotifications';
+import SavedSearches from '../components/savedSearches';
+import BlockedContacts from '../components/BlockedContacts';
+import Subscriptions from '../components/Subscriptions';
+import Messages from '../components/Messages';
+import Payments from '../components/Payments';
+import Favorites from '../components/favorites';
 
 const { Sider, Content } = Layout;
 
 const menuItems = [
   {
-    key: "Personal Informations",
+    key: 'Personal Informations',
     label: (
       <Link
         to="/myProfile"
         style={{
-          fontSize: "14px",
+          fontSize: '14px',
           fontWeight: 700,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
-        {" "}
+        {' '}
         Personal Informations
       </Link>
     ),
   },
   {
-    key: "profile",
+    key: 'profile',
     icon: <UserOutlined />,
     label: (
       <Link
         to="/myProfile"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Profile
@@ -67,15 +67,15 @@ const menuItems = [
     ),
   },
   {
-    key: "subscriptions",
+    key: 'subscriptions',
     icon: <CreditCardOutlined />,
     label: (
       <Link
         to="/myProfile/subscriptions"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Subscriptions
@@ -83,15 +83,15 @@ const menuItems = [
     ),
   },
   {
-    key: "messages",
+    key: 'messages',
     icon: <MessageOutlined />,
     label: (
       <Link
         to="/myProfile/messages"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Messages
@@ -99,15 +99,15 @@ const menuItems = [
     ),
   },
   {
-    key: "notifications",
+    key: 'notifications',
     icon: <BellOutlined />,
     label: (
       <Link
         to="/myProfile/notifications"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Manage Notifications
@@ -115,15 +115,15 @@ const menuItems = [
     ),
   },
   {
-    key: "searches",
+    key: 'searches',
     icon: <SearchOutlined />,
     label: (
       <Link
         to="/myProfile/searches"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Saved Searches
@@ -131,15 +131,15 @@ const menuItems = [
     ),
   },
   {
-    key: "payments",
+    key: 'payments',
     icon: <CreditCardOutlined />,
     label: (
       <Link
         to="/myProfile/payments"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Payments
@@ -147,15 +147,15 @@ const menuItems = [
     ),
   },
   {
-    key: "blocked",
+    key: 'blocked',
     icon: <StarOutlined />,
     label: (
       <Link
         to="/myProfile/blocked"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Blocked users
@@ -163,15 +163,15 @@ const menuItems = [
     ),
   },
   {
-    key: "dashboard",
+    key: 'dashboard',
     icon: <DashboardOutlined />,
     label: (
       <Link
         to="/myProfile/dashboard"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Dealership Dashboard
@@ -179,15 +179,15 @@ const menuItems = [
     ),
   },
   {
-    key: "favorites",
+    key: 'favorites',
     icon: <HeartOutlined />,
     label: (
       <Link
         to="/myProfile/favorites"
         style={{
-          fontSize: "12px",
+          fontSize: '12px',
           fontWeight: 400,
-          color: "#0A0A0B",
+          color: '#0A0A0B',
         }}
       >
         Favorites
@@ -197,8 +197,8 @@ const menuItems = [
 ];
 
 const manageItems = [
-  { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-  { key: "delete", icon: <DeleteOutlined />, label: "Delete Account" },
+  { key: 'logout', icon: <LogoutOutlined />, label: 'Logout' },
+  { key: 'delete', icon: <DeleteOutlined />, label: 'Delete Account' },
 ];
 
 const MyProfile = () => {
@@ -206,12 +206,11 @@ const MyProfile = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const selectedKey = location.pathname.split("/")[2] || "profile";
+  const selectedKey = location.pathname.split('/')[2] || 'profile';
 
   const handleLogout = () => {
-    // Here you can clear any localStorage/session or call your logout API if needed
     setLogoutModalOpen(false);
-    navigate("/LoginScreen"); // Navigate to home or login page after logout
+    navigate('/LoginScreen'); 
   };
 
   return (
@@ -222,24 +221,24 @@ const MyProfile = () => {
         </div>
         <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
       </div>
-      <Layout style={{ background: "#fff" }}>
+      <Layout style={{ background: '#fff' }}>
         <Sider
           width={260}
           collapsible
           collapsed={collapsed}
           trigger={null}
           style={{
-            background: "#fff",
-            borderRight: "1px solid #f0f0f0",
-            padding: "32px 0 0 0",
+            background: '#fff',
+            borderRight: '1px solid #f0f0f0',
+            padding: '32px 0 0 0',
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <Avatar
               size={48}
               style={{
-                background: "#e3f1ff",
-                color: "#1890ff",
+                background: '#e3f1ff',
+                color: '#1890ff',
                 fontWeight: 700,
               }}
             >
@@ -258,8 +257,8 @@ const MyProfile = () => {
           <div style={{ marginTop: 32 }}>
             <div
               style={{
-                padding: "0 24px",
-                color: "#0A0A0B",
+                padding: '0 24px',
+                color: '#0A0A0B',
                 fontWeight: 700,
                 fontSize: 15,
                 marginBottom: 8,
@@ -269,14 +268,13 @@ const MyProfile = () => {
             </div>
             <Menu
               mode="inline"
-              style={{ borderRight: 0, fontWeight: 400,fontSize:"12px" }}
+              style={{ borderRight: 0, fontWeight: 400,fontSize:'12px' }}
               items={manageItems}
               onClick={({ key }) => {
-                if (key === "logout") {
+                if (key === 'logout') {
                   setLogoutModalOpen(true);
                 }
-                if (key === "delete") {
-                  // handle delete account logic here if needed
+                if (key === 'delete') {
                 }
               }}
             />
@@ -285,12 +283,12 @@ const MyProfile = () => {
             type="text"
             className="sidebar-toggle-btn"
             onClick={() => setCollapsed(!collapsed)}
-            style={{ position: "absolute", top: 10, right: -18, zIndex: 1000 }}
+            style={{ position: 'absolute', top: 10, right: -18, zIndex: 1000 }}
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           />
         </Sider>
         <Layout>
-          <Content style={{ padding: "40px 40px 0 40px", background: "#fff" }}>
+          <Content style={{ padding: '40px 40px 0 40px', background: '#fff' }}>
             <Routes>
               <Route index element={<MyProfileForm />} />
               <Route path="subscriptions" element={<Subscriptions />} />
@@ -305,7 +303,6 @@ const MyProfile = () => {
         </Layout>
       </Layout>
 
-      {/* Logout Confirmation Modal */}
       <Modal
         open={logoutModalOpen}
         onCancel={() => setLogoutModalOpen(false)}
@@ -319,23 +316,23 @@ const MyProfile = () => {
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "10px",
-            padding: "2px",
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '2px',
           }}
         >
           <Button
             onClick={() => setLogoutModalOpen(false)}
             style={{
               width: 120,
-              backgroundColor: "#ffffff",
-              color: "#008AD5",
-              borderColor: "#008AD5",
+              backgroundColor: '#ffffff',
+              color: '#008AD5',
+              borderColor: '#008AD5',
               borderWidth: 1,
-              fontSize: "16px",
+              fontSize: '16px',
               fontWeight: 700,
-              borderRadius: "24px",
+              borderRadius: '24px',
             }}
           >
             No
@@ -345,11 +342,11 @@ const MyProfile = () => {
             onClick={handleLogout}
             style={{
               width: 120,
-              backgroundColor: "#008AD5",
-              color: "#ffffff",
-              fontSize: "16px",
+              backgroundColor: '#008AD5',
+              color: '#ffffff',
+              fontSize: '16px',
               fontWeight: 700,
-              borderRadius: "24px",
+              borderRadius: '24px',
             }}
           >
             Yes

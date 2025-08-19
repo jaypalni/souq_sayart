@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Form,
   Input,
@@ -10,120 +10,113 @@ import {
   Card,
   Select,
   DatePicker,
-  Checkbox,
-  Radio,
   Modal,
   Image,
-} from "antd";
+} from 'antd';
 import {
   PlusOutlined,
   RightOutlined,
-  CloseOutlined,
   SearchOutlined,
-} from "@ant-design/icons";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../assets/styles/sell.css";
-import imageIcon from "../assets/images/imageIcon.svg";
-import toyotaImg from "../assets/images/toyota.png";
-import { useNavigate } from "react-router-dom";
-import mercedesImg from "../assets/images/mercedes.png";
-import miniImg from "../assets/images/mini.png";
-import bmwImg from "../assets/images/bmw.png";
-import hummerImg from "../assets/images/hummer.png";
-import lamborghiniImg from "../assets/images/lamborghini.png";
-import addMediaSvg from "../assets/images/addMedia.svg";
-import { carAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-//import { message } from "antd";
-import { fetchMakeCars, fetchModelCars } from "../commonFunction/fetchMakeCars";
+} from '@ant-design/icons';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../assets/styles/sell.css';
+import toyotaImg from '../assets/images/toyota.png';
+import { useNavigate } from 'react-router-dom';
+import mercedesImg from '../assets/images/mercedes.png';
+import miniImg from '../assets/images/mini.png';
+import bmwImg from '../assets/images/bmw.png';
+import hummerImg from '../assets/images/hummer.png';
+import lamborghiniImg from '../assets/images/lamborghini.png';
+import addMediaSvg from '../assets/images/addMedia.svg';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-const bodyTypes = ["SUV", "Sedan", "Wagon"];
-const conditions = ["New", "Used"];
+const bodyTypes = ['SUV', 'Sedan', 'Wagon'];
 const badges = [
-  "Urgent",
-  "Perfect Inside Out",
-  "No Accident history",
-  "Low Mileage",
-  "Full Service history available",
-  "Cash Only",
-  "New",
-  "Financing Available",
-  "Available For Rent",
+  'Urgent',
+  'Perfect Inside Out',
+  'No Accident history',
+  'Low Mileage',
+  'Full Service history available',
+  'Cash Only',
+  'New',
+  'Financing Available',
+  'Available For Rent',
 ];
-const fuelTypes = ["Petrol", "Diesel", "Hybrid", "Electric"];
-const transmissionTypes = ["Automatic", "Manual", "Steptronic"];
-const driveTypes = ["Rear Wheel Drive", "Front Wheel Drive", "All Wheel Drive"];
+const fuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'];
+const transmissionTypes = ['Automatic', 'Manual', 'Steptronic'];
+const driveTypes = ['Rear Wheel Drive', 'Front Wheel Drive', 'All Wheel Drive'];
 
 const cylinders = [
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
-  "16",
-  "N/A, Electric",
-  "Not Sure",
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '16',
+  'N/A, Electric',
+  'Not Sure',
 ];
-const seats = ["1/2", "2/3", "4/5", "5/6", "6/7"];
-const doors = ["2/3", "4/5"];
+const seats = ['1/2', '2/3', '4/5', '5/6', '6/7'];
+const doors = ['2/3', '4/5'];
 
 const brandOptions = [
-  { label: "Toyota", value: "Toyota", img: toyotaImg },
-  { label: "Mercedes", value: "Mercedes", img: mercedesImg },
-  { label: "Mini Cooper", value: "Mini Cooper", img: miniImg },
-  { label: "BMW", value: "BMW", img: bmwImg },
-  { label: "Hummer", value: "Hummer", img: hummerImg },
-  { label: "Lamborghini", value: "Lamborghini", img: lamborghiniImg },
+  { label: 'Toyota', value: 'Toyota', img: toyotaImg },
+  { label: 'Mercedes', value: 'Mercedes', img: mercedesImg },
+  { label: 'Mini Cooper', value: 'Mini Cooper', img: miniImg },
+  { label: 'BMW', value: 'BMW', img: bmwImg },
+  { label: 'Hummer', value: 'Hummer', img: hummerImg },
+  { label: 'Lamborghini', value: 'Lamborghini', img: lamborghiniImg },
 ];
 
 const conditionOptions = [
-  { label: "New", value: "New" },
-  { label: "Used", value: "Used" },
+  { label: 'New', value: 'New' },
+  { label: 'Used', value: 'Used' },
 ];
 
 const Sell = () => {
-  const [loading, setLoading] = useState(false);
+  const [setLoading] = useState(false);
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
-  const [make, setMake] = useState("");
-  const [model, setModel] = useState("");
+  const [make, setMake] = useState('');
   const [yearData, setYearData] = useState([]);
   const [trimData, setTrimData] = useState([]);
   const [updateData, setUpdateData] = useState();
-  const [addData, setAddData] = useState();
-  const [draftData, setDraftData] = useState();
+  const [setAddData] = useState();
+  const [setDraftData] = useState();
   const [form] = Form.useForm();
   const [colorModalOpen, setColorModalOpen] = useState(false);
-  const [colorSearch, setColorSearch] = useState("");
+  const [colorSearch, setColorSearch] = useState('');
   const [selectedColor, setSelectedColor] = useState();
   const [trimModalOpen, setTrimModalOpen] = useState(false);
-  const [trimSearch, setTrimSearch] = useState("");
+  const [trimSearch, setTrimSearch] = useState('');
   const [selectedTrim, setSelectedTrim] = useState();
   const [brandModalOpen, setBrandModalOpen] = useState(false);
   const [brandNameOpen, setBrandNameOpen] = useState(false);
-  const [brandSearch, setBrandSearch] = useState("");
+  const [brandSearch, setBrandSearch] = useState('');
   const [selectedBrand, setSelectedBrand] = useState();
   const [selectedBrandName, setSelectedBrandName] = useState();
   const [modalName, setModalName] = useState();
   const [yearModalOpen, setYearModalOpen] = useState(false);
-  const [yearSearch, setYearSearch] = useState("");
+  const [yearSearch, setYearSearch] = useState('');
   const [selectedYear, setSelectedYear] = useState();
-  const [selectedCondition, setSelectedCondition] = useState("");
+  const [selectedCondition, setSelectedCondition] = useState('');
   const [selectedBodyType, setSelectedBodyType] = useState();
   const [selectedBadges, setSelectedBadges] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
-  const [regionSearch, setRegionSearch] = useState("");
+  const [regionSearch, setRegionSearch] = useState('');
   const [selectedRegion, setSelectedRegion] = useState();
   const [regionalSpecsModalOpen, setRegionalSpecsModalOpen] = useState(false);
-  const [regionalSpecsSearch, setRegionalSpecsSearch] = useState("");
+  const [regionalSpecsSearch, setRegionalSpecsSearch] = useState('');
   const [selectedRegionalSpecs, setSelectedRegionalSpecs] = useState();
   const [selectedSeats, setSelectedSeats] = useState();
   const [selectedDoors, setSelectedDoors] = useState();
@@ -132,7 +125,7 @@ const Sell = () => {
   const [selectedDriveType, setSelectedDriveType] = useState();
   const [selectedCylinders, setSelectedCylinders] = useState();
   const [mediaPreviewOpen, setMediaPreviewOpen] = useState(false);
-  const [mediaPreviewImage, setMediaPreviewImage] = useState("");
+  const [mediaPreviewImage, setMediaPreviewImage] = useState('');
   const [mediaFileList, setMediaFileList] = useState([]);
   const navigate = useNavigate();
 
@@ -142,7 +135,7 @@ const Sell = () => {
 
   useEffect(() => {
     make && fetchModelCars({ setLoading, setCarModels, make });
-    setModalName("");
+    setModalName('');
   }, [make]);
 
   useEffect(() => {
@@ -153,9 +146,6 @@ const Sell = () => {
     make && modalName && yearData && fetchTrimCars();
   }, [make, modalName, yearData]);
 
-  // useEffect(() => {
-  //   handleSaveDraft();
-  // }, []);
 
   useEffect(() => {
     modalName && make && fetchYearData();
@@ -170,10 +160,10 @@ const Sell = () => {
         setUpdateData(data1?.data);
       }
 
-      message.success(data1.message || "Fetched successfully");
+      message.success(data1.message || 'Fetched successfully');
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to Make car data");
+      message.error(errorData.message || 'Failed to Make car data');
       setUpdateData([]);
     } finally {
       setLoading(false);
@@ -190,10 +180,10 @@ const Sell = () => {
         setTrimData(data1?.data);
       }
 
-      message.success(data1.message || "Fetched successfully");
+      message.success(data1.message || 'Fetched successfully');
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to Trim car data");
+      message.error(errorData.message || 'Failed to Trim car data');
       setTrimData([]);
     } finally {
       setLoading(false);
@@ -210,10 +200,10 @@ const Sell = () => {
         setYearData(data1?.data);
       }
 
-      message.success(data1.message || "Fetched successfully");
+      message.success(data1.message || 'Fetched successfully');
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to Year car data");
+      message.error(errorData.message || 'Failed to Year car data');
       setYearData([]);
     } finally {
       setLoading(false);
@@ -222,44 +212,44 @@ const Sell = () => {
 
   const handleCreateData = async () => {
     handlePostData();
-    navigate("/landing");
+    navigate('/landing');
   };
 
   const handlePostData = async () => {
     const values = await form.validateFields();
     const formData = new FormData();
-    formData.append("make", make);
-    formData.append("model", modalName);
-    formData.append("year", selectedYear);
-    formData.append("price", "");
-    formData.append("description", values?.description);
-    formData.append("ad_title", values?.adTitle);
-    formData.append("color", selectedColor);
-    formData.append("mileage", values?.kilometers);
-    formData.append("fuel_type", values?.fuelType);
-    formData.append("transmission_type", values?.transmissionType);
-    formData.append("body_type", values?.bodyType);
-    formData.append("condition", values?.condition);
-    formData.append("location", selectedRegion);
-    formData.append("interior", values?.interior);
-    formData.append("trim", selectedBrandName);
-    formData.append("regional_specs", selectedRegionalSpecs);
-    formData.append("badges", values?.badges);
-    formData.append("warranty_date", values?.warrantyDate);
-    formData.append("accident_history", values?.accidentHistory);
-    formData.append("number_of_seats", values?.seats);
-    formData.append("number_of_doors", values?.doors);
-    formData.append("drive_type", values?.driveType);
-    formData.append("engine_cc", values?.engineCC);
-    formData.append("extra_features", values?.extraFeatures);
-    formData.append("consumption", values?.consumption);
-    formData.append("no_of_cylinders", values?.cylinders);
-    formData.append("payment_option", "");
-    formData.append("draft", "");
+    formData.append('make', make);
+    formData.append('model', modalName);
+    formData.append('year', selectedYear);
+    formData.append('price', '');
+    formData.append('description', values?.description);
+    formData.append('ad_title', values?.adTitle);
+    formData.append('color', selectedColor);
+    formData.append('mileage', values?.kilometers);
+    formData.append('fuel_type', values?.fuelType);
+    formData.append('transmission_type', values?.transmissionType);
+    formData.append('body_type', values?.bodyType);
+    formData.append('condition', values?.condition);
+    formData.append('location', selectedRegion);
+    formData.append('interior', values?.interior);
+    formData.append('trim', selectedBrandName);
+    formData.append('regional_specs', selectedRegionalSpecs);
+    formData.append('badges', values?.badges);
+    formData.append('warranty_date', values?.warrantyDate);
+    formData.append('accident_history', values?.accidentHistory);
+    formData.append('number_of_seats', values?.seats);
+    formData.append('number_of_doors', values?.doors);
+    formData.append('drive_type', values?.driveType);
+    formData.append('engine_cc', values?.engineCC);
+    formData.append('extra_features', values?.extraFeatures);
+    formData.append('consumption', values?.consumption);
+    formData.append('no_of_cylinders', values?.cylinders);
+    formData.append('payment_option', '');
+    formData.append('draft', '');
    
 
-    values.media?.forEach((file, index) => {
-      formData.append("car_image", file.originFileObj);
+    values.media?.forEach((file) => {
+      formData.append('car_image', file.originFileObj);
     });
     try {
       setLoading(true);
@@ -270,10 +260,10 @@ const Sell = () => {
       if (data1) {
         setAddData(data1?.data);
       }
-      message.success(data1.message || "Fetched successfully");
+      message.success(data1.message || 'Fetched successfully');
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to Make car data");
+      message.error(errorData.message || 'Failed to Make car data');
       setAddData([]);
     } finally {
       setLoading(false);
@@ -287,57 +277,23 @@ const Sell = () => {
     return e && e.fileList;
   };
 
-  const beforeUpload = (file) => {
-    const isAllowedType = [
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-      "image/gif",
-      "video/mp4",
-    ].includes(file.type);
-    if (!isAllowedType) {
-      message.error("You can only upload JPG/PNG/GIF/MP4 files!");
-    }
-    const isLt5M = file.size / 1024 / 1024 < 5;
-    if (!isLt5M) {
-      message.error("Image must be smaller than 5MB!");
-    }
-    return isAllowedType && isLt5M;
-  };
-
   const handleFinish = (values) => {
     const images = values.media?.map((file) => file.originFileObj);
-    const allValues = {
-      ...values,
-      exteriorColor: selectedColor,
-      trim: selectedTrim,
-      brand: selectedBrand,
-      year: selectedYear,
-      condition: selectedCondition,
-      bodyType: selectedBodyType,
-      badges: selectedBadges,
-      region: selectedRegion,
-      regionalSpecs: selectedRegionalSpecs,
-      media: images,
-    };
    
-    message.success("Form submitted! Check console for output.");
+    message.success('Form submitted! Check console for output.');
   };
 
   const ExteriorColorInput = () => (
     <div
-      className={`exterior-color-input${!selectedColor ? " placeholder" : ""}`}
+      className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
       onClick={() => setColorModalOpen(true)}
     >
-      {/* {selectedColor && (
-        <span className="color-swatch-input" style={{ background: (colorOptions.find(c => c.value === selectedColor)?.color || '#fff'), border: (colorOptions.find(c => c.value === selectedColor)?.border || '1px solid #d9d9d9') }} />
-      )} */}
       <span
         style={{
           fontSize: 14,
         }}
       >
-        {selectedColor || "Beige"}
+        {selectedColor || 'Beige'}
       </span>
       <RightOutlined className="color-arrow" />
     </div>
@@ -349,7 +305,7 @@ const Sell = () => {
 
   const TrimInput = () => (
     <div
-      className={`trim-input${!selectedTrim ? " placeholder" : ""}`}
+      className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
       onClick={() => setTrimModalOpen(true)}
     >
       <span
@@ -357,7 +313,7 @@ const Sell = () => {
           fontSize: 14,
         }}
       >
-        {selectedTrim || "B200"}
+        {selectedTrim || 'B200'}
       </span>
       <RightOutlined className="trim-arrow" />
     </div>
@@ -365,7 +321,7 @@ const Sell = () => {
 
   const BrandInput = () => (
     <div
-      className={`brand-input${!selectedBrand ? " placeholder" : ""}`}
+      className={`brand-input${!selectedBrand ? ' placeholder' : ''}`}
       onClick={() => setBrandModalOpen(true)}
     >
       {selectedBrand && (
@@ -380,7 +336,7 @@ const Sell = () => {
           fontSize: 14,
         }}
       >
-        {selectedBrand || "brand and model of your car"}
+        {selectedBrand || 'brand and model of your car'}
       </span>
       <RightOutlined className="brand-arrow" />
     </div>
@@ -388,7 +344,7 @@ const Sell = () => {
 
   const YearInput = () => (
     <div
-      className={`year-input${!selectedYear ? " placeholder" : ""}`}
+      className={`year-input${!selectedYear ? ' placeholder' : ''}`}
       onClick={() => setYearModalOpen(true)}
     >
       <span
@@ -396,7 +352,7 @@ const Sell = () => {
           fontSize: 14,
         }}
       >
-        {selectedYear || "2023"}
+        {selectedYear || '2023'}
       </span>
       <RightOutlined className="year-arrow" />
     </div>
@@ -404,7 +360,7 @@ const Sell = () => {
 
   const RegionInput = () => (
     <div
-      className={`region-input${!selectedRegion ? " placeholder" : ""}`}
+      className={`region-input${!selectedRegion ? ' placeholder' : ''}`}
       onClick={() => setRegionModalOpen(true)}
     >
       <span
@@ -412,7 +368,7 @@ const Sell = () => {
           fontSize: 14,
         }}
       >
-        {selectedRegion || "Select Region"}
+        {selectedRegion || 'Select Region'}
       </span>
       <RightOutlined className="region-arrow" />
     </div>
@@ -421,7 +377,7 @@ const Sell = () => {
   const RegionalSpecsInput = () => (
     <div
       className={`regionalspecs-input${
-        !selectedRegionalSpecs ? " placeholder" : ""
+        !selectedRegionalSpecs ? ' placeholder' : ''
       }`}
       onClick={() => setRegionalSpecsModalOpen(true)}
     >
@@ -430,51 +386,50 @@ const Sell = () => {
           fontSize: 14,
         }}
       >
-        {selectedRegionalSpecs || "Select Specs"}
+        {selectedRegionalSpecs || 'Select Specs'}
       </span>
       <RightOutlined className="regionalspecs-arrow" />
     </div>
   );
 
-  // Button handlers
   const handleEvaluateCar = () => {
-    message.info("Evaluate Car clicked");
+    message.info('Evaluate Car clicked');
   };
   const handleSaveDraft = async () => {
     const values = await form.validateFields();
     const formData = new FormData();
-    formData.append("make", make);
-    formData.append("model", modalName);
-    formData.append("year", selectedYear);
-    formData.append("price", "");
-    formData.append("description", values?.description);
-    formData.append("ad_title", values?.adTitle);
-    formData.append("color", selectedColor);
-    formData.append("mileage", values?.kilometers);
-    formData.append("fuel_type", values?.fuelType);
-    formData.append("transmission_type", values?.transmissionType);
-    formData.append("body_type", values?.bodyType);
-    formData.append("condition", values?.condition);
-    formData.append("location", selectedRegion);
-    formData.append("interior", values?.interior);
-    formData.append("trim", selectedBrandName);
-    formData.append("regional_specs", selectedRegionalSpecs);
-    formData.append("badges", values?.badges);
-    formData.append("warranty_date", values?.warrantyDate);
-    formData.append("accident_history", values?.accidentHistory);
-    formData.append("number_of_seats", values?.seats);
-    formData.append("number_of_doors", values?.doors);
-    formData.append("drive_type", values?.driveType);
-    formData.append("engine_cc", values?.engineCC);
-    formData.append("extra_features", values?.extraFeatures);
-    formData.append("consumption", values?.consumption);
-    formData.append("no_of_cylinders", values?.cylinders);
-    formData.append("payment_option", "");
-    formData.append("draft", "");
+    formData.append('make', make);
+    formData.append('model', modalName);
+    formData.append('year', selectedYear);
+    formData.append('price', '');
+    formData.append('description', values?.description);
+    formData.append('ad_title', values?.adTitle);
+    formData.append('color', selectedColor);
+    formData.append('mileage', values?.kilometers);
+    formData.append('fuel_type', values?.fuelType);
+    formData.append('transmission_type', values?.transmissionType);
+    formData.append('body_type', values?.bodyType);
+    formData.append('condition', values?.condition);
+    formData.append('location', selectedRegion);
+    formData.append('interior', values?.interior);
+    formData.append('trim', selectedBrandName);
+    formData.append('regional_specs', selectedRegionalSpecs);
+    formData.append('badges', values?.badges);
+    formData.append('warranty_date', values?.warrantyDate);
+    formData.append('accident_history', values?.accidentHistory);
+    formData.append('number_of_seats', values?.seats);
+    formData.append('number_of_doors', values?.doors);
+    formData.append('drive_type', values?.driveType);
+    formData.append('engine_cc', values?.engineCC);
+    formData.append('extra_features', values?.extraFeatures);
+    formData.append('consumption', values?.consumption);
+    formData.append('no_of_cylinders', values?.cylinders);
+    formData.append('payment_option', '');
+    formData.append('draft', '');
 
 
-    values.media?.forEach((file, index) => {
-      formData.append("car_image", file.originFileObj);
+    values.media?.forEach((file) => {
+      formData.append('car_image', file.originFileObj);
     });
     try {
       setLoading(true);
@@ -485,11 +440,11 @@ const Sell = () => {
         setDraftData(data1);
       }
 
-      message.success(data1.message || "Saved Draft Data successfully");
-      navigate("/landing");
+      message.success(data1.message || 'Saved Draft Data successfully');
+      navigate('/landing');
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || "Failed to Save Draft car data");
+      message.error(errorData.message || 'Failed to Save Draft car data');
       setDraftData([]);
     } finally {
       setLoading(false);
@@ -508,7 +463,6 @@ const Sell = () => {
       reader.onerror = (error) => reject(error);
     });
 
-  // Add Media preview logic
   const handleMediaPreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -527,19 +481,19 @@ const Sell = () => {
   const beforeMediaUpload = (file) => {
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      message.error("File must be smaller than 5MB!");
+      message.error('File must be smaller than 5MB!');
       return Promise.reject();
     }
     return true;
   };
   const mediaUploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      <PlusOutlined style={{ fontSize: 32, color: "#1890ff" }} />
+    <button style={{ border: 0, background: 'none' }} type="button">
+      <PlusOutlined style={{ fontSize: 32, color: '#1890ff' }} />
       <div
         style={{
           marginTop: 8,
           fontWeight: 500,
-          color: "#008AD5",
+          color: '#008AD5',
           fontSize: 16,
         }}
       >
@@ -561,9 +515,9 @@ const Sell = () => {
           title="Car Description"
           style={{
             borderRadius: 8,
-            boxShadow: "0 2px 8px #f0f1f2",
+            boxShadow: '0 2px 8px #f0f1f2',
             marginBottom: 24,
-            border: "1px solid #e5e6e8",
+            border: '1px solid #e5e6e8',
             padding: 24,
           }}
         >
@@ -572,7 +526,7 @@ const Sell = () => {
             layout="vertical"
             onFinish={handleFinish}
             scrollToFirstError
-            initialValues={{ condition: "", year: new Date().getFullYear() }}
+            initialValues={{ condition: '', year: new Date().getFullYear() }}
           >
             <Row gutter={24}>
               <Col xs={24} md={10}>
@@ -583,7 +537,7 @@ const Sell = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Please add at least one media file!",
+                      message: 'Please add at least one media file!',
                     },
                   ]}
                 >
@@ -591,7 +545,7 @@ const Sell = () => {
                     <div
                       className="custom-upload-area"
                       onClick={() =>
-                        document.getElementById("hidden-upload-input").click()
+                        document.getElementById('hidden-upload-input').click()
                       }
                     >
                       <img
@@ -605,7 +559,7 @@ const Sell = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           document
-                            .getElementById("hidden-upload-input")
+                            .getElementById('hidden-upload-input')
                             .click();
                         }}
                       >
@@ -620,13 +574,13 @@ const Sell = () => {
                         type="file"
                         multiple
                         accept=".jpg,.jpeg,.png,.gif,.mp4"
-                        style={{ display: "none" }}
+                        style={{ display: 'none' }}
                         onChange={(e) => {
                           const files = Array.from(e.target.files);
                           const newFileList = files?.map((file, idx) => ({
                             uid: `${Date.now()}-${idx}`,
                             name: file.name,
-                            status: "done",
+                            status: 'done',
                             originFileObj: file,
                           }));
                           setMediaFileList(newFileList);
@@ -651,7 +605,7 @@ const Sell = () => {
                         maxCount={8}
                         accept=".jpg,.jpeg,.png,.gif,.mp4"
                         customRequest={({ file, onSuccess }) =>
-                          setTimeout(() => onSuccess("ok"), 0)
+                          setTimeout(() => onSuccess('ok'), 0)
                         }
                       >
                         {mediaFileList.length < 8 && mediaUploadButton}
@@ -659,21 +613,21 @@ const Sell = () => {
                       {mediaFileList.length > 0 && (
                         <div
                           className="media-info-text"
-                          style={{ marginTop: "8px", color: "#666" }}
+                          style={{ marginTop: '8px', color: '#666' }}
                         >
                           Tap on the images to edit them, or press, hold and
-                          move for reordering{" "}
+                          move for reordering{' '}
                         </div>
                       )}
                       {mediaPreviewImage && (
                         <Image
-                          wrapperStyle={{ display: "none" }}
+                          wrapperStyle={{ display: 'none' }}
                           preview={{
                             visible: mediaPreviewOpen,
                             onVisibleChange: (visible) =>
                               setMediaPreviewOpen(visible),
                             afterOpenChange: (visible) =>
-                              !visible && setMediaPreviewImage(""),
+                              !visible && setMediaPreviewImage(''),
                           }}
                           src={mediaPreviewImage}
                         />
@@ -687,7 +641,7 @@ const Sell = () => {
                   style={{
                     fontSize: 12,
                     fontWeight: 500,
-                    color: "#0A0A0B",
+                    color: '#0A0A0B',
                   }}
                   label="Ad Title"
                   name="adTitle"
@@ -698,7 +652,7 @@ const Sell = () => {
                   style={{
                     fontSize: 12,
                     fontWeight: 500,
-                    color: "#0A0A0B",
+                    color: '#0A0A0B',
                   }}
                   label="Description"
                   name="description"
@@ -708,7 +662,6 @@ const Sell = () => {
               </Col>
             </Row>
 
-            {/* Car Information Section */}
             <Card
               title="Enter Your Car Information"
               style={{
@@ -723,7 +676,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Car Information"
                     name="brand"
@@ -759,7 +712,7 @@ const Sell = () => {
                           <div
                             key={opt.name}
                             className={`brand-option${
-                              selectedBrand === opt.name ? " selected" : ""
+                              selectedBrand === opt.name ? ' selected' : ''
                             }`}
                             onClick={() => {
                               setSelectedBrand(opt.name);
@@ -812,8 +765,8 @@ const Sell = () => {
                             key={opt.model_name}
                             className={`trim-modal-option${
                               selectedBrandName === opt.model_name
-                                ? " selected"
-                                : ""
+                                ? ' selected'
+                                : ''
                             }`}
                             onClick={() => {
                               setSelectedBrandName(opt.model_name);
@@ -833,7 +786,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 12,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Exterior Color"
                     name="exteriorColor"
@@ -847,14 +800,13 @@ const Sell = () => {
                     title={
                       <div
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
                         }}
                       >
                         <span>What is the brand of your car?</span>
-                        {/* <Button type="text" icon={<CloseOutlined />} onClick={() => setColorModalOpen(false)} /> */}
-                      </div>
+                        </div>
                     }
                     width={500}
                   >
@@ -870,7 +822,7 @@ const Sell = () => {
                         <div
                           key={opt.colour}
                           className={`color-option${
-                            selectedColor === opt.colour ? " selected" : ""
+                            selectedColor === opt.colour ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedColor(opt.colour);
@@ -882,7 +834,7 @@ const Sell = () => {
                             className="color-swatch-modal"
                             style={{
                               background: opt.color,
-                              border: opt.border || "1px solid #d9d9d9",
+                              border: opt.border || '1px solid #d9d9d9',
                             }}
                           />
                           <span className="color-option-label">
@@ -898,7 +850,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 12,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Trim"
                     name="trim"
@@ -934,7 +886,7 @@ const Sell = () => {
                           <div
                             key={opt.trim_name}
                             className={`trim-modal-option${
-                              selectedTrim === opt.value ? " selected" : ""
+                              selectedTrim === opt.value ? ' selected' : ''
                             }`}
                             onClick={() => {
                               setSelectedTrim(opt.trim_name);
@@ -953,7 +905,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 12,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Regional Specs"
                     name="regionalSpecs"
@@ -990,8 +942,8 @@ const Sell = () => {
                             key={opt.regional_spec}
                             className={`regionalspecs-modal-option${
                               selectedRegionalSpecs === opt.regional_spec
-                                ? " selected"
-                                : ""
+                                ? ' selected'
+                                : ''
                             }`}
                             onClick={() => {
                               setSelectedRegionalSpecs(opt.regional_spec);
@@ -1014,7 +966,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 12,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Body Type"
                     name="bodyType"
@@ -1024,7 +976,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedBodyType === opt ? " selected" : ""
+                            selectedBodyType === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedBodyType(opt);
@@ -1042,7 +994,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 12,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Condition"
                     name="condition"
@@ -1052,7 +1004,7 @@ const Sell = () => {
                         <div
                           key={opt.value}
                           className={`option-box${
-                            selectedCondition === opt.value ? " selected" : ""
+                            selectedCondition === opt.value ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedCondition(opt.value);
@@ -1072,7 +1024,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 12,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Badges"
                     name="badges"
@@ -1082,7 +1034,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedBadges.includes(opt) ? " selected" : ""
+                            selectedBadges.includes(opt) ? ' selected' : ''
                           }`}
                           onClick={() => {
                             let newBadges;
@@ -1110,12 +1062,12 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Kilometers*"
                     name="kilometers"
                     rules={[
-                      { required: false, message: "Please enter kilometers!" },
+                      { required: false, message: 'Please enter kilometers!' },
                     ]}
                     required={false}
                     validateTrigger="onBlur"
@@ -1135,7 +1087,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Year"
                     name="year"
@@ -1167,7 +1119,7 @@ const Sell = () => {
                           <div
                             key={opt.year}
                             className={`year-modal-option${
-                              selectedYear === opt.year ? " selected" : ""
+                              selectedYear === opt.year ? ' selected' : ''
                             }`}
                             onClick={() => {
                               setSelectedYear(opt.year);
@@ -1186,7 +1138,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Region"
                     name="region"
@@ -1223,8 +1175,8 @@ const Sell = () => {
                             key={opt?.location}
                             className={`region-modal-option${
                               selectedRegion === opt?.location
-                                ? " selected"
-                                : ""
+                                ? ' selected'
+                                : ''
                             }`}
                             onClick={() => {
                               setSelectedRegion(opt?.location);
@@ -1243,12 +1195,12 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Warranty Date (Optional)"
                     name="warrantyDate"
                   >
-                    <DatePicker style={{ width: "100%" }} format="MM/DD/YYYY" />
+                    <DatePicker style={{ width: '100%' }} format="MM/DD/YYYY" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -1258,7 +1210,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Accident History"
                     name="accidentHistory"
@@ -1277,7 +1229,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Regional Specs"
                     name="regionalSpecs2"
@@ -1293,16 +1245,14 @@ const Sell = () => {
                 </Col>
               </Row>
             </Card>
-
-            {/* Additional Details Section */}
-            <Card title="Additional Details" style={{ padding: " 0px 24px" }}>
+            <Card title="Additional Details" style={{ padding: ' 0px 24px' }}>
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Number of seats"
                     name="seats"
@@ -1312,7 +1262,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedSeats === opt ? " selected" : ""
+                            selectedSeats === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedSeats(opt);
@@ -1330,7 +1280,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Number of doors"
                     name="doors"
@@ -1340,7 +1290,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedDoors === opt ? " selected" : ""
+                            selectedDoors === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedDoors(opt);
@@ -1358,7 +1308,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Fuel Type"
                     name="fuelType"
@@ -1368,7 +1318,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedFuelType === opt ? " selected" : ""
+                            selectedFuelType === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedFuelType(opt);
@@ -1386,7 +1336,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Transmission Type"
                     name="transmissionType"
@@ -1396,7 +1346,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedTransmissionType === opt ? " selected" : ""
+                            selectedTransmissionType === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedTransmissionType(opt);
@@ -1414,7 +1364,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Drive Type"
                     name="driveType"
@@ -1424,7 +1374,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedDriveType === opt ? " selected" : ""
+                            selectedDriveType === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedDriveType(opt);
@@ -1442,7 +1392,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Engine CC"
                     name="engineCC"
@@ -1462,7 +1412,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Consumption (1/100 km)"
                     name="consumption"
@@ -1484,7 +1434,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Extra Features"
                     name="extraFeatures"
@@ -1503,7 +1453,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Interior"
                     name="interior"
@@ -1524,7 +1474,7 @@ const Sell = () => {
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
-                      color: "#0A0A0B",
+                      color: '#0A0A0B',
                     }}
                     label="Number of Cylinders"
                     name="cylinders"
@@ -1534,7 +1484,7 @@ const Sell = () => {
                         <div
                           key={opt}
                           className={`option-box${
-                            selectedCylinders === opt ? " selected" : ""
+                            selectedCylinders === opt ? ' selected' : ''
                           }`}
                           onClick={() => {
                             setSelectedCylinders(opt);

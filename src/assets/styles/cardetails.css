@@ -106,7 +106,6 @@
 }
 
 .arrow-btn:hover {
-  /* background: #0090d4; */
   color: #fff;
 }
 
@@ -305,9 +304,9 @@ padding: 0px !important;
 
 no-hover-bg:hover,
 .no-hover-bg:focus {
-  background-color: #323F49 !important; /* keep background same */
-  border: none !important;              /* no border change */
-  box-shadow: none !important;          /* no shadow */
-  color: #fff !important;                /* keep text/icon white */
-  cursor: pointer;                      /* pointer cursor on hover */
+  background-color: #323F49 !important; 
+  border: none !important;              
+  box-shadow: none !important;      
+  color: #fff !important;               
+  cursor: pointer;                     
 }

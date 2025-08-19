@@ -1,25 +1,23 @@
-import { useEffect, useState } from "react";
-import AllCarFilters from "../components/allcarfilters";
-import PlaneBanner from "../components/planeBanner";
-import redcar_icon from "../assets/images/redcar_icon.jpg";
-import bluecar_icon from "../assets/images/blackcar_icon.png";
-import { CheckCircleFilled } from "@ant-design/icons";
-import "../assets/styles/carListing.css";
-import { FaChevronDown, FaChevronUp, FaRegHeart } from "react-icons/fa";
-import { TbManualGearbox } from "react-icons/tb";
-import Bestcarsalebytype from "../components/bestcarsalebytype";
-import { carAPI, userAPI } from "../services/api";
-import { handleApiResponse, handleApiError } from "../utils/apiUtils";
-import car_type from "../assets/images/car_type.png";
-import country_code from "../assets/images/country_code.png";
-import speed_code from "../assets/images/speed_dashboard.png";
-import { message, Pagination } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import AllCarFilters from '../components/allcarfilters';
+import PlaneBanner from '../components/planeBanner';
+import redcar_icon from '../assets/images/redcar_icon.jpg';
+import { CheckCircleFilled } from '@ant-design/icons';
+import '../assets/styles/carListing.css';
+import { FaChevronDown, FaChevronUp, FaRegHeart } from 'react-icons/fa';
+import Bestcarsalebytype from '../components/bestcarsalebytype';
+import { userAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import car_type from '../assets/images/car_type.png';
+import country_code from '../assets/images/country_code.png';
+import speed_code from '../assets/images/speed_dashboard.png';
+import { message, Pagination } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState([]);
   return (
     <div>
-      <PlaneBanner name={"jdi"} />
+      <PlaneBanner name={'jdi'} />
       <AllCarFilters
         filtercarsData={filtercarsData}
         setFilterCarsData={setFilterCarsData}
@@ -40,10 +38,10 @@ const CarListing = ({ filtercarsData }) => {
   const passedPagination = location.state?.pagination || {};
   const [carsData, setCarsData] = useState(passedCars);
   const [paginationData, setPaginationData] = useState(passedPagination);
-  const [loading, setLoading] = useState(false);
+  const [setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
-  const [sortOption, setSortOption] = useState("Newest Listing");
+  const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   useEffect(() => {
@@ -64,14 +62,14 @@ const CarListing = ({ filtercarsData }) => {
       const data = handleApiResponse(response);
 
       if (data.success) {
-        message.success(data.message || "Added to favorites");
+        message.success(data.message || 'Added to favorites');
       } else {
-        message.error(data.message || "Something went wrong");
+        message.error(data.message || 'Something went wrong');
       }
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(
-        errorData.message || "Failed to remove car from favorites."
+        errorData.message || 'Failed to remove car from favorites.'
       );
     } finally {
       setLoading(false);
@@ -88,34 +86,27 @@ const CarListing = ({ filtercarsData }) => {
  const handleSelect = (option) => {
    setSortOption(option);
    setIsOpen(false);
-   console.log("Selected:", option);
+   console.log('Selected:', option);
  };
   return (
     <div className="car-listing-container">
       <div className="car-listing-header">
         <span>Showing 1 - {carsData?.length} Cars</span>
-        {/* <a
-          href="#"
-          className="allcars-sortingtitle"
-          style={{ color: "#000000", fontSize: "16px", fontWeight: "700" }}
-        >
-          Sort : Newest Listing
-        </a> */}
-        <div style={{ position: "relative", display: "inline-block" }}>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
           <div
             onClick={toggleDropdown}
             style={{
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "700",
-              color: "#000000",
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '700',
+              color: '#000000',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
             }}
           >
             Sort : {sortOption}
-            <span style={{ fontSize: "12px" }}>
+            <span style={{ fontSize: '12px' }}>
               {isOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
             </span>
           </div>
@@ -123,34 +114,34 @@ const CarListing = ({ filtercarsData }) => {
           {isOpen && (
             <div
               style={{
-                position: "absolute",
-                top: "100%",
+                position: 'absolute',
+                top: '100%',
                 right: 0,
-                background: "#fff",
-                border: "1px solid #ccc",
-                borderRadius: "6px",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                marginTop: "5px",
+                background: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: '6px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                marginTop: '5px',
                 zIndex: 10,
-                minWidth: "180px",
+                minWidth: '180px',
               }}
             >
-              {["Newest Listing","Oldest Listing", "Low to High", "High to Low"].map(
+              {['Newest Listing','Oldest Listing', 'Low to High', 'High to Low'].map(
                 (option) => (
                   <div
                     key={option}
                     onClick={() => handleSelect(option)}
                     style={{
-                      padding: "8px 12px",
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      fontWeight: "500",
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#f2f2f2")
+                      (e.currentTarget.style.background = '#f2f2f2')
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = "#fff")
+                      (e.currentTarget.style.background = '#fff')
                     }
                   >
                     {option}
@@ -190,10 +181,10 @@ const CarListing = ({ filtercarsData }) => {
                 <button
                   className="car-listing-fav"
                   style={{
-                    backgroundColor: "#ffffff",
-                    color: "#008ad5",
-                    border: "none",
-                    cursor: "pointer",
+                    backgroundColor: '#ffffff',
+                    color: '#008ad5',
+                    border: 'none',
+                    cursor: 'pointer',
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -206,14 +197,14 @@ const CarListing = ({ filtercarsData }) => {
               <div className="car-listing-content">
                 <div className="d-flex">
                   <div className="car-listing-title">
-                    {car.ad_title || "No Title Available"}
+                    {car.ad_title || 'No Title Available'}
                   </div>
                 </div>
                 <div className="car-listing-price">
-                  {"IQD " + Number(car.price).toLocaleString()}
+                  {'IQD ' + Number(car.price).toLocaleString()}
                 </div>
                 <div className="car-listing-engine">
-                  {car.fuel_type === "Electric"
+                  {car.fuel_type === 'Electric'
                     ? car.fuel_type
                     : `${car.no_of_cylinders}cyl ${(
                         car.engine_cc / 1000
@@ -226,7 +217,7 @@ const CarListing = ({ filtercarsData }) => {
                         src={car_type}
                         alt="Car"
                         style={{ width: 14, height: 14 }}
-                      />{" "}
+                      />{' '}
                       {car.transmission}
                     </span>
                   </div>

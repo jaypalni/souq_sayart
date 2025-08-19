@@ -15,13 +15,10 @@ const CarUploadForm = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      
-      // First upload the car details
       const carResponse = await carAPI.uploadOptionDetails(values);
       const carData = handleApiResponse(carResponse);
       
       if (carData && fileList.length > 0) {
-        // If we have files, upload them
         const formData = createFormData({
           carId: carData.id,
           images: fileList.map(file => file.originFileObj)
@@ -129,7 +126,7 @@ const CarUploadForm = () => {
             listType="picture"
             fileList={fileList}
             onChange={handleFileChange}
-            beforeUpload={() => false} // Prevent auto upload
+            beforeUpload={() => false}
             multiple
           >
             <Button icon={<UploadOutlined />}>Upload Images</Button>

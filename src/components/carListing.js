@@ -1,19 +1,15 @@
-import React from "react";
-import { Tag } from "antd";
-import { FaCogs, FaGlobe, FaMapMarkerAlt, FaRegHeart } from "react-icons/fa";
-import { TbManualGearbox } from "react-icons/tb";
-import { CheckCircleFilled } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import "../assets/styles/carListing.css";
-import carImage from "../assets/images/Car_icon.png";
-import car_type from "../assets/images/car_type.png";
-import country_code from "../assets/images/country_code.png";
-import speed_code from "../assets/images/speed_dashboard.png";
+import React from 'react';
+import { FaRegHeart } from 'react-icons/fa';
+import { CheckCircleFilled } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import '../assets/styles/carListing.css';
+import car_type from '../assets/images/car_type.png';
+import country_code from '../assets/images/country_code.png';
+import speed_code from '../assets/images/speed_dashboard.png';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 const CarListing = ({ title, cardata }) => {
-  const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [visibleCars, setVisibleCars] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -50,7 +46,7 @@ const CarListing = ({ title, cardata }) => {
           <div
             className="car-listing-card"
             key={idx}
-            style={car.featured ? { cursor: "pointer" } : {}}
+            style={car.featured ? { cursor: 'pointer' } : {}}
             onClick={() => navigate(`/carDetails/${car.car_id}`)}
           >
             <div className="car-listing-image-wrapper">
@@ -78,10 +74,10 @@ const CarListing = ({ title, cardata }) => {
                 <div className="car-listing-title">{car.ad_title}</div>
               </div>
               <div className="car-listing-price">
-                  {"IQD " + Number(car.price).toLocaleString()}
+                  {'IQD ' + Number(car.price).toLocaleString()}
                 </div>
               <div className="car-listing-engine">
-                {car.fuel_type === "Electric"
+                {car.fuel_type === 'Electric'
                   ? car.fuel_type
                   : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
                       1
@@ -94,7 +90,7 @@ const CarListing = ({ title, cardata }) => {
                       src={car_type}
                       alt="Car"
                       style={{ width: 14, height: 14 }}
-                    />{" "}
+                    />{' '}
                     {car.transmission}
                   </span>
                 </div>

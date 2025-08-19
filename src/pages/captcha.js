@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import React, { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const Captcha = () => {
-  const [verified, setVerified] = useState(false);
+  const [setVerified] = useState(false);
   const handleCaptchaChange = (value) => {
     setVerified(!!value);
 

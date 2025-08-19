@@ -126,13 +126,16 @@ const Header = () => {
   const comingsoonMessage = (value) => {
     if (value.requiresAuth) {
       const token = localStorage.getItem("token");
-      const isLoggedIn = isAuthenticated || getUserDisplayName() || token;
+      const isGuest = localStorage.getItem("isGuest") === "true";
+      const isLoggedIn =
+        isAuthenticated || getUserDisplayName() || token || isGuest;
 
       if (!isLoggedIn) {
         messageApi.open({
           type: "warning",
           content: "Please login to access this feature",
         });
+        localStorage.removeItem("isGuest");
         navigate("/login");
         return;
       }
@@ -148,7 +151,6 @@ const Header = () => {
 
     navigate(value.path);
   };
-
 
   return (
     <>

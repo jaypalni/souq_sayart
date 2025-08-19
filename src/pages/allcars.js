@@ -40,6 +40,7 @@ const CarListing = ({filtercarsData}) => {
   const [paginationData, setPaginationData] = useState(passedPagination);
 
   const [loading, setLoading] = useState(false);
+   const BASE_URL = process.env.REACT_APP_API_URL;
 
 
   useEffect(() => {
@@ -102,12 +103,12 @@ const onPageChange = (page, pageSize) => {
             >
               <div className="car-listing-image-wrapper">
                <img
-  src={car.car_image ? `${baseUrl}${car.car_image}` : redcar_icon}
+ src={`${BASE_URL}${car.car_image}`}
   alt="Car"
   onError={(e) => e.target.src = redcar_icon}
 />
                 <div className="car-listing-badges">
-                  {car.featured && (
+                   {Number(car.featured) === 1 && (
                     <div className="car-listing-badge blue-bg">Featured</div>
                   )}
                   {Number(car.is_verified) === 1 && (
@@ -137,11 +138,10 @@ const onPageChange = (page, pageSize) => {
                   <div className="car-listing-title">
                     {car.ad_title || "No Title Available"}
                   </div>
-                  <div className="car-listing-price">
-  {"$" + Number(car.price).toLocaleString()}
-</div>
-
                 </div>
+                 <div className="car-listing-price">
+  {"IQD " + Number(car.price).toLocaleString()}
+</div>
                 <div className="car-listing-engine">
                     {car.fuel_type === "Electric"
                   ? car.fuel_type

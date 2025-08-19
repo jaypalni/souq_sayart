@@ -76,10 +76,10 @@ const CarListing = ({ title, cardata }) => {
             <div className="car-listing-content">
               <div className="d-flex">
                 <div className="car-listing-title">{car.ad_title}</div>
-                <div className="car-listing-price">
-                  {"$" + Number(car.price).toLocaleString()}
-                </div>
               </div>
+              <div className="car-listing-price">
+                  {"IQD " + Number(car.price).toLocaleString()}
+                </div>
               <div className="car-listing-engine">
                 {car.fuel_type === "Electric"
                   ? car.fuel_type

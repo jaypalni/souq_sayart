@@ -364,7 +364,7 @@ const CarDetails = () => {
                 >
                   {carDetails.ad_title}
                 </h5>
-                <div className="car-price">${carDetails.price}</div>
+                <div className="car-price">{"IQD " + Number(carDetails.price).toLocaleString()}</div>
                 <div
                   className="d-flex align-items-center mt-2 mb-2"
                   style={{ marginLeft: "7px" }}

@@ -126,11 +126,11 @@ const Header = () => {
   const comingsoonMessage = (value) => {
     if (value.requiresAuth) {
       const token = localStorage.getItem("token");
-      const isGuest = localStorage.getItem("isGuest") === "true";
+      const isGuest = localStorage.getItem("isGuest");
       const isLoggedIn =
-        isAuthenticated || getUserDisplayName() || token || isGuest;
+        isAuthenticated || getUserDisplayName() || token;
 
-      if (!isLoggedIn) {
+      if (!isLoggedIn || isGuest) {
         messageApi.open({
           type: "warning",
           content: "Please login to access this feature",

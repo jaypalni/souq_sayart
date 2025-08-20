@@ -47,7 +47,9 @@ const LoginScreen = () => {
         const response = await authAPI.countrycode();
         const data = handleApiResponse(response);
 
-        if (!data || data.length === 0) return;
+        if (!data || data.length === 0) {
+          return;
+        }
 
         setCountryOptions(data);
 
@@ -92,7 +94,9 @@ const LoginScreen = () => {
           country.country_code === userCountryCode ||
           country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase()
       );
-      if (match) return match;
+      if (match) {
+        return match;
+      }
     }
 
     if (isIndiaLocale()) {
@@ -123,7 +127,9 @@ const LoginScreen = () => {
     const numb = e.target.value;
     setEmailErrorMsg('');
 
-    if (!/^\d*$/.test(numb)) return;
+    if (!/^\d*$/.test(numb)) {
+      return;
+    }
 
     setPhone(numb);
     setPhoneValidation(numb.length > 0 ? 'Phone number is required!' : '');

@@ -15,33 +15,34 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 let lastUserData;
 let lastCustomerDetails;
 
+const syncLocalStorageKey = (key, previousValue, nextValue) => {
+  if (nextValue === previousValue) {
+    return previousValue;
+  }
+  if (nextValue === null) {
+    localStorage.removeItem(key);
+    return nextValue;
+  }
+  if (typeof nextValue === 'undefined') {
+    return nextValue;
+  }
+  localStorage.setItem(key, JSON.stringify(nextValue));
+  return nextValue;
+};
+
 if (typeof window !== 'undefined') {
   store.subscribe(
     throttle(() => {
       const state = store.getState();
+      const nextUserData = state.userData?.userData;
+      const nextCustomerDetails = state.customerDetails?.customerDetails;
 
-      if (state.userData?.userData !== lastUserData) {
-  lastUserData = state.userData?.userData;
-  if (lastUserData) {
-    localStorage.setItem('userData', JSON.stringify(lastUserData));
-  } else {
-    localStorage.removeItem('userData');
-  }
-}
-
-if (state.customerDetails?.customerDetails !== lastCustomerDetails) {
-  lastCustomerDetails = state.customerDetails?.customerDetails;
-  if (lastCustomerDetails === null) {
-    localStorage.removeItem('customerDetails');
-  } else {
-    if (lastCustomerDetails !== undefined) {
-      localStorage.setItem(
+      lastUserData = syncLocalStorageKey('userData', lastUserData, nextUserData);
+      lastCustomerDetails = syncLocalStorageKey(
         'customerDetails',
-        JSON.stringify(lastCustomerDetails)
+        lastCustomerDetails,
+        nextCustomerDetails
       );
-    }
-  }
-}
     }, 1000)
   );
 }

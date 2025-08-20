@@ -27,6 +27,9 @@ const DEFAULTS = {
   PRICE_MIN: 'Price Min',
   PRICE_MAX: 'Price Max',
 };
+const DROPDOWN_NEW_USED = 'newUsed';
+const DROPDOWN_PRICE_MIN = 'priceMin';
+const DROPDOWN_PRICE_MAX = 'priceMax';
 const carMakes = [DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai'];
 
 const carModels = {
@@ -67,9 +70,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRefs = {
-    newUsed: useRef(),
-    priceMin: useRef(),
-    priceMax: useRef(),
+    [DROPDOWN_NEW_USED]: useRef(),
+    [DROPDOWN_PRICE_MIN]: useRef(),
+    [DROPDOWN_PRICE_MAX]: useRef(),
   };
   const [filterVisible, setFilterVisible] = useState(false);
   const [storedsearchparams, setStoredSearchParams] = useState(null);
@@ -112,7 +115,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
 
   const handleChange = (name, value) => {
     if (name === 'Make') {
-      setModel(DEFAULT_MODEL);
+      setModel(DEFAULTS.ALL_MODELS);
     }
   };
 
@@ -173,6 +176,12 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
     }
   };
 
+  const getDropdownLabel = (type) => {
+    if (type === DROPDOWN_NEW_USED) return DEFAULTS.NEW_USED;
+    if (type === DROPDOWN_PRICE_MIN) return DEFAULTS.PRICE_MIN;
+    return DEFAULTS.PRICE_MAX;
+  };
+
   const renderDropdown = (type, options, value, setValue) => (
     <div className="allcars-filters-dropdown-menu" ref={dropdownRefs[type]}>
       {options.map((opt) => (
@@ -183,14 +192,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           }`}
           onClick={() => {
             setValue(opt);
-            handleChange(
-              type === 'newUsed'
-                ? DEFAULTS.NEW_USED
-                : type === 'priceMin'
-                ? DEFAULTS.PRICE_MIN
-                : DEFAULTS.PRICE_MAX,
-              opt
-            );
+            handleChange(getDropdownLabel(type), opt);
             setOpenDropdown(null);
           }}
         >
@@ -211,7 +213,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
               value={make}
               onChange={(value) => {
                 setMake(value);
-                setModel('All Models');
+                setModel(DEFAULTS.ALL_MODELS);
                 handleChange('Make', value);
               }}
               className="allcars-filters-select"
@@ -236,9 +238,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
               className="allcars-filters-select"
               size="large"
               dropdownClassName="allcars-filters-dropdown"
-              disabled={make === 'All Make'}
+              disabled={make === DEFAULTS.ALL_MAKE}
             >
-              {(carModels[make] || ['All Models']).map((m) => (
+              {(carModels[make] || [DEFAULTS.ALL_MODELS]).map((m) => (
                 <Option key={m} value={m}>
                   {m}
                 </Option>
@@ -306,7 +308,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           <div
             className="allcars-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed')
+              setOpenDropdown(
+                openDropdown === DROPDOWN_NEW_USED ? null : DROPDOWN_NEW_USED,
+              )
             }
             tabIndex={0}
           >
@@ -314,13 +318,15 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
-            {openDropdown === 'newUsed' &&
-              renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
+            {openDropdown === DROPDOWN_NEW_USED &&
+              renderDropdown(DROPDOWN_NEW_USED, newUsedOptions, newUsed, setNewUsed)}
           </div>
           <div
             className="allcars-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin')
+              setOpenDropdown(
+                openDropdown === DROPDOWN_PRICE_MIN ? null : DROPDOWN_PRICE_MIN,
+              )
             }
             tabIndex={0}
           >
@@ -328,9 +334,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
-            {openDropdown === 'priceMin' &&
+            {openDropdown === DROPDOWN_PRICE_MIN &&
               renderDropdown(
-                'priceMin',
+                DROPDOWN_PRICE_MIN,
                 priceMinOptions,
                 priceMin,
                 setPriceMin
@@ -339,7 +345,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           <div
             className="allcars-filters-text"
             onClick={() =>
-              setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax')
+              setOpenDropdown(
+                openDropdown === DROPDOWN_PRICE_MAX ? null : DROPDOWN_PRICE_MAX,
+              )
             }
             tabIndex={0}
           >
@@ -347,9 +355,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
-            {openDropdown === 'priceMax' &&
+            {openDropdown === DROPDOWN_PRICE_MAX &&
               renderDropdown(
-                'priceMax',
+                DROPDOWN_PRICE_MAX,
                 priceMaxOptions,
                 priceMax,
                 setPriceMax

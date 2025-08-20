@@ -6,8 +6,6 @@
  */
 
 import React from 'react';
-
-
 const CAR_TYPE_NAME = 'New Mercedes-Benz Sedan';
 const CAR_TYPE_COUNT = 42;
 
@@ -23,8 +21,8 @@ const Bestcarsalebytype = () => {
         <h2 className="bestcarsalebytype-title">Best Cars for sale by type</h2>
       </div>
       <div className="bestcarsalebytype-grid" style={{ padding: '0.5% 2%' }}>
-        {carTypes.map((type, idx) => (
-          <div className="bestcarsalebytype-item" key={idx}>
+        {carTypes.map((type) => (
+          <div className="bestcarsalebytype-item" key={type.id}>
             <span className="type-name">{type.name}</span>
             <span className="type-count">({type.count})</span>
           </div>

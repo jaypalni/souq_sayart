@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Select, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import '../assets/styles/landingFilters.css';
@@ -29,16 +30,23 @@ const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
 const DEFAULT_PRICE_MAX = 'Price Max';
 
-const newUsedOptions = [DEFAULT_NEW_USED, 'New', 'Used'];
-const priceMinOptions = [DEFAULT_PRICE_MIN, 5000, 10000, 20000, 30000, 40000];
-const priceMaxOptions = [DEFAULT_PRICE_MAX, 20000, 30000, 40000, 50000, 100000];
+const PRICE_MIN_VALUES = Object.freeze([5000, 10000, 20000, 30000, 40000]);
+const PRICE_MAX_VALUES = Object.freeze([20000, 30000, 40000, 50000, 100000]);
+const DEFAULT_CAR_COUNT = 342642;
+const INDIA_TZ_OFFSET_MIN = -330;
+const HTTP_STATUS_UNAUTHORIZED = 401;
+const TOKEN_EXPIRY_REDIRECT_DELAY_MS = 2000;
+
+const newUsedOptions = ['New & Used', 'New', 'Used'];
+const priceMinOptions = ['Price Min', ...PRICE_MIN_VALUES];
+const priceMaxOptions = ['Price Max', ...PRICE_MAX_VALUES];
 
 
 
 const LandingFilters = ({ searchbodytype }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [loading,setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [make, setMake] = useState(DEFAULT_MAKE);
   const [model, setModel] = useState(DEFAULT_MODEL);
   const [bodyType, setBodyType] = useState(DEFAULT_BODY_TYPE);
@@ -52,7 +60,7 @@ const LandingFilters = ({ searchbodytype }) => {
    const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
-  const [carCount] = useState(342642);
+  const carCount = DEFAULT_CAR_COUNT;
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,15 +77,21 @@ const LandingFilters = ({ searchbodytype }) => {
   }, []);
 
   useEffect(() => {
-    make && fetchModelCars({ setLoading, setCarModels, make });
+    if (make) {
+      fetchModelCars({ setLoading, setCarModels, make });
+    }
   }, [make]);
 
   useEffect(() => {
-    model && fetchBodyTypeCars();
+    if (model) {
+      fetchBodyTypeCars();
+    }
   }, []);
 
   useEffect(() => {
-    bodyType && fetchRegionCars();
+    if (bodyType) {
+      fetchRegionCars();
+    }
   }, []);
 
   useEffect(() => {
@@ -123,7 +137,6 @@ const fetchRegionCars = async () => {
     const defaultLocation = resolveDefaultLocation(locations, geoData);
 
     if (defaultLocation) {
-      setCarLocationCountry(defaultLocation);
       setLocation(defaultLocation.location);
     }
 
@@ -206,6 +219,7 @@ const isIndiaLocale = () => {
     Boolean
   );
 
+
   const hasIndiaLanguage = langs.some((l) => {
     const ll = String(l).toLowerCase();
     return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
@@ -217,6 +231,26 @@ const isIndiaLocale = () => {
     tzOffset === -330 ||
     hasIndiaLanguage
   );
+
+  const endsWithIndia = (l) => {
+    const ll = String(l).toLowerCase();
+    return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
+  };
+
+  const isIndiaLocale =
+    tz === 'asia/kolkata' ||
+    tz === 'asia/calcutta' ||
+    tzOffset === INDIA_TZ_OFFSET_MIN ||
+    langs.some(endsWithIndia);
+
+  if (isIndiaLocale) {
+    return (
+      location.find((loc) => loc.location.toLowerCase() === 'india') ||
+      location.find((loc) => loc.location.toLowerCase() === 'dubai')
+    );
+  }
+
+  return location.length > 0 ? location[0] : null;
 };
 
   const handleToast = (msg) => {
@@ -258,7 +292,7 @@ const isIndiaLocale = () => {
     } catch (error) {
       const errorData = handleApiError(error);
 
-      if (errorData.status === 401) {
+      if (errorData.status === HTTP_STATUS_UNAUTHORIZED) {
         messageApi.open({
           type: 'error',
           content: 'Your session has expired. Please log in again.',
@@ -275,7 +309,7 @@ const isIndiaLocale = () => {
 
             navigate('/login');
           })();
-        }, 2000);
+        }, TOKEN_EXPIRY_REDIRECT_DELAY_MS);
       } else {
         messageApi.open({
           type: 'error',
@@ -304,29 +338,40 @@ const isIndiaLocale = () => {
   }, [openDropdown]);
 
   const renderDropdown = (type, options, value, setValue) => (
-    <div className="landing-filters-dropdown-menu" ref={dropdownRefs[type]}>
-      {options.map((opt) => (
-        <div
-          key={opt}
-          className={`landing-filters-dropdown-item${
-            value === opt ? ' selected' : ''
-          }`}
-          onClick={() => {
-            setValue(opt);
-            handleChange(
-              type === 'newUsed'
-                ? 'New & Used'
-                : type === 'priceMin'
-                ? 'Price Min'
-                : 'Price Max',
-              opt
-            );
-            setOpenDropdown(null);
-          }}
-        >
-          {opt}
-        </div>
-      ))}
+    <div
+      className="landing-filters-dropdown-menu"
+      ref={dropdownRefs[type]}
+      role="menu"
+    >
+      {options.map((opt) => {
+        const label =
+          type === 'newUsed'
+            ? 'New & Used'
+            : type === 'priceMin'
+            ? 'Price Min'
+            : 'Price Max';
+        const onSelect = () => {
+          setValue(opt);
+          handleChange(label, opt);
+          setOpenDropdown(null);
+        };
+        return (
+          <div
+            key={opt}
+            className={`landing-filters-dropdown-item${
+              value === opt ? ' selected' : ''
+            }`}
+            role="menuitem"
+            tabIndex={0}
+            onClick={onSelect}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onSelect();
+            }}
+          >
+            {opt}
+          </div>
+        );
+      })}
     </div>
   );
 
@@ -432,7 +477,13 @@ const isIndiaLocale = () => {
             onClick={() =>
               setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed')
             }
+            role="button"
             tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed');
+              }
+            }}
           >
             {newUsed} <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'newUsed' &&
@@ -443,7 +494,13 @@ const isIndiaLocale = () => {
             onClick={() =>
               setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin')
             }
+            role="button"
             tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin');
+              }
+            }}
           >
             {priceMin} <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'priceMin' &&
@@ -459,7 +516,13 @@ const isIndiaLocale = () => {
             onClick={() =>
               setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax')
             }
+            role="button"
             tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax');
+              }
+            }}
           >
             {priceMax} <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'priceMax' &&
@@ -492,3 +555,7 @@ const isIndiaLocale = () => {
 };
 
 export default LandingFilters;
+
+LandingFilters.propTypes = {
+  searchbodytype: PropTypes.string,
+};

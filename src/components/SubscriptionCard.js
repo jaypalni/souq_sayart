@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import lightbluetick from '../assets/images/lightbluetick_icon.svg';
 
@@ -38,7 +39,6 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
           style={{
             fontWeight: 600,
             fontSize: 20,
-            marginBottom: 8,
             color: '#fff',
             marginBottom: 24,
           }}
@@ -80,7 +80,7 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
                 backgroundColor: '#ffffff',
                 borderColor: '#fff',
                 borderRadius: 12,
-                marginTop: '12',
+                marginTop: 12,
                 marginLeft: 5,
                 marginRight: 5,
               }}
@@ -92,9 +92,9 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
       </div>
     </div>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-      {features.map((f, i) => (
+      {features.map((feature) => (
         <li
-          key={i}
+          key={feature}
           style={{ display: 'flex', alignItems: 'center', margin: '8px 0' }}
         >
           <span style={{ color: '#039be5', fontWeight: 700, marginRight: 8 }}>
@@ -107,7 +107,7 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
               }}
             />
           </span>{' '}
-          {f}
+          {feature}
         </li>
       ))}
     </ul>
@@ -115,3 +115,10 @@ const SubscriptionCard = ({ title, price, duration, features }) => (
 );
 
 export default SubscriptionCard;
+
+SubscriptionCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  duration: PropTypes.string.isRequired,
+  features: PropTypes.arrayOf(PropTypes.string).isRequired,
+};

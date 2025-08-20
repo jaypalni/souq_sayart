@@ -17,6 +17,18 @@ const Banner = () => {
     location.pathname === '/verifyOtp' ||
     location.pathname === '/createProfile';
 
+  let bannerHeight = 526;
+  let bannerSrc = banner_icon;
+  let bannerOpacity = 1;
+  let bannerTitle = null;
+
+  if (isLoginPage) {
+    bannerHeight = 200;
+    bannerSrc = Car_icon;
+    bannerOpacity = 0.7;
+    bannerTitle = 'Welcome To Souq Sayarat';
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {isLoginPage && (
@@ -55,7 +67,7 @@ const Banner = () => {
       <div
         style={{
           width: '100%',
-          height: isLoginPage ? 200 : 526,
+          height: bannerHeight,
           background: '#222',
           display: 'flex',
           alignItems: 'center',
@@ -64,27 +76,29 @@ const Banner = () => {
         }}
       >
         <img
-          src={isLoginPage ? Car_icon : banner_icon}
+          src={bannerSrc}
           alt="Car"
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
             objectPosition: 'center 70%',
-            opacity: isLoginPage ? 0.7 : 1,
+            opacity: bannerOpacity,
           }}
         />
-        <h1
-          style={{
-            position: 'absolute',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 32,
-            fontFamily: 'Roboto',
-          }}
-        >
-          {isLoginPage ? 'Welcome To Souq Sayarat' : ''}
-        </h1>
+        {bannerTitle && (
+          <h1
+            style={{
+              position: 'absolute',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: 32,
+              fontFamily: 'Roboto',
+            }}
+          >
+            {bannerTitle}
+          </h1>
+        )}
       </div>
     </div>
   );

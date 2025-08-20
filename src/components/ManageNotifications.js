@@ -17,7 +17,7 @@ const notifications = [
     section: 'Today',
     highlighted: true,
     img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=600&h=300',
-    desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    desc: 'Short notification description.',
   },
   {
     id: 2,
@@ -139,26 +139,25 @@ const ManageNotifications = () => {
               >
                 {section}
               </div>
-              {sectionNotifs.map((notif, idx) => (
-                <div
-                  key={notif.id}
-                  className={`notification-item${
-                    notif.highlighted ? ' highlighted' : ''
-                  }`}
-                  onClick={() => setSelected(notif)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="notification-dot" />
-                  <div className="notification-content">
-                    <div className="notification-title">{notif.title}</div>
-                    <div className="notification-date">{notif.date}</div>
-                  </div>
-                  <div className="notification-thumb">
-                    <img src={notif.img} alt="thumb" />
-                  </div>
-                  <RightOutlined className="notification-arrow" />
-                </div>
-              ))}
+              {sectionNotifs.map((notif) => (
+  <button
+    key={notif.id}
+    type="button"
+    className={`notification-item${notif.highlighted && ' highlighted'}`}
+    onClick={() => setSelected(notif)}
+    style={{ cursor: 'pointer', }}
+  >
+    <div className="notification-dot" />
+    <div className="notification-content">
+      <div className="notification-title">{notif.title}</div>
+      <div className="notification-date">{notif.date}</div>
+    </div>
+    <div className="notification-thumb">
+      <img src={notif.img} alt="thumb" />
+    </div>
+    <RightOutlined className="notification-arrow" />
+  </button>
+))}
             </div>
           );
         })}

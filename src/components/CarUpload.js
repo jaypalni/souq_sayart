@@ -16,12 +16,12 @@ const CarUpload = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const response = await carAPI.uploadOptionDetails(values);
+      await carAPI.uploadOptionDetails(values);
       message.success('Car details uploaded successfully!');
       form.resetFields();
     } catch (error) {
       message.error(
-        error.response?.data?.message || 'Failed to upload car details'
+        error.response?.data?.message || 'Failed to upload car details',
       );
     } finally {
       setLoading(false);

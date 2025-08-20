@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Modal, Input, Form, Dropdown, Menu } from 'antd';
 import {
   LeftOutlined,
@@ -45,6 +46,28 @@ const initialCards = [
     name: 'Jane Doe',
   },
 ];
+
+const LAST4_DIGITS = 4;
+const CARD_BG_DEFAULT = '#fff';
+const CARD_BG_HIGHLIGHT = '#fafcff';
+
+const getBrandFromNumber = (cardNumber) => {
+  if (typeof cardNumber !== 'string') return 'Mastercard';
+  return cardNumber.startsWith('4') ? 'Visa' : 'Mastercard';
+};
+
+const getBrandIconFromNumber = (cardNumber) => {
+  if (typeof cardNumber !== 'string') return undefined;
+  if (cardNumber.startsWith('4')) {
+    return 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png';
+  }
+  if (cardNumber.startsWith('5')) {
+    return 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png';
+  }
+  return undefined;
+};
+
+const getCardBackground = (card) => (card.isDefault ? CARD_BG_HIGHLIGHT : CARD_BG_DEFAULT);
 
 const Payments = () => {
   const [cards, setCards] = useState(initialCards);
@@ -90,39 +113,22 @@ const Payments = () => {
         )
       );
     } else {
-      setCards([
-        ...cards,
-        {
-          id: Date.now(),
-          type: values.number.startsWith('4') ? 'Visa' : 'Mastercard',
-          last4: values.number.slice(-4),
-          isDefault: false,
-          brandIcon: values.number.startsWith('4')
-            ? 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png'
-            : 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png',
-          ...values,
-        },
-      ]);
+      const newCard = {
+        id: Date.now(),
+        type: getBrandFromNumber(values.number),
+        last4: values.number.slice(-LAST4_DIGITS),
+        isDefault: false,
+        brandIcon: getBrandIconFromNumber(values.number),
+        ...values,
+      };
+      setCards([...cards, newCard]);
     }
     setView('list');
     setEditCard(null);
     form.resetFields();
   };
 
-  const CardMenu = (card) => (
-    <Menu>
-      <Menu.Item key="edit" onClick={() => handleEdit(card)}>
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        key="delete"
-        onClick={() => handleDelete(card.id)}
-        style={{ color: '#f5222d' }}
-      >
-        Delete Card
-      </Menu.Item>
-    </Menu>
-  );
+  
 
   return (
     <div
@@ -149,7 +155,7 @@ const Payments = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                background: card.isDefault ? '#fafcff' : '#fff',
+                background: getCardBackground(card),
                 borderRadius: 8,
                 padding: 12,
                 marginBottom: 10,
@@ -176,7 +182,20 @@ const Payments = () => {
                 </div>
               </div>
               <Dropdown
-                overlay={CardMenu(card)}
+                overlay={(
+                  <Menu>
+                    <Menu.Item key="edit" onClick={() => handleEdit(card)}>
+                      Edit
+                    </Menu.Item>
+                    <Menu.Item
+                      key="delete"
+                      onClick={() => handleDelete(card.id)}
+                      style={{ color: '#f5222d' }}
+                    >
+                      Delete Card
+                    </Menu.Item>
+                  </Menu>
+                )}
                 trigger={['click']}
                 placement="bottomRight"
               >
@@ -230,19 +249,13 @@ const Payments = () => {
               }
             >
               <Input
-                suffix={
+                suffix={(
                   <img
-                    src={
-                      form.getFieldValue('number')?.startsWith('4')
-                        ? 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png'
-                        : form.getFieldValue('number')?.startsWith('5')
-                        ? 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png'
-                        : undefined
-                    }
+                    src={getBrandIconFromNumber(form.getFieldValue('number'))}
                     alt="brand"
                     style={{ width: 32, height: 20, objectFit: 'contain' }}
                   />
-                }
+                )}
                 placeholder="Card Number"
                 maxLength={19}
               />

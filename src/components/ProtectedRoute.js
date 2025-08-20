@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { message } from 'antd';
@@ -35,3 +36,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 export default ProtectedRoute;
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};

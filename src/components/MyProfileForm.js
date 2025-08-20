@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Form, Input, Button, Radio, Row, Col, Avatar, message } from 'antd';
 import {
   EditOutlined,
@@ -216,6 +217,14 @@ const mapUserToProfile = (user) => ({
                     editMode ? ' editable' : ''
                   }`}
                   onClick={triggerAvatarUpload}
+                  role="button"
+                  tabIndex={editMode ? 0 : -1}
+                  aria-label="Upload avatar"
+                  onKeyDown={(e) => {
+                    if (editMode && (e.key === 'Enter' || e.key === ' ')) {
+                      triggerAvatarUpload();
+                    }
+                  }}
                 >
                   <Avatar
                     size={64}
@@ -238,11 +247,12 @@ const mapUserToProfile = (user) => ({
                       ref={fileInputRef}
                       style={{ display: 'none' }}
                       onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
+                        const file = e.target?.files?.[0];
+                        if (file) {
                           const reader = new FileReader();
                           reader.onload = (ev) =>
-                            setAvatarUrl(ev.target.result);
-                          reader.readAsDataURL(e.target.files[0]);
+                            setAvatarUrl(ev.target?.result || '');
+                          reader.readAsDataURL(file);
                         }
                       }}
                     />
@@ -575,7 +585,7 @@ const mapUserToProfile = (user) => ({
             >
               Change Phone Number
             </Button>
-            {editMode ? (
+            {editMode && (
               <>
                 <Button
                   className="btn-solid-blue"
@@ -596,7 +606,8 @@ const mapUserToProfile = (user) => ({
                   Cancel
                 </Button>
               </>
-            ) : (
+            )}
+            {!editMode && (
               <Button
                 className="btn-solid-blue"
                 icon={<EditOutlined />}
@@ -632,7 +643,16 @@ const ConfirmModal = ({ isOpen, onClose }) => {
   return (
     <div className="small-popup-container">
       <div className="small-popup">
-        <span className="popup-close-icon" onClick={onClose}>
+        <span
+          className="popup-close-icon"
+          role="button"
+          tabIndex={0}
+          aria-label="Close"
+          onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') onClose();
+          }}
+        >
           &times;
         </span>
         <p className="popup-text">
@@ -649,6 +669,11 @@ const ConfirmModal = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+};
+
+ConfirmModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 

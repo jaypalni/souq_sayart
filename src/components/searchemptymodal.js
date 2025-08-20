@@ -98,13 +98,6 @@ const Searchemptymodal = ({
     <div
   className="modal-overlay"
   onClick={onClose}
-  role="button"
-  tabIndex={0}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      onClose();
-    }
-  }}
 >
       {contextHolder}
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -147,55 +140,43 @@ const Searchemptymodal = ({
           }}
         >
           {make !== DEFAULT_ALL_MAKE && (
-            <span
-  role="button"
-  tabIndex={0}
+            <button
+  type="button"
   style={filterStyle}
   onClick={() => setMake(DEFAULT_ALL_MAKE)}
-  onKeyDown={(e) => e.key === 'Enter' && setMake(DEFAULT_ALL_MAKE)}
 >
   {make}
-</span>
+</button>
           )}
 
           {model !== DEFAULT_ALL_MODELS && (
-            <span
-  role="button"
-  tabIndex={0}
+            <button
+  type="button"
   style={filterStyle}
   onClick={() => setModel(DEFAULT_ALL_MODELS)}
-  onKeyDown={(e) => e.key === 'Enter' && setModel(DEFAULT_ALL_MODELS)}
 >
   {model}
-</span>
+</button>
           )}
 
           {bodyType !== DEFAULT_ALL_BODY_TYPES && (
-            <span
-  role="button"
-  tabIndex={0}
+            <button
+  type="button"
   style={filterStyle}
   onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}
-  onKeyDown={(e) => e.key === 'Enter' && setBodyType(DEFAULT_ALL_BODY_TYPES)}
 >
   {bodyType}
-</span>
+</button>
           )}
 
           {selectedLocation !== DEFAULT_LOCATION_BAGHDAD && (
-           <span
+           <button
+  type="button"
   style={filterStyle}
-  role="button"
-  tabIndex={0}
   onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      setSelectedLocation(DEFAULT_LOCATION_BAGHDAD);
-    }
-  }}
 >
   {selectedLocation}
-</span>
+</button>
           )}
         </div>
         <p

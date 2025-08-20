@@ -142,13 +142,19 @@ const ImageGallery = ({ images }) => {
             thumbClass += ' active';
           }
           return (
-            <img
-              key={img + idx}
-              src={img}
-              alt={`thumb-${idx}`}
-              className={thumbClass}
+            <button
+              type="button"
+              key={img}
               onClick={() => setMainImageIdx(idx)}
-            />
+              aria-label={`Show image ${idx + 1}`}
+              style={{ background: 'none', border: 'none', padding: 0 }}
+            >
+              <img
+                src={img}
+                alt={`thumb-${idx}`}
+                className={thumbClass}
+              />
+            </button>
           );
         })}
       </div>
@@ -160,12 +166,19 @@ ImageGallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
+FeaturesSection.propTypes = {
+  adTitle: PropTypes.string.isRequired,
+  featuresCsv: PropTypes.string,
+};
+
 const FeaturesSection = ({ adTitle, featuresCsv }) => {
   const [open, setOpen] = useState(false);
   const features = (featuresCsv || '')
     .split(',')
     .map((f) => f.trim())
     .filter(Boolean);
+
+  const chevron = open ? <FaChevronUp /> : <FaChevronDown />;
 
   return (
     <div className="car-details-features-section">
@@ -175,22 +188,18 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
       <div className="border-bottom">
         <div className="car-details-features-header collapsed">
           <span style={{ fontWeight: 500, fontSize: '14px' }}>Extra Features</span>
-          <span
+          <button
+            type="button"
             onClick={() => setOpen(!open)}
-            style={{ cursor: 'pointer' }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setOpen(!open);
-              }
-            }}
+            aria-expanded={open}
+            aria-controls="extra-features"
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
           >
-            {open ? <FaChevronUp /> : <FaChevronDown />}
-          </span>
+            {chevron}
+          </button>
         </div>
         {open && (
-          <div className="row mb-2 mt-2">
+          <div id="extra-features" className="row mb-2 mt-2">
             {features.map((feature) => (
               <div className="col-md-3 col-6 mb-2" key={feature}>
                 <span className="car-details-feature-item">
@@ -266,12 +275,7 @@ const CarDetails = () => {
             className="d-flex align-items-center gap-3 mb-2"
             style={{ color: '#2B2829', fontWeight: 400, fontSize: '14px' }}
           >
-            {(carDetails.fuel_type !== 'Electric'
-              ? `${carDetails.no_of_cylinders}cyl `
-              : '') +
-              `${(carDetails.engine_cc / 1000).toFixed(1)}L ${
-                carDetails.fuel_type
-              }`}
+            {formatEngineSummary(carDetails)}
           </div>
           <div className="d-flex align-items-center gap-1 mb-2">
             <img
@@ -319,8 +323,8 @@ const CarDetails = () => {
                   value: carDetails.kilometers || '-',
                   icon: speed_code,
                 },
-              ].map((item, index) => (
-                <div className="col-md-3" key={index}>
+              ].map((item) => (
+                <div className="col-md-3" key={item.label}>
                   <div
                     style={{
                       border: '1px solid #ccc',
@@ -483,13 +487,13 @@ const CarDetails = () => {
                 onClick={() => openWhatsApp(carDetails.seller.phone_number)}
                 icon={<FaWhatsapp />}
                 className="w-100"
+                disabled={carDetails.seller.whatsapp === 'False'}
                 style={{
                   background: carDetails.seller.whatsapp === 'False' ? '#D3D3D3' : '#20B648',
                   border: 'none',
                   color: '#fff',
                   fontWeight: 500,
                   fontSize: '12px',
-                  pointerEvents: carDetails.seller.whatsapp === 'False' ? 'none' : 'auto',
                 }}
               >
                 Whatsapp

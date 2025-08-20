@@ -63,7 +63,7 @@ const EmptyState = () => (
 
 const SavedSearches = () => {
   const [searches, setSearches] = useState('');
-  const [setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [page] = useState(DEFAULT_PAGE);
   const [limit] = useState(DEFAULT_LIMIT);
 
@@ -96,14 +96,15 @@ const SavedSearches = () => {
 
  const handleToggle = (id) => {
    setSearches((prevSearches) =>
-     prevSearches.map((s) =>
-       s.id === id
-         ? {
-             ...s,
-             notify: !s.notify,
-           }
-         : s
-     )
+     prevSearches.map((s) => {
+       if (s.id === id) {
+         return {
+           ...s,
+           notify: !s.notify,
+         };
+       }
+       return s;
+     }),
    );
  };
 
@@ -117,41 +118,42 @@ const SavedSearches = () => {
     <div className="saved-searches-main">
       <div className="saved-searches-header">Saved Searches</div>
       <div className="saved-searches-list">
-        {searches.map((search) => (
+        {searches.map((search) => {
+          let imageSrc = lamborgini;
+          if (search.car_image?.trim()) {
+            imageSrc = `${BASE_URL}${search.car_image}`;
+          }
+          return (
           <div className="saved-search-item" key={search.id}>
             <div className="saved-search-info">
               <img
-                src={
-                  search.car_image && search.car_image?.trim()
-                    ? `${BASE_URL}${search.car_image}`
-                    : lamborgini
-                }
+                src={imageSrc}
                 alt="logo"
                 className="saved-search-logo"
               />
               <div>
                 <div className="saved-search-title">
-                  {search.make + " - " + search.model}
+                  {search.make + ' - ' + search.model}
                 </div>
                 {search.price && (
                   <div
                     className="saved-search-subtitle"
                     style={{
-                      fontSize: "14",
-                      fontWeight: "400",
-                      color: "#0A0A0B",
+                      fontSize: '14',
+                      fontWeight: '400',
+                      color: '#0A0A0B',
                     }}
                   >
-                    {"$" + search.price + " . From" + search.year}
+                    {'$' + search.price + ' . From' + search.year}
                   </div>
                 )}
                 <div className="saved-search-details">{search.details}</div>
                 <div
                   className="saved-search-notify-label"
                   style={{
-                    fontSize: "16",
-                    fontWeight: "600",
-                    color: "#0A0A0B",
+                    fontSize: '16',
+                    fontWeight: '600',
+                    color: '#0A0A0B',
                   }}
                 >
                   Get Notified about new offers.
@@ -164,7 +166,8 @@ const SavedSearches = () => {
               className="saved-search-switch"
             />
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

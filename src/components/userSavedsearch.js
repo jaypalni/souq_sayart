@@ -18,6 +18,7 @@ import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
 
 // Helpers to reduce complexity in SavedSearchCard
+const MAX_SAVED_SEARCHES = 3;
 const buildMakeImageSrc = (item) => {
   if (item.make_image) {
     return `http://13.202.75.187:5002${item.make_image}`;
@@ -55,7 +56,10 @@ ModelText.propTypes = {
 };
 
 const FeaturesList = ({ features }) => {
-  const list = Array.isArray(features) ? features : [];
+  let list = [];
+  if (Array.isArray(features)) {
+    list = features;
+  }
   if (list.length === 0) {
     return null;
   }
@@ -74,12 +78,15 @@ FeaturesList.propTypes = {
 
 const SavedSearchCard = ({ item, idx, total }) => {
   const sp = item.search_params || {};
-  const divider = idx < total - 1 ? ' with-divider' : '';
+  let divider = '';
+  if (idx < total - 1) {
+    divider = ' with-divider';
+  }
   const priceText = buildPriceText(sp);
   const yearText = buildYearText(sp);
   const imgSrc = buildMakeImageSrc(item);
-  const makeDisplay = sp && sp.make ? sp.make : 'Unknown Make';
-  const makeAlt = sp && sp.make ? sp.make : 'Car';
+  const makeDisplay = sp?.make || 'Unknown Make';
+  const makeAlt = sp?.make || 'Car';
 
   return (
     <div className={`user-saved-search-section${divider}`} key={item.id}>
@@ -136,6 +143,12 @@ const SignupBox = ({ onClick, title, buttonText }) => (
   </div>
 );
 
+SignupBox.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  buttonText: PropTypes.string.isRequired,
+};
+
 const ModalComingSoon = ({ onClose }) => (
   <div className="modal-overlay">
     <div className="modal-content">
@@ -167,6 +180,10 @@ const ModalComingSoon = ({ onClose }) => (
   </div>
 );
 
+ModalComingSoon.propTypes = {
+  onClose: PropTypes.func.isRequired,
+};
+
 const UserSavedsearch = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -188,7 +205,7 @@ const UserSavedsearch = () => {
       const response = handleApiResponse(res);
 
       if (response?.data?.searches) {
-        setSavedSearches(response.data.searches.slice(0, 3));
+        setSavedSearches(response.data.searches.slice(0, MAX_SAVED_SEARCHES));
       }
     } catch {
       setSavedSearches([]);
@@ -265,9 +282,13 @@ const UserSavedsearch = () => {
         >
           Your Saved Searches
         </h1>
-        <a href="#" className="car-listing-seeall">
+        <button
+          type="button"
+          className="car-listing-seeall"
+          onClick={() => navigate('/allcars')}
+        >
           See All
-        </a>
+        </button>
       </div>
 
       <div className="user-saved-searches-top">
@@ -277,30 +298,38 @@ const UserSavedsearch = () => {
           <div className="user-saved-search-actions">
             <div className="user-saved-search-action-box">
               <img src={diamondLogo} alt="Diamond" className="action-icon" />
-              <p
+              <button
+                type="button"
                 style={{
                   fontSize: '14px',
                   color: '#0A0A0B',
                   cursor: 'pointer',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
                 }}
                 onClick={() => setIsModalOpen(true)}
               >
                 Value your car with our free online valuation
-              </p>
+              </button>
             </div>
 
             <div className="user-saved-search-action-box">
               <img src={dollarLogo} alt="Dollar" className="action-icon" />
-              <p
+              <button
+                type="button"
                 style={{
                   fontSize: '14px',
                   color: '#0A0A0B',
                   cursor: 'pointer',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
                 }}
                 onClick={() => setIsModalOpen(true)}
               >
                 List your car or get a free Instant Offer
-              </p>
+              </button>
             </div>
           </div>
 

@@ -77,7 +77,7 @@ SearchModal.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       name: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
 };
 

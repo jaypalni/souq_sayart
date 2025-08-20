@@ -13,6 +13,12 @@ import {
   EllipsisOutlined,
 } from '@ant-design/icons';
 
+const VISA_ICON =
+  'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png';
+const MASTERCARD_ICON =
+  'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png';
+
+
 const initialCards = [
   {
     id: 1,
@@ -20,7 +26,7 @@ const initialCards = [
     last4: '8456',
     isDefault: true,
     brandIcon:
-      'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png',
+      VISA_ICON,
     number: '4130 0000 0000 8456',
     exp: '03/24',
     cvv: '123',
@@ -32,7 +38,7 @@ const initialCards = [
     last4: '8456',
     isDefault: false,
     brandIcon:
-      'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png',
+      MASTERCARD_ICON,
     number: '5100 0000 0000 8456',
     exp: '04/25',
     cvv: '456',

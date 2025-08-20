@@ -637,7 +637,9 @@ const Cardetailsfilter = () => {
             const filtered = section.features.filter((f) =>
               f.toLowerCase().includes(search.toLowerCase())
             );
-            if (filtered.length === 0) return null;
+           if (filtered.length === 0) {
+             return null;
+           }
             return (
               <div key={section.title} style={{ marginBottom: 5 }}>
                 <div

@@ -16,7 +16,9 @@ import {
 const loadPersistedCustomerDetails = () => {
   try {
     const raw = localStorage.getItem('customerDetails');
-    if (!raw) return null;
+    if (!raw){
+return null;
+    } 
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === 'object' ? parsed : null;
   } catch (_) {

@@ -7,24 +7,14 @@
 
 import React from 'react';
 
-const carTypes = [
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-  { name: 'New Mercedes-Benz Sedan', count: 42 },
-];
+
+const CAR_TYPE_NAME = 'New Mercedes-Benz Sedan';
+const CAR_TYPE_COUNT = 42;
+
+const carTypes = Array.from({ length: 16 }, () => ({
+  name: CAR_TYPE_NAME,
+  count: CAR_TYPE_COUNT,
+}));
 
 const Bestcarsalebytype = () => {
   return (

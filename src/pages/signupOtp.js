@@ -148,9 +148,10 @@ const SignupOtp = () => {
     if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
       setError('Please enter the OTP.');
       return false;
-    }
-    setError('');
+    }else{
+setError('');
     return true;
+    }
   };
 
   const handleContinue = async () => {

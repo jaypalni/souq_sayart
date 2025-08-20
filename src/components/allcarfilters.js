@@ -11,21 +11,30 @@ import { SearchOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
 import { carAPI } from '../services/api';
-import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { handleApiResponse, handleApiError, DEFAULT_MAKE, DEFAULT_MODEL, DEFAULT_BODY_TYPE, DEFAULT_LOCATION } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/allcarfilters.css';
 import Searchemptymodal from '../components/searchemptymodal';
 
 const { Option } = Select;
 
-const carMakes = ['All Make', 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai'];
+const DEFAULTS = {
+  ALL_MAKE: 'All Make',
+  ALL_MODELS: 'All Models',
+  ALL_BODY_TYPES: 'All Body Types',
+  BAGHDAD: 'Baghdad',
+  NEW_USED: 'New & Used',
+  PRICE_MIN: 'Price Min',
+  PRICE_MAX: 'Price Max',
+};
+const carMakes = [DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai'];
 
 const carModels = {
-  Toyota: ['All Models', 'Corolla', 'Camry', 'Yaris'],
-  Honda: ['All Models', 'Civic', 'Accord', 'CR-V'],
-  BMW: ['All Models', '3 Series', '5 Series', 'X5'],
-  Mercedes: ['All Models', 'C-Class', 'E-Class', 'GLA'],
-  Hyundai: ['All Models', 'Elantra', 'Sonata', 'Tucson'],
+  Toyota: [DEFAULTS.ALL_MAKE, 'Corolla', 'Camry', 'Yaris'],
+  Honda: [DEFAULTS.ALL_MAKE, 'Civic', 'Accord', 'CR-V'],
+  BMW: [DEFAULTS.ALL_MAKE, '3 Series', '5 Series', 'X5'],
+  Mercedes: [DEFAULTS.ALL_MAKE, 'C-Class', 'E-Class', 'GLA'],
+  Hyundai: [DEFAULTS.ALL_MAKE, 'Elantra', 'Sonata', 'Tucson'],
 };
 
 const bodyTypes = [
@@ -36,21 +45,21 @@ const bodyTypes = [
   'Coupe',
   'Convertible',
 ];
-const locations = ['Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
-const newUsedOptions = ['New & Used', 'New', 'Used'];
-const priceMinOptions = ['Price Min', 5000, 10000, 20000, 30000, 40000];
-const priceMaxOptions = ['Price Max', 20000, 30000, 40000, 50000, 100000];
+const locations = [DEFAULTS.BAGHDAD, 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+const newUsedOptions = [DEFAULTS.NEW_USED, 'New', 'Used'];
+const priceMinOptions = [DEFAULTS.PRICE_MIN, 5000, 10000, 20000, 30000, 40000];
+const priceMaxOptions = [DEFAULTS.PRICE_MAX, 20000, 30000, 40000, 50000, 100000];
 
 const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
   const [loading, setLoading] = useState(false);
   const [carSearch, setCarSearch] = useState([]);
-  const [make, setMake] = useState('All Make');
-  const [model, setModel] = useState('All Models');
-  const [bodyType, setBodyType] = useState('All Body Types');
-  const [location, setLocation] = useState('Baghdad');
-  const [newUsed, setNewUsed] = useState('New & Used');
-  const [priceMin, setPriceMin] = useState('Price Min');
-  const [priceMax, setPriceMax] = useState('Price Max');
+const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
+  const [model, setModel] = useState(DEFAULTS.ALL_MODELS);
+  const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
+  const [location, setLocation] = useState(DEFAULTS.BAGHDAD);
+  const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
+  const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
+  const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -79,10 +88,10 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
     try {
       const saved = JSON.parse(localStorage.getItem('searchcardata'));
       if (saved) {
-        setMake(saved.make || 'All Make');
-        setModel(saved.model || 'All Models');
-        setBodyType(saved.body_type || 'All Body Types');
-        setLocation(saved.location || 'Baghdad');
+        setMake(saved.make || DEFAULT_MAKE);
+        setModel(saved.model || DEFAULT_MODEL);
+        setBodyType(saved.body_type || DEFAULT_BODY_TYPE);
+        setLocation(saved.location || DEFAULT_LOCATION);
       }
     } catch (e) {}
   }, []);
@@ -103,7 +112,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
 
   const handleChange = (name, value) => {
     if (name === 'Make') {
-      setModel('All Models');
+      setModel(DEFAULT_MODEL);
     }
   };
 
@@ -131,10 +140,10 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
     try {
       setLoading(true);
       const apiParams = {
-        make: make !== 'All' ? make : '',
-        model: model !== 'All Models' ? model : '',
-        body_type: bodyType !== 'All Body Types' ? bodyType : '',
-        location: location !== 'Baghdad' ? location : '',
+        make: make !== DEFAULTS.ALL_MAKE ? make : '',
+        model: model !== DEFAULTS.ALL_MODELS ? model : '',
+        body_type: bodyType !== DEFAULTS.ALL_BODY_TYPES ? bodyType : '',
+        location: location !== DEFAULTS.BAGHDAD ? location : '',
       };
 
       const response = await carAPI.getSearchCars(apiParams);
@@ -176,10 +185,10 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
             setValue(opt);
             handleChange(
               type === 'newUsed'
-                ? 'New & Used'
+                ? DEFAULTS.NEW_USED
                 : type === 'priceMin'
-                ? 'Price Min'
-                : 'Price Max',
+                ? DEFAULTS.PRICE_MIN
+                : DEFAULTS.PRICE_MAX,
               opt
             );
             setOpenDropdown(null);

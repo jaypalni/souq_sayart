@@ -14,11 +14,14 @@ import { message } from 'antd';
 import '../assets/styles/loginScreen.css';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+const CACHE_KEY = 'geoDataCache';
+const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
   const [phoneValidation, setPhoneValidation] = useState('');
   const [countryOptions, setCountryOptions] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -30,169 +33,148 @@ const LoginScreen = () => {
   const { user } = useSelector((state) => state.auth);
   const { customerDetails } = useSelector((state) => state.customerDetails);
 
-  const isLoggedIn = customerDetails && user;
+  const isLoggedIn = Boolean(customerDetails && user);
 
   useEffect(() => {
     if (isLoggedIn) {
       navigate('/landing');
     }
-  }, []);
+  }, [isLoggedIn, navigate]);
 
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const response = await authAPI.countrycode();
         const data = handleApiResponse(response);
-        if (data && data.length > 0) {
-          setCountryOptions(data);
-          const getGeoData = async () => {
-            try {
-              const cacheKey = 'geoDataCache';
-              const cached = localStorage.getItem(cacheKey);
-              if (cached) {
-                const parsed = JSON.parse(cached);
-                const maxAgeMs = 24 * 60 * 60 * 1000;
-                if (
-                  parsed?.ts &&
-                  Date.now() - parsed.ts < maxAgeMs &&
-                  parsed?.data
-                ) {
-                  return parsed.data;
-                }
-              }
 
-              const geoRes = await fetch('https://ipapi.co/json/');
-              if (!geoRes.ok)
-                throw new Error(`Geo API error: ${geoRes.status}`);
-              const geoData = await geoRes.json();
-              localStorage.setItem(
-                cacheKey,
-                JSON.stringify({ ts: Date.now(), data: geoData })
-              );
-              return geoData;
-            } catch (err) {
-              return null;
-            }
-          };
+        if (!data || data.length === 0) return;
 
-          const geoData = await getGeoData();
-          let defaultCountry = null;
+        setCountryOptions(data);
 
-          if (geoData) {
-            const userCountryCode = geoData.country_calling_code;
-            defaultCountry = data.find(
-              (country) =>
-                country.country_code === userCountryCode ||
-                country.country_name?.toLowerCase() ===
-                  geoData.country_name?.toLowerCase()
-            );
-          }
-
-          if (!defaultCountry) {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const tzLower = tz ? tz.toLowerCase() : '';
-            const tzOffset = new Date().getTimezoneOffset();
-            const langs = [
-              navigator.language,
-              ...(navigator.languages || []),
-            ].filter(Boolean);
-            const isIndiaLocale =
-              tzLower === 'asia/kolkata' ||
-              tzLower === 'asia/calcutta' ||
-              tzOffset === -330 ||
-              langs.some((l) => {
-                const ll = String(l).toLowerCase();
-                return (
-                  ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in')
-                );
-              });
-            if (isIndiaLocale) {
-              defaultCountry =
-                data.find((c) => c.country_code === '+91') ||
-                data.find((c) => c.country_name?.toLowerCase() === 'india') ||
-                null;
-            }
-          }
-
-          if (!defaultCountry) {
-            defaultCountry = data[0];
-          }
-
-          if (defaultCountry) {
-            setSelectedCountry(defaultCountry);
-          }
-        }
-      } catch (error) {}
+        const geoData = await getGeoData();
+        const defaultCountry = getDefaultCountry(data, geoData);
+        setSelectedCountry(defaultCountry || data[0]);
+      } catch {
+        // Ignore API errors silently
+      }
     };
+
     fetchCountries();
   }, []);
+
+  const getGeoData = async () => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.ts && Date.now() - parsed.ts < MAX_AGE_MS && parsed?.data) {
+          return parsed.data;
+        }
+      }
+
+      const geoRes = await fetch('https://ipapi.co/json/');
+      if (!geoRes.ok) {
+        throw new Error(`Geo API error: ${geoRes.status}`);
+      }
+      const geoData = await geoRes.json();
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: geoData }));
+      return geoData;
+    } catch {
+      return null;
+    }
+  };
+
+  const getDefaultCountry = (data, geoData) => {
+    if (geoData) {
+      const userCountryCode = geoData.country_calling_code;
+      const match = data.find(
+        (country) =>
+          country.country_code === userCountryCode ||
+          country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase()
+      );
+      if (match) return match;
+    }
+
+    if (isIndiaLocale()) {
+      return (
+        data.find((c) => c.country_code === '+91') ||
+        data.find((c) => c.country_name?.toLowerCase() === 'india')
+      );
+    }
+
+    return null;
+  };
+
+  const isIndiaLocale = () => {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const tzLower = tz.toLowerCase();
+    const tzOffset = new Date().getTimezoneOffset();
+    const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+
+    return (
+      tzLower === 'asia/kolkata' ||
+      tzLower === 'asia/calcutta' ||
+      tzOffset === -330 ||
+      langs.some((l) => String(l).toLowerCase().includes('-in'))
+    );
+  };
 
   const handlePhoneChange = (e) => {
     const numb = e.target.value;
     setEmailErrorMsg('');
 
-    if (/^\d*$/.test(numb)) {
-      setPhone(numb);
+    if (!/^\d*$/.test(numb)) return;
 
-      if (numb.length > 0) {
-        setPhoneValidation('Phone number is required!');
-      } else {
-        setPhoneValidation('');
-      }
-    }
+    setPhone(numb);
+    setPhoneValidation(numb.length > 0 ? 'Phone number is required!' : '');
   };
 
   const handleCaptchaChange = (value) => {
-    setVerified(!!value);
+    setVerified(Boolean(value));
     setCaptchaErrorMsg('');
   };
 
   const onClickContinue = async () => {
     if (phone === '') {
       setEmailErrorMsg('Phone number is required!');
-    } else if (verified == false) {
-      setCaptchaErrorMsg('Captcha is required!');
-    } else {
-      try {
-        setLoading(true);
-
-        const response = await authAPI.login({
-          captcha_token: verified,
-          phone_number: `${selectedCountry.country_code}${phone}`,
-        });
-        const savephonenumber = `${selectedCountry.country_code}${phone}`;
-        localStorage.setItem('phonenumber', savephonenumber);
-
-        const data = handleApiResponse(response);
-        if (data) {
-          localStorage.setItem('token', data.access_token);
-          localStorage.setItem('requestid', data.request_id);
-          localStorage.setItem(
-            'phone_number',
-            `${selectedCountry.country_code}${phone}`
-          );
-
-          if (data) {
-            localStorage.setItem('userData', JSON.stringify(data));
-          }
-
-          messageApi.open({
-            type: 'success',
-            content: data.message,
-          });
-          localStorage.setItem('fromLogin', 'true');
-          navigate('/verifyOtp');
-        }
-      } catch (error) {
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData.message,
-        });
-      } finally {
-        setLoading(false);
-      }
+      return;
     }
+
+    if (!verified) {
+      setCaptchaErrorMsg('Captcha is required!');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const savePhone = `${selectedCountry.country_code}${phone}`;
+      localStorage.setItem('phonenumber', savePhone);
+
+      const response = await authAPI.login({
+        captcha_token: verified,
+        phone_number: savePhone,
+      });
+
+      const data = handleApiResponse(response);
+      if (data) {
+        persistLoginData(data, savePhone);
+        messageApi.open({ type: 'success', content: data.message });
+        navigate('/verifyOtp');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      messageApi.open({ type: 'error', content: errorData.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const persistLoginData = (data, phoneNumber) => {
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('requestid', data.request_id);
+    localStorage.setItem('phone_number', phoneNumber);
+    localStorage.setItem('userData', JSON.stringify(data));
+    localStorage.setItem('fromLogin', 'true');
   };
 
   return (

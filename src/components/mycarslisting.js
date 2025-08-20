@@ -7,122 +7,92 @@
 
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/mycarslisting.css';
-import { Radio, Select, Button, Pagination, Tag } from 'antd';
-import mylistingcard_icon from '../assets/images/mylistingcard_icon.png';
-import chat_icon from '../assets/images/chat_icon.svg';
-import like_icon from '../assets/images/like_icon.svg';
-import view_icon from '../assets/images/view_icon.svg';
-import boost_icon from '../assets/images/boost_icon.svg';
-import { HiOutlineDotsVertical } from 'react-icons/hi';
+import { Radio, Select, Pagination, message } from 'antd';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
+import CarCard from './CarCard';
 
 const { Option } = Select;
 
 const Mycarslisting = () => {
   const [value, setValue] = useState('Active');
   const [filterStatus, setFilterStatus] = useState('Any');
-  const navigate = useNavigate();
-
   const [activeDropdownId, setActiveDropdownId] = useState(null);
-
-  const baseURL = 'http://192.168.2.68:5000/';
-
-  const menuItemStyle = {
-    padding: '8px 16px',
-    fontSize: '14px',
-    cursor: 'pointer',
-    color: '#333',
-    hover: {
-      backgroundColor: '#f5f5f5',
-    },
-  };
-
   const [carDetails, setCarDetails] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [limit] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
-  const [setCarDelete] = useState(null);
+
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     setValue(e.target.value);
-    setPage(1); 
+    setPage(1);
   };
 
 
   const handleFilterChange = (val) => {
     setFilterStatus(val);
-    setPage(1); 
+    setPage(1);
+  };
+
+  const getStatusParam = () => {
+    if (value === 'Active') {
+      if (filterStatus === 'Base') return 'pending';
+      if (filterStatus === 'Sport') return 'approved';
+      return 'any';
+    }
+    if (value === 'Drafts') return 'drafts';
+    if (value === 'Sold') return 'sold';
+    return '';
+  };
+
+
+  const fetchCars = async () => {
+    try {
+      setLoading(true);
+      const statusParam = getStatusParam();
+      const response = await carAPI.getMylistingCars({ page, limit, status: statusParam });
+      const cardetail = handleApiResponse(response);
+
+      if (['pending', 'approved', 'any'].includes(statusParam)) {
+        setCarDetails(cardetail.data.approved_pending || []);
+      } else if (statusParam === 'drafts') {
+        setCarDetails(cardetail.data.draft || []);
+      } else if (statusParam === 'sold') {
+        setCarDetails(cardetail.data.sold || []);
+      } else {
+        setCarDetails([]);
+      }
+      setTotalCount(cardetail.data.total || 0);
+
+      message.success(cardetail.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to load car data');
+      setCarDetails([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        setLoading(true);
-        let statusParam = '';
-
-        if (value === 'Active') {
-          if (filterStatus === 'Base') statusParam = 'pending';
-          else if (filterStatus === 'Sport') statusParam = 'approved';
-          else statusParam = 'any';
-        } else if (value === 'Drafts') {
-          statusParam = 'drafts';
-        } else if (value === 'Sold') {
-          statusParam = 'sold';
-        }
-
-        const response = await carAPI.getMylistingCars({
-          page,
-          limit,
-          status: statusParam,
-        });
-
-        const cardetail = handleApiResponse(response);
-       
-        if (
-          statusParam === 'pending' ||
-          statusParam === 'approved' ||
-          statusParam === 'any'
-        ) {
-          setCarDetails(cardetail.data.approved_pending || []);
-          setTotalCount(cardetail.data.total || 0); 
-        } else if (statusParam === 'drafts') {
-          setCarDetails(cardetail.data.draft || []);
-          setTotalCount(cardetail.data.total || 0); 
-        } else if (statusParam === 'sold') {
-          setCarDetails(cardetail.data.sold || []);
-          setTotalCount(cardetail.data.total || 0);
-        } else {
-          setCarDetails([]);
-          setTotalCount(0);
-        }
-
-        message.success(cardetail.message || 'Fetched successfully');
-      } catch (error) {
-        const errorData = handleApiError(error);
-        message.error(errorData.message || 'Failed to load car data');
-        setCarDetails([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCars();
   }, [page, limit, value, filterStatus]);
 
+
   const handleDeleteMethod = async (carId) => {
-    
     try {
       setLoading(true);
       const response = await carAPI.deleteCar(carId);
       const cardetail = handleApiResponse(response);
       if (cardetail?.data) {
-        setCarDelete(cardetail.data);
+        message.success(cardetail.message || 'Car deleted successfully');
+        fetchCars();
       }
-      message.success(cardetail.message || 'Fetched successfully');
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(errorData.message || 'Failed to delete car data');
@@ -131,33 +101,51 @@ const Mycarslisting = () => {
     }
   };
 
-  
+
+  const renderPagination = () => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop: 20,
+        color: '#0A0A0B',
+        borderRadius: '4px',
+      }}
+    >
+      <Pagination
+        className="custom-pagination"
+        current={page}
+        total={totalCount || 50}
+        pageSize={15}
+        onChange={(newPage) => setPage(newPage)}
+        showSizeChanger={false}
+        itemRender={(type, originalElement) => {
+          if (type === 'prev') {
+            return <span>&lt;</span>;
+          }
+          if (type === 'next') {
+            return <span>&gt;</span>;
+          }
+          return originalElement;
+        }}
+      />
+    </div>
+  );
+
   return (
     <div>
-      <div
-        style={{
-          background: '#008ad5',
-          color: '#fff',
-          padding: '32px 0 16px 0',
-        }}
-      >
+      {/* Header */}
+      <div style={{ background: '#008ad5', color: '#fff', padding: '32px 0 16px 0' }}>
         <div style={{ maxWidth: 1200, margin: '0 35px' }}>
           <h2 style={{ margin: 0 }}>My Listings</h2>
           <p style={{ margin: 0 }}>Post an ad in just 3 simple steps</p>
         </div>
       </div>
+
+      {/* Subscribe Banner */}
       <div className="mylisting-car-image-container">
         <div>
-          <h1
-            style={{
-              top: 55,
-              left: 35,
-              color: '#fff',
-              fontSize: 40,
-              fontWeight: 700,
-              width: 355,
-            }}
-          >
+          <h1 style={{ top: 55, left: 35, color: '#fff', fontSize: 40, fontWeight: 700, width: 355 }}>
             Subscribe To Our Packages
           </h1>
           <button
@@ -175,6 +163,8 @@ const Mycarslisting = () => {
           </button>
         </div>
       </div>
+
+      {/* Filters */}
       <div
         style={{
           marginTop: 35,
@@ -187,11 +177,7 @@ const Mycarslisting = () => {
           gap: '10px',
         }}
       >
-        <Radio.Group
-          onChange={handleChange}
-          value={value}
-          style={{ display: 'flex', gap: '10px' }}
-        >
+        <Radio.Group onChange={handleChange} value={value} style={{ display: 'flex', gap: '10px' }}>
           {['Active', 'Drafts', 'Sold'].map((status) => (
             <Radio.Button
               key={status}
@@ -214,11 +200,7 @@ const Mycarslisting = () => {
         </Radio.Group>
 
         {value === 'Active' && (
-          <Select
-            value={filterStatus}
-            style={{ minWidth: 140, borderColor: '#fff' }}
-            onChange={handleFilterChange}
-          >
+          <Select value={filterStatus} style={{ minWidth: 140, borderColor: '#fff' }} onChange={handleFilterChange}>
             <Option value="Any">All</Option>
             <Option value="Base">Pending Approval</Option>
             <Option value="Sport">Approved</Option>
@@ -226,6 +208,7 @@ const Mycarslisting = () => {
         )}
       </div>
 
+      {/* Car List */}
       <div style={{ padding: '20px' }}>
         {loading ? (
           <p>Loading cars...</p>
@@ -240,354 +223,22 @@ const Mycarslisting = () => {
               justifyContent: 'center',
             }}
           >
-            {carDetails?.map((car) => {
-              return (
-                <div
-                  key={car.id}
-                  style={{
-                    border: '1px solid #eee',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                    backgroundColor: '#fff',
-                    width: '308px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <img
-                      src={
-                        car.image
-                          ? `${baseURL}${car.image}`
-                          : mylistingcard_icon
-                      }
-                      alt="car"
-                      style={{
-                        width: 137,
-                        height: value === 'Active' ? '144px' : '109px',
-                        borderRadius: '8px',
-                        objectFit: 'cover',
-                      }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          marginTop: '10px',
-                          marginRight: '10px',
-                        }}
-                      >
-                        <h3
-                          style={{
-                            margin: 0,
-                            fontSize: '18px',
-                            fontWeight: 700,
-                          }}
-                        >
-                          {car.ad_title}
-                        </h3>
-                        <div style={{ position: 'relative' }}>
-                          {value === 'Active' && (
-                            <button
-                              onClick={() =>
-                                setActiveDropdownId(
-                                  activeDropdownId === car.id ? null : car.id
-                                )
-                              }
-                              style={{
-                                height: '20px',
-                                width: '20px',
-                                background: 'transparent',
-                                border: 'none',
-                                padding: 0,
-                                marginLeft: 'auto',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              <HiOutlineDotsVertical />
-                            </button>
-                          )}
-
-                          {activeDropdownId === car.id && (
-                            <div
-                              style={{
-                                position: 'absolute',
-                                top: '35px',
-                                right: '12px',
-                                backgroundColor: '#fff',
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                borderRadius: '6px',
-                                padding: '8px 0',
-                                zIndex: 10,
-                                width: '150px',
-                              }}
-                            >
-                              <div
-                                style={menuItemStyle}
-                                onClick={() => {
-                                  setActiveDropdownId(null);
-                                }}
-                              >
-                                Delete listing
-                              </div>
-                              <div
-                                style={menuItemStyle}
-                                onClick={() => {
-                                  setActiveDropdownId(null);
-                                }}
-                              >
-                                Edit listing
-                              </div>
-                              <div
-                                style={menuItemStyle}
-                                onClick={() => {
-                                  setActiveDropdownId(null);
-                                }}
-                              >
-                                Mark as sold
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          color: '#D67900',
-                          fontWeight: 700,
-                          fontSize: '16px',
-                          marginTop: '4px',
-                        }}
-                      >
-                        {'$' + car.price}
-                      </div>
-                      <Tag
-                        color={
-                          value === 'Active' && filterStatus === 'Sport'
-                            ? '#A4F4E7'
-                            : value === 'Active' && filterStatus === 'Base'
-                            ? '#ffe0b3'
-                            : value === 'Sold'
-                            ? '#A4F4E7'
-                            : '#ffe0b3'
-                        }
-                        style={{
-                          color:
-                            value === 'Active' && filterStatus === 'Sport'
-                              ? 'green'
-                              : value === 'Active' && filterStatus === 'Base'
-                              ? '#d67a00'
-                              : value === 'Sold'
-                              ? 'green'
-                              : '#d67a00',
-                          marginTop: '6px',
-                          display: 'inline-block',
-                          fontSize: '14px',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {value === 'Active' && filterStatus === 'Sport'
-                          ? 'Active'
-                          : value === 'Active' && filterStatus === 'Base'
-                          ? 'Pending Approval'
-                          : value === 'Sold'
-                          ? 'Sold'
-                          : car.status}
-                      </Tag>
-                      {value === 'Active' && filterStatus === 'Sport' && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            gap: '10px',
-                            backgroundColor: '#D67900',
-                            borderRadius: '14px',
-                            height: '30px',
-                            marginTop: '10px',
-                            marginRight: '10px',
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                          }}
-                        >
-                          <span
-                            style={{
-                              color: '#fff',
-                              fontSize: '14px',
-                              fontWeight: 600,
-                            }}
-                          >
-                            {'Boost'}
-                          </span>
-                          <img
-                            src={boost_icon}
-                            alt="boost"
-                            style={{
-                              width: '13px',
-                              height: '13px',
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        marginTop: '10px',
-                        color: '#008ad5',
-                        fontSize: '14px',
-                        fontWeight: 400,
-                      }}
-                    >
-                      {car.updated_at}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: '10px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        gap: '10px',
-                      }}
-                    >
-                      {value === 'Drafts' ? (
-                        <>
-                          <Button
-                            type="default"
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#fff',
-                              borderColor: '#008ad5',
-                              borderRadius: '18px',
-                              color: '#008ad5',
-                              fontSize: '14px',
-                              fontWeight: 600,
-                            }}
-                          >
-                            Delete
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#008ad5',
-                              borderColor: '#008ad5',
-                              borderRadius: '18px',
-                              color: '#fff',
-                              fontSize: '14px',
-                              fontWeight: 600,
-                            }}
-                          >
-                            Post
-                          </Button>
-                        </>
-                      ) : value === 'Sold' ? (
-                        <>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <span
-                              style={{
-                                color: '#003958',
-                                fontSize: '14px',
-                                fontWeight: 400,
-                              }}
-                            >
-                              <img src={chat_icon} alt="chat" />0 Chat
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <span
-                              style={{
-                                color: '#003958',
-                                fontSize: '14px',
-                                fontWeight: 400,
-                              }}
-                            >
-                              <img src={like_icon} alt="like" />0 Like
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <span
-                              style={{
-                                color: '#003958',
-                                fontSize: '14px',
-                                fontWeight: 400,
-                              }}
-                            >
-                              <img src={view_icon} alt="view" />0 View
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            type="default"
-                            danger
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#fff',
-                              borderColor: '#008ad5',
-                              borderRadius: '18px',
-                              color: '#008ad5',
-                              fontSize: '14px',
-                              fontWeight: 600,
-                            }}
-                            onClick={() => handleDeleteMethod(car.id)}
-                          >
-                            Delete
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#008ad5',
-                              borderColor: '#008ad5',
-                              borderRadius: '18px',
-                              color: '#fff',
-                              fontSize: '14px',
-                              fontWeight: 600,
-                            }}
-                            onClick={
-                              car.featured
-                                ? () => navigate(`/carDetails/${car.id}`)
-                                : undefined
-                            }
-                          >
-                            Edit
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {carDetails.map((car) => (
+              <CarCard
+                key={car.id}
+                car={car}
+                value={value}
+                filterStatus={filterStatus}
+                handleDelete={handleDeleteMethod}
+                navigate={navigate}
+              />
+            ))}
           </div>
         )}
       </div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: 20,
-          color: '#0A0A0B',
-          borderradius: '4px',
-        }}
-      >
-        <Pagination
-          className="custom-pagination"
-          current={page}
-          total={totalCount || 50}
-          pageSize={15}
-          onChange={(newPage) => setPage(newPage)}
-          showSizeChanger={false}
-          itemRender={(type, originalElement) => {
-            if (type === 'prev') return <span>&lt;</span>;
-            if (type === 'next') return <span>&gt;</span>;
-            return originalElement;
-          }}
-        />
-      </div>
+
+      {/* Pagination */}
+      {renderPagination()}
     </div>
   );
 };

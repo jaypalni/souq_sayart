@@ -91,7 +91,9 @@ const CreateProfile = () => {
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     const isPDF = file.type === 'application/pdf';
 

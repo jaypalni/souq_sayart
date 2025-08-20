@@ -7,12 +7,13 @@
 
 import React, { useState } from 'react';
 import { RightOutlined, LeftOutlined, BellOutlined } from '@ant-design/icons';
+const DEFAULT_DATE = 'Dec 7, 2019 23:26';
 
 const notifications = [
   {
     id: 1,
     title: 'Fringilla Fusce Elit',
-    date: 'Dec 7, 2019 23:26',
+    date: DEFAULT_DATE,
     section: 'Today',
     highlighted: true,
     img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=600&h=300',
@@ -21,7 +22,7 @@ const notifications = [
   {
     id: 2,
     title: 'Vehicula Quam Quis',
-    date: 'Dec 7, 2019 23:26',
+    date: DEFAULT_DATE,
     section: 'Today',
     img: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=600&h=300',
     desc: 'Short notification description.',
@@ -29,7 +30,7 @@ const notifications = [
   {
     id: 3,
     title: 'Aenean Lacinia Bibendum',
-    date: 'Dec 7, 2019 23:26',
+    date: DEFAULT_DATE,
     section: 'Earlier',
     highlighted: true,
     img: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=600&h=300',
@@ -38,7 +39,7 @@ const notifications = [
   {
     id: 4,
     title: 'Cras Mattis Consectetur',
-    date: 'Dec 7, 2019 23:26',
+    date: DEFAULT_DATE,
     section: 'Earlier',
     img: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=facearea&w=600&h=300',
     desc: 'Earlier notification.',
@@ -46,7 +47,7 @@ const notifications = [
   {
     id: 5,
     title: 'Nulla Vitae Elit',
-    date: 'Dec 7, 2019 23:26',
+    date: DEFAULT_DATE,
     section: 'Last Week',
     highlighted: true,
     img: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3fdc?auto=format&fit=facearea&w=600&h=300',
@@ -55,7 +56,7 @@ const notifications = [
   {
     id: 6,
     title: 'Etiam Porta Sem Malesuada',
-    date: 'Dec 7, 2019 23:26',
+    date: DEFAULT_DATE,
     section: 'Last Week',
     img: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=600&h=300',
     desc: 'Another last week notification.',
@@ -127,7 +128,9 @@ const ManageNotifications = () => {
           const sectionNotifs = notifications.filter(
             (n) => n.section === section
           );
-          if (!sectionNotifs.length) return null;
+          if (!sectionNotifs.length) {
+            return null;
+          }
           return (
             <div key={section} className="notifications-section">
               <div

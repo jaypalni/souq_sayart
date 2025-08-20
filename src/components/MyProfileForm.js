@@ -16,6 +16,15 @@ import { userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 
+const YES = 'yes';
+const NO = 'no';
+const DEFAULT_AVATAR_BG = '#e3f1ff';
+const DEFAULT_AVATAR_COLOR = '#008AD5';
+const MSG_FETCH_SUCCESS = 'Fetched successfully';
+const MSG_PROFILE_UPDATED = 'Profile updated!';
+const MSG_FETCH_FAILED = 'Failed to load profile';
+const MSG_UPDATE_FAILED = 'Failed to update profile.';
+
 const MyProfileForm = () => {
 
   const [form] = Form.useForm();
@@ -84,7 +93,9 @@ const MyProfileForm = () => {
   };
 
   const triggerAvatarUpload = () => {
-    if (editMode && fileInputRef.current) fileInputRef.current.click();
+    if (editMode && fileInputRef.current) {
+      fileInputRef.current.click(); 
+    }
   };
 
 
@@ -92,46 +103,48 @@ const MyProfileForm = () => {
     Userdataapi();
   }, []);
 
-  const Userdataapi = async () => {
-    try {
-      setLoading(true);
-      const response = await userAPI.getProfile({});
-      const users_data = handleApiResponse(response);
-      if (users_data?.data) {
-        const user = users_data.data;
-        const userProfile = {
-          first_name: user.first_name || '',
-          last_name: user.last_name || '',
-          email: user.email || '',
-          dob: user.date_of_birth || '',
-          dealer: user.dealer || 'no',
-          company: user.company_name || '',
-          owner: user.owner_name || '',
-          address: user.company_address || '',
-          phone: user.phone_number || '',
-          reg: user.company_registration_number || '',
-          facebook: user.facebook_page || '',
-          instagram: user.instagram_company_profile || '',
-          avatar: user.profile_image || '',
-        };
+const Userdataapi = async () => {
+  try {
+    setLoading(true);
+    const response = await userAPI.getProfile({});
+    const users_data = handleApiResponse(response);
 
-        setUsersData(user); 
-        setProfile(userProfile); 
-        form.setFieldsValue(userProfile); 
-        setAvatarUrl(user.avatar || '');
-        setDealerValue(user.dealer || 'no');
-
-        message.success(users_data.message || 'Fetched successfully');
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to load profile');
-      setUsersData({});
-    } finally {
-      setLoading(false);
+    if (users_data?.data) {
+      populateUserProfile(users_data.data, users_data.message);
     }
-  };
+  } catch (error) {
+    handleApiError(error, MSG_FETCH_FAILED);
+    setUsersData({});
+  } finally {
+    setLoading(false);
+  }
+};
 
+const populateUserProfile = (user, successMsg) => {
+  const userProfile = mapUserToProfile(user);
+  setUsersData(user);
+  setProfile(userProfile);
+  form.setFieldsValue(userProfile);
+  setAvatarUrl(user.avatar || '');
+  setDealerValue(user.dealer || NO);
+  message.success(successMsg || MSG_FETCH_SUCCESS);
+};
+
+const mapUserToProfile = (user) => ({
+  first_name: user.first_name || '',
+  last_name: user.last_name || '',
+  email: user.email || '',
+  dob: user.date_of_birth || '',
+  dealer: user.dealer || NO,
+  company: user.company_name || '',
+  owner: user.owner_name || '',
+  address: user.company_address || '',
+  phone: user.phone_number || '',
+  reg: user.company_registration_number || '',
+  facebook: user.facebook_page || '',
+  instagram: user.instagram_company_profile || '',
+  avatar: user.profile_image || '',
+});
 
   const onClickContinue = async () => {
     try {
@@ -612,7 +625,9 @@ const MyProfileForm = () => {
 };
 
 const ConfirmModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+   if (!isOpen) {
+     return null; 
+   }
 
   return (
     <div className="small-popup-container">

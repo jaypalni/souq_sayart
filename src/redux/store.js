@@ -21,23 +21,27 @@ if (typeof window !== 'undefined') {
       const state = store.getState();
 
       if (state.userData?.userData !== lastUserData) {
-        lastUserData = state.userData?.userData;
-        if (lastUserData) {
-          localStorage.setItem('userData', JSON.stringify(lastUserData));
-        }
-      }
+  lastUserData = state.userData?.userData;
+  if (lastUserData) {
+    localStorage.setItem('userData', JSON.stringify(lastUserData));
+  } else {
+    localStorage.removeItem('userData');
+  }
+}
 
-      if (state.customerDetails?.customerDetails !== lastCustomerDetails) {
-        lastCustomerDetails = state.customerDetails?.customerDetails;
-        if (lastCustomerDetails === null) {
-          localStorage.removeItem('customerDetails');
-        } else if (lastCustomerDetails !== undefined) {
-          localStorage.setItem(
-            'customerDetails',
-            JSON.stringify(lastCustomerDetails)
-          );
-        }
-      }
+if (state.customerDetails?.customerDetails !== lastCustomerDetails) {
+  lastCustomerDetails = state.customerDetails?.customerDetails;
+  if (lastCustomerDetails === null) {
+    localStorage.removeItem('customerDetails');
+  } else {
+    if (lastCustomerDetails !== undefined) {
+      localStorage.setItem(
+        'customerDetails',
+        JSON.stringify(lastCustomerDetails)
+      );
+    }
+  }
+}
     }, 1000)
   );
 }

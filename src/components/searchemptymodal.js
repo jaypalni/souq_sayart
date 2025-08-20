@@ -25,7 +25,9 @@ const Searchemptymodal = ({
   setSelectedLocation,
   toastmessage,
 }) => {
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   const [messageApi, contextHolder] = message.useMessage();
 

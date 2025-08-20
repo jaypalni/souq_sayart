@@ -84,15 +84,23 @@ const mockChats = [
   },
 ];
 
+const ACTION_DELETE = 'delete';
+const ACTION_REPORT = 'report';
+const ACTION_BLOCK = 'block';
+
 const QuickActionsMenu = ({ onDelete, onReport, onBlock }) => (
   <Menu>
-    <Menu.Item key="delete" onClick={onDelete} style={{ color: '#f5222d' }}>
+    <Menu.Item
+      key={ACTION_DELETE}
+      onClick={onDelete}
+      style={{ color: '#f5222d' }}
+    >
       Delete Chat
     </Menu.Item>
-    <Menu.Item key="report" onClick={onReport}>
+    <Menu.Item key={ACTION_REPORT} onClick={onReport}>
       Report User
     </Menu.Item>
-    <Menu.Item key="block" onClick={onBlock}>
+    <Menu.Item key={ACTION_BLOCK} onClick={onBlock}>
       Block user
     </Menu.Item>
   </Menu>
@@ -215,7 +223,9 @@ const ChatView = ({ chat }) => {
 };
 
 const UserProfilePanel = ({ user, onAction }) => {
-  if (!user) return <div className="user-profile-fixed-panel" />;
+  if (!user) {
+    return <div className="user-profile-fixed-panel" />;
+  }
   return (
     <div className="user-profile-fixed-panel">
       <div

@@ -25,9 +25,13 @@ import {
 } from '../utils/apiUtils';
 const { Option } = Select;
 
-const newUsedOptions = ['New & Used', 'New', 'Used'];
-const priceMinOptions = ['Price Min', 5000, 10000, 20000, 30000, 40000];
-const priceMaxOptions = ['Price Max', 20000, 30000, 40000, 50000, 100000];
+const DEFAULT_NEW_USED = 'New & Used';
+const DEFAULT_PRICE_MIN = 'Price Min';
+const DEFAULT_PRICE_MAX = 'Price Max';
+
+const newUsedOptions = [DEFAULT_NEW_USED, 'New', 'Used'];
+const priceMinOptions = [DEFAULT_PRICE_MIN, 5000, 10000, 20000, 30000, 40000];
+const priceMaxOptions = [DEFAULT_PRICE_MAX, 20000, 30000, 40000, 50000, 100000];
 
 
 
@@ -45,9 +49,9 @@ const LandingFilters = ({ searchbodytype }) => {
   const [carLocation, setCarLocation] = useState([]);
   const [carLocationCountry, setCarLocationCountry] = useState([]);
   const [carSearch, setCarSearch] = useState([]);
-  const [newUsed, setNewUsed] = useState('New & Used');
-  const [priceMin, setPriceMin] = useState('Price Min');
-  const [priceMax, setPriceMax] = useState('Price Max');
+   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
+  const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
+  const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
   const [carCount] = useState(342642);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
@@ -141,35 +145,60 @@ const getGeoData = async () => {
 
     if (cached) {
       const parsed = JSON.parse(cached);
-      const maxAgeMs = 24 * 60 * 60 * 1000;
+      const maxAgeMs = 24 * 60 * 60 * 1000; 
       if (parsed?.ts && Date.now() - parsed.ts < maxAgeMs && parsed?.data) {
         return parsed.data;
       }
     }
 
     const geoRes = await fetch('https://ipapi.co/json/');
-    if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
+    if (!geoRes.ok) {
+      throw new Error(`Geo API error: ${geoRes.status}`);
+    }
+
     const geoData = await geoRes.json();
 
     localStorage.setItem(
       cacheKey,
       JSON.stringify({ ts: Date.now(), data: geoData })
     );
+
     return geoData;
-  } catch {
+  } catch (error) {
     return null;
   }
 };
 
 const resolveDefaultLocation = (locations, geoData) => {
-  if (geoData) {
-    const userCountry = geoData?.country_name?.toLowerCase();
-    const match = locations.find(
-      (loc) => loc.location.toLowerCase() === userCountry
-    );
-    if (match) return match;
+  if (!locations || locations.length === 0) return null;
+
+  const geoMatch = getLocationFromGeo(locations, geoData);
+  if (geoMatch) {
+    return geoMatch;
   }
 
+  if (isIndiaLocale()) {
+    return (
+      locations.find((loc) => loc.location.toLowerCase() === 'india') ||
+      locations.find((loc) => loc.location.toLowerCase() === 'dubai')
+    );
+  }
+
+  return locations[0];
+};
+
+const getLocationFromGeo = (locations, geoData) => {
+  if (!geoData) {
+    return null;
+  }
+
+  const userCountry = geoData?.country_name?.toLowerCase();
+  return (
+    locations.find((loc) => loc.location.toLowerCase() === userCountry) || null
+  );
+};
+
+const isIndiaLocale = () => {
   const tz =
     Intl.DateTimeFormat().resolvedOptions().timeZone?.toLowerCase() || '';
   const tzOffset = new Date().getTimezoneOffset();
@@ -177,23 +206,17 @@ const resolveDefaultLocation = (locations, geoData) => {
     Boolean
   );
 
-  const isIndiaLocale =
+  const hasIndiaLanguage = langs.some((l) => {
+    const ll = String(l).toLowerCase();
+    return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
+  });
+
+  return (
     tz === 'asia/kolkata' ||
     tz === 'asia/calcutta' ||
     tzOffset === -330 ||
-    langs.some((l) => {
-      const ll = String(l).toLowerCase();
-      return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
-    });
-
-  if (isIndiaLocale) {
-    return (
-      locations.find((loc) => loc.location.toLowerCase() === 'india') ||
-      locations.find((loc) => loc.location.toLowerCase() === 'dubai')
-    );
-  }
-
-  return locations.length > 0 ? locations[0] : null;
+    hasIndiaLanguage
+  );
 };
 
   const handleToast = (msg) => {

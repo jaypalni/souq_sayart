@@ -19,18 +19,24 @@ import bluecar_icon from '../assets/images/blackcar_icon.png';
 
 const { Option } = Select;
 
-const locations = ['Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+const LOCATIONS = ['Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+const DEFAULT_LOCATION = 'Baghdad';
+const DEFAULT_PRICE = '$30,435';
+const DEFAULT_ENGINE = '6 Cyl 3.0L Petrol';
+const DEFAULT_MILEAGE = '55000';
+const COUNTRY_US = 'US';
+const COUNTRY_LEBANON = 'Lebanon';
 
 const carData = [
   {
     image: redcar_icon,
     title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
+    mileage: DEFAULT_MILEAGE,
     featured: true,
     certified: true,
   },
@@ -38,10 +44,10 @@ const carData = [
     image: bluecar_icon,
     title: '2025 Mercedes-Benz Citan',
     price: '$40,035',
-    engine: '6 Cyl 3.0L Petrol',
+    engine: DEFAULT_ENGINE,
     transmission: 'Manual',
-    location: 'Lebanon',
-    country: 'US',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
     mileage: '7500',
     featured: true,
     certified: true,
@@ -49,34 +55,34 @@ const carData = [
   {
     image: bluecar_icon,
     title: '2022 Toyota Camry',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
+    mileage: DEFAULT_MILEAGE,
     featured: true,
     certified: true,
   },
   {
     image: redcar_icon,
     title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Manual',
-    location: 'Lebanon',
+    location: COUNTRY_LEBANON,
     country: 'India',
-    mileage: '55000',
+    mileage: DEFAULT_MILEAGE,
     featured: true,
     certified: true,
   },
   {
     image: redcar_icon,
     title: '2021 Maruti Suzuki Swift',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
+    location: COUNTRY_LEBANON,
     country: 'London',
     mileage: '35490',
     featured: true,
@@ -85,20 +91,20 @@ const carData = [
   {
     image: bluecar_icon,
     title: '2021 Skoda Octavia',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
+    mileage: DEFAULT_MILEAGE,
     featured: true,
     certified: true,
   },
   {
     image: redcar_icon,
     title: '2024 Hyundai Tucson',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
     location: 'Dubai',
     country: 'Dubai',
@@ -109,11 +115,11 @@ const carData = [
   {
     image: bluecar_icon,
     title: '2018 Toyota Camry',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
     mileage: '65789',
     featured: true,
     certified: true,
@@ -121,8 +127,8 @@ const carData = [
   {
     image: redcar_icon,
     title: '2002 Honda Accord',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
     location: 'Venezuela',
     country: 'Venezuela',
@@ -133,84 +139,38 @@ const carData = [
   {
     image: bluecar_icon,
     title: '2019 Toyota Ipsum',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
+    mileage: DEFAULT_MILEAGE,
     featured: true,
     certified: true,
   },
-  {
+ 
+  ...Array(5).fill({
     image: redcar_icon,
     title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
+    price: DEFAULT_PRICE,
+    engine: DEFAULT_ENGINE,
     transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
+    location: COUNTRY_LEBANON,
+    country: COUNTRY_US,
+    mileage: DEFAULT_MILEAGE,
     featured: true,
     certified: true,
-  },
-  {
-    image: bluecar_icon,
-    title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
-    transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
-    featured: true,
-    certified: true,
-  },
-  {
-    image: redcar_icon,
-    title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
-    transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
-    featured: true,
-    certified: true,
-  },
-  {
-    image: bluecar_icon,
-    title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
-    transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
-    featured: true,
-    certified: true,
-  },
-  {
-    image: redcar_icon,
-    title: '2021 Porsche 992 Turbo S',
-    price: '$30,435',
-    engine: '6 Cyl 3.0L Petrol',
-    transmission: 'Automatic',
-    location: 'Lebanon',
-    country: 'US',
-    mileage: '55000',
-    featured: true,
-    certified: true,
-  },
+  }),
 ];
 
 const UsersProfile = () => {
-  const [location, setLocation] = useState('Baghdad');
+  const [location, setLocation] = useState(DEFAULT_LOCATION);
 
   const handleChange = () => {};
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
       <div
         style={{
           backgroundColor: '#008ad5',
@@ -291,6 +251,7 @@ const UsersProfile = () => {
           </div>
         </div>
 
+        {/* Actions */}
         <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
           <button className="blue-btn">
             <BsChatLeftDots /> Message
@@ -302,6 +263,8 @@ const UsersProfile = () => {
             <FaPhoneAlt /> Call
           </button>
         </div>
+
+        {/* Location Selector */}
         <div style={{ marginTop: 20 }}>
           <div style={{ fontWeight: 600, color: '#555' }}>
             <img
@@ -329,7 +292,7 @@ const UsersProfile = () => {
                   handleChange('Location', value);
                 }}
               >
-                {locations.map((l) => (
+                {LOCATIONS.map((l) => (
                   <Option key={l} value={l}>
                     {l}
                   </Option>
@@ -339,6 +302,8 @@ const UsersProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Car List */}
       <div
         className="row"
         style={{ marginLeft: '100px', marginRight: '100px', marginTop: '25px' }}
@@ -347,6 +312,8 @@ const UsersProfile = () => {
           <Allcarslistdata key={idx} car={car} idx={idx} />
         ))}
       </div>
+
+      {/* Pagination */}
       <div
         style={{
           textAlign: 'center',

@@ -14,8 +14,105 @@ import like_icon from '../assets/images/like_icon.svg';
 import { useNavigate } from 'react-router-dom';
 import diamondGif from '../assets/images/diamondGif.gif';
 import { carAPI } from '../services/api';
-import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message } from 'antd';
+import { handleApiResponse } from '../utils/apiUtils';
+
+const SavedSearchCard = ({ item, idx, total }) => (
+  <div
+    className={`user-saved-search-section${
+      idx < total - 1 ? ' with-divider' : ''
+    }`}
+    key={item.id}
+  >
+    <div className="user-saved-search-header">
+      <img
+        src={item.make_image ? `http://13.202.75.187:5002${item.make_image}` : carImage}
+        alt={item.search_params?.make || 'Car'}
+        className="user-saved-search-logo"
+      />
+      <div className="user-saved-search-title">
+        <span className="user-saved-search-brand">
+          {item.search_params?.make || 'Unknown Make'}
+        </span>
+        {item.search_params?.model && (
+          <span className="user-saved-search-model">
+            {item.search_params.model}
+          </span>
+        )}
+      </div>
+    </div>
+
+    <div className="user-saved-search-meta">
+      {item.search_params?.price_min || item.search_params?.price_to ? (
+        <span className="user-saved-search-price">
+          {item.search_params?.price_min ? `$${item.search_params.price_min}` : ''}
+          {item.search_params?.price_to ? ` - $${item.search_params.price_to}` : ''}
+        </span>
+      ) : (
+        <span className="user-saved-search-price">$0</span>
+      )}
+      <span className="user-saved-search-dot">•</span>
+      <span className="user-saved-search-year">
+        From {item.search_params?.year_min || 'N/A'}
+      </span>
+    </div>
+
+    {item.search_params?.extra_features?.length > 0 && (
+      <ul className="user-saved-search-details">
+        {item.search_params.extra_features.map((f, i) => (
+          <li key={i}>{f}</li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
+const SignupBox = ({ onClick, title, buttonText }) => (
+  <div className="user-saved-searches-signup-box">
+    <div className="signup-icon">
+      <img src={like_icon} alt="like" />
+    </div>
+    <div>
+      <h1>{title}</h1>
+      <p style={{ fontSize: '16px', fontWeight: '400' }}>
+        Find your saved searches right here. Get alerts for new listings.
+      </p>
+      <button className="signup-btn" onClick={onClick}>
+        {buttonText}
+      </button>
+    </div>
+  </div>
+);
+
+const ModalComingSoon = ({ onClose }) => (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <img src={diamondGif} alt="Diamond" className="modal-image" />
+      <p
+        style={{
+          fontSize: '16px',
+          color: '#0A0A0B',
+          fontWeight: 700,
+          marginBottom: '4px',
+        }}
+      >
+        This Feature is coming soon
+      </p>
+      <p
+        style={{
+          fontSize: '12px',
+          color: '#898384',
+          fontWeight: 400,
+          marginTop: '0',
+        }}
+      >
+        you could try to remove some filters:
+      </p>
+      <button className="modal-your-close-btn" onClick={onClose}>
+        Close
+      </button>
+    </div>
+  </div>
+);
 
 const UserSavedsearch = () => {
   const navigate = useNavigate();
@@ -40,11 +137,48 @@ const UserSavedsearch = () => {
       if (response?.data?.searches) {
         setSavedSearches(response.data.searches.slice(0, 3));
       }
-    } catch (error) {
+    } catch {
       setSavedSearches([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderSavedSearchContent = () => {
+    if (!isLoggedIn) {
+      return (
+        <SignupBox
+          onClick={() => navigate('/login')}
+          title="Sign up searches"
+          buttonText="Sign up / log in"
+        />
+      );
+    }
+
+    if (loading) return <p>Loading saved searches...</p>;
+
+    if (savedSearches.length === 0) {
+      return (
+        <SignupBox
+          onClick={() => window.scrollTo({ top: 260, behavior: 'smooth' })}
+          title="You have no Saved searches"
+          buttonText="Start Searching"
+        />
+      );
+    }
+
+    return (
+      <div className="user-saved-searches-outer-card">
+        {savedSearches.map((item, idx) => (
+          <SavedSearchCard
+            key={item.id}
+            item={item}
+            idx={idx}
+            total={savedSearches.length}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -67,115 +201,7 @@ const UserSavedsearch = () => {
 
       <div className="user-saved-searches-top">
         <div className="user-saved-searches-left">
-          {isLoggedIn ? (
-            loading ? (
-              <p>Loading saved searches...</p>
-            ) : savedSearches.length > 0 ? (
-              <div className="user-saved-searches-outer-card">
-                {savedSearches.map((item, idx) => (
-                  <div
-                    className={`user-saved-search-section${
-                      idx < savedSearches.length - 1 ? ' with-divider' : ''
-                    }`}
-                    key={item.id}
-                  >
-                    <div className="user-saved-search-header">
-                      <img
-                      src={
-  item.make_image
-    ? `http://13.202.75.187:5002${item.make_image}`
-    : carImage
-}
-
-                        alt={item.search_params?.make || 'Car'}
-                        className="user-saved-search-logo"
-                      />
-                      <div className="user-saved-search-title">
-                        <span className="user-saved-search-brand">
-                          {item.search_params?.make || 'Unknown Make'}
-                        </span>
-                        {item.search_params?.model && (
-                          <span className="user-saved-search-model">
-                            {item.search_params.model}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="user-saved-search-meta">
-                      {item.search_params?.price_min ||
-                      item.search_params?.price_to ? (
-                        <span className="user-saved-search-price">
-                          {item.search_params?.price_min
-                            ? `$${item.search_params.price_min}`
-                            : ''}
-                          {item.search_params?.price_to
-                            ? ` - $${item.search_params.price_to}`
-                            : ''}
-                        </span>
-                      ) : (
-                        <span className="user-saved-search-price">$0</span>
-                      )}
-                      <span className="user-saved-search-dot">•</span>
-                      <span className="user-saved-search-year">
-                        From{' '}
-                        {item.search_params?.year_min
-                          ? item.search_params.year_min
-                          : 'N/A'}
-                      </span>
-                    </div>
-
-                    {item.search_params?.extra_features?.length > 0 && (
-                      <ul className="user-saved-search-details">
-                        {item.search_params.extra_features.map((f, i) => (
-                          <li key={i}>{f}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="user-saved-searches-signup-box">
-                <div className="signup-icon">
-                  <img src={like_icon} alt="like" />
-                </div>
-                <div>
-                  <h1>You have no Saved searches</h1>
-                  <p style={{ fontSize: '16px', fontWeight: '400' }}>
-                    Find your saved searches right here. Get alerts for new
-                    listings.
-                  </p>
-                  <button
-                    className="signup-btn"
-                    onClick={() =>
-                      window.scrollTo({ top: 260, behavior: 'smooth' })
-                    }
-                  >
-                    Start Searching
-                  </button>
-                </div>
-              </div>
-            )
-          ) : (
-            <div className="user-saved-searches-signup-box">
-              <div className="signup-icon">
-                <img src={like_icon} alt="like" />
-              </div>
-              <div>
-                <h1>Sign up searches</h1>
-                <p>
-                  Find your saved searches right here. Get alerts for new
-                  listings.
-                </p>
-                <button
-                  className="signup-btn"
-                  onClick={() => navigate('/login')}
-                >
-                  Sign up / log in
-                </button>
-              </div>
-            </div>
-          )}
+          {renderSavedSearchContent()}
 
           <div className="user-saved-search-actions">
             <div className="user-saved-search-action-box">
@@ -207,39 +233,7 @@ const UserSavedsearch = () => {
             </div>
           </div>
 
-          {isModalOpen && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <img src={diamondGif} alt="Diamond" className="modal-image" />
-                <p
-                  style={{
-                    fontSize: '16px',
-                    color: '#0A0A0B',
-                    fontWeight: 700,
-                    marginBottom: '4px',
-                  }}
-                >
-                  This Feature is coming soon
-                </p>
-                <p
-                  style={{
-                    fontSize: '12px',
-                    color: '#898384',
-                    fontWeight: 400,
-                    marginTop: '0',
-                  }}
-                >
-                  you could try to remove some filters:
-                </p>
-                <button
-                  className="modal-your-close-btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
+          {isModalOpen && <ModalComingSoon onClose={() => setIsModalOpen(false)} />}
         </div>
 
         <div className="user-saved-search-image-box">

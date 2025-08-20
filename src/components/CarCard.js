@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Tag } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { COLORS, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
@@ -16,7 +17,14 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
       'Active-Base': { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: 'Pending Approval' },
       'Sold': { bg: COLORS.soldTagBg, color: COLORS.soldTagColor, label: 'Sold' },
     };
-    const key = value === STATUS_ACTIVE ? `Active-${filterStatus}` : value === STATUS_SOLD ? STATUS_SOLD : 'Default';
+    let key;
+    if (value === STATUS_ACTIVE) {
+      key = `Active-${filterStatus}`;
+    } else if (value === STATUS_SOLD) {
+      key = STATUS_SOLD;
+    } else {
+      key = 'Default';
+    }
     if (key === 'Default') {
       return { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.status };
     }
@@ -24,6 +32,12 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   };
 
   const tagProps = getTagProps();
+
+  const CARD_WIDTH = '308px';
+
+  // Precompute values to avoid ternaries in JSX
+  const imageSrc = car.image || '/default-car.png';
+  const imageHeight = value === STATUS_ACTIVE ? '144px' : '109px';
 
   return (
     <div
@@ -33,7 +47,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
         padding: '12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
         backgroundColor: '#fff',
-        width: '308px',
+        width: CARD_WIDTH,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -41,9 +55,9 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
     >
       <div style={{ display: 'flex', gap: '12px' }}>
         <img
-          src={car.image ? car.image : '/default-car.png'}
+          src={imageSrc}
           alt="car"
-          style={{ width: 137, height: value === STATUS_ACTIVE ? '144px' : '109px', borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
+          style={{ width: 137, height: imageHeight, borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
         />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '10px', marginRight: '10px' }}>
@@ -107,3 +121,18 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
 };
 
 export default CarCard;
+
+CarCard.propTypes = {
+  car: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    status: PropTypes.string,
+    image: PropTypes.string,
+    ad_title: PropTypes.string.isRequired,
+    price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    updated_at: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
+  value: PropTypes.string.isRequired,
+  filterStatus: PropTypes.string.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  navigate: PropTypes.func.isRequired,
+};

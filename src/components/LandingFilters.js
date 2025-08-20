@@ -183,7 +183,9 @@ const getGeoData = async () => {
 };
 
 const resolveDefaultLocation = (locations, geoData) => {
-  if (!locations || locations.length === 0) return null;
+  if (!locations || locations.length === 0) {
+    return null;
+  }
 
   const geoMatch = getLocationFromGeo(locations, geoData);
   if (geoMatch) {
@@ -344,7 +346,9 @@ const isIndiaLocale = () => {
             tabIndex={0}
             onClick={onSelect}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') onSelect();
+              if (e.key === 'Enter' || e.key === ' ') {
+                onSelect();
+              }
             }}
           >
             {opt}

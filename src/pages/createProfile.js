@@ -145,7 +145,7 @@ const CreateProfile = () => {
         content:
           'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
       });
-      return false;
+      return Upload.LIST_IGNORE;
     }
 
     const previewUrl = URL.createObjectURL(file);
@@ -163,10 +163,10 @@ const CreateProfile = () => {
           type: 'success',
           content: userdoc.message,
         });
-        return false; 
+        return Upload.LIST_IGNORE; 
       } else {
         message.error(userdoc.message || 'Upload failed');
-        return false;
+        return Upload.LIST_IGNORE;
       }
     } catch (error) {
       const errorData = handleApiError(error);
@@ -176,7 +176,7 @@ const CreateProfile = () => {
       });
       console.error('Upload error:', errorData);
       message.error('Upload failed due to network error');
-      return false; 
+      return Upload.LIST_IGNORE; 
     }
   };
 
@@ -193,58 +193,57 @@ const CreateProfile = () => {
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
+  const MSG_REG_SUCCESS = 'Registration successful!';
+  const MSG_REG_FAILED = 'Registration failed';
+
+  const buildRegistrationPayload = (values, profileImageUrl, phoneNumberValue) => ({
+    first_name: values.firstName,
+    last_name: values.lastName,
+    email: values.email,
+    date_of_birth: values.dob.format('YYYY-MM-DD'),
+    user_type: values.isDealer ? 'dealer' : 'individual',
+    company_name: values.companyName || '',
+    owner_name: values.ownerName || '',
+    company_address: values.companyAddress || '',
+    company_phone_number: values.phoneNumber || '',
+    company_registration_number: values.companyCR || '',
+    facebook_page: values.facebookPage || '',
+    instagram_company_profile: values.instagramProfile || '',
+    profile_pic: profileImageUrl || '',
+    phone_number: phoneNumberValue || '',
+    is_dealer: values.isDealer,
+    whatsapp: checked ? '1' : '0',
+    document: uploadedDocUrl || '',
+  });
+
+  const handleRegistrationOutcome = (result) => {
+    if (result.success) {
+      messageApi.open({ type: 'success', content: MSG_REG_SUCCESS });
+      navigate('/landing');
+      return;
+    }
+    messageApi.open({ type: 'error', content: result.error || MSG_REG_FAILED });
+  };
+
+  const handleNonValidationError = (error) => {
+    const errorData = handleApiError(error);
+    messageApi.open({ type: 'error', content: errorData.message });
+    message.error(errorData.message || 'Registration failed. Please try again.');
+  };
+
   const onClickContinue = async () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
-      const formattedDOB = values.dob.format('YYYY-MM-DD');
       const phoneNumber = localStorage.getItem('phone_number');
-      const payload = {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        email: values.email,
-        date_of_birth: formattedDOB,
-        user_type: values.isDealer ? 'dealer' : 'individual',
-        company_name: values.companyName || '',
-        owner_name: values.ownerName || '',
-        company_address: values.companyAddress || '',
-        company_phone_number: values.phoneNumber || '',
-        company_registration_number: values.companyCR || '',
-        facebook_page: values.facebookPage || '',
-        instagram_company_profile: values.instagramProfile || '',
-        profile_pic: imageUrl || '',
-        phone_number: phoneNumber || '',
-        is_dealer: values.isDealer,
-        whatsapp: checked ? '1' : '0',
-        document: uploadedDocUrl || '',
-      };
-
+      const payload = buildRegistrationPayload(values, imageUrl, phoneNumber);
       const result = await dispatch(registerUser(payload));
-
-      if (result.success) {
-        messageApi.open({
-          type: 'success',
-          content: 'Registration successful!',
-        });
-        navigate('/landing');
-      } else {
-        messageApi.open({
-          type: 'error',
-          content: result.error || 'Registration failed',
-        });
-      }
+      handleRegistrationOutcome(result);
     } catch (error) {
       if (error.errorFields) {
         onFinishFailed(error);
       } else {
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData.message,
-        });
-        message.error(
-          errorData.message || 'Registration failed. Please try again.'
-        );
+        handleNonValidationError(error);
       }
     } finally {
       setLoading(false);

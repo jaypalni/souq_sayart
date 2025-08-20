@@ -23,7 +23,6 @@ import Banner from './components/banner';
 import CreateProfile from './pages/createProfile';
 import Landing from './pages/landing';
 import CarDetails from './pages/carDetails';
-import Sell from './pages/sell';
 import NewSell from './pages/newsell';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
@@ -33,7 +32,6 @@ const AppRouterContent = () => {
   const location = useLocation();
   const hidebannerList = [
     '/carDetails',
-    '/sell',
     '/newsell',
     '/allcars',
     '/myListings',
@@ -68,14 +66,6 @@ const AppRouterContent = () => {
         />
         <Route path="/captchatoken" element={<Captcha />} />
       
-        <Route 
-          path="/sell" 
-          element={
-            <ProtectedRoute>
-              <Sell />
-            </ProtectedRoute>
-          } 
-        />
          <Route 
           path="/newsell" 
           element={

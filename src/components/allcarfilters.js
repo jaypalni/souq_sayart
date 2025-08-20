@@ -177,8 +177,12 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   };
 
   const getDropdownLabel = (type) => {
-    if (type === DROPDOWN_NEW_USED) return DEFAULTS.NEW_USED;
-    if (type === DROPDOWN_PRICE_MIN) return DEFAULTS.PRICE_MIN;
+    if (type === DROPDOWN_NEW_USED) {
+      return DEFAULTS.NEW_USED;
+    }
+    if (type === DROPDOWN_PRICE_MIN) {
+      return DEFAULTS.PRICE_MIN;
+    }
     return DEFAULTS.PRICE_MAX;
   };
 

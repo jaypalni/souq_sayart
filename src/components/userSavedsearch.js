@@ -16,55 +16,66 @@ import diamondGif from '../assets/images/diamondGif.gif';
 import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
 
-const SavedSearchCard = ({ item, idx, total }) => (
-  <div
-    className={`user-saved-search-section${
-      idx < total - 1 ? ' with-divider' : ''
-    }`}
-    key={item.id}
-  >
-    <div className="user-saved-search-header">
-      <img
-        src={item.make_image ? `http://13.202.75.187:5002${item.make_image}` : carImage}
-        alt={item.search_params?.make || 'Car'}
-        className="user-saved-search-logo"
-      />
-      <div className="user-saved-search-title">
-        <span className="user-saved-search-brand">
-          {item.search_params?.make || 'Unknown Make'}
-        </span>
-        {item.search_params?.model && (
-          <span className="user-saved-search-model">
-            {item.search_params.model}
-          </span>
-        )}
+// Helpers to reduce complexity in SavedSearchCard
+const buildMakeImageSrc = (item) =>
+  item.make_image ? `http://13.202.75.187:5002${item.make_image}` : carImage;
+
+const buildPriceText = (sp) => {
+  const hasRange = Boolean(sp?.price_min) || Boolean(sp?.price_to);
+  if (!hasRange) {
+    return '$0';
+  }
+  const left = sp?.price_min ? `$${sp.price_min}` : '';
+  const right = sp?.price_to ? ` - $${sp.price_to}` : '';
+  return `${left}${right}`;
+};
+
+const buildYearText = (sp) => `From ${sp?.year_min || 'N/A'}`;
+
+const ModelText = ({ model }) =>
+  model ? <span className="user-saved-search-model">{model}</span> : null;
+
+const FeaturesList = ({ features }) => {
+  const list = Array.isArray(features) ? features : [];
+  if (list.length === 0) {
+    return null;
+  }
+  return (
+    <ul className="user-saved-search-details">
+      {list.map((f) => (
+        <li key={f}>{f}</li>
+      ))}
+    </ul>
+  );
+};
+
+const SavedSearchCard = ({ item, idx, total }) => {
+  const sp = item.search_params || {};
+  const divider = idx < total - 1 ? ' with-divider' : '';
+  const priceText = buildPriceText(sp);
+  const yearText = buildYearText(sp);
+  const imgSrc = buildMakeImageSrc(item);
+
+  return (
+    <div className={`user-saved-search-section${divider}`} key={item.id}>
+      <div className="user-saved-search-header">
+        <img src={imgSrc} alt={sp.make || 'Car'} className="user-saved-search-logo" />
+        <div className="user-saved-search-title">
+          <span className="user-saved-search-brand">{sp.make || 'Unknown Make'}</span>
+          <ModelText model={sp.model} />
+        </div>
       </div>
-    </div>
 
-    <div className="user-saved-search-meta">
-      {item.search_params?.price_min || item.search_params?.price_to ? (
-        <span className="user-saved-search-price">
-          {item.search_params?.price_min ? `$${item.search_params.price_min}` : ''}
-          {item.search_params?.price_to ? ` - $${item.search_params.price_to}` : ''}
-        </span>
-      ) : (
-        <span className="user-saved-search-price">$0</span>
-      )}
-      <span className="user-saved-search-dot">•</span>
-      <span className="user-saved-search-year">
-        From {item.search_params?.year_min || 'N/A'}
-      </span>
-    </div>
+      <div className="user-saved-search-meta">
+        <span className="user-saved-search-price">{priceText}</span>
+        <span className="user-saved-search-dot">•</span>
+        <span className="user-saved-search-year">{yearText}</span>
+      </div>
 
-    {item.search_params?.extra_features?.length > 0 && (
-      <ul className="user-saved-search-details">
-        {item.search_params.extra_features.map((f, i) => (
-          <li key={i}>{f}</li>
-        ))}
-      </ul>
-    )}
-  </div>
-);
+      <FeaturesList features={sp.extra_features} />
+    </div>
+  );
+};
 
 const SignupBox = ({ onClick, title, buttonText }) => (
   <div className="user-saved-searches-signup-box">

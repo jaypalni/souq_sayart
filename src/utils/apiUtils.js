@@ -54,3 +54,8 @@ export const createQueryString = (params) => {
   });
   return queryParams.toString();
 };
+
+export const DEFAULT_MAKE = 'All';
+export const DEFAULT_MODEL = 'All Models';
+export const DEFAULT_BODY_TYPE = 'All Body Types';
+export const DEFAULT_LOCATION = 'Baghdad';

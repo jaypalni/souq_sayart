@@ -17,23 +17,31 @@ import { useNavigate } from 'react-router-dom';
 import Searchemptymodal from '../components/searchemptymodal';
 import { useDispatch } from 'react-redux';
 import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
+import {
+  DEFAULT_MAKE,
+  DEFAULT_MODEL,
+  DEFAULT_BODY_TYPE,
+  DEFAULT_LOCATION,
+} from '../utils/apiUtils';
 const { Option } = Select;
 
 const newUsedOptions = ['New & Used', 'New', 'Used'];
 const priceMinOptions = ['Price Min', 5000, 10000, 20000, 30000, 40000];
 const priceMaxOptions = ['Price Max', 20000, 30000, 40000, 50000, 100000];
 
+
+
 const LandingFilters = ({ searchbodytype }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading,setLoading] = useState(false);
-  const [make, setMake] = useState('All');
+  const [make, setMake] = useState(DEFAULT_MAKE);
+  const [model, setModel] = useState(DEFAULT_MODEL);
+  const [bodyType, setBodyType] = useState(DEFAULT_BODY_TYPE);
+  const [location, setLocation] = useState(DEFAULT_LOCATION);
   const [carMakes, setCarMakes] = useState([]);
-  const [model, setModel] = useState('All Models');
   const [carModels, setCarModels] = useState([]);
-  const [bodyType, setBodyType] = useState('All Body Types');
   const [carBodyTypes, setCarBodyTypes] = useState([]);
-  const [location, setLocation] = useState('Baghdad');
   const [carLocation, setCarLocation] = useState([]);
   const [carLocationCountry, setCarLocationCountry] = useState([]);
   const [carSearch, setCarSearch] = useState([]);
@@ -92,102 +100,101 @@ const LandingFilters = ({ searchbodytype }) => {
     }
   };
 
-  const fetchRegionCars = async () => {
-    try {
-      setLoading(true);
-      const response = await carAPI.getLocationCars({});
-      const data1 = handleApiResponse(response);
-      if (data1) {
-        const locations = data1?.data;
-        setCarLocation(locations);
-        const getGeoData = async () => {
-          try {
-            const cacheKey = 'geoDataCache';
-            const cached = localStorage.getItem(cacheKey);
-            if (cached) {
-              const parsed = JSON.parse(cached);
-              const maxAgeMs = 24 * 60 * 60 * 1000;
-              if (
-                parsed?.ts &&
-                Date.now() - parsed.ts < maxAgeMs &&
-                parsed?.data
-              ) {
-                return parsed.data;
-              }
-            }
+const fetchRegionCars = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.getLocationCars({});
+    const data1 = handleApiResponse(response);
 
-            const geoRes = await fetch('https://ipapi.co/json/');
-            if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
-            const geoData = await geoRes.json();
-            localStorage.setItem(
-              cacheKey,
-              JSON.stringify({ ts: Date.now(), data: geoData })
-            );
-            return geoData;
-          } catch (err) {
-            return null;
-          }
-        };
-
-        const geoData = await getGeoData();
-        let defaultLocation = null;
-
-        if (geoData) {
-          const userCountry = geoData?.country_name?.toLowerCase();
-          defaultLocation = locations.find(
-            (loc) => loc.location.toLowerCase() === userCountry
-          );
-        }
-
-        if (!defaultLocation) {
-          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          const tzLower = tz ? tz.toLowerCase() : '';
-          const tzOffset = new Date().getTimezoneOffset();
-          const langs = [
-            navigator.language,
-            ...(navigator.languages || []),
-          ].filter(Boolean);
-
-          const isIndiaLocale =
-            tzLower === 'asia/kolkata' ||
-            tzLower === 'asia/calcutta' ||
-            tzOffset === -330 ||
-            langs.some((l) => {
-              const ll = String(l).toLowerCase();
-              return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
-            });
-          if (isIndiaLocale) {
-            defaultLocation = locations.find(
-              (loc) => loc.location.toLowerCase() === 'india'
-            );
-
-            if (!defaultLocation) {
-              defaultLocation = locations.find(
-                (loc) => loc.location.toLowerCase() === 'dubai'
-              );
-            }
-          }
-        }
-
-        if (!defaultLocation && locations.length > 0) {
-          defaultLocation = locations[0];
-        }
-
-        if (defaultLocation) {
-          setCarLocationCountry(defaultLocation);
-          setLocation(defaultLocation.location);
-        }
-      }
-
-      message.success(data1.message || 'Fetched successfully');
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Locations car data');
+   if (!data1) {
+      message.error('No location data received');
       setCarLocation([]);
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    const locations = data1?.data || [];
+    setCarLocation(locations);
+
+    const geoData = await getGeoData();
+    const defaultLocation = resolveDefaultLocation(locations, geoData);
+
+    if (defaultLocation) {
+      setCarLocationCountry(defaultLocation);
+      setLocation(defaultLocation.location);
+    }
+
+
+    message.success(data1?.message || 'Fetched successfully');
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to fetch location data');
+    setCarLocation([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const getGeoData = async () => {
+  try {
+    const cacheKey = 'geoDataCache';
+    const cached = localStorage.getItem(cacheKey);
+
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      const maxAgeMs = 24 * 60 * 60 * 1000;
+      if (parsed?.ts && Date.now() - parsed.ts < maxAgeMs && parsed?.data) {
+        return parsed.data;
+      }
+    }
+
+    const geoRes = await fetch('https://ipapi.co/json/');
+    if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
+    const geoData = await geoRes.json();
+
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({ ts: Date.now(), data: geoData })
+    );
+    return geoData;
+  } catch {
+    return null;
+  }
+};
+
+const resolveDefaultLocation = (locations, geoData) => {
+  if (geoData) {
+    const userCountry = geoData?.country_name?.toLowerCase();
+    const match = locations.find(
+      (loc) => loc.location.toLowerCase() === userCountry
+    );
+    if (match) return match;
+  }
+
+  const tz =
+    Intl.DateTimeFormat().resolvedOptions().timeZone?.toLowerCase() || '';
+  const tzOffset = new Date().getTimezoneOffset();
+  const langs = [navigator.language, ...(navigator.languages || [])].filter(
+    Boolean
+  );
+
+  const isIndiaLocale =
+    tz === 'asia/kolkata' ||
+    tz === 'asia/calcutta' ||
+    tzOffset === -330 ||
+    langs.some((l) => {
+      const ll = String(l).toLowerCase();
+      return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
+    });
+
+  if (isIndiaLocale) {
+    return (
+      locations.find((loc) => loc.location.toLowerCase() === 'india') ||
+      locations.find((loc) => loc.location.toLowerCase() === 'dubai')
+    );
+  }
+
+  return locations.length > 0 ? locations[0] : null;
+};
 
   const handleToast = (msg) => {
     setToastMsg(msg);

@@ -266,7 +266,11 @@ return (
     tabIndex={0}
     className="otp-resend"
     onClick={handleResend}
-    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ' ? handleResend(e) : null)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        handleResend();
+      }
+    }}
     style={{ cursor: 'pointer', color: '#0090d4' }}
   >
     Resend

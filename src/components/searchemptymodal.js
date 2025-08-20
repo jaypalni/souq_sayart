@@ -13,6 +13,11 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import PropTypes from 'prop-types';
 
+const DEFAULT_ALL_MAKE = 'All';
+const DEFAULT_ALL_MODELS = 'All Models';
+const DEFAULT_ALL_BODY_TYPES = 'All Body Types';
+const DEFAULT_LOCATION_BAGHDAD = 'Baghdad';
+
 const Searchemptymodal = ({
   visible,
   onClose,
@@ -141,51 +146,51 @@ const Searchemptymodal = ({
             justifyContent: 'center',
           }}
         >
-          {make !== 'All' && (
+          {make !== DEFAULT_ALL_MAKE && (
             <span
   role="button"
   tabIndex={0}
   style={filterStyle}
-  onClick={() => setMake('All')}
-  onKeyDown={(e) => e.key === 'Enter' && setMake('All')}
+  onClick={() => setMake(DEFAULT_ALL_MAKE)}
+  onKeyDown={(e) => e.key === 'Enter' && setMake(DEFAULT_ALL_MAKE)}
 >
   {make}
 </span>
           )}
 
-          {model !== 'All Models' && (
+          {model !== DEFAULT_ALL_MODELS && (
             <span
   role="button"
   tabIndex={0}
   style={filterStyle}
-  onClick={() => setModel('All Models')}
-  onKeyDown={(e) => e.key === 'Enter' && setModel('All Models')}
+  onClick={() => setModel(DEFAULT_ALL_MODELS)}
+  onKeyDown={(e) => e.key === 'Enter' && setModel(DEFAULT_ALL_MODELS)}
 >
   {model}
 </span>
           )}
 
-          {bodyType !== 'All Body Types' && (
+          {bodyType !== DEFAULT_ALL_BODY_TYPES && (
             <span
   role="button"
   tabIndex={0}
   style={filterStyle}
-  onClick={() => setBodyType('All Body Types')}
-  onKeyDown={(e) => e.key === 'Enter' && setBodyType('All Body Types')}
+  onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}
+  onKeyDown={(e) => e.key === 'Enter' && setBodyType(DEFAULT_ALL_BODY_TYPES)}
 >
   {bodyType}
 </span>
           )}
 
-          {selectedLocation !== 'Baghdad' && (
+          {selectedLocation !== DEFAULT_LOCATION_BAGHDAD && (
            <span
   style={filterStyle}
   role="button"
   tabIndex={0}
-  onClick={() => setSelectedLocation('Baghdad')}
+  onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}
   onKeyDown={(e) => {
     if (e.key === 'Enter' || e.key === ' ') {
-      setSelectedLocation('Baghdad');
+      setSelectedLocation(DEFAULT_LOCATION_BAGHDAD);
     }
   }}
 >

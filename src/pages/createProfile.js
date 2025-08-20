@@ -196,24 +196,45 @@ const CreateProfile = () => {
   const MSG_REG_SUCCESS = 'Registration successful!';
   const MSG_REG_FAILED = 'Registration failed';
 
+  const safeString = (value) => {
+    if (value) {
+      return value;
+    }
+    return '';
+  };
+
+  const toUserType = (isDealerFlag) => {
+    if (isDealerFlag) {
+      return 'dealer';
+    }
+    return 'individual';
+  };
+
+  const toWhatsappFlag = (isChecked) => {
+    if (isChecked) {
+      return '1';
+    }
+    return '0';
+  };
+
   const buildRegistrationPayload = (values, profileImageUrl, phoneNumberValue) => ({
     first_name: values.firstName,
     last_name: values.lastName,
     email: values.email,
     date_of_birth: values.dob.format('YYYY-MM-DD'),
-    user_type: values.isDealer ? 'dealer' : 'individual',
-    company_name: values.companyName || '',
-    owner_name: values.ownerName || '',
-    company_address: values.companyAddress || '',
-    company_phone_number: values.phoneNumber || '',
-    company_registration_number: values.companyCR || '',
-    facebook_page: values.facebookPage || '',
-    instagram_company_profile: values.instagramProfile || '',
-    profile_pic: profileImageUrl || '',
-    phone_number: phoneNumberValue || '',
+    user_type: toUserType(values.isDealer),
+    company_name: safeString(values.companyName),
+    owner_name: safeString(values.ownerName),
+    company_address: safeString(values.companyAddress),
+    company_phone_number: safeString(values.phoneNumber),
+    company_registration_number: safeString(values.companyCR),
+    facebook_page: safeString(values.facebookPage),
+    instagram_company_profile: safeString(values.instagramProfile),
+    profile_pic: safeString(profileImageUrl),
+    phone_number: safeString(phoneNumberValue),
     is_dealer: values.isDealer,
-    whatsapp: checked ? '1' : '0',
-    document: uploadedDocUrl || '',
+    whatsapp: toWhatsappFlag(checked),
+    document: safeString(uploadedDocUrl),
   });
 
   const handleRegistrationOutcome = (result) => {

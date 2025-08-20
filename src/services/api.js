@@ -58,6 +58,8 @@ api.interceptors.response.use(
         console.warn('Resource not found (404)');
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
         console.error('Internal server error (500)');
+      } else {
+        console.error(`HTTP error (${status})`);
       }
     } else if (error.request) {
       console.error('No response received from server');

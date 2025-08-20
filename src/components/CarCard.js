@@ -8,6 +8,7 @@ import boost_icon from '../assets/images/boost_icon.svg';
 
 const STATUS_ACTIVE = 'Active';
 const STATUS_SOLD = 'Sold';
+const JUSTIFY_SPACE_BETWEEN = 'space-between';
 
 const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   const [activeDropdownId, setActiveDropdownId] = useState(null);
@@ -50,7 +51,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
         width: CARD_WIDTH,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: JUSTIFY_SPACE_BETWEEN,
       }}
     >
       <div style={{ display: 'flex', gap: '12px' }}>
@@ -60,7 +61,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
           style={{ width: 137, height: imageHeight, borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
         />
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '10px', marginRight: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, alignItems: 'flex-start', marginTop: '10px', marginRight: '10px' }}>
             <h3 style={{ margin: 0, fontSize: FONT_SIZES.large, fontWeight: 700 }}>{car.ad_title}</h3>
             {value === STATUS_ACTIVE && (
               <button
@@ -107,7 +108,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
         <div style={{ marginTop: '10px', color: COLORS.primary, fontSize: FONT_SIZES.small, fontWeight: 400 }}>
           {car.updated_at}
         </div>
-        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, gap: '10px' }}>
           <Button type="default" danger onClick={() => handleDelete(car.id)} style={{ flex: 1, borderRadius: BORDER_RADIUS.button }}>
             Delete
           </Button>

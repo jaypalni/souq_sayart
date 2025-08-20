@@ -20,13 +20,14 @@ const SignupOtp = () => {
   const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const { user } = useSelector((state) => state.auth);
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const isLoggedIn = customerDetails && user;
+  const OTP_LENGTH = 4;
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -85,21 +86,21 @@ const SignupOtp = () => {
   }, [isTimerRunning, timer]);
 
   const handleChange = (e, idx) => {
-    const val = e.target.value.replace(/\D/g, '');
+  const val = e.target.value.replace(/\D/g, '');
 
-    const newOtp = [...otp];
-    if (val) {
-      newOtp[idx] = val[val.length - 1];
-      setOtp(newOtp);
-      setError('');
-      if (idx < 3) {
-        inputRefs[idx + 1].current.focus();
-      }
-    } else {
-      newOtp[idx] = '';
-      setOtp(newOtp);
+  const newOtp = [...otp];
+  if (val) {
+    newOtp[idx] = val[val.length - 1];
+    setOtp(newOtp);
+    setError('');
+    if (idx < OTP_LENGTH - 1) {
+      inputRefs[idx + 1].current.focus();
     }
-  };
+  } else {
+    newOtp[idx] = '';
+    setOtp(newOtp);
+  }
+};
 
   const handleKeyDown = (e, idx) => {
     if (e.key === 'Backspace') {
@@ -115,39 +116,6 @@ const SignupOtp = () => {
     }
   };
 
-  const handleResend = async () => {
-    if (!isTimerRunning) {
-      setTimer(60);
-      setIsTimerRunning(true);
-    }
-
-    try {
-      const usermobilenumber = localStorage.getItem('phone_number');
-      setLoading(true);
-
-      const response = await authAPI.resendotp({
-        phone_number: usermobilenumber,
-      });
-      const data = handleApiResponse(response);
-
-      if (data) {
-        localStorage.setItem('userData', JSON.stringify(data));
-        messageApi.open({
-          type: 'success',
-          content: data.message,
-        });
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const validateOtp = () => {
     if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
       setError('Please enter the OTP.');
@@ -158,92 +126,139 @@ setError('');
     }
   };
 
-  const handleContinue = async () => {
-    if (!validateOtp()) {
-      return;
-    }
+ const handleContinue = async () => {
+  if (!validateOtp()) {
+    return;
+  }
 
-    try {
-      setLoading(true);
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      const otpDigits = otp.join('');
-      const otpPayload = {
-        otp: otpDigits,
-        request_id: userData.request_id,
-      };
-      const result = await dispatch(verifyOTP(otpPayload));
+  try {
+    setLoading(true);
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const otpDigits = otp.join('');
+    const otpPayload = {
+      otp: otpDigits,
+      request_id: userData.request_id,
+    };
+    const result = await dispatch(verifyOTP(otpPayload));
 
-      if (result.success) {
-        localStorage.setItem('token', result.data.access_token);
+    if (result.success) {
+      localStorage.setItem('token', result.data.access_token);
 
-        messageApi.open({
-          type: 'success',
-          content: result.message,
-        });
+      messageApi.open({
+        type: 'success',
+        content: result.message,
+      });
 
-        if (result.data.is_registered) {
-          navigate('/landing');
-        } else {
-          navigate('/createProfile');
-        }
+      if (result.data.is_registered) {
+        navigate('/landing');
       } else {
-        messageApi.open({
-          type: 'error',
-          content: result.error,
-        });
+        navigate('/createProfile');
       }
-    } catch (error) {
-      message.error('OTP verification failed. Please try again.');
-    } finally {
-      setLoading(false);
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: result.error,
+      });
     }
-  };
+  } catch (err) { // renamed here
+    message.error('OTP verification failed. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
-  return (
-    <div className="otp-container">
-      {contextHolder}
-      <h2 className="otp-title">Login</h2>
-      <p className="otp-desc">
-        Enter the verification code sent to your phone number
-      </p>
-      <div className="otp-inputs">
-        {otp.map((digit, idx) => (
+const handleResend = async () => {
+  if (!isTimerRunning) {
+    setTimer(60);
+    setIsTimerRunning(true);
+  }
+
+  try {
+    const usermobilenumber = localStorage.getItem('phone_number');
+    setLoading(true);
+
+    const response = await authAPI.resendotp({
+      phone_number: usermobilenumber,
+    });
+    const data = handleApiResponse(response);
+
+    if (data) {
+      localStorage.setItem('userData', JSON.stringify(data));
+      messageApi.open({
+        type: 'success',
+        content: data.message,
+      });
+    }
+  } catch (err) {
+    const errorData = handleApiError(err);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+return (
+  <div className="otp-container">
+    {contextHolder}
+    <h2 className="otp-title">Login</h2>
+    <p className="otp-desc">
+      Enter the verification code sent to your phone number
+    </p>
+
+    <div className="otp-inputs">
+      {otp.map((digit, idx) => {
+        let inputClass = 'otp-input';
+
+        if (digit) {
+          inputClass += ' filled';
+        }
+
+        if (error && (digit === '' || !/^\d$/.test(digit))) {
+          inputClass += ' otp-input-error';
+        }
+
+        return (
           <input
-            key={idx}
+            key={`otp-input-${idx}`}
             ref={inputRefs[idx]}
             type="tel"
-            className={`otp-input${digit ? ' filled' : ''}${
-              error && (digit === '' || !/^\d$/.test(digit))
-                ? ' otp-input-error'
-                : ''
-            }`}
+            className={inputClass}
             maxLength={1}
             value={digit}
             onChange={(e) => handleChange(e, idx)}
             onKeyDown={(e) => handleKeyDown(e, idx)}
           />
-        ))}
+        );
+      })}
+    </div>
+
+    {error && (
+      <div
+        className="otp-error"
+        style={{
+          color: '#ff4d4f',
+          marginTop: 8,
+          marginBottom: 4,
+          textAlign: 'center',
+        }}
+      >
+        {error}
       </div>
-      {error && (
-        <div
-          className="otp-error"
-          style={{
-            color: '#ff4d4f',
-            marginTop: 8,
-            marginBottom: 4,
-            textAlign: 'center',
-          }}
-        >
-          {error}
-        </div>
-      )}
-      <div className="otp-timer">
-        {isTimerRunning ? (
-          <span>
-            Resend in{' '}
-            <span className="otp-timer-count">{formatTime(timer)}</span>
-          </span>
-        ) : (
+    )}
+
+    <div className="otp-timer">
+      {(() => {
+        if (isTimerRunning) {
+          return (
+            <span>
+              Resend in{' '}
+              <span className="otp-timer-count">{formatTime(timer)}</span>
+            </span>
+          );
+        }
+        return (
           <span
             className="otp-resend"
             onClick={handleResend}
@@ -251,23 +266,25 @@ setError('');
           >
             Resend
           </span>
-        )}
-      </div>
-
-      <div className="otp-btn-row">
-        <button className="otp-btn otp-btn-outline" type="button">
-          Continue as guest
-        </button>
-        <button
-          className="otp-btn otp-btn-filled"
-          type="button"
-          onClick={handleContinue}
-        >
-          Continue
-        </button>
-      </div>
+        );
+      })()}
     </div>
-  );
+
+    <div className="otp-btn-row">
+      <button className="otp-btn otp-btn-outline" type="button">
+        Continue as guest
+      </button>
+      <button
+        className="otp-btn otp-btn-filled"
+        type="button"
+        onClick={handleContinue}
+      >
+        Continue
+      </button>
+    </div>
+  </div>
+);
+
 };
 
 export default SignupOtp;

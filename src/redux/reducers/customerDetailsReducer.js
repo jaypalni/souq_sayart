@@ -16,15 +16,21 @@ import {
 const loadPersistedCustomerDetails = () => {
   try {
     const raw = localStorage.getItem('customerDetails');
-    if (!raw){
-return null;
-    } 
+    if (!raw) {
+      return null;
+    }
+
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : null;
+    if (parsed && typeof parsed === 'object') {
+      return parsed;
+    }
+
+    return null;
   } catch (_) {
     return null;
   }
 };
+
 
 const initialState = {
   customerDetails: loadPersistedCustomerDetails(),

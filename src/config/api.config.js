@@ -1,3 +1,18 @@
+/**
+ * @file api.config.js
+ * @description API configuration file for the ss-frontend project. Defines all API endpoints and base URL configuration.
+ * @version 1.0.0
+ * @date 2025-08-19
+ * @author Palni
+ *
+ * Copyright (c) 2025 Palni.
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying, modification, or distribution of this file,
+ * via any medium is strictly prohibited unless explicitly authorized.
+ */
+
 const API_CONFIG = {
   BASE_URL: process.env.REACT_APP_API_URL,
   ENDPOINTS: {

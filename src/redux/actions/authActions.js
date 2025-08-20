@@ -1,3 +1,18 @@
+/**
+ * @file authActions.js
+ * @description Redux actions for authentication functionality. Handles login, logout, registration, and customer details management.
+ * @version 1.0.0
+ * @date 2025-08-19
+ * @author Palni
+ *
+ * Copyright (c) 2025 Palni.
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying, modification, or distribution of this file,
+ * via any medium is strictly prohibited unless explicitly authorized.
+ */
+
 import { authAPI } from '../../services/api';
 
 export const AUTH_LOGIN_REQUEST = 'AUTH_LOGIN_REQUEST';

@@ -1,10 +1,16 @@
 /**
- * Copyright (c) 2025 Palni
+ * @file allcars.js
+ * @description Page component for displaying all available cars with filtering.
+ * @version 1.0.0
+ * @date 2025-08-19
+ * @author Palni
+ *
+ * Copyright (c) 2025 Palni.
  * All rights reserved.
  *
  * This file is part of the ss-frontend project.
- * Unauthorized copying or distribution of this file,
- * via any medium is strictly prohibited.
+ * Unauthorized copying, modification, or distribution of this file,
+ * via any medium is strictly prohibited unless explicitly authorized.
  */
 
 import { useEffect, useState } from 'react';
@@ -47,7 +53,7 @@ const CarListing = ({ filtercarsData }) => {
   const passedPagination = location.state?.pagination || {};
   const [carsData, setCarsData] = useState(passedCars);
   const [paginationData, setPaginationData] = useState(passedPagination);
-  const [setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');

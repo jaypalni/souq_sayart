@@ -1,4 +1,19 @@
 /**
+ * @file cartypelist.js
+ * @description Component for displaying car types in a list format with navigation.
+ * @version 1.0.0
+ * @date 2025-08-19
+ * @author Palni
+ *
+ * Copyright (c) 2025 Palni.
+ * All rights reserved.
+ *
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying, modification, or distribution of this file,
+ * via any medium is strictly prohibited unless explicitly authorized.
+ */
+
+/**
  * Copyright (c) 2025 Palni
  * All rights reserved.
  *
@@ -54,7 +69,7 @@ const Arrow = (props) => {
 const CarTypeList = () => {
   const [loading,setLoading] = useState(false);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
-  const [setCarSearch] = useState([]);
+  const [carSearch, setCarSearch] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bodyType, setBodyType] = useState('All Body Types');
   const navigate = useNavigate();

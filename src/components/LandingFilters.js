@@ -30,8 +30,29 @@ const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
 const DEFAULT_PRICE_MAX = 'Price Max';
 
-const PRICE_MIN_VALUES = Object.freeze([5000, 10000, 20000, 30000, 40000]);
-const PRICE_MAX_VALUES = Object.freeze([20000, 30000, 40000, 50000, 100000]);
+// Price constants to avoid magic numbers
+const PRICE_5K = 5000;
+const PRICE_10K = 10000;
+const PRICE_20K = 20000;
+const PRICE_30K = 30000;
+const PRICE_40K = 40000;
+const PRICE_50K = 50000;
+const PRICE_100K = 100000;
+
+const PRICE_MIN_VALUES = Object.freeze([
+  PRICE_5K,
+  PRICE_10K,
+  PRICE_20K,
+  PRICE_30K,
+  PRICE_40K,
+]);
+const PRICE_MAX_VALUES = Object.freeze([
+  PRICE_20K,
+  PRICE_30K,
+  PRICE_40K,
+  PRICE_50K,
+  PRICE_100K,
+]);
 const DEFAULT_CAR_COUNT = 342642;
 const INDIA_TZ_OFFSET_MIN = -330;
 const HTTP_STATUS_UNAUTHORIZED = 401;
@@ -55,8 +76,7 @@ const LandingFilters = ({ searchbodytype }) => {
   const [carModels, setCarModels] = useState([]);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [carLocation, setCarLocation] = useState([]);
-  const [carLocationCountry, setCarLocationCountry] = useState([]);
-  const [carSearch, setCarSearch] = useState([]);
+  
    const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
@@ -173,7 +193,10 @@ const getGeoData = async () => {
 
     localStorage.setItem(
       cacheKey,
-      JSON.stringify({ ts: Date.now(), data: geoData })
+      JSON.stringify({
+        ts: Date.now(),
+        data: geoData,
+      }),
     );
 
     return geoData;
@@ -243,6 +266,16 @@ const isIndiaLocale = () => {
 
   const handleChange = () => {};
 
+  const getDropdownLabel = (type) => {
+    if (type === 'newUsed') {
+      return 'New & Used';
+    }
+    if (type === 'priceMin') {
+      return 'Price Min';
+    }
+    return 'Price Max';
+  };
+
   const valueOrEmpty = (currentValue, defaultValue) => {
     if (currentValue !== defaultValue) {
       return currentValue;
@@ -266,7 +299,6 @@ const isIndiaLocale = () => {
 
       if (data1) {
         const results = data1?.data?.cars || [];
-        setCarSearch(results);
 
         if (results.length === 0) {
           setIsModalOpen(true);
@@ -305,10 +337,18 @@ const isIndiaLocale = () => {
         });
       }
 
-      setCarSearch([]);
+      
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleDropdown = (type) => {
+    if (openDropdown === type) {
+      setOpenDropdown(null);
+      return;
+    }
+    setOpenDropdown(type);
   };
 
   React.useEffect(() => {
@@ -332,12 +372,7 @@ const isIndiaLocale = () => {
       role="menu"
     >
       {options.map((opt) => {
-        const label =
-          type === 'newUsed'
-            ? 'New & Used'
-            : type === 'priceMin'
-            ? 'Price Min'
-            : 'Price Max';
+        const label = getDropdownLabel(type);
         const onSelect = () => {
           setValue(opt);
           handleChange(label, opt);
@@ -346,9 +381,13 @@ const isIndiaLocale = () => {
         return (
           <div
             key={opt}
-            className={`landing-filters-dropdown-item${
-              value === opt ? ' selected' : ''
-            }`}
+            className={(function buildClass() {
+              let cls = 'landing-filters-dropdown-item';
+              if (value === opt) {
+                cls += ' selected';
+              }
+              return cls;
+            })()}
             role="menuitem"
             tabIndex={0}
             onClick={onSelect}
@@ -371,8 +410,9 @@ const isIndiaLocale = () => {
       <div className="landing-filters-bar">
         <div className="landing-filters-row">
           <div className="landing-filters-col">
-            <label className="landing-filters-label">Make</label>
+            <label className="landing-filters-label" htmlFor="make-select">Make</label>
             <Select
+              id="make-select"
               value={make}
               onChange={(value) => {
                 setMake(value);
@@ -392,8 +432,9 @@ const isIndiaLocale = () => {
             </Select>
           </div>
           <div className="landing-filters-col">
-            <label className="landing-filters-label">Model</label>
+            <label className="landing-filters-label" htmlFor="model-select">Model</label>
             <Select
+              id="model-select"
               value={model}
               onChange={(value) => {
                 setModel(value);
@@ -412,8 +453,9 @@ const isIndiaLocale = () => {
             </Select>
           </div>
           <div className="landing-filters-col">
-            <label className="landing-filters-label">Body Type</label>
+            <label className="landing-filters-label" htmlFor="bodytype-select">Body Type</label>
             <Select
+              id="bodytype-select"
               value={bodyType}
               onChange={(value) => {
                 setBodyType(value);
@@ -431,8 +473,9 @@ const isIndiaLocale = () => {
             </Select>
           </div>
           <div className="landing-filters-col">
-            <label className="landing-filters-label">Location</label>
+            <label className="landing-filters-label" htmlFor="location-select">Location</label>
             <Select
+              id="location-select"
               value={location}
               onChange={(value) => {
                 setLocation(value);
@@ -462,67 +505,49 @@ const isIndiaLocale = () => {
           </div>
         </div>
         <div className="landing-filters-row landing-filters-row-text">
-          <div
+          <button
+            type="button"
             className="landing-filters-text"
-            onClick={() =>
-              setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed')
-            }
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setOpenDropdown(openDropdown === 'newUsed' ? null : 'newUsed');
-              }
-            }}
+            onClick={() => toggleDropdown('newUsed')}
+            style={{ background: 'transparent', border: 'none', padding: 0 }}
           >
-            {newUsed} <span className="landing-filters-text-arrow">▼</span>
+            <span className="landing-filters-text-label">{newUsed}</span>
+            <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'newUsed' &&
               renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="landing-filters-text"
-            onClick={() =>
-              setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin')
-            }
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setOpenDropdown(openDropdown === 'priceMin' ? null : 'priceMin');
-              }
-            }}
+            onClick={() => toggleDropdown('priceMin')}
+            style={{ background: 'transparent', border: 'none', padding: 0 }}
           >
-            {priceMin} <span className="landing-filters-text-arrow">▼</span>
+            <span className="landing-filters-text-label">{priceMin}</span>
+            <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'priceMin' &&
               renderDropdown(
                 'priceMin',
                 priceMinOptions,
                 priceMin,
-                setPriceMin
+                setPriceMin,
               )}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="landing-filters-text"
-            onClick={() =>
-              setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax')
-            }
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setOpenDropdown(openDropdown === 'priceMax' ? null : 'priceMax');
-              }
-            }}
+            onClick={() => toggleDropdown('priceMax')}
+            style={{ background: 'transparent', border: 'none', padding: 0 }}
           >
-            {priceMax} <span className="landing-filters-text-arrow">▼</span>
+            <span className="landing-filters-text-label">{priceMax}</span>
+            <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'priceMax' &&
               renderDropdown(
                 'priceMax',
                 priceMaxOptions,
                 priceMax,
-                setPriceMax
+                setPriceMax,
               )}
-          </div>
+          </button>
         </div>
       </div>
 

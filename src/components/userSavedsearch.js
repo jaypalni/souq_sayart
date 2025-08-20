@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import '../assets/styles/usersavedsearches.css';
 import carImage from '../assets/images/subscribecar_icon.png';
 import diamondLogo from '../assets/images/bluediamond_icon.svg';
@@ -17,23 +18,41 @@ import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
 
 // Helpers to reduce complexity in SavedSearchCard
-const buildMakeImageSrc = (item) =>
-  item.make_image ? `http://13.202.75.187:5002${item.make_image}` : carImage;
+const buildMakeImageSrc = (item) => {
+  if (item.make_image) {
+    return `http://13.202.75.187:5002${item.make_image}`;
+  }
+  return carImage;
+};
 
 const buildPriceText = (sp) => {
   const hasRange = Boolean(sp?.price_min) || Boolean(sp?.price_to);
   if (!hasRange) {
     return '$0';
   }
-  const left = sp?.price_min ? `$${sp.price_min}` : '';
-  const right = sp?.price_to ? ` - $${sp.price_to}` : '';
+  let left = '';
+  if (sp?.price_min) {
+    left = `$${sp.price_min}`;
+  }
+  let right = '';
+  if (sp?.price_to) {
+    right = ` - $${sp.price_to}`;
+  }
   return `${left}${right}`;
 };
 
 const buildYearText = (sp) => `From ${sp?.year_min || 'N/A'}`;
 
-const ModelText = ({ model }) =>
-  model ? <span className="user-saved-search-model">{model}</span> : null;
+const ModelText = ({ model }) => {
+  if (!model) {
+    return null;
+  }
+  return <span className="user-saved-search-model">{model}</span>;
+};
+
+ModelText.propTypes = {
+  model: PropTypes.string,
+};
 
 const FeaturesList = ({ features }) => {
   const list = Array.isArray(features) ? features : [];
@@ -49,19 +68,25 @@ const FeaturesList = ({ features }) => {
   );
 };
 
+FeaturesList.propTypes = {
+  features: PropTypes.arrayOf(PropTypes.string),
+};
+
 const SavedSearchCard = ({ item, idx, total }) => {
   const sp = item.search_params || {};
   const divider = idx < total - 1 ? ' with-divider' : '';
   const priceText = buildPriceText(sp);
   const yearText = buildYearText(sp);
   const imgSrc = buildMakeImageSrc(item);
+  const makeDisplay = sp && sp.make ? sp.make : 'Unknown Make';
+  const makeAlt = sp && sp.make ? sp.make : 'Car';
 
   return (
     <div className={`user-saved-search-section${divider}`} key={item.id}>
       <div className="user-saved-search-header">
-        <img src={imgSrc} alt={sp.make || 'Car'} className="user-saved-search-logo" />
+        <img src={imgSrc} alt={makeAlt} className="user-saved-search-logo" />
         <div className="user-saved-search-title">
-          <span className="user-saved-search-brand">{sp.make || 'Unknown Make'}</span>
+          <span className="user-saved-search-brand">{makeDisplay}</span>
           <ModelText model={sp.model} />
         </div>
       </div>
@@ -75,6 +100,23 @@ const SavedSearchCard = ({ item, idx, total }) => {
       <FeaturesList features={sp.extra_features} />
     </div>
   );
+};
+
+SavedSearchCard.propTypes = {
+  item: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    make_image: PropTypes.string,
+    search_params: PropTypes.shape({
+      make: PropTypes.string,
+      model: PropTypes.string,
+      price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      price_to: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      year_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      extra_features: PropTypes.arrayOf(PropTypes.string),
+    }).isRequired,
+  }).isRequired,
+  idx: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
 };
 
 const SignupBox = ({ onClick, title, buttonText }) => (

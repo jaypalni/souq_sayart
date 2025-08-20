@@ -15,7 +15,7 @@ if (persistedUserDataRaw) {
       persistedUserData = { isLogin: false, ...parsed };
     }
   } catch (e) {
-    console.error('Failed to parse userData from localStorage', e);
+    console.info('Failed to parse userData from localStorage', e);
   }
 }
 

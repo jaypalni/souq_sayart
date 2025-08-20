@@ -211,8 +211,8 @@ const CreateProfile = () => {
     return 'individual';
   };
 
-  const toWhatsappFlag = (isChecked) => {
-    if (isChecked) {
+  const toWhatsappFlag = (whatsappChecked) => {
+    if (whatsappChecked) {
       return '1';
     }
     return '0';

@@ -42,6 +42,8 @@ const blockedContactsData = [
   },
 ];
 
+const UNBLOCK_DELAY_MS = 500;
+
 const EmptyState = () => (
   <div style={{ textAlign: 'center', padding: 40 }}>
     <h3>No Blocked Contacts</h3>
@@ -58,7 +60,7 @@ const BlockedContacts = () => {
     setTimeout(() => {
       setContacts(contacts.filter(contact => contact.id !== id));
       setUnblockLoading(null);
-    }, 500);
+    }, UNBLOCK_DELAY_MS);
   };
 
   if (contacts.length === 0) {

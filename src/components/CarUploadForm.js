@@ -49,8 +49,8 @@ const CarUploadForm = () => {
     }
   };
 
-  const handleFileChange = ({ fileList }) => {
-    setFileList(fileList);
+  const handleFileChange = ({ fileList: nextFileList }) => {
+    setFileList(nextFileList);
   };
 
   return (

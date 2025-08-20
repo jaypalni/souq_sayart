@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Modal, Input, Radio } from 'antd';
 import SubscriptionCard from './SubscriptionCard';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -133,6 +134,12 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
         marginBottom: 24,
       }}
     >
+      <thead>
+        <tr>
+          <th style={{ textAlign: 'left' }}>Item</th>
+          <th style={{ textAlign: 'right' }}>Value</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
           <td>Price</td>
@@ -186,7 +193,7 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
         </tr>
       </tbody>
     </table>
-    {isCurrent ? (
+    {isCurrent && (
       <Button
         type="primary"
         danger
@@ -195,7 +202,8 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
       >
         Cancel Subscription
       </Button>
-    ) : (
+    )}
+    {!isCurrent && (
       <Button type="primary" style={{ width: 220, borderRadius: 24 }}>
         Subscribe
       </Button>
@@ -203,12 +211,55 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
   </div>
 );
 
+SubscriptionDetails.propTypes = {
+  plan: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    duration: PropTypes.string.isRequired,
+    details: PropTypes.shape({
+      price: PropTypes.string.isRequired,
+      priceModel: PropTypes.string.isRequired,
+      postsAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      photosAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      videosAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      postDuration: PropTypes.string.isRequired,
+      featured: PropTypes.oneOfType([PropTypes.string, PropTypes.bool])
+        .isRequired,
+      banner: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
+      analytics: PropTypes.oneOfType([PropTypes.string, PropTypes.bool])
+        .isRequired,
+      additionalCar: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      emailNewsletter: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool,
+      ]).isRequired,
+      sponsoredContent: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool,
+      ]).isRequired,
+    }).isRequired,
+    current: PropTypes.bool,
+  }).isRequired,
+  onBack: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  isCurrent: PropTypes.bool.isRequired,
+};
+
 const Subscriptions = () => {
   const [activeTab, setActiveTab] = useState('Individual');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [cancelStep, setCancelStep] = useState(null);
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otp, setOtp] = useState([
+    { id: 'otp-0', value: '' },
+    { id: 'otp-1', value: '' },
+    { id: 'otp-2', value: '' },
+    { id: 'otp-3', value: '' },
+  ]);
   const [otpTimer, setOtpTimer] = useState(60);
 
   const [newplansData, setNewPlansData] = useState(plansData);
@@ -313,18 +364,21 @@ const Subscriptions = () => {
           >
             {otp.map((digit, idx) => (
               <Input
-                key={idx}
-                value={digit}
+                key={digit.id}
+                value={digit.value}
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, '').slice(0, 1);
-                  const newOtp = [...otp];
-                  newOtp[idx] = val;
+                  const newOtp = otp.map((d, i) =>
+                    i === idx ? { ...d, value: val } : d,
+                  );
                   setOtp(newOtp);
-                  if (val && idx < 3) {
-                    document.getElementById(`otp-input-${idx + 1}`).focus();
+                  if (val && idx < newOtp.length - 1) {
+                    const nextId = newOtp[idx + 1].id;
+                    const nextEl = document.getElementById(nextId);
+                    if (nextEl) nextEl.focus();
                   }
                 }}
-                id={`otp-input-${idx}`}
+                id={digit.id}
                 style={{
                   width: 40,
                   height: 40,
@@ -426,7 +480,6 @@ const Subscriptions = () => {
           message.error('Failed to fetch plans.');
         }
       } catch (error) {
-        console.error('Error fetching plans:', error);
         handleApiError(error);
       }
     };
@@ -436,7 +489,7 @@ const Subscriptions = () => {
 
   return (
     <div className="subscriptions-main">
-      {!selectedPlan ? (
+      {!selectedPlan && (
         <>
           <div className="subscriptions-header">Subcriptions</div>
           <div
@@ -465,7 +518,7 @@ const Subscriptions = () => {
                   marginRight: '10px',
                   borderRadius: '4px',
                   color: activeTab === 'Individual' ? '#D67900' : '#000',
-                  fontSize: activeTab === 'Individual' ? '14px' : '14px',
+                  fontSize: '14px',
                   fontWeight: activeTab === 'Individual' ? '700' : '400',
                   borderColor:
                     activeTab === 'Individual' ? '#FFEDD5' : '#ffffff',
@@ -500,22 +553,26 @@ const Subscriptions = () => {
             className="subscriptions-list"
             style={{ display: 'flex', gap: 24, marginTop: 24 }}
           >
-            {plans.length === 0 ? (
-              <EmptyState />
-            ) : (
+            {plans.length === 0 && <EmptyState />}
+            {plans.length > 0 &&
               plans.map((plan) => (
                 <div
                   key={plan.id}
                   style={{ cursor: 'pointer' }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') setSelectedPlan(plan);
+                  }}
                   onClick={() => setSelectedPlan(plan)}
                 >
                   <SubscriptionCard {...plan} />
                 </div>
-              ))
-            )}
+              ))}
           </div>
         </>
-      ) : (
+      )}
+      {selectedPlan && (
         <SubscriptionDetails
           plan={selectedPlan}
           isCurrent={selectedPlan.current}

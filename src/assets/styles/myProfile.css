@@ -102,10 +102,13 @@
 
 .edit-mode-form .ant-input {
   border: none !important;
-  border-bottom: 2px solid #039be5 !important;
+  border-bottom: 1px solid #000000 !important;
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+  color: #4A5E6D;
+  font-size: 16px;
+  font-weight: 400;
 }
 .edit-mode-form .ant-input:focus {
   border-bottom: 2px solid #027fc1 !important;
@@ -506,22 +509,3 @@ color: #637D92;
 font-size: 14px;
 font-weight: 400;
  }
-
- .edit-mode-form .ant-input {
-border: none !important;
-border-bottom: 1px solid #000000 !important;
-border-radius: 0 !important;
-background: transparent !important;
-box-shadow: none !important;
-}
-
-.edit-mode-form .ant-input {
-border: none !important;
-border-bottom: 1px solid #000000 !important;
-border-radius: 0 !important;
-background: transparent !important;
-box-shadow: none !important;
-color: #4A5E6D;
-font-size: 16px;
-font-weight: 400;
-}

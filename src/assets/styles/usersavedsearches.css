@@ -158,10 +158,10 @@
   width: 100%;
 }
 
-.user-saved-search-action-box {
+.user-saved-search-actions .user-saved-search-action-box {
   display: flex;
   align-items: center;
-  background-color: #0619c3;
+  background-color: #ffffff;
   padding: 15px;
   border-radius: 10px;
   flex: 1;

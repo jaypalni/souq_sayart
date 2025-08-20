@@ -9,6 +9,7 @@ import React from 'react';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { FaRegHeart, FaGlobe, FaMapMarkerAlt } from 'react-icons/fa';
 import { TbManualGearbox } from 'react-icons/tb';
+import PropTypes from 'prop-types';
 
 const Allcarslistdata = ({ car, idx }) => {
   return (
@@ -58,6 +59,22 @@ const Allcarslistdata = ({ car, idx }) => {
       </div>
     </div>
   );
+};
+
+Allcarslistdata.propTypes = {
+  idx: PropTypes.number.isRequired,
+  car: PropTypes.shape({
+    image: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    featured: PropTypes.bool.isRequired,
+    certified: PropTypes.bool.isRequired,
+    price: PropTypes.string.isRequired,
+    engine: PropTypes.string.isRequired,
+    transmission: PropTypes.string.isRequired,
+    country: PropTypes.string.isRequired,
+    mileage: PropTypes.string.isRequired,
+    location: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default Allcarslistdata;

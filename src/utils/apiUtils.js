@@ -5,20 +5,15 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-export const handleApiResponse = (response) => {
-  if (response && response.data) {
-    return response.data;
-  }
-  return null;
-};
+export const handleApiResponse = (response) => response?.data ?? null;
 
 export const handleApiError = (error) => {
   if (error.response) {
     const { status, data } = error.response;
     return {
       status,
-      message: data.message || data.error || 'An error occurred',
-      errors: data.errors || [],
+      message: data?.message || data?.error || 'An error occurred',
+      errors: data?.errors || [],
     };
   } else if (error.request) {
     return {
@@ -29,7 +24,7 @@ export const handleApiError = (error) => {
   } else {
     return {
       status: 0,
-      message: error.message || 'Request failed',
+      message: error?.message || 'Request failed',
       errors: [],
     };
   }
@@ -38,7 +33,7 @@ export const handleApiError = (error) => {
 export const createFormData = (data) => {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
-    if (data[key] !== null && data[key] !== undefined) {
+    if (data[key] != null) {
       formData.append(key, data[key]);
     }
   });
@@ -48,7 +43,7 @@ export const createFormData = (data) => {
 export const createQueryString = (params) => {
   const queryParams = new URLSearchParams();
   Object.keys(params).forEach((key) => {
-    if (params[key] !== null && params[key] !== undefined) {
+    if (params[key] != null) {
       queryParams.append(key, params[key]);
     }
   });

@@ -5,24 +5,27 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export const logger = {
   log: (...args) => {
     if (isDevelopment) {
+      console.info(...args);
     }
   },
   warn: (...args) => {
     if (isDevelopment) {
+      console.info("[WARN]", ...args);
     }
   },
   error: (...args) => {
     if (isDevelopment) {
-      console.error(...args);
+      console.info("[ERROR]", ...args); 
     }
   },
   info: (...args) => {
     if (isDevelopment) {
+      console.info(...args);
     }
   },
 };

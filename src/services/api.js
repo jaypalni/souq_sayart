@@ -8,6 +8,12 @@
 import axios from 'axios';
 import API_CONFIG from '../config/api.config';
 
+const HTTP_STATUS = {
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+};
+
 if (!API_CONFIG.BASE_URL) {
   throw new Error(
     'API base URL is not configured. Please set REACT_APP_API_URL in your .env file'
@@ -38,28 +44,30 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(new Error(error.message || 'Request error'))
 );
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      switch (error.response.status) {
-        case 403:
-          break;
-        case 404:
-          break;
-        case 500:
-          break;
-        default:
+      const { status } = error.response;
+      if (status === HTTP_STATUS.FORBIDDEN) {
+        console.warn('Access forbidden (403)');
+      } else if (status === HTTP_STATUS.NOT_FOUND) {
+        console.warn('Resource not found (404)');
+      } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
+        console.error('Internal server error (500)');
       }
     } else if (error.request) {
+      console.error('No response received from server');
     } else {
+      console.error('Request setup failed', error.message);
     }
-    return Promise.reject(error);
+
+    return Promise.reject(
+      error instanceof Error ? error : new Error('API request failed')
+    );
   }
 );
 
@@ -75,9 +83,8 @@ export const authAPI = {
     api.post(API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD, { email }),
   resetPassword: (data) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD, data),
-  verifyOtp: (otpData) => {
-    return api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData);
-  },
+  verifyOtp: (otpData) =>
+    api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP, otpData),
   countrycode: () => publicApi.get(API_CONFIG.ENDPOINTS.AUTH.COUNTRY_CODE),
   uploadimages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.UPLOAD_DOCUMENTS, formData, {
@@ -85,7 +92,6 @@ export const authAPI = {
         'Content-Type': 'multipart/form-data',
       },
     }),
-
   refresh: (credentials) =>
     api.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
 };

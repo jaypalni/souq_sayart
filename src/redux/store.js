@@ -41,9 +41,9 @@ if (typeof window !== 'undefined') {
       lastCustomerDetails = syncLocalStorageKey(
         'customerDetails',
         lastCustomerDetails,
-        nextCustomerDetails
+        nextCustomerDetails,
       );
-    }, 1000)
+    }, 1000),
   );
 }
 

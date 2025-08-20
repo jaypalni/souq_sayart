@@ -5,16 +5,24 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-const persistedUserData = localStorage.getItem('userData')
-  ? JSON.parse(localStorage.getItem('userData'))
-  : { isLogin: false };
+const persistedUserDataRaw = localStorage.getItem('userData');
+let persistedUserData = { isLogin: false };
+
+if (persistedUserDataRaw) {
+  try {
+    const parsed = JSON.parse(persistedUserDataRaw);
+    if (parsed && typeof parsed === 'object') {
+      persistedUserData = { isLogin: false, ...parsed };
+    }
+  } catch (e) {
+    console.error('Failed to parse userData from localStorage', e);
+  }
+}
 
 const initialState = {
-  userData:
-    persistedUserData && typeof persistedUserData === 'object'
-      ? { isLogin: false, ...persistedUserData }
-      : { isLogin: false },
+  userData: persistedUserData,
 };
+
 
 const userDataReducer = (state = initialState, action) => {
   switch (action.type) {

@@ -169,12 +169,7 @@
   gap: 10px;
 }
 
-.action-icon {
-  background: #e0f0ff;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 1.5rem;
-}
+
 
 @media (max-width: 900px) {
   .user-saved-searches-top {
@@ -212,20 +207,6 @@
   gap: 20px;
 }
 
-.user-saved-searches-top {
-  display: flex;
-  gap: 20px;
-  flex-wrap: nowrap;
-  align-items: stretch;
-}
-
-.user-saved-search-actions {
-  display: flex;
-  gap: 20px;
-  flex-wrap: nowrap;
-  width: 100%;
-}
-
 .user-saved-search-action-box {
   flex: 1 1 0;
   display: flex;
@@ -237,9 +218,8 @@
   gap: 10px;
   min-height: 40px;
   box-sizing: border-box;
-  font-size: 0.95rem;
   border: 1px solid #b5b3b3;
-  font-size: 16;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -291,6 +271,10 @@
 }
 
 .action-icon {
+  background: #e0f0ff;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 1.5rem;
   width: 40px;
   height: 40px;
 }
@@ -360,5 +344,5 @@
 .user-saved-search-year {
   font-size: 14px;
   font-weight: 400;
-  columns: #000;
+  color: #000;
 }

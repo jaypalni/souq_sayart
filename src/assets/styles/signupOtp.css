@@ -85,7 +85,7 @@
   border-radius: 20;
   padding: "2px 24px";
   cursor: "pointer";
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-weight: 400;
   font-size: 14;
   height: 35;
@@ -98,7 +98,7 @@
   border-radius: 20;
   padding: 2px 52px;
   cursor: "pointer";
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-weight: 700;
   font-size: 14;
 }
@@ -110,7 +110,7 @@
   border-radius: 20;
   padding: 2px 52px;
   cursor: "pointer";
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-weight: 700;
   font-size: 14;
   opacity: 0.5;

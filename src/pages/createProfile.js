@@ -42,7 +42,7 @@ const CreateProfile = () => {
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
-  const [setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   const { customerDetails } = useSelector((state) => state.customerDetails);
@@ -68,7 +68,6 @@ const CreateProfile = () => {
 
   const handleChange = (value) => {
     setChecked(value);
-    return value;
   };
 
   const onFinish = (values) => {

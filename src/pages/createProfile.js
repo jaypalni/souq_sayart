@@ -68,6 +68,7 @@ const CreateProfile = () => {
 
   const handleChange = (value) => {
     setChecked(value);
+    return value;
   };
 
   const onFinish = (values) => {
@@ -174,13 +175,15 @@ const CreateProfile = () => {
       });
       console.error('Upload error:', errorData);
       message.error('Upload failed due to network error');
-      return false; // Prevent default upload behavior on error
+      return false; 
     }
   };
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
-    setDobError(dobErr ? dobErr.errors[0] : '');
+    const errorMessage = dobErr ? dobErr.errors[0] : '';
+    setDobError(errorMessage);
+    return errorMessage;
   };
 
   const getInitials = () => {

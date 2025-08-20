@@ -41,7 +41,7 @@
 
 .footer-col-cat-data {
   font-weight: 700;
-  font-family: "Roboto" sans-serif;
+  font-family: "Roboto", sans-serif;
   margin-bottom: 10px;
   font-size: 16px;
 }
@@ -52,7 +52,7 @@
   color: #222;
   cursor: pointer;
   font-weight: 400;
-  font-family: "Roboto" sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .footer-app-col {
@@ -84,5 +84,5 @@
   display: flex;
   justify-content: flex-end;
   font-weight: 600;
-  font-family: "Roboto" sans-serif;
+  font-family: "Roboto", sans-serif;
 }

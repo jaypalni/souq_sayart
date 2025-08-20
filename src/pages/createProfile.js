@@ -161,8 +161,10 @@ const CreateProfile = () => {
           type: 'success',
           content: userdoc.message,
         });
+        return false; 
       } else {
         message.error(userdoc.message || 'Upload failed');
+        return false;
       }
     } catch (error) {
       const errorData = handleApiError(error);
@@ -172,9 +174,8 @@ const CreateProfile = () => {
       });
       console.error('Upload error:', errorData);
       message.error('Upload failed due to network error');
+      return false; // Prevent default upload behavior on error
     }
-
-    return false;
   };
 
   const onFinishFailed = ({ errorFields }) => {

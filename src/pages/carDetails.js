@@ -116,7 +116,13 @@ InfoTable.defaultProps = {
 const ImageGallery = ({ images }) => {
   const [mainImageIdx, setMainImageIdx] = useState(0);
   const goToNextImage = () => setMainImageIdx((prev) => (prev + 1) % images.length);
-  const goToPrevImage = () => setMainImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  const goToPrevImage = () =>
+    setMainImageIdx((prev) => {
+      if (prev === 0) {
+        return images.length - 1;
+      }
+      return prev - 1;
+    });
 
   return (
     <Card className="main-image-card">
@@ -130,18 +136,28 @@ const ImageGallery = ({ images }) => {
         </button>
       </div>
       <div className="thumbnail-row mt-3 d-flex gap-2">
-        {images.map((img, idx) => (
-          <img
-            key={img + idx}
-            src={img}
-            alt={`thumb-${idx}`}
-            className={`thumbnail-img ${mainImageIdx === idx ? 'active' : ''}`}
-            onClick={() => setMainImageIdx(idx)}
-          />
-        ))}
+        {images.map((img, idx) => {
+          let thumbClass = 'thumbnail-img';
+          if (mainImageIdx === idx) {
+            thumbClass += ' active';
+          }
+          return (
+            <img
+              key={img + idx}
+              src={img}
+              alt={`thumb-${idx}`}
+              className={thumbClass}
+              onClick={() => setMainImageIdx(idx)}
+            />
+          );
+        })}
       </div>
     </Card>
   );
+};
+
+ImageGallery.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const FeaturesSection = ({ adTitle, featuresCsv }) => {
@@ -159,7 +175,17 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
       <div className="border-bottom">
         <div className="car-details-features-header collapsed">
           <span style={{ fontWeight: 500, fontSize: '14px' }}>Extra Features</span>
-          <span onClick={() => setOpen(!open)} style={{ cursor: 'pointer' }}>
+          <span
+            onClick={() => setOpen(!open)}
+            style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setOpen(!open);
+              }
+            }}
+          >
             {open ? <FaChevronUp /> : <FaChevronDown />}
           </span>
         </div>
@@ -458,16 +484,12 @@ const CarDetails = () => {
                 icon={<FaWhatsapp />}
                 className="w-100"
                 style={{
-                  background:
-                    carDetails.seller.whatsapp === 'False'
-                      ? '#D3D3D3'
-                      : '#20B648',
+                  background: carDetails.seller.whatsapp === 'False' ? '#D3D3D3' : '#20B648',
                   border: 'none',
                   color: '#fff',
                   fontWeight: 500,
                   fontSize: '12px',
-                  pointerEvents:
-                    carDetails.seller.whatsapp === 'False' ? 'none' : 'auto',
+                  pointerEvents: carDetails.seller.whatsapp === 'False' ? 'none' : 'auto',
                 }}
               >
                 Whatsapp

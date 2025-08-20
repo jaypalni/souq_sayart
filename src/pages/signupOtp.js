@@ -28,6 +28,7 @@ const SignupOtp = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const isLoggedIn = customerDetails && user;
   const OTP_LENGTH = 4;
+  const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -219,9 +220,10 @@ return (
           inputClass += ' otp-input-error';
         }
 
+        const inputKey = OTP_INPUT_IDS[idx];
         return (
           <input
-            key={`otp-input-${idx}`}
+            key={inputKey}
             ref={inputRefs[idx]}
             type="tel"
             className={inputClass}

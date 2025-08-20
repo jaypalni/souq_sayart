@@ -53,18 +53,18 @@ api.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
       if (status === HTTP_STATUS.FORBIDDEN) {
-        console.warn('Access forbidden (403)');
+        console.info('Access forbidden (403)');
       } else if (status === HTTP_STATUS.NOT_FOUND) {
-        console.warn('Resource not found (404)');
+        console.info('Resource not found (404)');
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
-        console.error('Internal server error (500)');
+        console.info('Internal server error (500)');
       } else {
-        console.error(`HTTP error (${status})`);
+        console.info(`HTTP error (${status})`);
       }
     } else if (error.request) {
-      console.error('No response received from server');
+      console.info('No response received from server');
     } else {
-      console.error('Request setup failed', error.message);
+      console.info('Request setup failed', error.message);
     }
 
     return Promise.reject(

@@ -114,7 +114,11 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   }, [openDropdown]);
 
   const toggleDropdown = (type) => {
-    setOpenDropdown(openDropdown === type ? null : type);
+    if (openDropdown === type) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(type);
+    }
   };
 
   const handleChange = (name, value) => {

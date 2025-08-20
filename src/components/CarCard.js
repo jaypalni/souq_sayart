@@ -40,6 +40,14 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   const imageSrc = car.image || '/default-car.png';
   const imageHeight = value === STATUS_ACTIVE ? '144px' : '109px';
 
+  const toggleDropdown = (nextId) => {
+    if (activeDropdownId === nextId) {
+      setActiveDropdownId(null);
+      return;
+    }
+    setActiveDropdownId(nextId);
+  };
+
   return (
     <div
       style={{
@@ -65,7 +73,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
             <h3 style={{ margin: 0, fontSize: FONT_SIZES.large, fontWeight: 700 }}>{car.ad_title}</h3>
             {value === STATUS_ACTIVE && (
               <button
-                onClick={() => setActiveDropdownId(activeDropdownId === car.id ? null : car.id)}
+                onClick={() => toggleDropdown(car.id)}
                 style={{ height: '20px', width: '20px', background: 'transparent', border: 'none', cursor: 'pointer' }}
               >
                 <HiOutlineDotsVertical />

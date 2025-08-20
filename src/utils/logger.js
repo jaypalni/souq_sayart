@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export const logger = {
   log: (...args) => {
@@ -15,12 +15,12 @@ export const logger = {
   },
   warn: (...args) => {
     if (isDevelopment) {
-      console.info("[WARN]", ...args);
+      console.info('[WARN]', ...args);
     }
   },
   error: (...args) => {
     if (isDevelopment) {
-      console.info("[ERROR]", ...args); 
+      console.info('[ERROR]', ...args); 
     }
   },
   info: (...args) => {

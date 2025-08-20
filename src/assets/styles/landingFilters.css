@@ -88,7 +88,7 @@
   font-weight: 500;
   cursor: pointer;
   padding: 0 8px 2px 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: none;
   transition: border 0.2s, color 0.2s;
   display: flex;
   align-items: center;
@@ -97,7 +97,10 @@
 }
 .landing-filters-text:hover {
   color: #eaf6fd;
-  border-bottom: 2px solid #fff;
+}
+.landing-filters-text:hover .landing-filters-text-label {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .landing-filters-text-arrow {
   font-size: 12px;

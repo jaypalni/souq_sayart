@@ -11,6 +11,7 @@ import searchicon from '../assets/images/search_icon.png';
 import { message } from 'antd';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import PropTypes from 'prop-types';
 
 const Searchemptymodal = ({
   visible,
@@ -89,7 +90,17 @@ const Searchemptymodal = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div
+  className="modal-overlay"
+  onClick={onClose}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      onClose();
+    }
+  }}
+>
       {contextHolder}
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <img
@@ -131,33 +142,55 @@ const Searchemptymodal = ({
           }}
         >
           {make !== 'All' && (
-            <span style={filterStyle} onClick={() => setMake('All')}>
-              {make}
-            </span>
+            <span
+  role="button"
+  tabIndex={0}
+  style={filterStyle}
+  onClick={() => setMake('All')}
+  onKeyDown={(e) => e.key === 'Enter' && setMake('All')}
+>
+  {make}
+</span>
           )}
 
           {model !== 'All Models' && (
-            <span style={filterStyle} onClick={() => setModel('All Models')}>
-              {model}
-            </span>
+            <span
+  role="button"
+  tabIndex={0}
+  style={filterStyle}
+  onClick={() => setModel('All Models')}
+  onKeyDown={(e) => e.key === 'Enter' && setModel('All Models')}
+>
+  {model}
+</span>
           )}
 
           {bodyType !== 'All Body Types' && (
             <span
-              style={filterStyle}
-              onClick={() => setBodyType('All Body Types')}
-            >
-              {bodyType}
-            </span>
+  role="button"
+  tabIndex={0}
+  style={filterStyle}
+  onClick={() => setBodyType('All Body Types')}
+  onKeyDown={(e) => e.key === 'Enter' && setBodyType('All Body Types')}
+>
+  {bodyType}
+</span>
           )}
 
           {selectedLocation !== 'Baghdad' && (
-            <span
-              style={filterStyle}
-              onClick={() => setSelectedLocation('Baghdad')}
-            >
-              {selectedLocation}
-            </span>
+           <span
+  style={filterStyle}
+  role="button"
+  tabIndex={0}
+  onClick={() => setSelectedLocation('Baghdad')}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      setSelectedLocation('Baghdad');
+    }
+  }}
+>
+  {selectedLocation}
+</span>
           )}
         </div>
         <p
@@ -192,6 +225,20 @@ const Searchemptymodal = ({
       </div>
     </div>
   );
+};
+
+Searchemptymodal.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  make: PropTypes.string,
+  setMake: PropTypes.func,
+  model: PropTypes.string,
+  setModel: PropTypes.func,
+  bodyType: PropTypes.string,
+  setBodyType: PropTypes.func,
+  selectedLocation: PropTypes.string,
+  setSelectedLocation: PropTypes.func,
+  toastmessage: PropTypes.func,
 };
 
 const filterStyle = {

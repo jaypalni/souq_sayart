@@ -12,6 +12,8 @@ import { userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import lamborgini from '../assets/images/lamborghini.png';
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 15;
 
 const EmptyState = () => (
   <div
@@ -62,8 +64,8 @@ const EmptyState = () => (
 const SavedSearches = () => {
   const [searches, setSearches] = useState('');
   const [setLoading] = useState(false);
-  const [page] = useState(1);
-  const [limit] = useState(15);
+  const [page] = useState(DEFAULT_PAGE);
+  const [limit] = useState(DEFAULT_LIMIT);
 
   useEffect(() => {
     Allsavedsearches();
@@ -92,11 +94,20 @@ const SavedSearches = () => {
     }
   };
 
-  const handleToggle = (id) => {
-    setSearches((searches) =>
-      searches.map((s) => (s.id === id ? { ...s, notify: !s.notify } : s))
-    );
-  };
+ const handleToggle = (id) => {
+   setSearches((prevSearches) =>
+     prevSearches.map((s) =>
+       s.id === id
+         ? {
+             ...s,
+             notify: !s.notify,
+           }
+         : s
+     )
+   );
+ };
+
+
 
   if (searches.length === 0) {
     return <EmptyState />;
@@ -111,7 +122,7 @@ const SavedSearches = () => {
             <div className="saved-search-info">
               <img
                 src={
-                  search.car_image?.trim()
+                  search.car_image && search.car_image?.trim()
                     ? `${BASE_URL}${search.car_image}`
                     : lamborgini
                 }
@@ -120,27 +131,27 @@ const SavedSearches = () => {
               />
               <div>
                 <div className="saved-search-title">
-                  {search.make + ' - ' + search.model}
+                  {search.make + " - " + search.model}
                 </div>
                 {search.price && (
                   <div
                     className="saved-search-subtitle"
                     style={{
-                      fontSize: '14',
-                      fontWeight: '400',
-                      color: '#0A0A0B',
+                      fontSize: "14",
+                      fontWeight: "400",
+                      color: "#0A0A0B",
                     }}
                   >
-                    {'$' + search.price + ' . From' + search.year}
+                    {"$" + search.price + " . From" + search.year}
                   </div>
                 )}
                 <div className="saved-search-details">{search.details}</div>
                 <div
                   className="saved-search-notify-label"
                   style={{
-                    fontSize: '16',
-                    fontWeight: '600',
-                    color: '#0A0A0B',
+                    fontSize: "16",
+                    fontWeight: "600",
+                    color: "#0A0A0B",
                   }}
                 >
                   Get Notified about new offers.

@@ -16,7 +16,7 @@ const HTTP_STATUS = {
 
 if (!API_CONFIG.BASE_URL) {
   throw new Error(
-    'API base URL is not configured. Please set REACT_APP_API_URL in your .env file'
+    'API base URL is not configured. Please set REACT_APP_API_URL in your .env file',
   );
 }
 
@@ -44,7 +44,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(new Error(error.message || 'Request error'))
+  (error) => Promise.reject(new Error(error.message || 'Request error')),
 );
 
 api.interceptors.response.use(
@@ -53,24 +53,25 @@ api.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
       if (status === HTTP_STATUS.FORBIDDEN) {
-        console.warn('Access forbidden (403)');
+        console.info('Access forbidden (403)');
       } else if (status === HTTP_STATUS.NOT_FOUND) {
-        console.warn('Resource not found (404)');
+        console.info('Resource not found (404)');
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
-        console.error('Internal server error (500)');
+        console.info('Internal server error (500)');
       } else {
-        console.error(`HTTP error (${status})`);
+        console.info(`HTTP error (${status})`);
       }
     } else if (error.request) {
-      console.error('No response received from server');
+      console.info('No response received from server');
     } else {
-      console.error('Request setup failed', error.message);
+      console.info('Request setup failed', error.message);
     }
 
-    return Promise.reject(
-      error instanceof Error ? error : new Error('API request failed')
-    );
-  }
+    if (error instanceof Error) {
+      return Promise.reject(error);
+    }
+    return Promise.reject(new Error('API request failed'));
+  },
 );
 
 export const authAPI = {

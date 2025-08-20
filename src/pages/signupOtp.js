@@ -258,15 +258,19 @@ return (
             </span>
           );
         }
-        return (
-          <span
-            className="otp-resend"
-            onClick={handleResend}
-            style={{ cursor: 'pointer', color: '#0090d4' }}
-          >
-            Resend
-          </span>
-        );
+       return (
+  <span
+    role="button"
+    tabIndex={0}
+    className="otp-resend"
+    onClick={handleResend}
+    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ' ? handleResend(e) : null)}
+    style={{ cursor: 'pointer', color: '#0090d4' }}
+  >
+    Resend
+  </span>
+);
+
       })()}
     </div>
 

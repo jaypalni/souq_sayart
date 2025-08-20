@@ -17,7 +17,7 @@ import { message } from 'antd';
 import SavedSearches from '../components/userSavedsearch';
 
 const Landing = () => {
-  const [loading,setLoading] = useState(false);
+  const [,setLoading] = useState(false);
   const [carsData, setCarsData] = useState([]);
   const [carsRecomData, setCarsRecomData] = useState([]);
   const [searchbodytype, setSearchBodyType] = useState();

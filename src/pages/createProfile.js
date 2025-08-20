@@ -58,7 +58,7 @@ const CreateProfile = () => {
     const accesstoken = localStorage.getItem('token');
 
     if (
-      accesstoken == 'undefined' ||
+      accesstoken === 'undefined' ||
       accesstoken === '' ||
       accesstoken === null
     ) {
@@ -123,7 +123,6 @@ const CreateProfile = () => {
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      console.error('API error:', errorData);
       messageApi.open({
         type: 'error',
         content: errorData.message,
@@ -174,7 +173,6 @@ const CreateProfile = () => {
         type: 'error',
         content: errorData.message,
       });
-      console.error('Upload error:', errorData);
       message.error('Upload failed due to network error');
       return Upload.LIST_IGNORE; 
     }
@@ -182,7 +180,7 @@ const CreateProfile = () => {
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
-    const errorMessage = dobErr ? dobErr.errors[0] : '';
+    const errorMessage = dobErr ? dobErr.errors[0] : undefined;
     setDobError(errorMessage);
     return errorMessage;
   };
@@ -203,6 +201,9 @@ const CreateProfile = () => {
     return '';
   };
 
+  const switchStyle = {
+    backgroundColor: checked ? '#008AD5' : '#ccc',
+  };
   const toUserType = (isDealerFlag) => {
     if (isDealerFlag) {
       return 'dealer';
@@ -332,9 +333,11 @@ const CreateProfile = () => {
                     objectFit: 'cover',
                   }}
                 />
-              ) : (
-                getInitials() || <UserOutlined />
-              )}
+             ) : getInitials() ? (
+  getInitials()
+) : (
+  <UserOutlined />
+)}
 
               <PlusCircleFilled
                 style={{
@@ -447,8 +450,8 @@ const CreateProfile = () => {
                   },
                 ]}
                 required={false}
-                validateStatus={dobError ? 'error' : ''}
-                help={dobError || ''}
+                validateStatus={dobError ? 'error' : undefined}
+                help={dobError || undefined}
               >
                 <DatePicker
                   style={{
@@ -722,15 +725,14 @@ const CreateProfile = () => {
                       alt="Whatsapp Icon"
                       style={{ width: 18, height: 18, marginRight: 5 }}
                     />
+                    {' '}
                     Whatsapp
                   </span>
 
                   <Switch
-                    checked={checked}
-                    onChange={handleChange}
-                    style={{
-                      backgroundColor: checked ? '#008AD5' : '#ccc',
-                    }}
+  checked={checked}
+  onChange={handleChange}
+  style={switchStyle}
                   />
                 </div>
               </div>
@@ -767,12 +769,25 @@ const CreateProfile = () => {
             }}
           >
             <a
-              onClick={() => setShowModal(true)}
-              style={{ color: '#1890ff', textDecoration: 'none' }}
-            >
-              By registering you agree with our terms & conditions and privacy
+  role="button"
+  tabIndex={0}
+  onClick={(e) => {
+    e.preventDefault();
+    setShowModal(true);
+  }}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setShowModal(true);
+    }
+  }}
+  style={{ color: '#1890ff', textDecoration: 'none', cursor: 'pointer' }}
+>
+  By registering you agree with our terms & conditions and privacy
               policy
-            </a>
+</a>
+
+            
           </Text>
         </Form>
       </div>

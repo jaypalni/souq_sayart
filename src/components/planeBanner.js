@@ -57,7 +57,7 @@ const PlaneBanner = () => {
           <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>
             Home
           </Link>
-          <span style={{ color: '#fff' }}> &gt; </span>
+          <span style={{ color: '#fff' }}>&gt;</span>
           New Cars Sale in Dubai
         </p>
 
@@ -69,7 +69,7 @@ const PlaneBanner = () => {
             fontSize: 32,
           }}
         >
-          {isLoginPage ? 'Welcome To Souq Siyarate' : ''}
+          {isLoginPage ? 'Welcome To Souq Siyarate' : undefined}
         </h1>
       </div>
     </div>

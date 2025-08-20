@@ -9,6 +9,7 @@ import React from 'react';
 import { Modal, Button, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import '../assets/styles/searchmodal.css';
+import PropTypes from 'prop-types';
 
 const filters = [
   'Mercedes-Benz B-Class',
@@ -40,9 +41,9 @@ const SearchModal = ({ visible, onCancel, onSave }) => {
           you could try to remove some filters:
         </div>
         <div className="search-modal-tags">
-          {filters.map((f, i) => (
-            <Tag key={i} className="search-modal-tag">
-              {f}
+          {filters.map((f) => (
+            <Tag key={f.id} className="search-modal-tag">
+              {f.name}
             </Tag>
           ))}
         </div>
@@ -66,6 +67,18 @@ const SearchModal = ({ visible, onCancel, onSave }) => {
       </div>
     </Modal>
   );
+};
+
+SearchModal.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  filters: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
 };
 
 export default SearchModal;

@@ -17,7 +17,6 @@ import LoginScreen from './pages/LoginScreen';
 import SignupOtp from './pages/signupOtp';
 import AllCars from './pages/allcars';
 import Header from './components/header';
-import MyProfile from './pages/myProfile';
 import MyListings from './pages/mylistings';
 import Footer from './components/footer';
 import Banner from './components/banner';
@@ -26,7 +25,6 @@ import Landing from './pages/landing';
 import CarDetails from './pages/carDetails';
 import Sell from './pages/sell';
 import NewSell from './pages/newsell';
-import UserProfile from './pages/userProfile';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -39,16 +37,6 @@ const AppRouterContent = () => {
     '/newsell',
     '/allcars',
     '/myListings',
-    '/myProfile',
-    '/userProfile',
-    '/myProfile/notifications',
-    '/myProfile/searches',
-    '/myProfile/subscriptions',
-    '/myProfile/messages',
-    '/myProfile/payments',
-    '/myProfile/blocked',
-    '/myProfile/dashboard',
-    '/myProfile/favorites',
     '/termsAndconditions',
     '/captchatoken',
   ];
@@ -74,7 +62,6 @@ const AppRouterContent = () => {
         <Route path="/landing" element={<Landing />} />
         <Route path="/carDetails/:id" element={<CarDetails />} />
         <Route path="/allcars" element={<AllCars />} />
-        <Route path="/userProfile" element={<UserProfile />} />
         <Route
           path="/termsAndconditions"
           element={<TermsAndConditions />}
@@ -102,14 +89,6 @@ const AppRouterContent = () => {
           element={
             <ProtectedRoute>
               <MyListings />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/myProfile/*" 
-          element={
-            <ProtectedRoute>
-              <MyProfile />
             </ProtectedRoute>
           } 
         />

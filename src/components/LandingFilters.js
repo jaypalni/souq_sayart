@@ -37,9 +37,9 @@ const INDIA_TZ_OFFSET_MIN = -330;
 const HTTP_STATUS_UNAUTHORIZED = 401;
 const TOKEN_EXPIRY_REDIRECT_DELAY_MS = 2000;
 
-const newUsedOptions = ['New & Used', 'New', 'Used'];
-const priceMinOptions = ['Price Min', ...PRICE_MIN_VALUES];
-const priceMaxOptions = ['Price Max', ...PRICE_MAX_VALUES];
+const newUsedOptions = [DEFAULT_NEW_USED, 'New', 'Used'];
+const priceMinOptions = [DEFAULT_PRICE_MIN, ...PRICE_MIN_VALUES];
+const priceMaxOptions = [DEFAULT_PRICE_MAX, ...PRICE_MAX_VALUES];
 
 
 
@@ -216,9 +216,8 @@ const isIndiaLocale = () => {
     Intl.DateTimeFormat().resolvedOptions().timeZone?.toLowerCase() || '';
   const tzOffset = new Date().getTimezoneOffset();
   const langs = [navigator.language, ...(navigator.languages || [])].filter(
-    Boolean
+    Boolean,
   );
-
 
   const hasIndiaLanguage = langs.some((l) => {
     const ll = String(l).toLowerCase();
@@ -228,29 +227,9 @@ const isIndiaLocale = () => {
   return (
     tz === 'asia/kolkata' ||
     tz === 'asia/calcutta' ||
-    tzOffset === -330 ||
+    tzOffset === INDIA_TZ_OFFSET_MIN ||
     hasIndiaLanguage
   );
-
-  const endsWithIndia = (l) => {
-    const ll = String(l).toLowerCase();
-    return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
-  };
-
-  const isIndiaLocale =
-    tz === 'asia/kolkata' ||
-    tz === 'asia/calcutta' ||
-    tzOffset === INDIA_TZ_OFFSET_MIN ||
-    langs.some(endsWithIndia);
-
-  if (isIndiaLocale) {
-    return (
-      location.find((loc) => loc.location.toLowerCase() === 'india') ||
-      location.find((loc) => loc.location.toLowerCase() === 'dubai')
-    );
-  }
-
-  return location.length > 0 ? location[0] : null;
 };
 
   const handleToast = (msg) => {
@@ -267,10 +246,10 @@ const isIndiaLocale = () => {
       setLoading(true);
 
       const params = {
-        make: make !== 'All' ? make : '',
-        model: model !== 'All Models' ? model : '',
-        body_type: bodyType !== 'All Body Types' ? bodyType : '',
-        location: location !== 'Baghdad' ? location : '',
+        make: make !== DEFAULT_MAKE ? make : '',
+        model: model !== DEFAULT_MODEL ? model : '',
+        body_type: bodyType !== DEFAULT_BODY_TYPE ? bodyType : '',
+        location: location !== DEFAULT_LOCATION ? location : '',
       };
 
       const response = await carAPI.getSearchCars(params);

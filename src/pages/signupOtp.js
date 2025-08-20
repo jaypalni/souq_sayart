@@ -92,7 +92,9 @@ const SignupOtp = () => {
       newOtp[idx] = val[val.length - 1];
       setOtp(newOtp);
       setError('');
-      if (idx < 3) inputRefs[idx + 1].current.focus();
+      if (idx < 3) {
+        inputRefs[idx + 1].current.focus();
+      }
     } else {
       newOtp[idx] = '';
       setOtp(newOtp);
@@ -107,6 +109,8 @@ const SignupOtp = () => {
         setOtp(newOtp);
       } else if (idx > 0) {
         inputRefs[idx - 1].current.focus();
+      } else {
+        // No action needed when at first field with empty value
       }
     }
   };

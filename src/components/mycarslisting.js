@@ -15,6 +15,17 @@ import CarCard from './CarCard';
 
 const { Option } = Select;
 
+const STATUS = {
+  ACTIVE: 'Active',
+  DRAFTS: 'Drafts',
+  SOLD: 'Sold',
+};
+
+const FILTER = {
+  BASE: 'Base',
+  SPORT: 'Sport',
+};
+
 const Mycarslisting = () => {
   const [value, setValue] = useState('Active');
   const [filterStatus, setFilterStatus] = useState('Any');
@@ -40,13 +51,21 @@ const Mycarslisting = () => {
   };
 
   const getStatusParam = () => {
-    if (value === 'Active') {
-      if (filterStatus === 'Base') return 'pending';
-      if (filterStatus === 'Sport') return 'approved';
+    if (value === STATUS.ACTIVE) {
+      if (filterStatus === FILTER.BASE) {
+        return 'pending';
+      }
+      if (filterStatus === FILTER.SPORT) {
+        return 'approved';
+      }
       return 'any';
     }
-    if (value === 'Drafts') return 'drafts';
-    if (value === 'Sold') return 'sold';
+    if (value === STATUS.DRAFTS) {
+      return 'drafts';
+    }
+    if (value === STATUS.SOLD) {
+      return 'sold';
+    }
     return '';
   };
 

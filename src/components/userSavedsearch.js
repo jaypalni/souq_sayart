@@ -144,41 +144,59 @@ const UserSavedsearch = () => {
     }
   };
 
-  const renderSavedSearchContent = () => {
+  const getSavedSearchView = () => {
     if (!isLoggedIn) {
-      return (
-        <SignupBox
-          onClick={() => navigate('/login')}
-          title="Sign up searches"
-          buttonText="Sign up / log in"
-        />
-      );
+      return 'notLoggedIn';
     }
-
-    if (loading) return <p>Loading saved searches...</p>;
-
+    if (loading) {
+      return 'loading';
+    }
     if (savedSearches.length === 0) {
-      return (
-        <SignupBox
-          onClick={() => window.scrollTo({ top: 260, behavior: 'smooth' })}
-          title="You have no Saved searches"
-          buttonText="Start Searching"
-        />
-      );
+      return 'empty';
     }
+    return 'list';
+  };
 
-    return (
-      <div className="user-saved-searches-outer-card">
-        {savedSearches.map((item, idx) => (
-          <SavedSearchCard
-            key={item.id}
-            item={item}
-            idx={idx}
-            total={savedSearches.length}
+  const renderSavedSearchContent = () => {
+    const view = getSavedSearchView();
+    switch (view) {
+      case 'notLoggedIn': {
+        return (
+          <SignupBox
+            onClick={() => navigate('/login')}
+            title="Sign up searches"
+            buttonText="Sign up / log in"
           />
-        ))}
-      </div>
-    );
+        );
+      }
+      case 'loading': {
+        return <p>Loading saved searches...</p>;
+      }
+      case 'empty': {
+        return (
+          <SignupBox
+            onClick={() => window.scrollTo({ top: 260, behavior: 'smooth' })}
+            title="You have no Saved searches"
+            buttonText="Start Searching"
+          />
+        );
+      }
+      case 'list':
+      default: {
+        return (
+          <div className="user-saved-searches-outer-card">
+            {savedSearches.map((item, idx) => (
+              <SavedSearchCard
+                key={item.id}
+                item={item}
+                idx={idx}
+                total={savedSearches.length}
+              />
+            ))}
+          </div>
+        );
+      }
+    }
   };
 
   return (

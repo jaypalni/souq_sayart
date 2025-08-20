@@ -5,6 +5,9 @@ import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { COLORS, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import boost_icon from '../assets/images/boost_icon.svg';
 
+const STATUS_ACTIVE = 'Active';
+const STATUS_SOLD = 'Sold';
+
 const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   const [activeDropdownId, setActiveDropdownId] = useState(null);
   const getTagProps = () => {
@@ -13,8 +16,10 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
       'Active-Base': { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: 'Pending Approval' },
       'Sold': { bg: COLORS.soldTagBg, color: COLORS.soldTagColor, label: 'Sold' },
     };
-    const key = value === 'Active' ? `Active-${filterStatus}` : value === 'Sold' ? 'Sold' : 'Default';
-    if (key === 'Default') return { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.status };
+    const key = value === STATUS_ACTIVE ? `Active-${filterStatus}` : value === STATUS_SOLD ? STATUS_SOLD : 'Default';
+    if (key === 'Default') {
+      return { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.status };
+    }
     return mapping[key];
   };
 
@@ -38,12 +43,12 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
         <img
           src={car.image ? car.image : '/default-car.png'}
           alt="car"
-          style={{ width: 137, height: value === 'Active' ? '144px' : '109px', borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
+          style={{ width: 137, height: value === STATUS_ACTIVE ? '144px' : '109px', borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
         />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '10px', marginRight: '10px' }}>
             <h3 style={{ margin: 0, fontSize: FONT_SIZES.large, fontWeight: 700 }}>{car.ad_title}</h3>
-            {value === 'Active' && (
+            {value === STATUS_ACTIVE && (
               <button
                 onClick={() => setActiveDropdownId(activeDropdownId === car.id ? null : car.id)}
                 style={{ height: '20px', width: '20px', background: 'transparent', border: 'none', cursor: 'pointer' }}
@@ -64,7 +69,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
             {tagProps.label}
           </Tag>
 
-          {value === 'Active' && filterStatus === 'Sport' && (
+          {value === STATUS_ACTIVE && filterStatus === 'Sport' && (
             <div
               style={{
                 display: 'flex',

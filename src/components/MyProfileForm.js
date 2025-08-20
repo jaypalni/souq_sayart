@@ -33,7 +33,7 @@ const MyProfileForm = () => {
   const [profile, setProfile] = useState({});
   const [avatarUrl, setAvatarUrl] = useState('');
   const fileInputRef = useRef();
-  const [setDealerValue] = useState('yes');
+  const [setDealerValue] = useState(YES);
 
   const [setLoading] = useState(false);
   const [setUsersData] = useState({});
@@ -53,7 +53,7 @@ const MyProfileForm = () => {
   const onFinish = async (values) => {
     setProfile({ ...values, avatar: avatarUrl });
     setEditMode(false);
-    message.success('Profile updated!');
+    message.success(MSG_PROFILE_UPDATED);
     await onClickContinue();
   };
 
@@ -72,7 +72,7 @@ const MyProfileForm = () => {
     const value = e.target.value;
     setDealerValue(value);
 
-    if (value === 'no') {
+    if (value === NO) {
       form.setFieldsValue({
         company: '',
         owner: '',
@@ -147,6 +147,42 @@ const mapUserToProfile = (user) => ({
   avatar: user.profile_image || '',
 });
 
+const mapApiUserToProfile = (user) => ({
+  first_name: user.first_name || '',
+  last_name: user.last_name || '',
+  email: user.email || '',
+  dob: user.date_of_birth || '',
+  dealer: user.is_dealer ? YES : NO,
+  company: user.company_name || '',
+  owner: user.owner_name || '',
+  address: user.company_address || '',
+  phone: user.phone_number || '',
+  reg: user.company_registration_number || '',
+  facebook: user.facebook_page || '',
+  instagram: user.instagram_company_profile || '',
+  avatar: user.profile_image || '',
+});
+
+const applyUpdatedUser = (user, successMsg, form, setUsersData, setProfile, setAvatarUrl, setDealerValue, setEditMode) => {
+  const updatedProfile = mapApiUserToProfile(user);
+  setUsersData(user);
+  setProfile(updatedProfile);
+  form.setFieldsValue(updatedProfile);
+  setAvatarUrl(user.profile_image || '');
+  setDealerValue(user.is_dealer ? YES : NO);
+  setEditMode(false);
+  message.success(successMsg || MSG_PROFILE_UPDATED);
+};
+
+const handleSubmitError = (error, onFinishFailed) => {
+  if (error.errorFields) {
+    onFinishFailed(error);
+    return;
+  }
+  const errorData = handleApiError(error);
+  message.error(errorData.message || MSG_UPDATE_FAILED);
+};
+
   const onClickContinue = async () => {
     try {
       setLoading(true);
@@ -165,40 +201,19 @@ const mapUserToProfile = (user) => ({
       const result = handleApiResponse(response);
 
       if (result?.data) {
-        const user = result.data;
-
-        const updatedProfile = {
-          first_name: user.first_name || '',
-          last_name: user.last_name || '',
-          email: user.email || '',
-          dob: user.date_of_birth || '',
-          dealer: user.is_dealer ? 'yes' : 'no',
-          company: user.company_name || '',
-          owner: user.owner_name || '',
-          address: user.company_address || '',
-          phone: user.phone_number || '',
-          reg: user.company_registration_number || '',
-          facebook: user.facebook_page || '',
-          instagram: user.instagram_company_profile || '',
-          avatar: user.profile_image || '',
-        };
-
-        setUsersData(user);
-        setProfile(updatedProfile);
-        form.setFieldsValue(updatedProfile);
-        setAvatarUrl(user.profile_image || '');
-        setDealerValue(user.is_dealer ? 'yes' : 'no');
-
-        setEditMode(false);
-        message.success(result.message || 'Profile updated!');
+        applyUpdatedUser(
+          result.data,
+          result.message,
+          form,
+          setUsersData,
+          setProfile,
+          setAvatarUrl,
+          setDealerValue,
+          setEditMode,
+        );
       }
     } catch (error) {
-      if (error.errorFields) {
-        onFinishFailed(error);
-      } else {
-        const errorData = handleApiError(error);
-        message.error(errorData.message || 'Failed to update profile.');
-      }
+      handleSubmitError(error, onFinishFailed);
     } finally {
       setLoading(false);
     }

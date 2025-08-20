@@ -113,6 +113,10 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdown]);
 
+  const toggleDropdown = (type) => {
+    setOpenDropdown(openDropdown === type ? null : type);
+  };
+
   const handleChange = (name, value) => {
     if (name === 'Make') {
       setModel(DEFAULTS.ALL_MODELS);
@@ -311,11 +315,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
         <div className="allcars-filters-row allcars-filters-row-text">
           <div
             className="allcars-filters-text"
-            onClick={() =>
-              setOpenDropdown(
-                openDropdown === DROPDOWN_NEW_USED ? null : DROPDOWN_NEW_USED,
-              )
-            }
+            onClick={() => toggleDropdown(DROPDOWN_NEW_USED)}
             tabIndex={0}
           >
             {newUsed}{' '}
@@ -327,11 +327,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           </div>
           <div
             className="allcars-filters-text"
-            onClick={() =>
-              setOpenDropdown(
-                openDropdown === DROPDOWN_PRICE_MIN ? null : DROPDOWN_PRICE_MIN,
-              )
-            }
+            onClick={() => toggleDropdown(DROPDOWN_PRICE_MIN)}
             tabIndex={0}
           >
             {priceMin}{' '}
@@ -348,11 +344,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           </div>
           <div
             className="allcars-filters-text"
-            onClick={() =>
-              setOpenDropdown(
-                openDropdown === DROPDOWN_PRICE_MAX ? null : DROPDOWN_PRICE_MAX,
-              )
-            }
+            onClick={() => toggleDropdown(DROPDOWN_PRICE_MAX)}
             tabIndex={0}
           >
             {priceMax}{' '}

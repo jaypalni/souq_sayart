@@ -7,6 +7,7 @@
 
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Card, Button, Avatar, message } from 'antd';
 import {
   FaWhatsapp,
@@ -40,14 +41,22 @@ const openWhatsApp = (phoneNumber) => {
 
 const buildCarImages = (images, baseUrl, fallback) => {
   if (Array.isArray(images) && images.length > 0) {
-    return images.map((img) => (img?.startsWith('http') ? img : `${baseUrl}${img}`));
+    return images.map((img) => {
+      if (img?.startsWith('http')) {
+        return img;
+      }
+      return `${baseUrl}${img}`;
+    });
   }
   return [fallback];
 };
 
 const formatEngineSummary = (details) => {
   const isElectric = details.fuel_type === 'Electric';
-  const cylindersPart = isElectric ? '' : `${details.no_of_cylinders}cyl `;
+  let cylindersPart = '';
+  if (!isElectric) {
+    cylindersPart = `${details.no_of_cylinders}cyl `;
+  }
   const liters = ((details.engine_cc || 0) / 1000).toFixed(1);
   return `${cylindersPart}${liters}L ${details.fuel_type || ''}`.trim();
 };
@@ -73,7 +82,7 @@ const getAdditionalDetails = (d) => [
 ];
 
 // Sub-components
-const InfoTable = ({ title, rows }) => (
+const InfoTable = ({ title, rows = [] }) => (
   <div className="col-md-6">
     <div className="car-details-table-title">{title}</div>
     <table className="car-details-table">
@@ -88,6 +97,21 @@ const InfoTable = ({ title, rows }) => (
     </table>
   </div>
 );
+
+InfoTable.propTypes = {
+  title: PropTypes.string.isRequired,
+  rows: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    }),
+  ).isRequired,
+};
+
+InfoTable.defaultProps = {
+  rows: [],
+  title: '',
+};
 
 const ImageGallery = ({ images }) => {
   const [mainImageIdx, setMainImageIdx] = useState(0);

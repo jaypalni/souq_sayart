@@ -243,15 +243,22 @@ const isIndiaLocale = () => {
 
   const handleChange = () => {};
 
+  const valueOrEmpty = (currentValue, defaultValue) => {
+    if (currentValue !== defaultValue) {
+      return currentValue;
+    }
+    return '';
+  };
+
   const handleSearch = async () => {
     try {
       setLoading(true);
 
       const params = {
-        make: make !== DEFAULT_MAKE ? make : '',
-        model: model !== DEFAULT_MODEL ? model : '',
-        body_type: bodyType !== DEFAULT_BODY_TYPE ? bodyType : '',
-        location: location !== DEFAULT_LOCATION ? location : '',
+        make: valueOrEmpty(make, DEFAULT_MAKE),
+        model: valueOrEmpty(model, DEFAULT_MODEL),
+        body_type: valueOrEmpty(bodyType, DEFAULT_BODY_TYPE),
+        location: valueOrEmpty(location, DEFAULT_LOCATION),
       };
 
       const response = await carAPI.getSearchCars(params);

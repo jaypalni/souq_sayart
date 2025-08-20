@@ -16,14 +16,14 @@ import ReCAPTCHA from 'react-google-recaptcha';
 
 const CACHE_KEY = 'geoDataCache';
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const INDIA_TZ_OFFSET_MINUTES = -330;
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
-  const [phoneValidation, setPhoneValidation] = useState('');
   const [countryOptions, setCountryOptions] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
@@ -92,7 +92,7 @@ const LoginScreen = () => {
       const match = data.find(
         (country) =>
           country.country_code === userCountryCode ||
-          country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase()
+          country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase(),
       );
       if (match) {
         return match;
@@ -118,7 +118,7 @@ const LoginScreen = () => {
     return (
       tzLower === 'asia/kolkata' ||
       tzLower === 'asia/calcutta' ||
-      tzOffset === -330 ||
+      tzOffset === INDIA_TZ_OFFSET_MINUTES ||
       langs.some((l) => String(l).toLowerCase().includes('-in'))
     );
   };
@@ -132,7 +132,6 @@ const LoginScreen = () => {
     }
 
     setPhone(numb);
-    setPhoneValidation(numb.length > 0 ? 'Phone number is required!' : '');
   };
 
   const handleCaptchaChange = (value) => {
@@ -231,12 +230,14 @@ const LoginScreen = () => {
                 textAlign: 'left',
                 fontSize: 12,
               }}
+              htmlFor="phone-input"
             >
               Enter Your Phone Number
             </label>
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
               <div style={{ position: 'relative', width: 102, height: 52 }}>
-                <div
+                <button
+                  type="button"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -244,7 +245,12 @@ const LoginScreen = () => {
                     borderRadius: 8,
                     padding: '8px 12px',
                     background: '#E7EBEF',
+                    border: 'none',
+                    width: '100%',
+                    height: '100%',
                   }}
+                  aria-expanded={dropdownOpen}
+                  aria-controls="country-menu"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
                   {selectedCountry && (
@@ -259,9 +265,10 @@ const LoginScreen = () => {
                       </span>
                     </>
                   )}
-                </div>
+                </button>
                 {dropdownOpen && (
                   <div
+                    id="country-menu"
                     style={{
                       position: 'absolute',
                       top: 42,
@@ -274,13 +281,18 @@ const LoginScreen = () => {
                     }}
                   >
                     {countryOptions.map((country) => (
-                      <div
+                      <button
+                        type="button"
                         key={country.id}
                         style={{
                           padding: '6px 12px',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
+                          width: '100%',
+                          background: 'transparent',
+                          border: 'none',
+                          textAlign: 'left',
                         }}
                         onClick={() => {
                           setSelectedCountry(country);
@@ -295,7 +307,7 @@ const LoginScreen = () => {
                         <span style={{ fontSize: 15 }}>
                           {country.country_code}
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -306,6 +318,7 @@ const LoginScreen = () => {
                 placeholder="Enter phone number"
                 value={phone}
                 onChange={handlePhoneChange}
+                id="phone-input"
               />
             </div>
 

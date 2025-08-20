@@ -97,6 +97,8 @@
   align-items: center;
   min-width: 80px;
   position: relative;
+  background: transparent;
+  border: none;
 }
 .allcars-filters-text:hover {
   color: #008ad5;

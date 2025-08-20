@@ -6,13 +6,13 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Select, Button, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError, DEFAULT_MAKE, DEFAULT_MODEL, DEFAULT_BODY_TYPE, DEFAULT_LOCATION } from '../utils/apiUtils';
-import { useNavigate } from 'react-router-dom';
 import '../assets/styles/allcarfilters.css';
 import Searchemptymodal from '../components/searchemptymodal';
 
@@ -50,12 +50,15 @@ const bodyTypes = [
 ];
 const locations = [DEFAULTS.BAGHDAD, 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
 const newUsedOptions = [DEFAULTS.NEW_USED, 'New', 'Used'];
-const priceMinOptions = [DEFAULTS.PRICE_MIN, 5000, 10000, 20000, 30000, 40000];
-const priceMaxOptions = [DEFAULTS.PRICE_MAX, 20000, 30000, 40000, 50000, 100000];
+const PRICE_MIN_VALUES = [5000, 10000, 20000, 30000, 40000];
+const PRICE_MAX_VALUES = [20000, 30000, 40000, 50000, 100000];
+const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
+const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
+const DEFAULT_CAR_COUNT = 342642;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData }) => {
-  const [loading, setLoading] = useState(false);
-  const [carSearch, setCarSearch] = useState([]);
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData }) => {
+  const [, setLoading] = useState(false);
+  const [, setCarSearch] = useState([]);
 const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [model, setModel] = useState(DEFAULTS.ALL_MODELS);
   const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
@@ -65,9 +68,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [toastMsg, setToastMsg] = useState('');
-  const [carCount] = useState(342642);
-  const navigate = useNavigate();
+  const [carCount] = useState(DEFAULT_CAR_COUNT);
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRefs = {
     [DROPDOWN_NEW_USED]: useRef(),
@@ -75,17 +76,8 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
     [DROPDOWN_PRICE_MAX]: useRef(),
   };
   const [filterVisible, setFilterVisible] = useState(false);
-  const [storedsearchparams, setStoredSearchParams] = useState(null);
 
-  useEffect(() => {
-    let params = null;
-    try {
-      params = JSON.parse(localStorage.getItem('searchcardata'));
-    } catch (e) {
-      params = null;
-    }
-    setStoredSearchParams(params);
-  }, []);
+  
 
   useEffect(() => {
     try {
@@ -119,16 +111,15 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
     } else {
       setOpenDropdown(type);
     }
-  };
+  };  
 
-  const handleChange = (name, value) => {
+  const handleChange = (name, _value) => {
     if (name === 'Make') {
       setModel(DEFAULTS.ALL_MODELS);
     }
   };
 
   const handleToast = (msg) => {
-    setToastMsg(msg);
     if (msg) {
       message.success(msg);
     }
@@ -151,11 +142,23 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
     try {
       setLoading(true);
       const apiParams = {
-        make: make !== DEFAULTS.ALL_MAKE ? make : '',
-        model: model !== DEFAULTS.ALL_MODELS ? model : '',
-        body_type: bodyType !== DEFAULTS.ALL_BODY_TYPES ? bodyType : '',
-        location: location !== DEFAULTS.BAGHDAD ? location : '',
+        make: '',
+        model: '',
+        body_type: '',
+        location: '',
       };
+      if (make !== DEFAULTS.ALL_MAKE) {
+        apiParams.make = make;
+      }
+      if (model !== DEFAULTS.ALL_MODELS) {
+        apiParams.model = model;
+      }
+      if (bodyType !== DEFAULTS.ALL_BODY_TYPES) {
+        apiParams.body_type = bodyType;
+      }
+      if (location !== DEFAULTS.BAGHDAD) {
+        apiParams.location = location;
+      }
 
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
@@ -195,22 +198,27 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   };
 
   const renderDropdown = (type, options, value, setValue) => (
-    <div className="allcars-filters-dropdown-menu" ref={dropdownRefs[type]}>
-      {options.map((opt) => (
-        <div
-          key={opt}
-          className={`allcars-filters-dropdown-item${
-            value === opt ? ' selected' : ''
-          }`}
-          onClick={() => {
-            setValue(opt);
-            handleChange(getDropdownLabel(type), opt);
-            setOpenDropdown(null);
-          }}
-        >
-          {opt}
-        </div>
-      ))}
+    <div id={`menu-${type}`} className="allcars-filters-dropdown-menu" ref={dropdownRefs[type]}>
+      {options.map((opt) => {
+        let itemClass = 'allcars-filters-dropdown-item';
+        if (value === opt) {
+          itemClass += ' selected';
+        }
+        return (
+          <button
+            type="button"
+            key={opt}
+            className={itemClass}
+            onClick={() => {
+              setValue(opt);
+              handleChange(getDropdownLabel(type), opt);
+              setOpenDropdown(null);
+            }}
+          >
+            {opt}
+          </button>
+        );
+      })}
     </div>
   );
 
@@ -220,8 +228,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
       <div className="allcars-filters-bar">
         <div className="allcars-filters-row">
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label">Make</label>
+            <label className="allcars-filters-label" htmlFor="make-select">Make</label>
             <Select
+              id="make-select"
               value={make}
               onChange={(value) => {
                 setMake(value);
@@ -240,8 +249,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             </Select>
           </div>
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label">Model</label>
+            <label className="allcars-filters-label" htmlFor="model-select">Model</label>
             <Select
+              id="model-select"
               value={model}
               onChange={(value) => {
                 setModel(value);
@@ -260,8 +270,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             </Select>
           </div>
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label">Body Type</label>
+            <label className="allcars-filters-label" htmlFor="bodytype-select">Body Type</label>
             <Select
+              id="bodytype-select"
               value={bodyType}
               onChange={(value) => {
                 setBodyType(value);
@@ -279,8 +290,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             </Select>
           </div>
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label">Location</label>
+            <label className="allcars-filters-label" htmlFor="location-select">Location</label>
             <Select
+              id="location-select"
               value={location}
               onChange={(value) => {
                 setLocation(value);
@@ -317,10 +329,12 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
         </div>
 
         <div className="allcars-filters-row allcars-filters-row-text">
-          <div
+          <button
+            type="button"
             className="allcars-filters-text"
             onClick={() => toggleDropdown(DROPDOWN_NEW_USED)}
-            tabIndex={0}
+            aria-expanded={openDropdown === DROPDOWN_NEW_USED}
+            aria-controls={`menu-${DROPDOWN_NEW_USED}`}
           >
             {newUsed}{' '}
             <span className="allcars-filters-text-arrow">
@@ -328,11 +342,13 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             </span>
             {openDropdown === DROPDOWN_NEW_USED &&
               renderDropdown(DROPDOWN_NEW_USED, newUsedOptions, newUsed, setNewUsed)}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="allcars-filters-text"
             onClick={() => toggleDropdown(DROPDOWN_PRICE_MIN)}
-            tabIndex={0}
+            aria-expanded={openDropdown === DROPDOWN_PRICE_MIN}
+            aria-controls={`menu-${DROPDOWN_PRICE_MIN}`}
           >
             {priceMin}{' '}
             <span className="allcars-filters-text-arrow">
@@ -343,13 +359,15 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
                 DROPDOWN_PRICE_MIN,
                 priceMinOptions,
                 priceMin,
-                setPriceMin
+                setPriceMin,
               )}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="allcars-filters-text"
             onClick={() => toggleDropdown(DROPDOWN_PRICE_MAX)}
-            tabIndex={0}
+            aria-expanded={openDropdown === DROPDOWN_PRICE_MAX}
+            aria-controls={`menu-${DROPDOWN_PRICE_MAX}`}
           >
             {priceMax}{' '}
             <span className="allcars-filters-text-arrow">
@@ -360,9 +378,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
                 DROPDOWN_PRICE_MAX,
                 priceMaxOptions,
                 priceMax,
-                setPriceMax
+                setPriceMax,
               )}
-          </div>
+          </button>
         </div>
       </div>
       <Searchemptymodal
@@ -384,3 +402,8 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
 };
 
 export default LandingFilters;
+ 
+LandingFilters.propTypes = {
+  setFilterCarsData: PropTypes.func.isRequired,
+  filtercarsData: PropTypes.any,
+};

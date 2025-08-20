@@ -166,11 +166,6 @@ ImageGallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-FeaturesSection.propTypes = {
-  adTitle: PropTypes.string.isRequired,
-  featuresCsv: PropTypes.string,
-};
-
 const FeaturesSection = ({ adTitle, featuresCsv }) => {
   const [open, setOpen] = useState(false);
   const features = (featuresCsv || '')
@@ -213,6 +208,11 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
       </div>
     </div>
   );
+};
+
+FeaturesSection.propTypes = {
+  adTitle: PropTypes.string.isRequired,
+  featuresCsv: PropTypes.string,
 };
 
 const CarDetails = () => {

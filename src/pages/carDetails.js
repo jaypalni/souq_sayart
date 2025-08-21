@@ -69,6 +69,7 @@ const getCarInfo = (d) => [
   { label: 'Version', value: d.trim || '-' },
   { label: 'Exterior Color', value: d.exterior_color || '-' },
   { label: 'Interior Color', value: d.interior_color || '-' },
+  { label: 'Warranty', value: d.warranty_date || '-' },
 ];
 
 const getAdditionalDetails = (d) => [
@@ -79,6 +80,7 @@ const getAdditionalDetails = (d) => [
   { label: 'Drive Type', value: d.drive_type || '-' },
   { label: 'Vehicle Type', value: d.vechile_type || '-' },
   { label: 'Horse Power', value: d.horse_power || '-' },
+  { label: 'Accident History', value: d.accident_history || '-' },
 ];
 
 // Sub-components

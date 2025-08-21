@@ -136,8 +136,10 @@ const CarListing = ({ filtercarsData }) => {
               {[
                 'Newest Listing',
                 'Oldest Listing',
-                'Low to High',
-                'High to Low',
+                'Price : Low to High',
+                'Price : High to Low',
+                'Mileage: Low to High',
+                'Mileage: High to Low',
               ].map((option) => (
                 <div
                   key={option}

@@ -8,13 +8,14 @@
 import React from 'react';
 import { FaRegHeart } from 'react-icons/fa';
 import { CheckCircleFilled } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../assets/styles/carListing.css';
 import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
 
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 const CarListing = ({ title, cardata }) => {
   const navigate = useNavigate();
@@ -43,18 +44,18 @@ const CarListing = ({ title, cardata }) => {
       {visibleCars.length > 0 && (
         <div className="car-listing-header mt-4">
           <span>{title}</span>
-          <a href="#" className="car-listing-seeall">
+          <button type="button" className="car-listing-seeall" onClick={() => navigate('/allcars')}>
             See All
-          </a>
+          </button>
         </div>
       )}
       <div className="car-listing-flex-row">
-        {visibleCars.map((car, idx) => (
-          <div
+        {visibleCars.map((car) => (
+          <Link
+            to={`/carDetails/${car.car_id}`}
             className="car-listing-card"
-            key={idx}
+            key={car.car_id}
             style={car.featured ? { cursor: 'pointer' } : {}}
-            onClick={() => navigate(`/carDetails/${car.car_id}`)}
           >
             <div className="car-listing-image-wrapper">
               <img
@@ -124,7 +125,7 @@ const CarListing = ({ title, cardata }) => {
                 <div className="car-listing-location">{car.location}</div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
@@ -132,3 +133,45 @@ const CarListing = ({ title, cardata }) => {
 };
 
 export default CarListing;
+
+CarListing.propTypes = {
+  title: PropTypes.string,
+  cardata: PropTypes.arrayOf(
+    PropTypes.shape({
+      car_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      car_image: PropTypes.string,
+      ad_title: PropTypes.string,
+      price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      fuel_type: PropTypes.string,
+      no_of_cylinders: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]),
+      engine_cc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      transmission: PropTypes.string,
+      country_code: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]),
+      mileage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      location: PropTypes.string,
+      featured: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.bool,
+      ]),
+      is_verified: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.bool,
+      ]),
+      title: PropTypes.string,
+    })
+  ),
+};
+
+CarListing.defaultProps = {
+  title: '',
+  cardata: [],
+};

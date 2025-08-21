@@ -456,7 +456,7 @@ const CreateProfile = () => {
                 <DatePicker
                   style={{
                     width: '100%',
-                    borderColor: dobError ? '#ff4d4f' : undefined,
+                    borderColor: dobError && '#ff4d4f',
                   }}
                   format="DD / MM / YYYY"
                   placeholder="DD / MM / YYYY"
@@ -769,6 +769,7 @@ const CreateProfile = () => {
             }}
           >
             <a
+            href="#"
   role="button"
   tabIndex={0}
   onClick={(e) => {

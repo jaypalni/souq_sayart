@@ -28,10 +28,10 @@ const LoginForm = () => {
 
       const data = handleApiResponse(response);
 
-      if (data && data.token) {
+      if (data?.token) {
         localStorage.setItem('token', data.token);
 
-        if (data.user) {
+        if (data?.user) {
           localStorage.setItem('userData', JSON.stringify(data.user));
         }
 

@@ -132,13 +132,18 @@ const Cardetailsfilter = () => {
 
   return (
     <>
-      <div onClick={() => setVisible(true)}>
+      <button
+        type="button"
+        onClick={() => setVisible(true)}
+        aria-label="Open filters"
+        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+      >
         <img
           src={FilterIcon}
           alt="Filter Icon"
           style={{ width: '30px', height: '30px' }}
         />
-      </div>
+      </button>
       <Drawer
         title="Filter"
         placement="left"
@@ -195,7 +200,7 @@ const Cardetailsfilter = () => {
                   textAlign: 'center',
                   marginRight: '10px',
                   borderRadius: '4px',
-                  color: value === 'Any' ? '#000' : '#000',
+                  color: '#000',
                   fontSize: '12px',
                   fontWeight: '400',
                   borderColor: value === 'Any' ? '#D67900' : undefined,
@@ -211,7 +216,7 @@ const Cardetailsfilter = () => {
                   width: '30%',
                   textAlign: 'center',
                   borderRadius: '4px',
-                  color: value === 'Available' ? '#000' : '#000',
+                  color: '#000',
                   fontSize: '12px',
                   fontWeight: '400',
                   borderLeft: '1px solid #D67900',
@@ -588,12 +593,18 @@ const Cardetailsfilter = () => {
             borderBottom: '1px solid #eee',
           }}
         >
-          <img
-            src={Backarrowicon}
-            alt="Back Arrow Icon"
-            style={{ width: 24, height: 24 }}
+          <button
+            type="button"
             onClick={() => setextrafeaturesvisible(false)}
-          />
+            aria-label="Back to main filters"
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            <img
+              src={Backarrowicon}
+              alt="Back Arrow Icon"
+              style={{ width: 24, height: 24 }}
+            />
+          </button>
           <span
             style={{
               fontWeight: 700,
@@ -655,7 +666,8 @@ const Cardetailsfilter = () => {
                   {section.title}
                 </div>
                 {filtered.map((feature) => (
-                  <div
+                  <button
+                    type="button"
                     key={feature}
                     onClick={() => handleFeatureToggle(feature)}
                     style={{
@@ -670,6 +682,9 @@ const Cardetailsfilter = () => {
                         ? '#f5f5f5'
                         : '#fff',
                       cursor: 'pointer',
+                      width: '100%',
+                      border: 'none',
+                      textAlign: 'left',
                     }}
                   >
                     <span style={{ textTransform: 'capitalize' }}>
@@ -682,7 +697,7 @@ const Cardetailsfilter = () => {
                         style={{ color: '#fff' }}
                       />
                     )}
-                  </div>
+                  </button>
                 ))}
               </div>
             );

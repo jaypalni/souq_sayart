@@ -27,6 +27,16 @@ const FILTER = {
   SPORT: 'Sport',
 };
 
+const renderPaginationItem = (type, originalElement) => {
+  if (type === 'prev') {
+    return <span>&lt;</span>;
+  }
+  if (type === 'next') {
+    return <span>&gt;</span>;
+  }
+  return originalElement;
+};
+
 const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
   <div
     style={{
@@ -44,15 +54,7 @@ const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
       pageSize={15}
       onChange={onChangePage}
       showSizeChanger={false}
-      itemRender={(type, originalElement) => {
-        if (type === 'prev') {
-          return <span>&lt;</span>;
-        }
-        if (type === 'next') {
-          return <span>&gt;</span>;
-        }
-        return originalElement;
-      }}
+      itemRender={renderPaginationItem}
     />
   </div>
 );

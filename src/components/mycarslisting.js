@@ -29,7 +29,6 @@ const FILTER = {
 const Mycarslisting = () => {
   const [value, setValue] = useState('Active');
   const [filterStatus, setFilterStatus] = useState('Any');
-  const [activeDropdownId, setActiveDropdownId] = useState(null);
   const [carDetails, setCarDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -121,7 +120,7 @@ const Mycarslisting = () => {
   };
 
 
-  const renderPagination = () => (
+  const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
     <div
       style={{
         display: 'flex',
@@ -133,10 +132,10 @@ const Mycarslisting = () => {
     >
       <Pagination
         className="custom-pagination"
-        current={page}
-        total={totalCount || 50}
+        current={currentPage}
+        total={totalItems || 50}
         pageSize={15}
-        onChange={(newPage) => setPage(newPage)}
+        onChange={onChangePage}
         showSizeChanger={false}
         itemRender={(type, originalElement) => {
           if (type === 'prev') {
@@ -229,35 +228,43 @@ const Mycarslisting = () => {
 
       {/* Car List */}
       <div style={{ padding: '20px' }}>
-        {loading ? (
-          <p>Loading cars...</p>
-        ) : carDetails.length === 0 ? (
-          <p>No cars found.</p>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
-              gap: '20px',
-              justifyContent: 'center',
-            }}
-          >
-            {carDetails.map((car) => (
-              <CarCard
-                key={car.id}
-                car={car}
-                value={value}
-                filterStatus={filterStatus}
-                handleDelete={handleDeleteMethod}
-                navigate={navigate}
-              />
-            ))}
-          </div>
-        )}
+        {(() => {
+          if (loading) {
+            return <p>Loading cars...</p>;
+          }
+          if (carDetails.length === 0) {
+            return <p>No cars found.</p>;
+          }
+          return (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
+                gap: '20px',
+                justifyContent: 'center',
+              }}
+            >
+              {carDetails.map((car) => (
+                <CarCard
+                  key={car.id}
+                  car={car}
+                  value={value}
+                  filterStatus={filterStatus}
+                  handleDelete={handleDeleteMethod}
+                  navigate={navigate}
+                />
+              ))}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Pagination */}
-      {renderPagination()}
+      <MyListingsPagination
+        currentPage={page}
+        totalItems={totalCount}
+        onChangePage={(newPage) => setPage(newPage)}
+      />
     </div>
   );
 };

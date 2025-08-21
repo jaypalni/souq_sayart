@@ -159,16 +159,18 @@ const Header = () => {
           </div>
           <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (
-              <div
-                className="menuItem mx-3 "
+              <button
+                type="button"
+                className="menuItem mx-3"
                 key={item.name}
                 onClick={() => {
                   comingsoonMessage(item);
                 }}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', background: 'transparent', border: 'none', padding: 0 }}
+                aria-label={`Navigate to ${item.name}`}
               >
                 {item.name}
-              </div>
+              </button>
             ))}
           </div>
           <div className="col-4 d-flex align-items-center justify-content-center">
@@ -226,7 +228,8 @@ const Header = () => {
                 </div>
               </Dropdown>
             ) : (
-              <div
+              <button
+                type="button"
                 className="menuLeft mx-2"
                 onClick={() => {
                   localStorage.removeItem('isGuest');
@@ -237,10 +240,15 @@ const Header = () => {
                   fontFamily: 'Roboto',
                   fontSize: 14,
                   fontWeight: '400',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: 0,
+                  color: 'inherit',
                 }}
+                aria-label="Sign up or Login"
               >
                 Sign up / Login
-              </div>
+              </button>
             )}
             <div className="menuLeft mx-2">
               <div className="contct_us_btn">Contact Us</div>
@@ -251,7 +259,7 @@ const Header = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                color: '#FAFAFA',
+                color: '#fff',
               }}
             >
               <Select

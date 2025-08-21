@@ -56,8 +56,8 @@ const PlaneBanner = () => {
         >
           <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>
             Home
-          </Link>
-          <span style={{ color: '#fff' }}>&gt;</span>
+          </Link>{' '}
+          <span style={{ color: '#fff' }} aria-hidden="true">&gt;</span>{' '}
           New Cars Sale in Dubai
         </p>
 

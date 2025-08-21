@@ -42,7 +42,6 @@ const CreateProfile = () => {
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
-  const [isChecked, setIsChecked] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   const { customerDetails } = useSelector((state) => state.customerDetails);
@@ -191,6 +190,23 @@ const CreateProfile = () => {
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
+  const renderAvatarContent = () => {
+    if (imageUrl) {
+      return (
+        <img
+          src={imageUrl}
+          alt="avatar"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      );
+    }
+    const initials = getInitials();
+    if (initials) {
+      return initials;
+    }
+    return <UserOutlined />;
+  };
+
   const MSG_REG_SUCCESS = 'Registration successful!';
   const MSG_REG_FAILED = 'Registration failed';
 
@@ -323,21 +339,7 @@ const CreateProfile = () => {
                 cursor: 'pointer',
               }}
             >
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt="avatar"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                />
-             ) : getInitials() ? (
-  getInitials()
-) : (
-  <UserOutlined />
-)}
+              {renderAvatarContent()}
 
               <PlusCircleFilled
                 style={{
@@ -768,25 +770,21 @@ const CreateProfile = () => {
               fontSize: 13,
             }}
           >
-            <a
-            href="#"
-  role="button"
-  tabIndex={0}
-  onClick={(e) => {
-    e.preventDefault();
-    setShowModal(true);
-  }}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setShowModal(true);
-    }
-  }}
-  style={{ color: '#1890ff', textDecoration: 'none', cursor: 'pointer' }}
->
-  By registering you agree with our terms & conditions and privacy
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              style={{
+                color: '#1890ff',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+              }}
+            >
+              By registering you agree with our terms & conditions and privacy
               policy
-</a>
+            </button>
 
             
           </Text>
@@ -804,7 +802,6 @@ const CreateProfile = () => {
             key="accept"
             type="primary"
             onClick={() => {
-              setIsChecked(true);
               closeModal();
             }}
           >

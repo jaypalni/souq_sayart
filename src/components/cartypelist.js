@@ -17,11 +17,13 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Searchemptymodal from '../components/searchemptymodal';
+import PropTypes from 'prop-types';
 
 const Arrow = (props) => {
   const { className, style, onClick, left } = props;
   return (
-    <div
+    <button
+      type="button"
       className={className + ' car-type-arrow'}
       style={{
         ...style,
@@ -37,22 +39,30 @@ const Arrow = (props) => {
         right: !left ? -40 : 'unset',
         zIndex: 3,
         cursor: 'pointer',
+        border: 'none',
       }}
       onClick={onClick}
+      aria-label={left ? 'Previous' : 'Next'}
     >
       {left ? (
         <img src={rightarrow} alt="leftarrow" />
       ) : (
         <img src={leftarrow} alt="rightarrow" />
       )}
-    </div>
+    </button>
   );
 };
 
+Arrow.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.object,
+  onClick: PropTypes.func,
+  left: PropTypes.bool,
+};
+
 const CarTypeList = () => {
-  const [loading,setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
-  const [carSearch, setCarSearch] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bodyType, setBodyType] = useState('All Body Types');
   const navigate = useNavigate();
@@ -110,7 +120,6 @@ const CarTypeList = () => {
       const data1 = handleApiResponse(response);
       if (data1) {
         const results = data1?.data?.cars || [];
-        setCarSearch(results);
 
         if (results.length === 0) {
           setIsModalOpen(true);
@@ -124,7 +133,6 @@ const CarTypeList = () => {
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(errorData.message || 'Failed to search car data');
-      setCarSearch([]);
     } finally {
       setLoading(false);
     }
@@ -135,10 +143,12 @@ const CarTypeList = () => {
       <h2 className="car-type-list-title">Body Types</h2>
       <Slider {...settings} className="car-type-slider">
         {carBodyTypes.map((type) => (
-          <div
+          <button
+            type="button"
             key={type.id}
             className="car-type-item"
             onClick={() => handleSearch(type.body_type)}
+            style={{ border: 'none', cursor: 'pointer' }}
           >
             <div className="car-type-icon">
               <img
@@ -149,7 +159,7 @@ const CarTypeList = () => {
               />
             </div>
             <div className="car-type-name">{type.body_type}</div>
-          </div>
+          </button>
         ))}
       </Slider>
       <Searchemptymodal

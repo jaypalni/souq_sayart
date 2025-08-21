@@ -98,9 +98,26 @@ const Searchemptymodal = ({
     <div
   className="modal-overlay"
   onClick={onClose}
+  onKeyDown={(e) => {
+    if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  }}
+  role="button"
+  tabIndex={0}
+  aria-label="Close modal overlay"
 >
       {contextHolder}
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search results modal"
+        tabIndex={-1}
+      >
         <img
           src={emptysearch}
           alt="No Results"

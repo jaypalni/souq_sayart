@@ -24,8 +24,11 @@
   align-items: center;
   justify-content: flex-start;
   padding: 0 8px;
-  background: transparent;
+  background: #fff;
   cursor: pointer;
+  border-radius: 8px;
+  min-height: 88px;
+  border: none;
 }
 
 .car-type-icon {

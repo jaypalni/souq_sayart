@@ -71,8 +71,8 @@ const Footer = () => {
           {footerdata.map((item) => (
             <div className="footer-col-cat" key={item.catogory}>
               <div className="footer-col-cat-data">{item.catogory}</div>
-              {item.items.map((sub, idx) => (
-                <div key={idx} className="footer-cat-map">
+              {item.items.map((sub) => (
+                <div key={`${item.catogory}-${sub}`} className="footer-cat-map">
                   {sub}
                 </div>
               ))}

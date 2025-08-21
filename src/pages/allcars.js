@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import AllCarFilters from '../components/allcarfilters';
 import PlaneBanner from '../components/planeBanner';
 import redcar_icon from '../assets/images/redcar_icon.jpg';
@@ -19,9 +20,9 @@ import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
 import { message, Pagination } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
-  const [filtercarsData, setFilterCarsData] = useState([]);
+  const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   return (
     <div>
       <PlaneBanner name={'jdi'} />
@@ -45,21 +46,21 @@ const CarListing = ({ filtercarsData }) => {
   const passedPagination = location.state?.pagination || {};
   const [carsData, setCarsData] = useState(passedCars);
   const [paginationData, setPaginationData] = useState(passedPagination);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   useEffect(() => {
-    if (filtercarsData.length === 0) {
+    if (!filtercarsData || !Array.isArray(filtercarsData.cars) || filtercarsData.cars.length === 0) {
       setCarsData(passedCars);
       setPaginationData(passedPagination);
     } else {
-      setCarsData(filtercarsData?.cars);
-      setPaginationData(filtercarsData?.pagination);
+      setCarsData(filtercarsData.cars);
+      setPaginationData(filtercarsData.pagination);
     }
-  }, [filtercarsData]);
+  }, [filtercarsData, passedCars, passedPagination]);
 
   const Addfavcarapi = async (carId) => {
     try {
@@ -100,7 +101,8 @@ const CarListing = ({ filtercarsData }) => {
       <div className="car-listing-header">
         <span>Showing 1 - {carsData?.length} Cars</span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
-          <div
+          <button
+            type="button"
             onClick={toggleDropdown}
             style={{
               cursor: 'pointer',
@@ -110,13 +112,18 @@ const CarListing = ({ filtercarsData }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '5px',
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
             }}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
           >
             Sort : {sortOption}
             <span style={{ fontSize: '12px' }}>
               {isOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
             </span>
-          </div>
+          </button>
 
           {isOpen && (
             <div
@@ -141,7 +148,8 @@ const CarListing = ({ filtercarsData }) => {
                 'Mileage: Low to High',
                 'Mileage: High to Low',
               ].map((option) => (
-                <div
+                <button
+                  type="button"
                   key={option}
                   onClick={() => handleSelect(option)}
                   style={{
@@ -149,6 +157,10 @@ const CarListing = ({ filtercarsData }) => {
                     cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: '500',
+                    width: '100%',
+                    textAlign: 'left',
+                    background: 'transparent',
+                    border: 'none',
                   }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.background = '#f2f2f2')
@@ -158,7 +170,7 @@ const CarListing = ({ filtercarsData }) => {
                   }
                 >
                   {option}
-                </div>
+                </button>
               ))}
             </div>
           )}
@@ -166,14 +178,8 @@ const CarListing = ({ filtercarsData }) => {
       </div>
       <div className="row">
         {carsData?.map((car) => (
-          <div
-            className="col-3 p-0"
-            key={car.id || `${car.ad_title}-${car.price}`}
-          >
-            <div
-              className="allcars-listing-card"
-              onClick={() => navigate(`/carDetails/${car.car_id}`)}
-            >
+          <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
+            <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
               <div className="car-listing-image-wrapper">
                 <img
                   src={`${BASE_URL}${car.car_image}`}
@@ -256,7 +262,7 @@ const CarListing = ({ filtercarsData }) => {
                   <div className="car-listing-location">{car.location}</div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         ))}
       </div>
@@ -276,3 +282,50 @@ const CarListing = ({ filtercarsData }) => {
 };
 
 export default Allcars;
+
+CarListing.propTypes = {
+  filtercarsData: PropTypes.shape({
+    cars: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        car_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        car_image: PropTypes.string,
+        ad_title: PropTypes.string,
+        price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        fuel_type: PropTypes.string,
+        no_of_cylinders: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number,
+        ]),
+        engine_cc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        transmission: PropTypes.string,
+        country_code: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number,
+        ]),
+        mileage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        location: PropTypes.string,
+        featured: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number,
+          PropTypes.bool,
+        ]),
+        is_verified: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number,
+          PropTypes.bool,
+        ]),
+        title: PropTypes.string,
+      })
+    ),
+    pagination: PropTypes.shape({
+      page: PropTypes.number,
+      total: PropTypes.number,
+      limit: PropTypes.number,
+    }),
+  }),
+};
+
+CarListing.defaultProps = {
+  filtercarsData: { cars: [], pagination: {} },
+};

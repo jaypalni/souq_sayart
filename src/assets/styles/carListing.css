@@ -70,6 +70,17 @@
   text-decoration: none;
 }
 
+/* All Cars page card link styling (remove underline, inherit color) */
+.allcars-listing-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.allcars-listing-card:hover {
+  text-decoration: none;
+}
+
 .car-listing-image-wrapper {
   position: relative;
   width: 100%;

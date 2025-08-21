@@ -20,7 +20,7 @@ import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
 import { message, Pagination } from 'antd';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   return (
@@ -41,7 +41,6 @@ const Allcars = () => {
 
 const CarListing = ({ filtercarsData }) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const passedCars = location.state?.cars || [];
   const passedPagination = location.state?.pagination || {};
   const [carsData, setCarsData] = useState(passedCars);

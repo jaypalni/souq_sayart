@@ -12,6 +12,7 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
 import CarCard from './CarCard';
+import PropTypes from 'prop-types';
 
 const { Option } = Select;
 
@@ -24,6 +25,42 @@ const STATUS = {
 const FILTER = {
   BASE: 'Base',
   SPORT: 'Sport',
+};
+
+const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      marginTop: 20,
+      color: '#0A0A0B',
+      borderRadius: '4px',
+    }}
+  >
+    <Pagination
+      className="custom-pagination"
+      current={currentPage}
+      total={totalItems || 50}
+      pageSize={15}
+      onChange={onChangePage}
+      showSizeChanger={false}
+      itemRender={(type, originalElement) => {
+        if (type === 'prev') {
+          return <span>&lt;</span>;
+        }
+        if (type === 'next') {
+          return <span>&gt;</span>;
+        }
+        return originalElement;
+      }}
+    />
+  </div>
+);
+
+MyListingsPagination.propTypes = {
+  currentPage: PropTypes.number.isRequired,
+  totalItems: PropTypes.number,
+  onChangePage: PropTypes.func.isRequired,
 };
 
 const Mycarslisting = () => {
@@ -120,35 +157,7 @@ const Mycarslisting = () => {
   };
 
 
-  const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: 20,
-        color: '#0A0A0B',
-        borderRadius: '4px',
-      }}
-    >
-      <Pagination
-        className="custom-pagination"
-        current={currentPage}
-        total={totalItems || 50}
-        pageSize={15}
-        onChange={onChangePage}
-        showSizeChanger={false}
-        itemRender={(type, originalElement) => {
-          if (type === 'prev') {
-            return <span>&lt;</span>;
-          }
-          if (type === 'next') {
-            return <span>&gt;</span>;
-          }
-          return originalElement;
-        }}
-      />
-    </div>
-  );
+  
 
   return (
     <div>

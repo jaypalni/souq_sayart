@@ -36,15 +36,20 @@ const MyFavoritesCars = () => {
         limit,
       });
       const newcars = handleApiResponse(response);
-      console.log('Response', newcars)
 
       if (newcars?.data?.favorites) {
         setCarsData(newcars.data?.favorites);
       }
-      message.success(newcars.message || 'Fetched successfully');
+       messageApi.open({
+              type: 'success',
+              content: newcars?.message,
+            });
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to load car data');
+      messageApi.open({
+              type: 'error',
+              content: errorData.error,
+            });
       setCarsData([]);
     } finally {
       setLoading(false);
@@ -119,7 +124,7 @@ const MyFavoritesCars = () => {
                 cursor: 'pointer',
               }}
               onClick={(e) => {
-                e.preventDefault(); // prevent navigating when clicking ❤️
+                e.preventDefault(); 
                 e.stopPropagation();
                 Deletecarapi(car.car_id);
               }}
@@ -146,7 +151,7 @@ const MyFavoritesCars = () => {
               </div>
               <div className="col-3">
                 <span>
-                  <FaGlobe /> {car.consumption || 'UAE'}
+                  <FaGlobe /> {car.country_code}
                 </span>
               </div>
               <div className="col-4">

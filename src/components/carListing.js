@@ -10,16 +10,22 @@ import { FaRegHeart } from 'react-icons/fa';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import '../assets/styles/carListing.css';
+import { message } from 'antd';
+import { userAPI } from '../services/api';
 import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const CarListing = ({ title, cardata }) => {
   const navigate = useNavigate();
+  const [, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const [visibleCars, setVisibleCars] = useState([]);
+  const [addFavorites, setAddFavorties] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
@@ -39,8 +45,36 @@ const CarListing = ({ title, cardata }) => {
     }
   }, [cardata]);
 
+ const handleFavorite = async (carId) => {
+  try {
+    setLoading(true);
+    const response = await userAPI.addFavorite(Number(carId));
+    const data1 = handleApiResponse(response);
+
+    if (data1) {
+      const result = data1?.data;
+      setAddFavorties(result);
+      messageApi.open({
+        type: 'success',
+        content: data1?.message || 'Added to favorites successfully',
+      });
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+
+    messageApi.open({
+      type: 'error',
+      content: errorData?.message || 'Failed to add to favorites',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return (
     <div className="car-listing-container">
+      {contextHolder}
       {visibleCars.length > 0 && (
         <div className="car-listing-header mt-4">
           <span>{title}</span>
@@ -50,84 +84,96 @@ const CarListing = ({ title, cardata }) => {
         </div>
       )}
       <div className="car-listing-flex-row">
-        {visibleCars.map((car) => (
-          <Link
-            to={`/carDetails/${car.car_id}`}
-            className="car-listing-card"
-            key={car.car_id}
-            style={car.featured ? { cursor: 'pointer' } : {}}
-          >
-            <div className="car-listing-image-wrapper">
-              <img
-                src={`${BASE_URL}${car.car_image}`}
-                alt={car.title}
-                className="car-listing-image"
-              />
-              <div className="car-listing-badges">
-                {Number(car.featured) === 1 && (
-                  <div className="car-listing-badge blue-bg">Featured</div>
-                )}
-                {Number(car.is_verified) === 1 && (
-                  <div className="car-listing-badge orenge-bg">
-                    <CheckCircleFilled /> Certified Dealer
-                  </div>
-                )}
+  {visibleCars.map((car) => (
+    <div className="car-listing-card" key={car.car_id}>
+      <Link
+        to={`/carDetails/${car.car_id}`}
+        style={car.featured ? { cursor: 'pointer' } : {}}
+      >
+        <div className="car-listing-image-wrapper">
+          <img
+            src={`${BASE_URL}${car.car_image}`}
+            alt={car.title}
+            className="car-listing-image"
+          />
+          <div className="car-listing-badges">
+            {Number(car.featured) === 1 && (
+              <div className="car-listing-badge blue-bg">Featured</div>
+            )}
+            {Number(car.is_verified) === 1 && (
+              <div className="car-listing-badge orenge-bg">
+                <CheckCircleFilled /> Certified Dealer
               </div>
-              <div className="car-listing-fav">
-                <FaRegHeart />
-              </div>
-            </div>
-            <div className="car-listing-content">
-              <div className="d-flex">
-                <div className="car-listing-title">{car.ad_title}</div>
-              </div>
-              <div className="car-listing-price">
-                  {'IQD ' + Number(car.price).toLocaleString()}
-                </div>
-              <div className="car-listing-engine">
-                {car.fuel_type === 'Electric'
-                  ? car.fuel_type
-                  : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
-                      1
-                    )}L  ${car.fuel_type}`}
-              </div>
-              <div className="car-listing-details row">
-                <div className="col-5">
-                  <span>
-                    <img
-                      src={car_type}
-                      alt="Car"
-                      style={{ width: 14, height: 14 }}
-                    />{' '}
-                    {car.transmission}
-                  </span>
-                </div>
-                <div className="col-3">
-                  <span>
-                    <img
-                      src={country_code}
-                      alt="Country"
-                      style={{ width: 14, height: 14 }}
-                    />
-                    {car.country_code}
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span>
-                    <img
-                      src={speed_code}
-                      alt="Speed"
-                      style={{ width: 14, height: 14 }}
-                    />
-                    {car.mileage}
-                  </span>
-                </div>
-                <div className="car-listing-location">{car.location}</div>
-              </div>
-            </div>
-          </Link>
-        ))}
+            )}
+          </div>
+        </div>
+      </Link>
+
+      {/* Heart kept OUTSIDE the Link */}
+      <div className="car-listing-fav">
+        <FaRegHeart
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleFavorite(car.car_id);
+          }}
+          style={{
+            backgroundColor: '#ffffff',
+            color: car.is_favorite ? '#008ad5' : '#008ad5',
+            border: 'none',
+            cursor: car.is_favorite ? 'not-allowed' : 'pointer',
+          }}
+        />
       </div>
+
+      <div className="car-listing-content">
+        <div className="d-flex">
+          <div className="car-listing-title">{car.ad_title}</div>
+        </div>
+        <div className="car-listing-price">
+          {'IQD ' + Number(car.price).toLocaleString()}
+        </div>
+        <div className="car-listing-engine">
+          {car.fuel_type === 'Electric'
+            ? car.fuel_type
+            : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
+                1
+              )}L  ${car.fuel_type}`}
+        </div>
+        <div className="car-listing-details row">
+          <div className="col-5">
+            <span>
+              <img src={car_type} alt="Car" style={{ width: 14, height: 14 }} />{' '}
+              {car.transmission}
+            </span>
+          </div>
+          <div className="col-3">
+            <span>
+              <img
+                src={country_code}
+                alt="Country"
+                style={{ width: 14, height: 14 }}
+              />
+              {car.country_code}
+            </span>
+          </div>
+          <div className="col-4">
+            <span>
+              <img
+                src={speed_code}
+                alt="Speed"
+                style={{ width: 14, height: 14 }}
+              />
+              {car.mileage}
+            </span>
+          </div>
+          <div className="car-listing-location">{car.location}</div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
     </div>
   );
 };

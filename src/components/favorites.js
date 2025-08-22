@@ -5,8 +5,9 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import { useParams } from 'react-router-dom';
+
 import React, { useState, useEffect } from 'react';
+import '../assets/styles/favorites.css';
 import { message } from 'antd';
 import { FaGlobe, FaMapMarkerAlt, FaRegHeart } from 'react-icons/fa';
 import redcar_icon from '../assets/images/redcar_icon.jpg';
@@ -14,9 +15,11 @@ import { TbManualGearbox } from 'react-icons/tb';
 import { userAPI } from '../services/api';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { Link } from 'react-router-dom';
 
 const MyFavoritesCars = () => {
   const [carsData, setCarsData] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
   const [, setLoading] = useState(false);
   const [page ,] = useState(1);
   const [, limit] = useState(15);
@@ -33,9 +36,10 @@ const MyFavoritesCars = () => {
         limit,
       });
       const newcars = handleApiResponse(response);
+      console.log('Response', newcars)
 
-      if (newcars?.favorites) {
-        setCarsData(newcars.favorites);
+      if (newcars?.data?.favorites) {
+        setCarsData(newcars.data?.favorites);
       }
       message.success(newcars.message || 'Fetched successfully');
     } catch (error) {
@@ -54,11 +58,17 @@ const MyFavoritesCars = () => {
       const response = await userAPI.removeFavorite(carId);
       const data = handleApiResponse(response);
 
-      if (data.success) {
-        message.success(data.message || 'Removed from favorites');
+      if (data) {
+         messageApi.open({
+          type: 'success',
+          content: data?.message,
+        });
         await Allcarsapi();
       } else {
-        message.error(data.message || 'Something went wrong');
+         messageApi.open({
+          type: 'error',
+          content: data?.message,
+        });
       }
     } catch (error) {
       const errorData = handleApiError(error);
@@ -72,74 +82,86 @@ const MyFavoritesCars = () => {
 
   return (
     <div className="car-listing-container">
+      {contextHolder}
       <div className="car-listing-header">
         <span>Favorites</span>
       </div>
       <div className="row">
-        {carsData.map((car, idx) => (
-          <div className="col-3 p-0" key={idx}>
-            <div className="allcars-listing-card">
-              <div className="car-listing-image-wrapper">
-                <img
-                  src={car.image_url || redcar_icon}
-                  alt={car.ad_title || 'Car Image'}
-                  className="car-listing-image"
-                />
-                <div className="car-listing-badges">
-                  {car.featured && (
-                    <div className="car-listing-badge blue-bg">Featured</div>
-                  )}
-                  {car.certified && (
-                    <div className="car-listing-badge orenge-bg">
-                      <CheckCircleFilled /> Certified Dealer
-                    </div>
-                  )}
+  {carsData.map((car) => (
+    <div className="col-3 p-0" key={car.car_id}>
+      <Link
+        to={`/carDetails/${car.car_id}`}
+        className="car-listing-link"
+      >
+        <div className="allcars-listing-card">
+          <div className="car-listing-image-wrapper">
+            <img
+              src={car.image_url || redcar_icon}
+              alt={car.ad_title || 'Car Image'}
+              className="car-listing-image"
+            />
+            <div className="car-listing-badges">
+              {Number(car.featured) === 1 && (
+                <div className="car-listing-badge blue-bg">Featured</div>
+              )}
+               {Number(car.is_verified) === 1 && (
+                <div className="car-listing-badge orenge-bg">
+                  <CheckCircleFilled /> Certified Dealer
                 </div>
-                <button
-                  className="car-listing-fav"
-                  style={{
-                    backgroundColor: '#008ad5',
-                    color: '#ffffff',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => Deletecarapi(car.id)}
-                >
-                  <FaRegHeart />
-                </button>
-              </div>
-              <div className="car-listing-content">
-                <div className="d-flex">
-                  <div className="car-listing-title">
-                    {car.year + ' ' + car.make + ' ' + car.model ||
-                      'No Title Available'}
-                  </div>
-                  <div className="car-listing-price">{'$' + car.price}</div>
-                </div>
-                <div className="car-listing-engine">{car.fuel_type}</div>
-                <div className="car-listing-details row">
-                  <div className="col-5">
-                    <span>
-                      <TbManualGearbox /> {car.transmission}
-                    </span>
-                  </div>
-                  <div className="col-3">
-                    <span>
-                      <FaGlobe /> {car.consumption || 'UAE'}
-                    </span>
-                  </div>
-                  <div className="col-4">
-                    <span>
-                      <FaMapMarkerAlt /> {car.mileage}
-                    </span>
-                  </div>
-                  <div className="car-listing-location">{car.location}</div>
-                </div>
+              )}
+            </div>
+            <button
+              className="car-listing-fav"
+              style={{
+                backgroundColor: '#008ad5',
+                color: '#ffffff',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onClick={(e) => {
+                e.preventDefault(); // prevent navigating when clicking ❤️
+                e.stopPropagation();
+                Deletecarapi(car.car_id);
+              }}
+            >
+              <FaRegHeart />
+            </button>
+          </div>
+          <div className="car-listing-content">
+            <div className="d-flex">
+              <div className="car-listing-title">
+                {car.year + ' ' + car.make + ' ' + car.model ||
+                  'No Title Available'}
               </div>
             </div>
+            <div className="car-listing-price">
+              {'IQD ' + Number(car.price).toLocaleString()}
+            </div>
+            <div className="car-listing-engine">{car.fuel_type}</div>
+            <div className="car-listing-details row">
+              <div className="col-5">
+                <span>
+                  <TbManualGearbox /> {car.transmission}
+                </span>
+              </div>
+              <div className="col-3">
+                <span>
+                  <FaGlobe /> {car.consumption || 'UAE'}
+                </span>
+              </div>
+              <div className="col-4">
+                <span>
+                  <FaMapMarkerAlt /> {car.mileage}
+                </span>
+              </div>
+              <div className="car-listing-location">{car.location}</div>
+            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      </Link>
+    </div>
+  ))}
+</div>
     </div>
   );
 };

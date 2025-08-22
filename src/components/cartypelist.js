@@ -66,6 +66,7 @@ const CarTypeList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bodyType, setBodyType] = useState('All Body Types');
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   const settings = {
     dots: false,
@@ -111,7 +112,7 @@ const CarTypeList = () => {
 
       const params = {
         make: '',
-        model: '',
+        model: '',  
         body_type: item,
         location: '',
       };
@@ -152,7 +153,7 @@ const CarTypeList = () => {
           >
             <div className="car-type-icon">
               <img
-                src={`http://13.202.75.187:5002${type.body_type_image}`}
+                src={`${BASE_URL}${type.body_type_image}`}
                 alt={type.body_type}
                 width="96"
                 height="36"

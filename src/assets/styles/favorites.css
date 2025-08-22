@@ -1,0 +1,8 @@
+.car-listing-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.car-listing-link:hover {
+  text-decoration: none; 
+}

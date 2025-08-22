@@ -34,7 +34,7 @@ const MyProfileForm = () => {
   const [avatarUrl, setAvatarUrl] = useState('');
   const fileInputRef = useRef();
   const [, setDealerValue] = useState(YES);
-
+  const [messageApi, contextHolder] = message.useMessage();
   const [, setLoading] = useState(false);
   const [, setUsersData] = useState({});
   const [, setDobError] = useState('');
@@ -184,43 +184,57 @@ const handleSubmitError = (error, onFinishFailed) => {
 };
 
   const onClickContinue = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    const values = await form.validateFields();
+    
+    const payload = {
+      first_name: values.first_name || '',
+      last_name: values.last_name || '',
+      email: values.email || '',
+      date_of_birth: values.dob || '',
+      is_dealer: values.dealer === 'yes',
+      company_name: values.company || '',
+      owner_name: values.owner || '',
+      company_address: values.address || '',
+      company_phone_number: values.phone || '',
+      company_registration_number: values.reg || '',
+      facebook_page: values.facebook || '',
+      instagram_company_profile: values.instagram || '',
+      profile_pic: avatarUrl || '',
+      whatsapp: values.phone || '',
+      location: values.address || '',
+    };
 
-      const values = await form.validateFields();
+    const response = await userAPI.updateProfile(payload);
+    const result = handleApiResponse(response);
 
-      const formData = new FormData();
-
-      formData.append('first_name', values.first_name || '');
-      formData.append('last_name', values.last_name || '');
-      formData.append('location', ''); 
-      formData.append('whatsapp', 'efrg'); 
-
-      const response = await userAPI.updateProfile(formData);
-
-      const result = handleApiResponse(response);
-
-      if (result?.data) {
-        applyUpdatedUser(
-          result.data,
-          result.message,
-          form,
-          setUsersData,
-          setProfile,
-          setAvatarUrl,
-          setDealerValue,
-          setEditMode,
-        );
-      }
-    } catch (error) {
-      handleSubmitError(error, onFinishFailed);
-    } finally {
-      setLoading(false);
+    if (result?.data) {
+      applyUpdatedUser(
+        result.data,
+        result.message,
+        form,
+        setUsersData,
+        setProfile,
+        setAvatarUrl,
+        setDealerValue,
+        setEditMode,
+      );
+      messageApi.open({
+        type: 'success',
+        content: result.message || 'Profile updated successfully',
+      });
     }
-  };
+  } catch (error) {
+    handleSubmitError(error, onFinishFailed);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="myprofile-main">
+      {contextHolder}
       <div className="myprofile-header">My Profile</div>
       <div className="myprofile-card">
         <Row gutter={24} align="middle" style={{ marginBottom: 0 }}>

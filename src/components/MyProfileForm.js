@@ -7,15 +7,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, Avatar, message } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload } from 'antd';
 import {
   EditOutlined,
   CheckOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import { userAPI } from '../services/api';
+import { userAPI, authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
+import dayjs from 'dayjs';
+import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 
 const YES = 'yes';
 const NO = 'no';
@@ -39,6 +41,8 @@ const MyProfileForm = () => {
   const [, setUsersData] = useState({});
   const [, setDobError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [uploadedDocUrl, setUploadedDocUrl] = useState('');
 
   const handleConfirm = () => {
     alert('Confirmed!');
@@ -183,16 +187,134 @@ const handleSubmitError = (error, onFinishFailed) => {
   message.error(errorData.message || MSG_UPDATE_FAILED);
 };
 
+ const getInitials = () => {
+    const first = form.getFieldValue('firstName') || '';
+    const last = form.getFieldValue('lastName') || '';
+    return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
+  };
+
+const renderAvatarContent = () => {
+    if (imageUrl) {
+      return (
+        <img
+          src={imageUrl}
+          alt="avatar"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      );
+    }
+    const initials = getInitials();
+    if (initials) {
+      return initials;
+    }
+    return <UserOutlined />;
+  };
+
+   const handleFileChange = async (e) => {
+      const file = e.target.files[0];
+  
+      if (!file) {
+        return;
+      }
+  
+      const isPDF = file.type === 'application/pdf';
+  
+      if (!isPDF) {
+        messageApi.open({
+          type: 'error',
+          content: 'Upload failed. Only .pdf documents are allowed.',
+        });
+        return;
+      }
+  
+      try {
+        setLoading(true);
+  
+        const formData = new FormData();
+        formData.append('attachment', file);
+  
+        const carResponse = await authAPI.uploadimages(formData);
+        const userdoc = handleApiResponse(carResponse);
+  
+        if (userdoc?.attachment_url) {
+          setUploadedDocUrl(userdoc.attachment_url);
+          form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
+          messageApi.open({
+            type: 'success',
+            content: userdoc.message,
+          });
+        }
+      } catch (error) {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData.message,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  const handleBeforeUpload = async (file) => {
+    const isImage =
+      file.type === 'image/png' ||
+      file.type === 'image/jpeg' ||
+      file.type === 'image/jpg';
+
+    if (!isImage) {
+      messageApi.open({
+        type: 'error',
+        content:
+          'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
+      });
+      return Upload.LIST_IGNORE;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setImageUrl(previewUrl);
+    const formData = new FormData();
+    formData.append('attachment', file);
+
+    try {
+      const response = await authAPI.uploadimages(formData);
+      const userdoc = handleApiResponse(response);
+
+      if (userdoc?.attachment_url) {
+        setImageUrl(userdoc.attachment_url);
+        messageApi.open({
+          type: 'success',
+          content: userdoc.message,
+        });
+        return Upload.LIST_IGNORE; 
+      } else {
+        message.error(userdoc.message || 'Upload failed');
+        return Upload.LIST_IGNORE;
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData.message,
+      });
+      message.error('Upload failed due to network error');
+      return Upload.LIST_IGNORE; 
+    }
+  };
+
   const onClickContinue = async () => {
   try {
     setLoading(true);
     const values = await form.validateFields();
+
+    const formattedDob = values.dob 
+  ? dayjs(values.dob).format('YYYY-MM-DD') 
+  : '';
     
     const payload = {
       first_name: values.first_name || '',
       last_name: values.last_name || '',
       email: values.email || '',
-      date_of_birth: values.dob || '',
+      date_of_birth: formattedDob,
       is_dealer: values.dealer === 'yes',
       company_name: values.company || '',
       owner_name: values.owner || '',
@@ -201,14 +323,14 @@ const handleSubmitError = (error, onFinishFailed) => {
       company_registration_number: values.reg || '',
       facebook_page: values.facebook || '',
       instagram_company_profile: values.instagram || '',
-      profile_pic: avatarUrl || '',
+      profile_pic: imageUrl || '',
       whatsapp: values.phone || '',
       location: values.address || '',
+      document: uploadedDocUrl
     };
 
     const response = await userAPI.updateProfile(payload);
     const result = handleApiResponse(response);
-
     if (result?.data) {
       applyUpdatedUser(
         result.data,
@@ -220,11 +342,11 @@ const handleSubmitError = (error, onFinishFailed) => {
         setDealerValue,
         setEditMode,
       );
-      messageApi.open({
+    }
+    messageApi.open({
         type: 'success',
         content: result.message || 'Profile updated successfully',
       });
-    }
   } catch (error) {
     handleSubmitError(error, onFinishFailed);
   } finally {
@@ -255,20 +377,51 @@ const handleSubmitError = (error, onFinishFailed) => {
                     }
                   }}
                 >
-                  <Avatar
-                    size={64}
-                    src={avatarUrl || undefined}
-                    style={{
-                      background: '#e3f1ff',
-                      color: '#008AD5',
-                      fontWeight: 400,
-                      fontSize: 26,
-                      marginRight: 16,
-                      cursor: editMode ? 'pointer' : 'default',
-                    }}
-                  >
-                    RD
-                  </Avatar>
+                 <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: 24,
+          }}
+        >
+          <Upload showUploadList={false} beforeUpload={handleBeforeUpload}>
+            <div
+              style={{
+                width: 90,
+                height: 90,
+                borderRadius: '50%',
+                background: '#e6f4ff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 36,
+                color: '#1890ff',
+                position: 'relative',
+                fontWeight: 700,
+                marginBottom: 8,
+                overflow: 'hidden',
+                cursor: 'pointer',
+              }}
+            >
+              {renderAvatarContent()}
+
+              <PlusCircleFilled
+                style={{
+                  position: 'absolute',
+                  bottom: 6,
+                  right: 6,
+                  fontSize: 28,
+                  color: '#1890ff',
+                  background: '#fff',
+                  borderRadius: '50%',
+                  border: '2px solid #fff',
+                }}
+              />
+            </div>
+          </Upload>
+        </div>
+
                   {editMode && (
                     <input
                       type="file"
@@ -597,6 +750,32 @@ const handleSubmitError = (error, onFinishFailed) => {
                     />
                   </Form.Item>
                 </Col>
+                <div className="col-md-6">
+                                  <Form.Item
+                                    label={
+                                      <span
+                                        style={{
+                                          fontWeight: 400,
+                                          color: '#637D92',
+                                          fontSize: 12,
+                                        }}
+                                      >
+                                        Upload Documents
+                                      </span>
+                                    }
+                                    name="uploadDocuments"
+                                    required={false}
+                                  >
+                                    <Input
+                                      type="file"
+                                      placeholder="Documents"
+                                      size="middle"
+                                      ref={fileInputRef}
+                                      onChange={handleFileChange}
+                                      accept=".pdf"
+                                    />{' '}
+                                  </Form.Item>
+                                </div>
               </>
             )}
           </Row>

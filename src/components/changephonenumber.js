@@ -5,7 +5,6 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 const ChangePhoneNumber = ({ onBack }) => {
   return (
     <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
-      {/* Back Arrow & Heading */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
         <ArrowLeftOutlined
           onClick={onBack}
@@ -14,12 +13,10 @@ const ChangePhoneNumber = ({ onBack }) => {
         <h3 style={{ margin: 0 }}>Change Phone Number</h3>
       </div>
 
-      {/* Subtitle */}
       <p style={{ marginBottom: '15px' }}>
         Enter Your New Phone Number to change
       </p>
 
-      {/* Phone Number Input */}
       <Row gutter={10}>
         <Col span={6}>
           <Input value='+961' disabled />
@@ -29,7 +26,6 @@ const ChangePhoneNumber = ({ onBack }) => {
         </Col>
       </Row>
 
-      {/* Continue Button */}
       <Button
         type='primary'
         block

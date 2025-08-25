@@ -59,6 +59,8 @@ const API_CONFIG = {
       GET_SAVEDSEARCHES: (page, limit) =>
         `/api/users/saved-searches?page=${page}&limit=${limit}`,
       GET_SUBSCRIPTIONS: '/api/subscriptions/packages',
+      GET_DELETE: '/api/users/delete',
+      GET_DEELETE_OTP: '/api/users/delete/otp_verification',
     },
   },
 };

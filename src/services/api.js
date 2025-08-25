@@ -157,6 +157,8 @@ export const userAPI = {
   savedSearches: (page, limit) =>
     api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit)),
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
+  getDelete: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DELETE),
+  getDeleteOtp: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DEELETE_OTP),
 };
 
 export default api;

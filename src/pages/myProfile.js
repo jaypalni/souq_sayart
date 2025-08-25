@@ -28,11 +28,14 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
+import { message } from 'antd';
+import { userAPI } from '../services/api';
 import MyProfileForm from '../components/MyProfileForm';
 import '../assets/styles/myProfile.css';
 import SavedSearches from '../components/savedSearches';
 import Favorites from '../components/favorites';
 import ChangePhoneNumber from '../components/changephonenumber';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 const { Sider, Content } = Layout;
 
@@ -207,18 +210,45 @@ const manageItems = [
 const MyProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const selectedKey = location.pathname.split('/')[2] || 'profile';
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleLogout = () => {
     setLogoutModalOpen(false);
     navigate('/LoginScreen');
   };
 
+  const handleDelete = async () => {
+      try {
+        setLoading(true);
+        const response = await userAPI.getDelete();
+        const data1 = handleApiResponse(response);
+  
+        if (data1) {
+          messageApi.open({
+            type: 'success',
+            content: data1?.message || 'Added to favorites successfully',
+          });
+        }
+      } catch (error) {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message || 'Failed to add to favorites',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
   return (
     <>
       <div className="page-header">
+        {contextHolder}
         <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>
           Sell Your Car In IRAQ
         </div>
@@ -278,6 +308,7 @@ const MyProfile = () => {
                   setLogoutModalOpen(true);
                 }
                 if (key === 'delete') {
+                   setDeleteModalOpen(true);
                 }
               }}
             />
@@ -339,6 +370,57 @@ const MyProfile = () => {
           <Button
             type="primary"
             onClick={handleLogout}
+            style={{
+              width: 120,
+              backgroundColor: '#008AD5',
+              color: '#ffffff',
+              fontSize: '16px',
+              fontWeight: 700,
+              borderRadius: '24px',
+            }}
+          >
+            Yes
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        footer={null}
+        title={
+          <div className="brand-modal-title-row">
+            <span>Are you sure to Delete your account?</span>
+          </div>
+        }
+        width={300}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '2px',
+          }}
+        >
+          <Button
+            onClick={() => setDeleteModalOpen(false)}
+            style={{
+              width: 120,
+              backgroundColor: '#ffffff',
+              color: '#008AD5',
+              borderColor: '#008AD5',
+              borderWidth: 1,
+              fontSize: '16px',
+              fontWeight: 700,
+              borderRadius: '24px',
+            }}
+          >
+            No
+          </Button>
+          <Button
+            type="primary"
+            onClick={ () => handleDelete}
             style={{
               width: 120,
               backgroundColor: '#008AD5',

@@ -219,6 +219,8 @@ const MyProfile = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const selectedKey = location.pathname.split('/')[2] || 'profile';
   const [messageApi, contextHolder] = message.useMessage();
+  const [, setDeleteData] = useState([]);
+  const [, setDeleteOtpData] = useState([]);
 
   const handleLogout = () => {
     setLogoutModalOpen(false);
@@ -233,16 +235,41 @@ const MyProfile = () => {
         const data1 = handleApiResponse(response);
   
         if (data1) {
+          setDeleteData(data1)
           messageApi.open({
             type: 'success',
             content: data1?.message || 'Added to favorites successfully',
           });
         }
       } catch (error) {
+        setDeleteData([])
         const errorData = handleApiError(error);
         messageApi.open({
           type: 'error',
           content: errorData?.message || 'Failed to add to favorites',
+        });
+      }
+    }
+
+    const handleOTPDelete = async () => {
+      try {
+        setLoading(true);
+        const response = await userAPI.getDeleteOtp();
+        const data1 = handleApiResponse(response);
+  
+        if (data1) {
+          setDeleteOtpData(data1)
+          messageApi.open({
+            type: 'success',
+            content: data1?.message,
+          });
+        }
+      } catch (error) {
+        setDeleteOtpData([])
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message,
         });
       }
     }

@@ -22,11 +22,9 @@ import PropTypes from 'prop-types';
 
 const CarListing = ({ title, cardata }) => {
   const navigate = useNavigate();
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [visibleCars, setVisibleCars] = useState([]);
-  const [addFavorites, setAddFavorties] = useState([]);
-  const [removeFavorites, setRemoveFavorties] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
@@ -46,58 +44,61 @@ const CarListing = ({ title, cardata }) => {
     }
   }, [cardata]);
 
- const handleFavorite = async (carId) => {
-  try {
-    setLoading(true);
-    const response = await userAPI.addFavorite(Number(carId));
-    const data1 = handleApiResponse(response);
+  const handleFavorite = async (carId) => {
+    try {
+      setLoading(carId);
+      const response = await userAPI.addFavorite(Number(carId));
+      const data1 = handleApiResponse(response);
 
-    if (data1) {
-      const result = data1?.data;
-      setAddFavorties(result);
+      if (data1) {
+        setVisibleCars((prevCars) =>
+          prevCars.map((car) =>
+            car.car_id === carId ? { ...car, is_favorite: true } : car
+          )
+        );
+        messageApi.open({
+          type: 'success',
+          content: data1?.message || 'Added to favorites successfully',
+        });
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
       messageApi.open({
-        type: 'success',
-        content: data1?.message || 'Added to favorites successfully',
+        type: 'error',
+        content: errorData?.message || 'Failed to add to favorites',
       });
+    } finally {
+      setLoading(null);
     }
-  } catch (error) {
-    const errorData = handleApiError(error);
+  };
 
-    messageApi.open({
-      type: 'error',
-      content: errorData?.message || 'Failed to add to favorites',
-    });
-  } finally {
-    setLoading(false);
-  }
- };
+  const handleRemoveFavorite = async (carId) => {
+    try {
+      setLoading(carId);
+      const response = await userAPI.removeFavorite(Number(carId));
+      const data1 = handleApiResponse(response);
 
- const handleRemoveFavorite = async (carId) => {
-  try {
-    setLoading(true);
-    const response = await userAPI.removeFavorite(Number(carId));
-    const data1 = handleApiResponse(response);
-
-    if (data1) {
-      const result = data1?.data;
-      setRemoveFavorties(result);
+      if (data1) {
+        setVisibleCars((prevCars) =>
+          prevCars.map((car) =>
+            car.car_id === carId ? { ...car, is_favorite: false } : car
+          )
+        );
+        messageApi.open({
+          type: 'success',
+          content: data1?.message || 'Removed from favorites successfully',
+        });
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
       messageApi.open({
-        type: 'success',
-        content: data1?.message || 'Added to favorites successfully',
+        type: 'error',
+        content: errorData?.message || 'Failed to remove from favorites',
       });
+    } finally {
+      setLoading(null);
     }
-  } catch (error) {
-    const errorData = handleApiError(error);
-
-    messageApi.open({
-      type: 'error',
-      content: errorData?.message || 'Failed to add to favorites',
-    });
-  } finally {
-    setLoading(false);
-  }
- };
-
+  };
 
   return (
     <div className="car-listing-container">
@@ -105,118 +106,124 @@ const CarListing = ({ title, cardata }) => {
       {visibleCars.length > 0 && (
         <div className="car-listing-header mt-4">
           <span>{title}</span>
-          <button type="button" className="car-listing-seeall" onClick={() => navigate('/allcars')}>
+          <button
+            type="button"
+            className="car-listing-seeall"
+            onClick={() => navigate('/allcars')}
+          >
             See All
           </button>
         </div>
       )}
       <div className="car-listing-flex-row">
-  {visibleCars.map((car) => (
-    <div className="car-listing-card" key={car.car_id}>
-      <Link
-        to={`/carDetails/${car.car_id}`}
-        style={car.featured ? { cursor: 'pointer' } : {}}
-      >
-        <div className="car-listing-image-wrapper">
-          <img
-            src={`${BASE_URL}${car.car_image}`}
-            alt={car.title}
-            className="car-listing-image"
-          />
-          <div className="car-listing-badges">
-            {Number(car.featured) === 1 && (
-              <div className="car-listing-badge blue-bg">Featured</div>
-            )}
-            {Number(car.is_verified) === 1 && (
-              <div className="car-listing-badge orenge-bg">
-                <CheckCircleFilled /> Certified Dealer
+        {visibleCars.map((car) => (
+          <div className="car-listing-card" key={car.car_id}>
+            <Link
+              to={`/carDetails/${car.car_id}`}
+              style={car.featured ? { cursor: 'pointer' } : {}}
+            >
+              <div className="car-listing-image-wrapper">
+                <img
+                  src={`${BASE_URL}${car.car_image}`}
+                  alt={car.title}
+                  className="car-listing-image"
+                />
+                <div className="car-listing-badges">
+                  {Number(car.featured) === 1 && (
+                    <div className="car-listing-badge blue-bg">Featured</div>
+                  )}
+                  {Number(car.is_verified) === 1 && (
+                    <div className="car-listing-badge orenge-bg">
+                      <CheckCircleFilled /> Certified Dealer
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </Link>
+
+            <div className="car-listing-fav">
+              {car.is_favorite ? (
+                <FaHeart
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRemoveFavorite(car.car_id);
+                  }}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    color: '#008ad5',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                />
+              ) : (
+                <FaRegHeart
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleFavorite(car.car_id);
+                  }}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    color: '#008ad5',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                />
+              )}
+            </div>
+
+            <div className="car-listing-content">
+              <div className="d-flex">
+                <div className="car-listing-title">{car.ad_title}</div>
+              </div>
+              <div className="car-listing-price">
+                {'IQD ' + Number(car.price).toLocaleString()}
+              </div>
+              <div className="car-listing-engine">
+                {car.fuel_type === 'Electric'
+                  ? car.fuel_type
+                  : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
+                      1
+                    )}L  ${car.fuel_type}`}
+              </div>
+              <div className="car-listing-details row">
+                <div className="col-5">
+                  <span>
+                    <img
+                      src={car_type}
+                      alt="Car"
+                      style={{ width: 14, height: 14 }}
+                    />{' '}
+                    {car.transmission}
+                  </span>
+                </div>
+                <div className="col-3">
+                  <span>
+                    <img
+                      src={country_code}
+                      alt="Country"
+                      style={{ width: 14, height: 14 }}
+                    />
+                    {car.country_code}
+                  </span>
+                </div>
+                <div className="col-4">
+                  <span>
+                    <img
+                      src={speed_code}
+                      alt="Speed"
+                      style={{ width: 14, height: 14 }}
+                    />
+                    {car.mileage}
+                  </span>
+                </div>
+                <div className="car-listing-location">{car.location}</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </Link>
-
-      <div className="car-listing-fav">
-{car.is_favorite ? (
-  <FaHeart
-    onClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleRemoveFavorite(car.car_id);
-    }}
-    style={{
-      backgroundColor: '#ffffff',
-      color: '#008ad5', 
-      border: 'none',
-      cursor: 'pointer',
-    }}
-  />
-) : (
-  <FaRegHeart
-    onClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleFavorite(car.car_id);
-    }}
-    style={{
-      backgroundColor: '#ffffff',
-      color: '#008ad5', 
-      border: 'none',
-      cursor: 'pointer',
-    }}
-  />
-)}
-
+        ))}
       </div>
-
-      <div className="car-listing-content">
-        <div className="d-flex">
-          <div className="car-listing-title">{car.ad_title}</div>
-        </div>
-        <div className="car-listing-price">
-          {'IQD ' + Number(car.price).toLocaleString()}
-        </div>
-        <div className="car-listing-engine">
-          {car.fuel_type === 'Electric'
-            ? car.fuel_type
-            : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
-                1
-              )}L  ${car.fuel_type}`}
-        </div>
-        <div className="car-listing-details row">
-          <div className="col-5">
-            <span>
-              <img src={car_type} alt="Car" style={{ width: 14, height: 14 }} />{' '}
-              {car.transmission}
-            </span>
-          </div>
-          <div className="col-3">
-            <span>
-              <img
-                src={country_code}
-                alt="Country"
-                style={{ width: 14, height: 14 }}
-              />
-              {car.country_code}
-            </span>
-          </div>
-          <div className="col-4">
-            <span>
-              <img
-                src={speed_code}
-                alt="Speed"
-                style={{ width: 14, height: 14 }}
-              />
-              {car.mileage}
-            </span>
-          </div>
-          <div className="car-listing-location">{car.location}</div>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-
     </div>
   );
 };
@@ -256,6 +263,7 @@ CarListing.propTypes = {
         PropTypes.bool,
       ]),
       title: PropTypes.string,
+      is_favorite: PropTypes.bool,
     })
   ),
 };

@@ -121,9 +121,9 @@ export const carAPI = {
     }),
   getCarOptions: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_OPTIONS),
   getCarFeatures: () =>
-    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_FEATURES),
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_FEATURES),
   getCarRecommended: () =>
-    publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_RECOMMENDED),
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_RECOMMENDED),
   getCarSpecs: () => api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_SPECS),
   getMakeCars: () => publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_MAKE_CARS),
   getModelCars: (make) =>

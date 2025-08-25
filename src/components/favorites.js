@@ -77,9 +77,10 @@ const MyFavoritesCars = () => {
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(
-        errorData.message || 'Failed to remove car from favorites.'
-      );
+       messageApi.open({
+          type: 'error',
+          content: errorData?.message,
+        });
     } finally {
       setLoading(false);
     }

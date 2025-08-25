@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { FaRegHeart } from 'react-icons/fa';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import '../assets/styles/carListing.css';
@@ -26,6 +26,7 @@ const CarListing = ({ title, cardata }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [visibleCars, setVisibleCars] = useState([]);
   const [addFavorites, setAddFavorties] = useState([]);
+  const [removeFavorites, setRemoveFavorties] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
@@ -69,7 +70,33 @@ const CarListing = ({ title, cardata }) => {
   } finally {
     setLoading(false);
   }
-};
+ };
+
+ const handleRemoveFavorite = async (carId) => {
+  try {
+    setLoading(true);
+    const response = await userAPI.removeFavorite(Number(carId));
+    const data1 = handleApiResponse(response);
+
+    if (data1) {
+      const result = data1?.data;
+      setRemoveFavorties(result);
+      messageApi.open({
+        type: 'success',
+        content: data1?.message || 'Added to favorites successfully',
+      });
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+
+    messageApi.open({
+      type: 'error',
+      content: errorData?.message || 'Failed to add to favorites',
+    });
+  } finally {
+    setLoading(false);
+  }
+ };
 
 
   return (
@@ -109,21 +136,37 @@ const CarListing = ({ title, cardata }) => {
         </div>
       </Link>
 
-      {/* Heart kept OUTSIDE the Link */}
       <div className="car-listing-fav">
-        <FaRegHeart
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleFavorite(car.car_id);
-          }}
-          style={{
-            backgroundColor: '#ffffff',
-            color: car.is_favorite ? '#008ad5' : '#008ad5',
-            border: 'none',
-            cursor: car.is_favorite ? 'not-allowed' : 'pointer',
-          }}
-        />
+{car.is_favorite ? (
+  <FaHeart
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleRemoveFavorite(car.car_id);
+    }}
+    style={{
+      backgroundColor: '#ffffff',
+      color: '#008ad5', 
+      border: 'none',
+      cursor: 'pointer',
+    }}
+  />
+) : (
+  <FaRegHeart
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleFavorite(car.car_id);
+    }}
+    style={{
+      backgroundColor: '#ffffff',
+      color: '#008ad5', 
+      border: 'none',
+      cursor: 'pointer',
+    }}
+  />
+)}
+
       </div>
 
       <div className="car-listing-content">

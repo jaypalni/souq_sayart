@@ -12,12 +12,14 @@ import {
   EditOutlined,
   CheckOutlined,
   CloseOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { userAPI, authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const YES = 'yes';
 const NO = 'no';
@@ -43,10 +45,15 @@ const MyProfileForm = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
+   const [showChangePhoneForm, setShowChangePhoneForm] = useState(false);
+   const [isChangingPhone, setIsChangingPhone] = useState(false);
+
 
   const handleConfirm = () => {
-    alert('Confirmed!');
+    // alert('Confirmed!');
     setModalOpen(false);
+    setShowChangePhoneForm(true);
+    setIsChangingPhone(true); // show phone number form
   };
 
   const onFinishFailed = ({ errorFields }) => {
@@ -126,21 +133,22 @@ const Userdataapi = async () => {
 };
 
 const populateUserProfile = (user, successMsg) => {
-  const userProfile = mapUserToProfile(user);
+  const userProfile = mapUserToProfile(user); 
   setUsersData(user);
   setProfile(userProfile);
   form.setFieldsValue(userProfile);
-  setAvatarUrl(user.avatar || '');
-  setDealerValue(user.dealer || NO);
+  setAvatarUrl(user.profile_image || '');
+  setDealerValue(userProfile.dealer);
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
+
 
 const mapUserToProfile = (user) => ({
   first_name: user.first_name || '',
   last_name: user.last_name || '',
   email: user.email || '',
   dob: user.date_of_birth || '',
-  dealer: user.dealer || NO,
+  dealer: user.is_dealer === 1 ? YES : NO,
   company: user.company_name || '',
   owner: user.owner_name || '',
   address: user.company_address || '',
@@ -156,7 +164,7 @@ const mapApiUserToProfile = (user) => ({
   last_name: user.last_name || '',
   email: user.email || '',
   dob: user.date_of_birth || '',
-  dealer: user.is_dealer ? YES : NO,
+  dealer: user.is_dealer === 1 ? YES : NO, 
   company: user.company_name || '',
   owner: user.owner_name || '',
   address: user.company_address || '',
@@ -357,7 +365,9 @@ const renderAvatarContent = () => {
   return (
     <div className="myprofile-main">
       {contextHolder}
-      <div className="myprofile-header">My Profile</div>
+      <div className="myprofile-header">
+        {editMode ? 'Edit Profile' : 'My Profile'}
+      </div>
       <div className="myprofile-card">
         <Row gutter={24} align="middle" style={{ marginBottom: 0 }}>
           <Col span={24}>
@@ -470,6 +480,7 @@ const renderAvatarContent = () => {
                 name="first_name"
               >
                 <Input
+                disabled={!editMode}
                   style={{
                     fontSize: '12px',
                     fontWeight: 400,
@@ -494,6 +505,7 @@ const renderAvatarContent = () => {
                 name="last_name"
               >
                 <Input
+                disabled={!editMode}
                   style={{
                     fontSize: '12px',
                     fontWeight: 400,
@@ -506,6 +518,7 @@ const renderAvatarContent = () => {
               <Form.Item
                 label={
                   <span
+                  disabled={!editMode}
                     style={{
                       fontSize: '12px',
                       fontWeight: 400,
@@ -518,6 +531,7 @@ const renderAvatarContent = () => {
                 name="email"
               >
                 <Input
+                disabled={!editMode}
                   style={{
                     fontSize: '12px',
                     fontWeight: 400,
@@ -542,6 +556,7 @@ const renderAvatarContent = () => {
                 name="dob"
               >
                 <Input
+                disabled={!editMode}
                   style={{
                     fontSize: '12px',
                     fontWeight: 400,
@@ -591,6 +606,7 @@ const renderAvatarContent = () => {
                     name="company"
                   >
                     <Input
+                    disabled={true}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -615,6 +631,7 @@ const renderAvatarContent = () => {
                     name="owner"
                   >
                     <Input
+                    disabled={true}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -636,9 +653,10 @@ const renderAvatarContent = () => {
                         Company Address
                       </span>
                     }
-                    name="Company Address"
+                    name="address"
                   >
                     <Input
+                    disabled={!editMode}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -663,6 +681,7 @@ const renderAvatarContent = () => {
                     name="phone"
                   >
                     <Input
+                    disabled={!editMode}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -694,6 +713,7 @@ const renderAvatarContent = () => {
                     name="reg"
                   >
                     <Input
+                    disabled={true}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -718,6 +738,7 @@ const renderAvatarContent = () => {
                     name="facebook"
                   >
                     <Input
+                    disabled={!editMode}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -742,6 +763,7 @@ const renderAvatarContent = () => {
                     name="instagram"
                   >
                     <Input
+                    disabled={!editMode}
                       style={{
                         fontSize: '12px',
                         fontWeight: 400,
@@ -767,6 +789,7 @@ const renderAvatarContent = () => {
                                     required={false}
                                   >
                                     <Input
+                                    disabled={true}
                                       type="file"
                                       placeholder="Documents"
                                       size="middle"
@@ -839,11 +862,71 @@ const renderAvatarContent = () => {
           </div>
         </Form>
       </div>
+      
+       {/* If showChangePhoneForm is true, show phone number form */}
+      {showChangePhoneForm ? (
+        <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
+          {/* Back Arrow & Heading */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+            <ArrowLeftOutlined
+              onClick={() => setShowChangePhoneForm(false)} // back to profile
+              style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+            />
+            <h3 style={{ margin: 0 }}>Change Phone Number</h3>
+          </div>
+
+          {/* Subtitle */}
+          <p style={{ marginBottom: '15px' }}>
+            Enter Your New Phone Number to change
+          </p>
+
+          {/* Phone Number Input */}
+          <Row gutter={10}>
+            <Col span={6}>
+              <Input value="+961" disabled />
+            </Col>
+            <Col span={18}>
+              <Input placeholder="71 000 000" />
+            </Col>
+          </Row>
+
+          {/* Continue Button */}
+          <Button
+            type="primary"
+            block
+            style={{ marginTop: '20px', height: '40px', borderRadius: '8px' }}
+          >
+            Continue
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* 👇 Existing Profile Code here */}
+          <div className="myprofile-header">
+            {editMode ? 'Edit Profile' : 'My Profile'}
+          </div>
+          <div className="myprofile-card">
+            {/* existing profile form */}
+            ...
+          </div>
+        </>
+      )}
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirm}
+      />
+      
     </div>
+
+    
   );
 };
 
-const ConfirmModal = ({ isOpen, onClose }) => {
+const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
+  const navigate = useNavigate();
    if (!isOpen) {
      return null; 
    }
@@ -870,7 +953,7 @@ const ConfirmModal = ({ isOpen, onClose }) => {
           <button className="popup-btn-no" onClick={onClose}>
             No
           </button>
-          <button className="popup-btn-yes" onClick={onClose}>
+          <button className="popup-btn-yes" onClick={onConfirm}>
             Yes
           </button>
         </div>
@@ -882,6 +965,7 @@ const ConfirmModal = ({ isOpen, onClose }) => {
 ConfirmModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
 };
 
 

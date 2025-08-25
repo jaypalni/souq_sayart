@@ -52,6 +52,7 @@ const CarListing = ({ filtercarsData }) => {
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
   const [favoriteCars, setFavoriteCars] = useState([]);
+   const [isFavorite, setIsFavorite] = useState(carsData.is_favorite);
 
   useEffect(() => {
     if (!filtercarsData || !Array.isArray(filtercarsData.cars) || filtercarsData.cars.length === 0) {
@@ -64,34 +65,62 @@ const CarListing = ({ filtercarsData }) => {
   }, [filtercarsData, passedCars, passedPagination]);
 
  const Addfavcarapi = async (carId) => {
-    console.log('Adding car to favorites:', carId);
-    try {
-      setLoading(carId); 
-      const response = await userAPI.addFavorite(carId);
-      const data = handleApiResponse(response);
+  try {
+    setLoading(carId);
+    const response = await userAPI.addFavorite(carId);
+    const data = handleApiResponse(response);
 
-      if (data) {
-        // ✅ Update that car’s is_favorite to true
-        setCarsData((prevCars) =>
-          prevCars.map((car) =>
-            car.car_id === carId ? { ...car, is_favorite: true } : car
-          )
-        );
-
-        messageApi.open({
-          type: 'success',
-          content: data?.message,
-        });
-      } else {
-        message.error(data.message || 'Something went wrong');
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to add car to favorites.');
-    } finally {
-      setLoading(null);
+    if (data) {
+      setCarsData((prevCars) =>
+        prevCars.map((car) =>
+          car.car_id === carId ? { ...car, is_favorite: true } : car
+        )
+      );
+      messageApi.open({
+        type: 'success',
+        content: data?.message || 'Car added to favorites',
+      });
+    } else {
+      message.error(data.message || 'Something went wrong');
     }
-  };
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to add car to favorites.');
+  } finally {
+    setLoading(null);
+  }
+};
+
+const Removefavcarapi = async (carId) => {
+  try {
+    setLoading(carId);
+    const response = await userAPI.removeFavorite(carId);
+    const data = handleApiResponse(response);
+
+    if (data) {
+      setCarsData((prevCars) =>
+        prevCars.map((car) =>
+          car.car_id === carId ? { ...car, is_favorite: false } : car
+        )
+      );
+      messageApi.open({
+        type: 'success',
+        content: data?.message || 'Car removed from favorites',
+      });
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: data?.message || 'Something went wrong',
+      });
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to remove car from favorites.');
+  } finally {
+    setLoading(null);
+  }
+};
+
 
   const onShowSizeChange = (current, pageSize) => {
     console.log(current, pageSize);
@@ -210,30 +239,30 @@ const CarListing = ({ filtercarsData }) => {
               )}
             </div>
 
-            {/* ❤️ Favorite Button */}
            <button
   key={car.car_id}
   className="car-listing-fav"
   style={{
     backgroundColor: '#ffffff',
-    color: car.is_favorite ? '#008ad5' : '#008ad5', 
+    color: '#008ad5',
     border: 'none',
-    cursor: car.is_favorite ? 'not-allowed' : 'pointer',
+    cursor: 'pointer',
   }}
   onClick={(e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!car.is_favorite) {
+    if (car.is_favorite) {
+      Removefavcarapi(car.car_id);
+    } else {
       Addfavcarapi(car.car_id);
     }
   }}
-  disabled={car.is_favorite || loading === car.car_id} 
+  disabled={loading === car.car_id}
 >
-  {car.is_favorite ? <FaHeart /> : <FaRegHeart />}
+  {car.is_favorite ? <FaHeart color='#008ad5' /> : <FaRegHeart />}
 </button>
 
           </div>
-
           <div className="car-listing-content">
             <div className="d-flex">
               <div className="car-listing-title">

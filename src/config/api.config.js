@@ -40,7 +40,7 @@ const API_CONFIG = {
       LOGIN: '/api/auth/login',
       RESENDOTP: '/api/auth/resend-otp',
       REGISTER: '/api/auth/register',
-      LOGOUT: '/auth/logout',
+      LOGOUT: '/api/auth/logout',
       FORGOT_PASSWORD: '/auth/forgot-password',
       RESET_PASSWORD: '/auth/reset-password',
       VERIFY_OTP: '/api/auth/verify-otp',

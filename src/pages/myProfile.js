@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Button, Modal } from 'antd';
+import { Layout, Menu, Avatar, Button, Modal, message } from 'antd';
 import {
   UserOutlined,
   CreditCardOutlined,
@@ -28,14 +28,16 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import { message } from 'antd';
 import { userAPI } from '../services/api';
 import MyProfileForm from '../components/MyProfileForm';
 import '../assets/styles/myProfile.css';
 import SavedSearches from '../components/savedSearches';
 import Favorites from '../components/favorites';
 import ChangePhoneNumber from '../components/changephonenumber';
+import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
 
 const { Sider, Content } = Layout;
 
@@ -210,6 +212,7 @@ const manageItems = [
 const MyProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
@@ -219,7 +222,8 @@ const MyProfile = () => {
 
   const handleLogout = () => {
     setLogoutModalOpen(false);
-    navigate('/LoginScreen');
+     
+    userlogout();
   };
 
   const handleDelete = async () => {
@@ -240,6 +244,28 @@ const MyProfile = () => {
           type: 'error',
           content: errorData?.message || 'Failed to add to favorites',
         });
+      }
+    }
+
+    const userlogout = async () => {
+      try {
+        setLoading(true);
+        const response = await authAPI.logout({});
+        const data1 = handleApiResponse(response);
+         messageApi.open({
+                    type: 'success',
+                    content: data1?.message,
+                  });
+                 localStorage.clear();
+                           dispatch(clearCustomerDetails());
+                           dispatch({ type: 'CLEAR_USER_DATA' });
+                   navigate('/LoginScreen');
+      } catch (error) {
+        const errorData = handleApiError(error);
+        messageApi.open({
+                   type: 'error',
+                   content: errorData?.error,
+                 });
       } finally {
         setLoading(false);
       }
@@ -339,10 +365,10 @@ const MyProfile = () => {
         footer={null}
         title={
           <div className="brand-modal-title-row">
-            <span>Are you sure to logout?</span>
+            <span>Are you sure you want to log out?</span>
           </div>
         }
-        width={300}
+        width={400}
       >
         <div
           style={{
@@ -365,7 +391,7 @@ const MyProfile = () => {
               borderRadius: '24px',
             }}
           >
-            No
+            Cancel
           </Button>
           <Button
             type="primary"
@@ -379,7 +405,7 @@ const MyProfile = () => {
               borderRadius: '24px',
             }}
           >
-            Yes
+            Confirm
           </Button>
         </div>
       </Modal>

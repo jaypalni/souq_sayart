@@ -15,7 +15,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from 'react-icons/fa';
-import { MessageOutlined, UserOutlined } from '@ant-design/icons';
+import { MessageOutlined, UserOutlined,ShareAltOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../assets/styles/cardetails.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -212,6 +212,28 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
   );
 };
 
+const copyToClipboard = () => {
+  const url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        alert('Page URL copied to clipboard!');
+      })
+      .catch((err) => {
+        message.error('Failed to copy URL');
+        console.error(err);
+      });
+  } else {
+    const textarea = document.createElement('textarea');
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('Page URL copied to clipboard!');
+  }
+};
+
 FeaturesSection.propTypes = {
   adTitle: PropTypes.string.isRequired,
   featuresCsv: PropTypes.string,
@@ -388,16 +410,36 @@ const CarDetails = () => {
           <Card className="seller-info-card">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <h5
-                  className="mb-0"
-                  style={{
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    color: '#0A0A0B',
-                  }}
-                >
-                  {carDetails.ad_title}
-                </h5>
+               <div 
+                style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  }}>
+  <h5
+    className="mb-0 text-truncate"
+    style={{
+      fontSize: '20px',
+      fontWeight: 700,
+      color: '#0A0A0B',
+      margin:'0',
+    }}
+  >
+    {carDetails.ad_title}
+  </h5>
+
+  <ShareAltOutlined
+    style={{
+      fontSize: '20px',
+      color: '#008ad5',
+      cursor: 'pointer',
+      flexShrink: 0,
+      marginLeft: '40px'
+    }}
+    onClick={() => copyToClipboard(carDetails.ad_title)}
+  />
+               </div>
                 <div className="car-price">
                   {'IQD ' + Number(carDetails.price).toLocaleString()}
                 </div>

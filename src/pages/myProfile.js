@@ -32,6 +32,7 @@ import MyProfileForm from '../components/MyProfileForm';
 import '../assets/styles/myProfile.css';
 import SavedSearches from '../components/savedSearches';
 import Favorites from '../components/favorites';
+import ChangePhoneNumber from '../components/changephonenumber';
 
 const { Sider, Content } = Layout;
 
@@ -293,6 +294,7 @@ const MyProfile = () => {
           <Content style={{ padding: '40px 40px 0 40px', background: '#fff' }}>
             <Routes>
               <Route index element={<MyProfileForm />} />
+              <Route index element={<ChangePhoneNumber />} />
               <Route path="searches" element={<SavedSearches />} />
               <Route path="favorites" element={<Favorites />} />
             </Routes>

@@ -288,6 +288,7 @@ const MyProfile = () => {
   
         if (data1) {
           setDeleteData(data1)
+          localStorage.setItem('requestId',data1.request_id)
           messageApi.open({
             type: 'success',
             content: data1?.message,
@@ -359,9 +360,11 @@ const MyProfile = () => {
       try {
         setLoading(true);
         const otpDigits = otp.join(''); 
+        const requestId = localStorage.getItem('requestId');
     
         const otpPayload = {
           otp: otpDigits,
+          request_id:requestId,
         };
     
         const result = await userAPI.getDeleteOtp(otpPayload);
@@ -408,6 +411,7 @@ const MyProfile = () => {
           const data = handleApiResponse(response);
       
           if (data) {
+             localStorage.setItem('requestId',data.request_id)
             messageApi.open({
               type: 'success',
               content: data.message,
@@ -605,7 +609,32 @@ const MyProfile = () => {
 );
 
       })()}
-    </div>
+    </div >
+    <div style={{display:'flex',gap:'15px'}}>
+ <button
+        type="button"
+        onClick={() => {
+           setOtp(['', '', '', '']);
+    setError('');
+    setTimer(30);
+    setIsTimerRunning(false);
+           setShowOtpStep(false);
+        }}
+         style={{
+              width: 120,
+              height:35,
+              backgroundColor: '#ffffff',
+              color: '#008AD5',
+              borderColor: '#008AD5',
+              borderWidth: 1,
+              fontSize: '16px',
+              fontWeight: 700,
+              borderRadius: '24px',
+            }}
+      >
+        Cancel
+      </button>
+
       <button
         className="otp-btn otp-btn-filled"
         type="button"
@@ -614,6 +643,8 @@ const MyProfile = () => {
       >
         Continue
       </button>
+    </div>
+     
     
   </div>
 
@@ -677,10 +708,10 @@ const MyProfile = () => {
         open={deleteModalOpen}
         onCancel={() => setDeleteModalOpen(false)}
         footer={null}
-        title={<div className="brand-modal-title-row"><span>Are you sure to Delete your account?</span></div>}
-        width={300}
+        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px'}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
+        width={500}
       >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
           <Button
             onClick={() => setDeleteModalOpen(false)}
             style={{
@@ -694,7 +725,7 @@ const MyProfile = () => {
               borderRadius: '24px',
             }}
           >
-            No
+            Cancel
           </Button>
           <Button
             type="primary"
@@ -714,7 +745,7 @@ const MyProfile = () => {
               borderRadius: '24px',
             }}
           >
-            Yes
+            Continue
           </Button>
         </div>
       </Modal>

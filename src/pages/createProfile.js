@@ -20,7 +20,7 @@ import {
   Upload,
   Modal,
 } from 'antd';
-import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
+import { PlusCircleFilled, TruckFilled, UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
@@ -466,6 +466,7 @@ const CreateProfile = () => {
                   disabledDate={(current) =>
                     current && current > moment().endOf('day')
                   }
+                  inputReadOnly={true}
                 />
               </Form.Item>
             </div>

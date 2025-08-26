@@ -242,6 +242,7 @@ return (
         style={{
           color: '#ff4d4f',
           marginTop: 8,
+           marginLeft: 4,
           marginBottom: 4,
           textAlign: 'center',
         }}

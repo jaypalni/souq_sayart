@@ -21,6 +21,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
+import { AiOutlineLeft } from 'react-icons/ai';
 import {
   Routes,
   Route,
@@ -215,7 +216,6 @@ const MyProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [, setLoading] = useState(false);
-  const fileInputRef = useRef();
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
@@ -223,9 +223,8 @@ const MyProfile = () => {
   const selectedKey = location.pathname.split('/')[2] || 'profile';
   const [messageApi, contextHolder] = message.useMessage();
   const [, setDeleteData] = useState([]);
-  const [, setDeleteOtpData] = useState([]);
   const [otp, setOtp] = useState(['', '', '', '']);
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
@@ -291,7 +290,7 @@ const MyProfile = () => {
           setDeleteData(data1)
           messageApi.open({
             type: 'success',
-            content: data1?.message || 'Added to favorites successfully',
+            content: data1?.message,
           });
         }
       } catch (error) {
@@ -299,7 +298,7 @@ const MyProfile = () => {
         const errorData = handleApiError(error);
         messageApi.open({
           type: 'error',
-          content: errorData?.message || 'Failed to add to favorites',
+          content: errorData?.message,
         });
       }
     }
@@ -338,7 +337,6 @@ const MyProfile = () => {
           } else if (idx > 0) {
             inputRefs[idx - 1].current.focus();
           } else {
-            // No action needed when at first field with empty value
           }
         }
       };
@@ -352,32 +350,50 @@ const MyProfile = () => {
         return true;
         }
       };
+
+     const handleOTPDelete = async () => {
+      if (!validateOtp()) {
+        return;
+      }
     
-       const handleOTPDelete = async () => {
-       if (!validateOtp()) {
-          return;
-        }
       try {
         setLoading(true);
-        const response = await userAPI.getDeleteOtp();
-        const data1 = handleApiResponse(response);
+        const otpDigits = otp.join(''); 
+    
+        const otpPayload = {
+          otp: otpDigits,
+        };
+    
+        const result = await userAPI.getDeleteOtp(otpPayload);
   
-        if (data1) {
-          setDeleteOtpData(data1)
+    
+        if (result?.data?.status_code === 200) {
+    
           messageApi.open({
             type: 'success',
-            content: data1?.message,
+            content: result?.data?.message,
           });
+    
+        setTimeout(() => {
+    localStorage.clear();
+    dispatch(clearCustomerDetails());
+    dispatch({ type: 'CLEAR_USER_DATA' });
+    navigate('/landing');
+  }, 1000);
+        } else {
+          messageApi.open({
+            type: 'error',
+            content: result?.data?.error,
+          });
+          console.log('Verify otp failed', error);
         }
-      } catch (error) {
-        setDeleteOtpData([])
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData?.message,
-        });
+      } catch (err) {
+        message.error('OTP verification failed. Please try again.');
+        console.log('Verify otp failed2', error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
       
       const handleResend = async () => {
         if (!isTimerRunning) {
@@ -386,16 +402,12 @@ const MyProfile = () => {
         }
       
         try {
-          const usermobilenumber = localStorage.getItem('phone_number');
           setLoading(true);
       
-          const response = await authAPI.resendotp({
-            phone_number: usermobilenumber,
-          });
+          const response = await userAPI.getDelete();
           const data = handleApiResponse(response);
       
           if (data) {
-            localStorage.setItem('userData', JSON.stringify(data));
             messageApi.open({
               type: 'success',
               content: data.message,
@@ -505,54 +517,102 @@ const MyProfile = () => {
         <Layout>
           <Content style={{ padding: '40px 40px 0 40px', background: '#fff' }}>
             {showOtpStep ? (
-             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 50 }}>
-  <div
-    style={{
-      alignSelf: 'flex-start',
-      marginBottom: 20,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '5px',
-      fontWeight: 500,
-      color: '#1890ff',
-    }}
-    onClick={() => setShowOtpStep(false)}
-  >
-    <span style={{ fontSize: '18px' }}>←</span>
-    <span></span>
-  </div>
-
-  <h2>OTP Verification</h2>
-  <p>Enter the OTP sent to your phone</p>
-  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-    {otp.map((digit, idx) => (
-      <input
-        key={idx}
-        ref={inputRefs[idx]}
-        value={digit}
-        onChange={(e) => handleChange(e, idx)}
-        onKeyDown={(e) => handleKeyDown(e, idx)}
-        maxLength={1}
-        style={{
-          width: '40px',
-          height: '40px',
-          textAlign: 'center',
-          fontSize: '18px',
-          border: '1px solid #ccc',
-          borderRadius: '6px',
+           
+  <div style={{ justifyContent: 'flex-start'}}>
+    {contextHolder}
+    <div style={{display:'flex'}}> 
+<AiOutlineLeft
+        onClick={() => {
+           setOtp(['', '', '', '']);
+    setError('');
+    setTimer(30);
+    setIsTimerRunning(false);
+           setShowOtpStep(false);
         }}
+        style={{ fontSize: '25px', cursor: 'pointer', marginTop: '10px' }}
       />
-    ))}
+    <h2>Enter OTP to Delete Account</h2>
+    </div>
+     
+    <p className="otp-desc">
+      Enter the verification code sent to your phone number
+    </p>
+
+    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}>
+      {otp.map((digit, idx) => {
+        let inputClass = 'otp-input';
+
+        if (digit) {
+          inputClass += ' filled';
+        }
+
+        if (error && (digit === '' || !/^\d$/.test(digit))) {
+          inputClass += ' otp-input-error';
+        }
+
+        const inputKey = OTP_INPUT_IDS[idx];
+        return (
+          <input
+            key={inputKey}
+            ref={inputRefs[idx]}
+            type="tel"
+            className={inputClass}
+            maxLength={1}
+            value={digit}
+            onChange={(e) => handleChange(e, idx)}
+            onKeyDown={(e) => handleKeyDown(e, idx)}
+          />
+        );
+      })}
+    </div>
+
+    {error && (
+      <div
+        className="otp-error"
+        style={{
+          color: '#ff4d4f',
+          marginTop: 8,
+          marginBottom: 4,
+          textAlign: 'left',
+        }}
+      >
+        {error}
+      </div>
+    )}
+
+    <div className="otp-timer">
+      {(() => {
+        if (isTimerRunning) {
+          return (
+            <span>
+              Resend in{' '}
+              <span className="otp-timer-count">{formatTime(timer)}</span>
+            </span>
+          );
+        }
+       return (
+  <button
+    type="button"
+    className="otp-resend"
+    onClick={handleResend}
+    style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
+  >
+    Resend
+  </button>
+);
+
+      })()}
+    </div>
+      <button
+        className="otp-btn otp-btn-filled"
+        type="button"
+        onClick={handleOTPDelete}
+        style={{height: 35}}
+      >
+        Continue
+      </button>
+    
   </div>
-  {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-  <Button type="primary" onClick={handleOTPDelete} style={{ marginBottom: '10px' }}>
-    Confirm
-  </Button>
-  <Button type="link" onClick={handleResend} disabled={isTimerRunning}>
-    Resend OTP {isTimerRunning && `(${formatTime(timer)})`}
-  </Button>
-</div>
 
             ) : (
               <>
@@ -637,7 +697,10 @@ const MyProfile = () => {
             type="primary"
             onClick={() => {
               setDeleteModalOpen(false);
-              setShowOtpStep(true); // Show OTP inside content, keep sidebar
+              setShowOtpStep(true); 
+              setTimer(30);
+              setIsTimerRunning(true);
+              handleDelete();
             }}
             style={{
               width: 120,

@@ -8,7 +8,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload, Switch } from 'antd';
 import {
   EditOutlined,
   CheckOutlined,
@@ -16,12 +16,12 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { userAPI, authAPI } from '../services/api';
+import whatsappIcon from '../assets/images/Whatsup.svg';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { verifyOTP } from '../redux/actions/authActions';
 import '../assets/styles/signupOtp.css';
 
 const YES = 'yes';
@@ -69,6 +69,8 @@ const dispatch = useDispatch();
         const isLoggedIn = customerDetails && user;
         const OTP_LENGTH = 4;
         const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
+        const intervalRef = useRef(null);
+         const [checked, setChecked] = useState(false);
 
         
         const navigate = useNavigate();
@@ -82,6 +84,10 @@ const dispatch = useDispatch();
     }
 
     setPhone(numb);
+  };
+
+  const switchStyle = {
+    backgroundColor: checked ? '#008AD5' : '#ccc',
   };
 
   const isIndiaLocale = () => {
@@ -240,46 +246,97 @@ setError('');
     }
   };
 
-   const handleContinue = async () => {
-    if (!validateOtp()) {
-      return;
-    }
-  
-    try {
-      setLoading(true);
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      const otpDigits = otp.join('');
-      const otpPayload = {
-        otp: otpDigits,
-        request_id: userData.request_id,
-      };
-      const result = await dispatch(verifyOTP(otpPayload));
-  
-      if (result.success) {
-        localStorage.setItem('token', result.data.access_token);
-  
-        messageApi.open({
-          type: 'success',
-          content: result.message,
-        });
-  
-        if (result.data.is_registered) {
-          navigate('/landing');
-        } else {
-          navigate('/createProfile');
-        }
-      } else {
-        messageApi.open({
-          type: 'error',
-          content: result.error,
-        });
+  const onContinue = async () => {
+      if (phone === '') {
+        setEmailErrorMsg('Phone number is required!');
+        return;
       }
-    } catch (err) { // renamed here
-      message.error('OTP verification failed. Please try again.');
-    } finally {
-      setLoading(false);
+
+      try {
+        setLoading(true);
+        const savePhone = `${selectedCountry.country_code}${phone}`;
+        localStorage.setItem('phonenumber', savePhone);
+  
+        const response = await userAPI.changephonenumber({
+          phone_number: savePhone,
+          is_whatsapp: toWhatsappFlag(checked),
+        });
+  
+        const data = handleApiResponse(response);
+        if (data) {
+          messageApi.open({ type: 'success', content: data.message });
+           if (data.request_id) {
+        localStorage.setItem('request_id', data.request_id);
+      }
+           setShowChangePhoneForm(false);
+          setShowOtpForm(true);
+           if (intervalRef.current) clearInterval(intervalRef.current); 
+        setTimer(30); 
+        setIsTimerRunning(true);
+
+        intervalRef.current = setInterval(() => {
+          setTimer((prev) => {
+            if (prev <= 1) {
+              clearInterval(intervalRef.current);
+              setIsTimerRunning(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        }
+      } catch (error) {
+        const errorData = handleApiError(error);
+        messageApi.open({ type: 'error', content: errorData.message });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+   const handleContinue = async () => {
+  if (!validateOtp()) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const otpDigits = otp.join('');
+    const requestId = localStorage.getItem('request_id'); 
+
+    const otpPayload = {
+      otp: otpDigits,
+      request_id: requestId,
+    };
+
+    const result = await userAPI.chnagenumberverifyOtp(otpPayload);
+
+    console.log('Verify otp', result);
+
+    if (result?.data?.success) {
+      localStorage.setItem('token', result.data?.access_token);
+
+      messageApi.open({
+        type: 'success',
+        content: result?.data?.message,
+      });
+
+      setShowChangePhoneForm(false);
+      setShowOtpForm(false);
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: result?.data?.error,
+      });
+      console.log('Verify otp failed', error);
     }
-  };
+  } catch (err) {
+    message.error('OTP verification failed. Please try again.');
+    console.log('Verify otp failed2', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
   
   const handleResend = async () => {
     if (!isTimerRunning) {
@@ -459,6 +516,16 @@ const handleSubmitError = (error, onFinishFailed) => {
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
+    const whatsapphandleChange = (value) => {
+    setChecked(value);
+  };
+
+  const toWhatsappFlag = (whatsappChecked) => {
+    if (whatsappChecked) {
+      return '1';
+    }
+    return '0';
+  };
 const renderAvatarContent = () => {
     if (imageUrl) {
       return (
@@ -624,7 +691,18 @@ const renderAvatarContent = () => {
     <div className='myprofile-main'>
       {contextHolder}
      <div className='myprofile-header' style={{ display: 'flex', alignItems: 'center' }}>
-  {isChangingPhone ? (
+  {showOtpForm ? (
+    <>
+      <ArrowLeftOutlined
+        onClick={() => {
+          setShowOtpForm(false);
+          setShowChangePhoneForm(true); 
+        }}
+        style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+      />
+      Enter OTP Sent To Your New Number
+    </>
+  ) : showChangePhoneForm ? (
     <>
       <ArrowLeftOutlined
         onClick={() => {
@@ -639,8 +717,6 @@ const renderAvatarContent = () => {
     editMode ? 'Edit Profile' : 'My Profile'
   )}
 </div>
-
-
       {showChangePhoneForm ? (
         <div
         style={{
@@ -771,6 +847,34 @@ const renderAvatarContent = () => {
               {emailerrormsg}
             </div>
           </div>
+          <div style={{marginBottom: 12}}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <span
+                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
+                  >
+                    <img
+                      src={whatsappIcon}
+                      alt="Whatsapp Icon"
+                      style={{ width: 18, height: 18, marginRight: 5 }}
+                    />
+                    {' '}
+                    Whatsapp
+                  </span>
+
+                  <Switch
+  checked={checked}
+  onChange={whatsapphandleChange}
+  style={switchStyle}
+                  />
+                </div>
+              </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button
               style={{
@@ -785,8 +889,8 @@ const renderAvatarContent = () => {
                 fontSize: 14,
               }}
                onClick={() => {
-    setShowChangePhoneForm(false);
-    setShowOtpForm(true);
+   
+    onContinue();
   }}
             >
               Continue

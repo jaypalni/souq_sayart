@@ -76,15 +76,14 @@ const LandingFilters = ({ searchbodytype }) => {
   const [carModels, setCarModels] = useState([]);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [carLocation, setCarLocation] = useState([]);
-  
-   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
+  const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
   const carCount = DEFAULT_CAR_COUNT;
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [setToastMsg] = useState('');
+  const [, setToastMsg] = useState('');
 
   const dropdownRefs = {
     newUsed: useRef(),

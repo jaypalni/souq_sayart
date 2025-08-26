@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 
 const CarListing = ({ title, cardata }) => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(null);
+  const [, setLoading] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [visibleCars, setVisibleCars] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;

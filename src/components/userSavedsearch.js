@@ -17,11 +17,11 @@ import diamondGif from '../assets/images/diamondGif.gif';
 import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
 
-// Helpers to reduce complexity in SavedSearchCard
 const MAX_SAVED_SEARCHES = 3;
+const BASE_URL = process.env.REACT_APP_API_URL;
 const buildMakeImageSrc = (item) => {
   if (item.make_image) {
-    return `http://13.202.75.187:5002${item.make_image}`;
+    return `${BASE_URL}${item.make_image}`;
   }
   return carImage;
 };

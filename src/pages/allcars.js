@@ -51,7 +51,7 @@ const CarListing = ({ filtercarsData }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const [favoriteCars, setFavoriteCars] = useState([]);
+  const [favoriteCars, ] = useState([]);
 
   useEffect(() => {
     if (!filtercarsData || !Array.isArray(filtercarsData.cars) || filtercarsData.cars.length === 0) {
@@ -215,8 +215,7 @@ const Removefavcarapi = async (carId) => {
         </div>
       </div>
       <div className="row">
-  {carsData?.map((car) => {
-    const isFavorite = favoriteCars.includes(car.car_id); 
+  {carsData?.map((car) => { 
 
     return (
       <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>

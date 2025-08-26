@@ -12,54 +12,64 @@ import { userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import lamborgini from '../assets/images/lamborghini.png';
+import lottie from '../assets/images/lottie_search.gif';
+import { useNavigate } from 'react-router-dom';
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 15;
 
-const EmptyState = () => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px 20px',
-      textAlign: 'center',
-    }}
-  >
+const EmptyState = () => {
+  const navigate = useNavigate();
+
+  return (
     <div
       style={{
-        width: '64px',
-        height: '64px',
-        background: '#FFA500',
-        borderRadius: '50%',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: '16px',
+        padding: '40px 20px',
+        textAlign: 'center',
       }}
     >
-      <SearchOutlined style={{ fontSize: '32px', color: '#FFFFFF' }} />
+      <img src={lottie} alt="boost" style={{ width: '90px', height: '90px' }} />
+      <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 600 }}>
+        No Saved Searches
+      </h3>
+      <p
+        style={{
+          margin: '10px 0 24px 0',
+          color: '#003958',
+          fontSize: '12px',
+          maxWidth: '300px',
+          background: '#D5F0FF',
+          padding: '10px 16px',
+          borderRadius: '8px',
+          lineHeight: '20px',
+          fontWeight: 500,
+        }}
+      >
+        Run your searches again quickly
+        <br />
+        Get Notified about new cars
+      </p>
+      <Button
+        type="primary"
+        size="large"
+        icon={<SearchOutlined />}
+        style={{
+          borderRadius: 20,
+          padding: '0 60px',
+          height: 30,
+          fontSize: 12,
+          fontWeight: 600,
+        }}
+        onClick={() => navigate('/')}
+      >
+        Start Searching
+      </Button>
     </div>
-    <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600' }}>
-      No Saved Searches
-    </h3>
-    <p
-      style={{
-        margin: '0 0 24px 0',
-        color: '#666',
-        fontSize: '14px',
-        maxWidth: '300px',
-      }}
-    >
-      Run your searches again quickly
-      <br />
-      Get Notified about new cars
-    </p>
-    <Button type="primary" size="large" icon={<SearchOutlined />}>
-      Start Searching
-    </Button>
-  </div>
-);
+  );
+};
 
 const SavedSearches = () => {
   const [searches, setSearches] = useState('');

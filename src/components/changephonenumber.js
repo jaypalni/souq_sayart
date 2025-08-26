@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Input, Row, Col } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import PropTypes from 'prop-types';
 
 const ChangePhoneNumber = ({ onBack }) => {
   return (
@@ -35,6 +36,10 @@ const ChangePhoneNumber = ({ onBack }) => {
       </Button>
     </div>
   );
+};
+
+ChangePhoneNumber.propTypes = {
+  onBack: PropTypes.func.isRequired,
 };
 
 export default ChangePhoneNumber;

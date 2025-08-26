@@ -437,7 +437,7 @@ const CarDetails = () => {
       flexShrink: 0,
       marginLeft: '40px'
     }}
-    onClick={() => copyToClipboard(carDetails.ad_title)}
+    onClick={copyToClipboard}
   />
                </div>
                 <div className="car-price">

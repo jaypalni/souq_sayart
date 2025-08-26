@@ -6,9 +6,9 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload, Switch } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch, DatePicker } from 'antd';
+
 import {
   EditOutlined,
   CheckOutlined,
@@ -21,8 +21,8 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import '../assets/styles/signupOtp.css';
+import '../assets/styles/myProfile.css'
 
 const YES = 'yes';
 const NO = 'no';
@@ -35,7 +35,6 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const INDIA_TZ_OFFSET_MINUTES = -330;
 
 const MyProfileForm = () => {
-const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState({});
@@ -50,7 +49,7 @@ const dispatch = useDispatch();
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
    const [showChangePhoneForm, setShowChangePhoneForm] = useState(false);
-   const [isChangingPhone, setIsChangingPhone] = useState(false);
+   const [, setIsChangingPhone] = useState(false);
      const [dropdownOpen, setDropdownOpen] = useState(false);
      const [selectedCountry, setSelectedCountry] = useState(null);
       const [countryOptions, setCountryOptions] = useState([]);
@@ -67,8 +66,6 @@ const dispatch = useDispatch();
         const intervalRef = useRef(null);
          const [checked, setChecked] = useState(false);
 
-        
-        const navigate = useNavigate();
 
       const handlePhoneChange = (e) => {
     const numb = e.target.value;
@@ -98,25 +95,6 @@ const dispatch = useDispatch();
       langs.some((l) => String(l).toLowerCase().includes('-in'))
     );
   };
-
-  const fetchCountries = async () => {
-        try {
-          const response = await authAPI.countrycode();
-          const data = handleApiResponse(response);
-  
-          if (!data || data.length === 0) {
-            return;
-          }
-  
-          setCountryOptions(data);
-  
-          const geoData = await getGeoData();
-          const defaultCountry = getDefaultCountry(data, geoData);
-          setSelectedCountry(defaultCountry || data[0]);
-        } catch {
-          // Ignore API errors silently
-        }
-      };
 
   const getDefaultCountry = (data, geoData) => {
     if (geoData) {
@@ -439,6 +417,7 @@ const Userdataapi = async () => {
   }
 };
 
+
 const populateUserProfile = (user, successMsg) => {
   const userProfile = mapUserToProfile(user); 
   setUsersData(user);
@@ -454,7 +433,7 @@ const mapUserToProfile = (user) => ({
   first_name: user.first_name || '',
   last_name: user.last_name || '',
   email: user.email || '',
-  dob: user.date_of_birth || '',
+  dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
   dealer: user.is_dealer === 1 ? YES : NO,
   company: user.company_name || '',
   owner: user.owner_name || '',
@@ -470,7 +449,7 @@ const mapApiUserToProfile = (user) => ({
   first_name: user.first_name || '',
   last_name: user.last_name || '',
   email: user.email || '',
-  dob: user.date_of_birth || '',
+ dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
   dealer: user.is_dealer === 1 ? YES : NO, 
   company: user.company_name || '',
   owner: user.owner_name || '',
@@ -1150,30 +1129,39 @@ const renderAvatarContent = () => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item
-                label={
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 400,
-                      color: '#637D92',
-                    }}
-                  >
-                    Date of Birth*
-                  </span>
-                }
-                name="dob"
-              >
-                <Input
-                disabled={!editMode}
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    color: '#4A5E6D',
-                  }}
-                />
-              </Form.Item>
-            </Col>
+  <Form.Item
+    label={
+      <span
+        style={{
+          fontSize: '12px',
+          fontWeight: 400,
+          color: '#637D92',
+        }}
+      >
+        Date of Birth*
+      </span>
+    }
+    name='dob'
+    rules={[{ required: true, message: 'Please select your date of birth' }]}
+    className={!editMode?'datePicker':''}
+  >
+    {/* <div className={!editMode?'datePicker':''}> */}
+    <DatePicker
+      disabled={!editMode}
+      format='ddd, DD MMM YYYY' 
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#000000',
+      }}
+      onChange={(date) => {
+        console.log('Selected Date:', date ? dayjs(date).format('ddd, DD MMM YYYY') : null);
+      }}
+    />
+    {/* </div> */}
+  </Form.Item>
+</Col>
           </Row>
           <Row gutter={16} align="middle">
             <Col span={24}>

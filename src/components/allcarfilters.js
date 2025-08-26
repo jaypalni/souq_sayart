@@ -11,6 +11,7 @@ import { Select, Button, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
+import { fetchMakeCars ,fetchModelCars} from '../commonFunction/fetchMakeCars';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError, DEFAULT_MAKE, DEFAULT_MODEL, DEFAULT_BODY_TYPE, DEFAULT_LOCATION } from '../utils/apiUtils';
 import '../assets/styles/allcarfilters.css';
@@ -30,9 +31,7 @@ const DEFAULTS = {
 const DROPDOWN_NEW_USED = 'newUsed';
 const DROPDOWN_PRICE_MIN = 'priceMin';
 const DROPDOWN_PRICE_MAX = 'priceMax';
-const carMakes = [DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai'];
-
-const carModels = {
+const carModelsMock = {
   Toyota: [DEFAULTS.ALL_MAKE, 'Corolla', 'Camry', 'Yaris'],
   Honda: [DEFAULTS.ALL_MAKE, 'Civic', 'Accord', 'CR-V'],
   BMW: [DEFAULTS.ALL_MAKE, '3 Series', '5 Series', 'X5'],
@@ -59,9 +58,13 @@ const DEFAULT_CAR_COUNT = 342642;
 const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
+  const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
+
 const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [model, setModel] = useState(DEFAULTS.ALL_MODELS);
   const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
+   const [carModels, setCarModels] = useState([]);
+    const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
   const [location, setLocation] = useState(DEFAULTS.BAGHDAD);
   const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
@@ -77,7 +80,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   };
   const [filterVisible, setFilterVisible] = useState(false);
 
-  
+    useEffect(() => {
+      fetchMakeCars({ setLoading, setCarMakes });
+    }, []);
 
   useEffect(() => {
     try {
@@ -90,7 +95,18 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
       }
     } catch (e) {}
   }, []);
-
+  useEffect(() => {
+    if (model) {
+      fetchBodyTypeCars();
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (make) {
+      fetchModelCars({ setLoading, setCarModels, make });
+    }
+    setBodyType(DEFAULTS.ALL_BODY_TYPES)
+  }, [make]);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -116,6 +132,25 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const handleChange = (name, _value) => {
     if (name === 'Make') {
       setModel(DEFAULTS.ALL_MODELS);
+    }
+  };
+  const fetchBodyTypeCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getBodyCars({});
+      const data1 = handleApiResponse(response);
+
+      if (data1) {
+        setCarBodyTypes(data1?.data);
+      }
+
+      message.success(data1.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to Make car data');
+      setCarBodyTypes([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -242,8 +277,8 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
               dropdownClassName="allcars-filters-dropdown"
             >
               {carMakes.map((m) => (
-                <Option key={m} value={m}>
-                  {m}
+                <Option key={m?.name} value={m?.name}>
+                  {m?.name}
                 </Option>
               ))}
             </Select>
@@ -262,9 +297,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
               dropdownClassName="allcars-filters-dropdown"
               disabled={make === DEFAULTS.ALL_MAKE}
             >
-              {(carModels[make] || [DEFAULTS.ALL_MODELS]).map((m) => (
-                <Option key={m} value={m}>
-                  {m}
+              {carModels?.map((m) => (
+                <Option key={m} value={m.model_name}>
+                  {m.model_name}
                 </Option>
               ))}
             </Select>
@@ -282,9 +317,9 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
               size="large"
               dropdownClassName="allcars-filters-dropdown"
             >
-              {bodyTypes.map((b) => (
-                <Option key={b} value={b}>
-                  {b}
+              {carBodyTypes.map((b) => (
+                <Option key={b} value={b?.body_type}>
+                  {b?.body_type}
                 </Option>
               ))}
             </Select>
@@ -313,6 +348,16 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           <Cardetailsfilter
             visible={filterVisible}
             onClose={() => setFilterVisible(false)}
+            make={make}
+            model={model}
+            bodyType={bodyType}
+            location={location}
+            onSearchResults={(searchResults) => {
+              if (searchResults && searchResults.data) {
+                setFilterCarsData(searchResults.data);
+                setFilterVisible(false);
+              }
+            }}
           />
 
           <div className="allcars-filters-col allcars-filters-btn-col">

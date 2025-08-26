@@ -6,7 +6,9 @@
  */
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import FilterIcon from '../assets/images/filter_icon.svg';
+import { carAPI } from '../services/api';
 import {
   Drawer,
   Button,
@@ -26,6 +28,7 @@ import Extrasicon from '../assets/images/extras_icon.svg';
 import Safetyicon from '../assets/images/safety_icon.svg';
 import Searchicon from '../assets/images/search_icon.svg';
 import Backarrowicon from '../assets/images/backarrow_icon.svg';
+
 
 const { Option } = Select;
 
@@ -70,8 +73,9 @@ const extraFeaturesData = [
 
 const numberofdoors = ['Any', '2/3', '4/5'];
 
-const Cardetailsfilter = () => {
+const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) => {
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
 
@@ -121,6 +125,28 @@ const Cardetailsfilter = () => {
 
   const [search, setSearch] = useState('');
   const [selectedFeatures, setSelectedFeatures] = useState([]);
+  const [trimValue, setTrimValue] = useState('Any');
+  const [kilometersMin, setKilometersMin] = useState('');
+  const [kilometersMax, setKilometersMax] = useState('');
+  const [yearMin, setYearMin] = useState('');
+  const [yearMax, setYearMax] = useState('');
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [powerMin, setPowerMin] = useState('');
+  const [powerMax, setPowerMax] = useState('');
+  const [consumptionMin, setConsumptionMin] = useState('');
+  const [consumptionMax, setConsumptionMax] = useState('');
+  const [colorValue, setColorValue] = useState('Any');
+  const [seatsMin, setSeatsMin] = useState('');
+  const [seatsMax, setSeatsMax] = useState('');
+  const [interiorValue, setInteriorValue] = useState('Any');
+  const [paymentOptions, setPaymentOptions] = useState('Any');
+  const [regionalSpecs, setRegionalSpecs] = useState('Any');
+  const [condition, setCondition] = useState(['Any']);
+  const [keywords, setKeywords] = useState([]);
+  const [ownerType, setOwnerType] = useState(['Any']);
+
+
 
   const handleFeatureToggle = (feature) => {
     setSelectedFeatures((prev) =>
@@ -128,6 +154,55 @@ const Cardetailsfilter = () => {
         ? prev.filter((f) => f !== feature)
         : [...prev, feature]
     );
+  };
+
+
+
+  const handleApplyFilters = async () => {
+    const filterData = {
+      make: make !== 'Any' ? make : '',
+      model: model !== 'Any' ? model : '',
+      trim: trimValue !== 'Any' ? trimValue : '',
+      year_min: yearMin ? parseInt(yearMin) : '',
+      year_max: yearMax ? parseInt(yearMax) : '',
+      price_min: priceMin ? parseInt(priceMin) : '', 
+      price_max: priceMax ? parseInt(priceMax) : '', 
+      location: location !== 'Any' ? location : '',
+       min_kilometers: kilometersMin ? parseInt(kilometersMin) : '',
+      max_kilometers: kilometersMax ? parseInt(kilometersMax) : '',
+         colour: colorValue !== 'Any' ? colorValue : '',
+         transmission: transmissionselectedValues.length > 0 && transmissionselectedValues[0] !== 'Any' ? transmissionselectedValues[0] : '',
+      regional_specs: regionalSpecs !== 'Any' ? regionalSpecs : '',
+      condition: condition.length > 0 && condition[0] !== 'Any' ? condition[0] : '',
+      body_type: bodyType !== 'Any' ? bodyType : '',
+      number_of_doors: doorselectedValues.length > 0 && doorselectedValues[0] !== 'Any' ? doorselectedValues[0] : '',
+            fuel_type: selectedValues.length > 0 && selectedValues[0] !== 'Any' ? selectedValues[0] : '',
+      owner_type: ownerType.length > 0 && ownerType[0] !== 'Any' ? ownerType[0] : '',
+      keyword: keywords.length > 0 ? keywords.join(', ') : '',
+      
+      page: 1, 
+      limit: 20 
+    };
+
+    
+    try {
+      setLoading(true);
+    
+      const response = await carAPI.searchCars(filterData);      
+     
+      if (onSearchResults && response.data) {
+        onSearchResults(response.data);
+      }
+      
+     
+      setVisible(false);
+    } catch (error) {
+      console.error('Search API Error:', error);
+    
+      setVisible(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -163,10 +238,19 @@ const Cardetailsfilter = () => {
             paddingRight: '8px',
           }}
         >
+
+
+
+
+
+
+
+
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 500, fontSize: '14px' }}>Trim</div>
             <Select
-              defaultValue="Any"
+              value={trimValue}
+              onChange={setTrimValue}
               style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
@@ -241,10 +325,18 @@ const Cardetailsfilter = () => {
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <Input placeholder="Min" />
+                <Input 
+                  placeholder="Min" 
+                  value={kilometersMin}
+                  onChange={(e) => setKilometersMin(e.target.value)}
+                />
               </Col>
               <Col span={12}>
-                <Input placeholder="Max" />
+                <Input 
+                  placeholder="Max" 
+                  value={kilometersMax}
+                  onChange={(e) => setKilometersMax(e.target.value)}
+                />
               </Col>
             </Row>
           </div>
@@ -260,10 +352,46 @@ const Cardetailsfilter = () => {
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <Input placeholder="Min" />
+                <Input 
+                  placeholder="Min" 
+                  value={yearMin}
+                  onChange={(e) => setYearMin(e.target.value)}
+                />
               </Col>
               <Col span={12}>
-                <Input placeholder="Max" />
+                <Input 
+                  placeholder="Max" 
+                  value={yearMax}
+                  onChange={(e) => setYearMax(e.target.value)}
+                />
+              </Col>
+            </Row>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: '14px',
+                marginBottom: '10px',
+              }}
+            >
+              Price (Range)
+            </div>
+            <Row gutter={8}>
+              <Col span={12}>
+                <Input 
+                  placeholder="Min" 
+                  value={priceMin}
+                  onChange={(e) => setPriceMin(e.target.value)}
+                />
+              </Col>
+              <Col span={12}>
+                <Input 
+                  placeholder="Max" 
+                  value={priceMax}
+                  onChange={(e) => setPriceMax(e.target.value)}
+                />
               </Col>
             </Row>
           </div>
@@ -304,6 +432,43 @@ const Cardetailsfilter = () => {
               ))}
             </div>
           </div>
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: '14px',
+                marginBottom: '10px',
+              }}
+            >
+              Condition
+            </div>
+            <div className="checkbox-button-group">
+              {['Any', 'Used', 'New'].map((option) => (
+                <label
+                  key={option}
+                  className={`checkbox-button ${
+                    condition.includes(option) ? 'selected' : ''
+                  }`}
+                >
+                  <Checkbox
+                    checked={condition.includes(option)}
+                    onChange={() => {
+                      if (condition.includes(option)) {
+                        setCondition(
+                          condition.filter((item) => item !== option)
+                        );
+                      } else {
+                        setCondition([...condition, option]);
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          </div>
+
           <div style={{ marginBottom: 16 }}>
             <div
               style={{
@@ -374,10 +539,18 @@ const Cardetailsfilter = () => {
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <Input placeholder="Min" />
+                <Input 
+                  placeholder="Min" 
+                  value={powerMin}
+                  onChange={(e) => setPowerMin(e.target.value)}
+                />
               </Col>
               <Col span={12}>
-                <Input placeholder="Max" />
+                <Input 
+                  placeholder="Max" 
+                  value={powerMax}
+                  onChange={(e) => setPowerMax(e.target.value)}
+                />
               </Col>
             </Row>
           </div>
@@ -393,14 +566,22 @@ const Cardetailsfilter = () => {
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <Input placeholder="Min" />
+                <Input 
+                  placeholder="Min" 
+                  value={consumptionMin}
+                  onChange={(e) => setConsumptionMin(e.target.value)}
+                />
               </Col>
               <Col span={12}>
-                <Input placeholder="Max" />
+                <Input 
+                  placeholder="Max" 
+                  value={consumptionMax}
+                  onChange={(e) => setConsumptionMax(e.target.value)}
+                />
               </Col>
             </Row>
           </div>
-          <div style={{ marginBottom: 16 }}>
+          {/* <div style={{ marginBottom: 16 }}>
             <div
               style={{
                 fontWeight: 500,
@@ -411,14 +592,15 @@ const Cardetailsfilter = () => {
               Air Conditioning
             </div>
             <Select
-              defaultValue="Any"
+              value={airConditioning}
+              onChange={setAirConditioning}
               style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Yes">Yes</Option>
               <Option value="No">No</Option>
             </Select>
-          </div>
+          </div> */}
           <div style={{ marginBottom: 16 }}>
             <div
               style={{
@@ -430,7 +612,8 @@ const Cardetailsfilter = () => {
               Color
             </div>
             <Select
-              defaultValue="Any"
+              value={colorValue}
+              onChange={setColorValue}
               style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
@@ -456,10 +639,18 @@ const Cardetailsfilter = () => {
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <Input placeholder="Min" />
+                <Input 
+                  placeholder="Min" 
+                  value={seatsMin}
+                  onChange={(e) => setSeatsMin(e.target.value)}
+                />
               </Col>
               <Col span={12}>
-                <Input placeholder="Max" />
+                <Input 
+                  placeholder="Max" 
+                  value={seatsMax}
+                  onChange={(e) => setSeatsMax(e.target.value)}
+                />
               </Col>
             </Row>
           </div>
@@ -474,7 +665,7 @@ const Cardetailsfilter = () => {
               Extra Features
             </div>
             <Select
-              defaultValue="Any"
+              value="Any"
               style={{ width: '100%', marginTop: '10px' }}
               onClick={() => setextrafeaturesvisible(true)}
             >
@@ -520,7 +711,8 @@ const Cardetailsfilter = () => {
               Interior
             </div>
             <Select
-              defaultValue="Any"
+              value={interiorValue}
+              onChange={setInteriorValue}
               style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
@@ -528,7 +720,7 @@ const Cardetailsfilter = () => {
               <Option value="Cloth">Cloth</Option>
             </Select>
           </div>
-          <div style={{ marginBottom: 16 }}>
+          {/* <div style={{ marginBottom: 16 }}>
             <div
               style={{
                 fontWeight: 500,
@@ -539,14 +731,15 @@ const Cardetailsfilter = () => {
               Source
             </div>
             <Select
-              defaultValue="Any"
+              value={sourceValue}
+              onChange={setSourceValue}
               style={{ width: '100%', marginTop: '10px' }}
             >
               <Option value="Any">Any</Option>
               <Option value="Private">Private</Option>
               <Option value="Dealer">Dealer</Option>
             </Select>
-          </div>
+          </div> */}
           <div style={{ marginBottom: 16 }}>
             <div
               style={{
@@ -558,7 +751,8 @@ const Cardetailsfilter = () => {
               Payment Options
             </div>
             <Select
-              defaultValue="Any"
+              value={paymentOptions}
+              onChange={setPaymentOptions}
               style={{ width: '100%', marginTop: '3px' }}
             >
               <Option value="Any">Any</Option>
@@ -566,9 +760,98 @@ const Cardetailsfilter = () => {
               <Option value="Installment">Installment</Option>
             </Select>
           </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: '14px',
+                marginBottom: '3px',
+              }}
+            >
+              Regional Specs
+            </div>
+            <Select
+              value={regionalSpecs}
+              onChange={setRegionalSpecs}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              <Option value="Any">Any</Option>
+              <Option value="GCC">GCC</Option>
+              <Option value="US">US</Option>
+              <Option value="European">European</Option>
+              <Option value="Japanese">Japanese</Option>
+              <Option value="Korean">Korean</Option>
+              <Option value="Chinese">Chinese</Option>
+              <Option value="Other">Other</Option>
+            </Select>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: '14px',
+                marginBottom: '10px',
+              }}
+            >
+              Keywords
+            </div>
+            <Input
+              placeholder="Enter keywords (e.g., low mileage, one owner, accident free)"
+              value={keywords.join(', ')}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.trim()) {
+                  setKeywords(value.split(',').map(k => k.trim()).filter(k => k));
+                } else {
+                  setKeywords([]);
+                }
+              }}
+              style={{ width: '100%', marginTop: '10px' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: '14px',
+                marginBottom: '10px',
+              }}
+            >
+              Owner Type
+            </div>
+            <div className="checkbox-button-group">
+              {['Any', 'Individual', 'Dealer'].map((option) => (
+                <label
+                  key={option}
+                  className={`checkbox-button ${
+                    ownerType.includes(option) ? 'selected' : ''
+                  }`}
+                >
+                  <Checkbox
+                    checked={ownerType.includes(option)}
+                    onChange={() => {
+                      if (ownerType.includes(option)) {
+                        setOwnerType(
+                          ownerType.filter((item) => item !== option)
+                        );
+                      } else {
+                        setOwnerType([...ownerType, option]);
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          </div>
+
           <Divider />
-          <Button type="primary" block>
-            Apply Filters
+          <Button type="primary" block onClick={handleApplyFilters} loading={loading}>
+            {loading ? 'Searching...' : 'Apply Filters'}
           </Button>
         </div>
       </Drawer>
@@ -706,6 +989,14 @@ const Cardetailsfilter = () => {
       </Drawer>
     </>
   );
+};
+
+Cardetailsfilter.propTypes = {
+  make: PropTypes.string,
+  model: PropTypes.string,
+  bodyType: PropTypes.string,
+  location: PropTypes.string,
+  onSearchResults: PropTypes.func,
 };
 
 export default Cardetailsfilter;

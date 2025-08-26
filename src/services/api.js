@@ -136,6 +136,8 @@ export const carAPI = {
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
   getSearchCars: (params) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params),
+  searchCars: (params) =>
+    api.post('/api/search/search', params),
   postsavesearches: (searchparams) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams),
   getsavedsearches: (page, limit) =>

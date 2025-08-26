@@ -184,7 +184,7 @@ ModalComingSoon.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const UserSavedsearch = () => {
+const UserSavedsearch = ({title,savesearchesreload}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
@@ -192,12 +192,13 @@ const UserSavedsearch = () => {
 
   const tokendata = localStorage.getItem('token');
   const isLoggedIn = !!tokendata;
-
+console.log('savesearchesreload',JSON.stringify(savesearchesreload))
   useEffect(() => {
     if (isLoggedIn) {
       fetchSavedSearches();
+
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, savesearchesreload]);
 
   const fetchSavedSearches = async () => {
     try {

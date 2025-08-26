@@ -64,7 +64,7 @@ const priceMaxOptions = [DEFAULT_PRICE_MAX, ...PRICE_MAX_VALUES];
 
 
 
-const LandingFilters = ({ searchbodytype }) => {
+const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [, setLoading] = useState(false);
@@ -295,6 +295,8 @@ const isIndiaLocale = () => {
         price_max: priceMax !== DEFAULT_PRICE_MAX ? priceMax : '',
         condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
       };
+
+    
 
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
@@ -566,6 +568,8 @@ const isIndiaLocale = () => {
         selectedLocation={location}
         setSelectedLocation={setLocation}
         onSave={handleSearch}
+        setSaveSearchesReload={setSaveSearchesReload}
+        
       />
     </div>
   );

@@ -29,7 +29,7 @@ const Searchemptymodal = ({
   setBodyType,
   selectedLocation,
   setSelectedLocation,
-  toastmessage,
+  toastmessage,setSaveSearchesReload
 }) => {
   if (!visible) {
     return null;
@@ -78,6 +78,7 @@ const Searchemptymodal = ({
             onClose();
           },
         });
+         setSaveSearchesReload(searchparams)
       } else {
         message.success({
           content: 'Search saved successfully!',
@@ -85,6 +86,7 @@ const Searchemptymodal = ({
             onClose();
           },
         });
+       
       }
 
       toastmessage(data?.message);

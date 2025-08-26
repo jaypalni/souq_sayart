@@ -6,9 +6,8 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload, Switch } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch } from 'antd';
 import {
   EditOutlined,
   CheckOutlined,
@@ -21,7 +20,6 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import '../assets/styles/signupOtp.css';
 
 const YES = 'yes';
@@ -35,7 +33,6 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const INDIA_TZ_OFFSET_MINUTES = -330;
 
 const MyProfileForm = () => {
-const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState({});
@@ -50,7 +47,7 @@ const dispatch = useDispatch();
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
    const [showChangePhoneForm, setShowChangePhoneForm] = useState(false);
-   const [isChangingPhone, setIsChangingPhone] = useState(false);
+   const [, setIsChangingPhone] = useState(false);
      const [dropdownOpen, setDropdownOpen] = useState(false);
      const [selectedCountry, setSelectedCountry] = useState(null);
       const [countryOptions, setCountryOptions] = useState([]);
@@ -67,8 +64,6 @@ const dispatch = useDispatch();
         const intervalRef = useRef(null);
          const [checked, setChecked] = useState(false);
 
-        
-        const navigate = useNavigate();
 
       const handlePhoneChange = (e) => {
     const numb = e.target.value;
@@ -98,25 +93,6 @@ const dispatch = useDispatch();
       langs.some((l) => String(l).toLowerCase().includes('-in'))
     );
   };
-
-  const fetchCountries = async () => {
-        try {
-          const response = await authAPI.countrycode();
-          const data = handleApiResponse(response);
-  
-          if (!data || data.length === 0) {
-            return;
-          }
-  
-          setCountryOptions(data);
-  
-          const geoData = await getGeoData();
-          const defaultCountry = getDefaultCountry(data, geoData);
-          setSelectedCountry(defaultCountry || data[0]);
-        } catch {
-          // Ignore API errors silently
-        }
-      };
 
   const getDefaultCountry = (data, geoData) => {
     if (geoData) {

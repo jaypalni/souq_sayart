@@ -20,7 +20,7 @@ import {
   Upload,
   Modal,
 } from 'antd';
-import { PlusCircleFilled, TruckFilled, UserOutlined } from '@ant-design/icons';
+import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';

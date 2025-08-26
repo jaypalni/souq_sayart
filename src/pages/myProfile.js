@@ -6,18 +6,8 @@
  */
 
 import React, { useState,useRef, useEffect} from 'react';
-import { Layout, Menu, Avatar, Button, Modal, message } from 'antd';
+import { Layout, Menu, Avatar, Button, Modal, message,Switch } from 'antd';
 import {
-  UserOutlined,
-  CreditCardOutlined,
-  MessageOutlined,
-  BellOutlined,
-  SearchOutlined,
-  StarOutlined,
-  DashboardOutlined,
-  HeartOutlined,
-  LogoutOutlined,
-  DeleteOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
@@ -37,9 +27,20 @@ import Favorites from '../components/favorites';
 import ChangePhoneNumber from '../components/changephonenumber';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { useDispatch } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import { clearCustomerDetails } from '../redux/actions/authActions';
-
+import profileIcon from '../assets/images/Profile_icon.svg';
+import subsriptionIcon from '../assets/images/Subscriptions_icon.png';
+import messageIcon from '../assets/images/Messages_icon.png';
+import notificationIcon from '../assets/images/Notification_icon.png';
+import searchesIcon from '../assets/images/Capa_1.png';
+import paymentIcon from '../assets/images/Payment_icon.png';
+import blockIcon from '../assets/images/Block_icon.png';
+import dealerIcon from '../assets/images/Dealer_icon.png';
+import favoriteIcon from '../assets/images/Favorites_icon.png';
+import whatsupIcon from '../assets/images/Whatsup.png';
+import logoutIcon from '../assets/images/Logout_icon.png';
+import deleteIcon from '../assets/images/Delete_icon.png';
 
 const { Sider, Content } = Layout;
 
@@ -62,7 +63,7 @@ const menuItems = [
   },
   {
     key: 'profile',
-    icon: <UserOutlined />,
+    icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile"
@@ -78,7 +79,7 @@ const menuItems = [
   },
   {
     key: 'subscriptions',
-    icon: <CreditCardOutlined />,
+    icon: <img src={subsriptionIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/subscriptions"
@@ -94,7 +95,7 @@ const menuItems = [
   },
   {
     key: 'messages',
-    icon: <MessageOutlined />,
+    icon: <img src={messageIcon} alt="Message" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/messages"
@@ -110,7 +111,7 @@ const menuItems = [
   },
   {
     key: 'notifications',
-    icon: <BellOutlined />,
+    icon: <img src={notificationIcon} alt="Notification" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/notifications"
@@ -126,7 +127,7 @@ const menuItems = [
   },
   {
     key: 'searches',
-    icon: <SearchOutlined />,
+    icon: <img src={searchesIcon} alt="Searches" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/searches"
@@ -142,7 +143,7 @@ const menuItems = [
   },
   {
     key: 'payments',
-    icon: <CreditCardOutlined />,
+    icon: <img src={paymentIcon} alt="Payment" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/payments"
@@ -158,7 +159,7 @@ const menuItems = [
   },
   {
     key: 'blocked',
-    icon: <StarOutlined />,
+    icon: <img src={blockIcon} alt="Block" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/blocked"
@@ -174,7 +175,7 @@ const menuItems = [
   },
   {
     key: 'dashboard',
-    icon: <DashboardOutlined />,
+    icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/dashboard"
@@ -190,7 +191,7 @@ const menuItems = [
   },
   {
     key: 'favorites',
-    icon: <HeartOutlined />,
+    icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,
     label: (
       <Link
         to="/myProfile/favorites"
@@ -204,11 +205,22 @@ const menuItems = [
       </Link>
     ),
   },
+   {
+    key: 'whatsapp',
+    icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
+    label: (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>WhatsApp</span>
+        <Switch size="small" />
+      </div>
+    ),
+  },
+
 ];
 
 const manageItems = [
-  { key: 'logout', icon: <LogoutOutlined />, label: 'Logout' },
-  { key: 'delete', icon: <DeleteOutlined />, label: 'Delete Account' },
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
 ];
 
 const MyProfile = () => {
@@ -230,7 +242,7 @@ const MyProfile = () => {
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
-
+  const { customerDetails } = useSelector((state) => state.customerDetails);
 
     useEffect(() => {
       const fromLogin = localStorage.getItem('fromLogin');
@@ -485,7 +497,7 @@ const MyProfile = () => {
   >
     RD
   </Avatar>
-  {!collapsed && <div style={{ fontWeight: 600 }}>Ralph Doe</div>}
+  {!collapsed && <div style={{ fontWeight: 600 }}>{customerDetails.first_name + ' ' + customerDetails.last_name}</div>}
 </div>
 
           <Menu mode="inline" selectedKeys={[selectedKey]} style={{ borderRight: 0 }} items={menuItems} />

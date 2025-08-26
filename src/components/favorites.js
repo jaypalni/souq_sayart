@@ -9,8 +9,6 @@ import React, { useState, useEffect } from 'react';
 import '../assets/styles/favorites.css';
 import { message, Spin } from 'antd';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
-import redcar_icon from '../assets/images/redcar_icon.jpg';
-import { TbManualGearbox } from 'react-icons/tb';
 import { userAPI } from '../services/api';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
@@ -175,7 +173,6 @@ const MyFavoritesCars = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    //handleFavorite(car.car_id);
                   }}
                   style={{
                     backgroundColor: '#ffffff',

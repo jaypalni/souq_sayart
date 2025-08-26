@@ -23,7 +23,7 @@ const DEFAULTS = {
   ALL_MODELS: 'All Models',
   ALL_BODY_TYPES: 'All Body Types',
   BAGHDAD: 'Baghdad',
-  NEW_USED: 'New & Used',
+  NEW_USED: 'New & Used111111',
   PRICE_MIN: 'Price Min',
   PRICE_MAX: 'Price Max',
 };

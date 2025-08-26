@@ -8,7 +8,7 @@
 import React from 'react';
 import emptysearch from '../assets/images/emptysearch.gif';
 import searchicon from '../assets/images/search_icon.png';
-import { message } from 'antd';
+import { Modal, message } from 'antd';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import PropTypes from 'prop-types';
@@ -94,129 +94,76 @@ const Searchemptymodal = ({
     }
   };
 
-  return (
-    <>
+   return (
+    <Modal
+      open={visible}
+      onCancel={onClose}
+      footer={null}
+      centered
+      closable
+      width={420}
+      className='search-empty-modal'
+    >
       {contextHolder}
-      <button
-        type="button"
-        className="modal-overlay"
-        onClick={onClose}
-        aria-label="Close modal overlay"
-      />
-      <dialog
-        open
-        className="modal-content"
-        aria-label="Search results modal"
-      >
+      <div style={{ textAlign: 'center', padding: '10px' }}>
         <img
           src={emptysearch}
-          alt="No Results"
-          className="modal-image"
+          alt='No Results'
           style={{ maxWidth: '100px', marginBottom: '15px' }}
         />
 
-        <p
-          style={{
-            fontSize: '16px',
-            color: '#0A0A0B',
-            fontWeight: 700,
-            marginBottom: '4px',
-            textAlign: 'center',
-          }}
-        >
+        <p style={{ fontSize: '16px', fontWeight: 700, marginBottom: '10px' }}>
           We didn’t find anything that matches this search
         </p>
 
-        <p
-          style={{
-            fontSize: '12px',
-            color: '#898384',
-            fontWeight: 400,
-            marginTop: 0,
-            textAlign: 'center',
-          }}
-        >
-          you could try to remove some filters:
+        <p style={{ fontSize: '12px', color: '#898384', marginBottom: '15px' }}>
+          You could try to remove some filters:
         </p>
 
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-          }}
-        >
+        {/* Filters */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
           {make !== DEFAULT_ALL_MAKE && (
-            <button
-  type="button"
-  style={filterStyle}
-  onClick={() => setMake(DEFAULT_ALL_MAKE)}
->
-  {make}
-</button>
+            <button style={filterStyle} onClick={() => setMake(DEFAULT_ALL_MAKE)}>
+              {make}
+            </button>
           )}
-
           {model !== DEFAULT_ALL_MODELS && (
-            <button
-  type="button"
-  style={filterStyle}
-  onClick={() => setModel(DEFAULT_ALL_MODELS)}
->
-  {model}
-</button>
+            <button style={filterStyle} onClick={() => setModel(DEFAULT_ALL_MODELS)}>
+              {model}
+            </button>
           )}
-
           {bodyType !== DEFAULT_ALL_BODY_TYPES && (
             <button
-  type="button"
-  style={filterStyle}
-  onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}
->
-  {bodyType}
-</button>
+              style={filterStyle}
+              onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}
+            >
+              {bodyType}
+            </button>
           )}
-
           {selectedLocation !== DEFAULT_LOCATION_BAGHDAD && (
-           <button
-  type="button"
-  style={filterStyle}
-  onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}
->
-  {selectedLocation}
-</button>
+            <button
+              style={filterStyle}
+              onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}
+            >
+              {selectedLocation}
+            </button>
           )}
         </div>
-        <p
-          style={{
-            fontSize: '12px',
-            color: '#555',
-            textAlign: 'center',
-            marginTop: '15px',
-          }}
-        >
-          Or save the search and be notified as soon as we have something for
-          you.
+
+        <p style={{ fontSize: '12px', color: '#555', marginTop: '15px' }}>
+          Or save the search and be notified as soon as we have something for you.
         </p>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '10px',
-            marginTop: '15px',
-            marginLeft: '10px',
-            marginRight: '10px',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
           <button style={cancelBtnStyle} onClick={onClose}>
             Cancel
           </button>
           <button style={saveBtnStyle} onClick={handleSaveSearch}>
-            <img src={searchicon} alt="Save Search" /> Save Search
+            <img src={searchicon} alt='Save Search' /> Save Search
           </button>
         </div>
-      </dialog>
-    </>
+      </div>
+    </Modal>
   );
 };
 

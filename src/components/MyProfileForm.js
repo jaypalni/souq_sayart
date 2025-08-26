@@ -7,8 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch } from 'antd';
-import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload, Switch, DatePicker } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch, DatePicker } from 'antd';
 
 import {
   EditOutlined,

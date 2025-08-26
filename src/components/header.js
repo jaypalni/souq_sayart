@@ -109,9 +109,8 @@ const Header = () => {
             content: 'Logged out successfully',
           });
 
-          navigate('/login');
+          navigate('/');
         } catch (error) {
-          console.error('Logout error:', error);
           messageApi.open({
             type: 'error',
             content: 'Logout failed',

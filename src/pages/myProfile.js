@@ -368,6 +368,9 @@ const MyProfile = () => {
   
     
         if (result?.data?.status_code === 200) {
+           localStorage.clear();
+    dispatch(clearCustomerDetails());
+    dispatch({ type: 'CLEAR_USER_DATA' });
     
           messageApi.open({
             type: 'success',
@@ -375,10 +378,7 @@ const MyProfile = () => {
           });
     
         setTimeout(() => {
-    localStorage.clear();
-    dispatch(clearCustomerDetails());
-    dispatch({ type: 'CLEAR_USER_DATA' });
-    navigate('/landing');
+    navigate('/');
   }, 1000);
         } else {
           messageApi.open({
@@ -429,14 +429,17 @@ const MyProfile = () => {
         setLoading(true);
         const response = await authAPI.logout({});
         const data1 = handleApiResponse(response);
+         localStorage.clear();
+    dispatch(clearCustomerDetails());
+    dispatch({ type: 'CLEAR_USER_DATA' });
          messageApi.open({
                     type: 'success',
                     content: data1?.message,
                   });
-                 localStorage.clear();
-                           dispatch(clearCustomerDetails());
-                           dispatch({ type: 'CLEAR_USER_DATA' });
-                   navigate('/LoginScreen');
+
+                 setTimeout(() => {
+    navigate('/');
+  }, 1000);
       } catch (error) {
         const errorData = handleApiError(error);
         messageApi.open({

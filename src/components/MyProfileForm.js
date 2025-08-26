@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload } from 'antd';
 import {
@@ -26,8 +26,6 @@ import '../assets/styles/signupOtp.css';
 
 const YES = 'yes';
 const NO = 'no';
-const DEFAULT_AVATAR_BG = '#e3f1ff';
-const DEFAULT_AVATAR_COLOR = '#008AD5';
 const MSG_FETCH_SUCCESS = 'Fetched successfully';
 const MSG_PROFILE_UPDATED = 'Profile updated!';
 const MSG_FETCH_FAILED = 'Failed to load profile';
@@ -60,14 +58,11 @@ const dispatch = useDispatch();
       const [emailerrormsg, setEmailErrorMsg] = useState('');
       const [showOtpForm, setShowOtpForm] = useState(false);
       const [otp, setOtp] = useState(['', '', '', '']);
-      const [timer, setTimer] = useState(30);
+      const [timer, setTimer] = useState(60);
         const [isTimerRunning, setIsTimerRunning] = useState(true);
         const [error, setError] = useState('');
         const inputRefs = [useRef(), useRef(), useRef(), useRef()];
-        const { user } = useSelector((state) => state.auth);
-        const { customerDetails } = useSelector((state) => state.customerDetails);
-        const isLoggedIn = customerDetails && user;
-        const OTP_LENGTH = 4;
+       const OTP_LENGTH = 4;
         const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
 
         
@@ -162,11 +157,8 @@ const dispatch = useDispatch();
     }
   };
 
-
-  // Inside MyProfileForm
 const handleConfirm = async () => {
   try {
-    // Fetch country codes from API
     const response = await authAPI.countrycode();
     const data = handleApiResponse(response);
 
@@ -796,7 +788,6 @@ const renderAvatarContent = () => {
       </div>
 
       ) : showOtpForm ? (
-  // OTP verification screen
   <div style={{ justifyContent: 'flex-start'}}>
     {contextHolder}
     <p className="otp-desc">

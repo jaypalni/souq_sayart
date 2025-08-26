@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState } from 'react';
+import React, { useState,useRef, useEffect} from 'react';
 import { Layout, Menu, Avatar, Button, Modal, message } from 'antd';
 import {
   UserOutlined,
@@ -36,8 +36,9 @@ import Favorites from '../components/favorites';
 import ChangePhoneNumber from '../components/changephonenumber';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { useSelector, useDispatch } from 'react-redux';
-import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
+import { useDispatch } from 'react-redux';
+import { clearCustomerDetails } from '../redux/actions/authActions';
+
 
 const { Sider, Content } = Layout;
 
@@ -214,6 +215,8 @@ const MyProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [, setLoading] = useState(false);
+  const fileInputRef = useRef();
+  const [showOtpStep, setShowOtpStep] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -221,6 +224,56 @@ const MyProfile = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [, setDeleteData] = useState([]);
   const [, setDeleteOtpData] = useState([]);
+  const [otp, setOtp] = useState(['', '', '', '']);
+  const [timer, setTimer] = useState(60);
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [error, setError] = useState('');
+  const inputRefs = [useRef(), useRef(), useRef(), useRef()];
+  const OTP_LENGTH = 4;
+  const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
+
+
+    useEffect(() => {
+      const fromLogin = localStorage.getItem('fromLogin');
+      const now = Date.now();
+  
+      if (fromLogin === 'true') {
+        const newEndTime = now + 60 * 1000;
+        localStorage.setItem('otpEndTime', newEndTime);
+        localStorage.removeItem('fromLogin');
+        setTimer(60);
+        setIsTimerRunning(true);
+      } else {
+        const savedEndTime = localStorage.getItem('otpEndTime');
+        if (savedEndTime) {
+          const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
+          if (timeLeft > 0) {
+            setTimer(timeLeft);
+            setIsTimerRunning(true);
+          } else {
+            setTimer(0);
+            setIsTimerRunning(false);
+          }
+        }
+      }
+    }, []);
+  
+    useEffect(() => {
+      let interval;
+      if (isTimerRunning && timer > 0) {
+        interval = setInterval(() => {
+          setTimer((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setIsTimerRunning(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+      return () => clearInterval(interval);
+    }, [isTimerRunning, timer]);
 
   const handleLogout = () => {
     setLogoutModalOpen(false);
@@ -251,7 +304,59 @@ const MyProfile = () => {
       }
     }
 
-    const handleOTPDelete = async () => {
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs
+          .toString()
+          .padStart(2, '0')}`;
+      };
+    
+     const handleChange = (e, idx) => {
+      const val = e.target.value.replace(/\D/g, '');
+    
+      const newOtp = [...otp];
+      if (val) {
+        newOtp[idx] = val[val.length - 1];
+        setOtp(newOtp);
+        setError('');
+        if (idx < OTP_LENGTH - 1) {
+          inputRefs[idx + 1].current.focus();
+        }
+      } else {
+        newOtp[idx] = '';
+        setOtp(newOtp);
+      }
+    };
+    
+    const handleKeyDown = (e, idx) => {
+        if (e.key === 'Backspace') {
+          if (otp[idx]) {
+            const newOtp = [...otp];
+            newOtp[idx] = '';
+            setOtp(newOtp);
+          } else if (idx > 0) {
+            inputRefs[idx - 1].current.focus();
+          } else {
+            // No action needed when at first field with empty value
+          }
+        }
+      };
+    
+       const validateOtp = () => {
+        if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
+          setError('Please enter the OTP.');
+          return false;
+        }else{
+    setError('');
+        return true;
+        }
+      };
+    
+       const handleOTPDelete = async () => {
+       if (!validateOtp()) {
+          return;
+        }
       try {
         setLoading(true);
         const response = await userAPI.getDeleteOtp();
@@ -273,6 +378,39 @@ const MyProfile = () => {
         });
       }
     }
+      
+      const handleResend = async () => {
+        if (!isTimerRunning) {
+          setTimer(30);
+          setIsTimerRunning(true);
+        }
+      
+        try {
+          const usermobilenumber = localStorage.getItem('phone_number');
+          setLoading(true);
+      
+          const response = await authAPI.resendotp({
+            phone_number: usermobilenumber,
+          });
+          const data = handleApiResponse(response);
+      
+          if (data) {
+            localStorage.setItem('userData', JSON.stringify(data));
+            messageApi.open({
+              type: 'success',
+              content: data.message,
+            });
+          }
+        } catch (err) {
+          const errorData = handleApiError(err);
+          messageApi.open({
+            type: 'error',
+            content: errorData.message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
 
     const userlogout = async () => {
       try {
@@ -298,15 +436,13 @@ const MyProfile = () => {
       }
     };
 
-  return (
+    return (
     <>
-      <div className="page-header">
-        {contextHolder}
-        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>
-          Sell Your Car In IRAQ
-        </div>
-        <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
-      </div>
+    <div className="page-header">
+                  {contextHolder}
+                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>Sell Your Car In IRAQ</div>
+                  <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
+     </div>
       <Layout style={{ background: '#fff' }}>
         <Sider
           width={260}
@@ -319,27 +455,22 @@ const MyProfile = () => {
             padding: '32px 0 0 0',
           }}
         >
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <Avatar
-              size={48}
-              style={{
-                background: '#e3f1ff',
-                color: '#1890ff',
-                fontWeight: 700,
-              }}
-            >
-              RD
-            </Avatar>
-            {!collapsed && (
-              <div style={{ marginTop: 8, fontWeight: 600 }}>Ralph Doe</div>
-            )}
-          </div>
-          <Menu
-            mode="inline"
-            selectedKeys={[selectedKey]}
-            style={{ borderRight: 0 }}
-            items={menuItems}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 4,padding:'0 24px' }}>
+  <Avatar
+    size={48}
+    style={{
+      background: '#e3f1ff',
+      color: '#1890ff',
+      fontWeight: 700,
+    }}
+  >
+    RD
+  </Avatar>
+  {!collapsed && <div style={{ fontWeight: 600 }}>Ralph Doe</div>}
+</div>
+
+          <Menu mode="inline" selectedKeys={[selectedKey]} style={{ borderRight: 0 }} items={menuItems} />
+
           <div style={{ marginTop: 32 }}>
             <div
               style={{
@@ -357,15 +488,12 @@ const MyProfile = () => {
               style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
               items={manageItems}
               onClick={({ key }) => {
-                if (key === 'logout') {
-                  setLogoutModalOpen(true);
-                }
-                if (key === 'delete') {
-                   setDeleteModalOpen(true);
-                }
+                if (key === 'logout') setLogoutModalOpen(true);
+                if (key === 'delete') setDeleteModalOpen(true);
               }}
             />
           </div>
+
           <Button
             type="text"
             className="sidebar-toggle-btn"
@@ -376,12 +504,67 @@ const MyProfile = () => {
         </Sider>
         <Layout>
           <Content style={{ padding: '40px 40px 0 40px', background: '#fff' }}>
-            <Routes>
-              <Route index element={<MyProfileForm />} />
-              <Route index element={<ChangePhoneNumber />} />
-              <Route path="searches" element={<SavedSearches />} />
-              <Route path="favorites" element={<Favorites />} />
-            </Routes>
+            {showOtpStep ? (
+             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 50 }}>
+  <div
+    style={{
+      alignSelf: 'flex-start',
+      marginBottom: 20,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '5px',
+      fontWeight: 500,
+      color: '#1890ff',
+    }}
+    onClick={() => setShowOtpStep(false)}
+  >
+    <span style={{ fontSize: '18px' }}>←</span>
+    <span></span>
+  </div>
+
+  <h2>OTP Verification</h2>
+  <p>Enter the OTP sent to your phone</p>
+  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+    {otp.map((digit, idx) => (
+      <input
+        key={idx}
+        ref={inputRefs[idx]}
+        value={digit}
+        onChange={(e) => handleChange(e, idx)}
+        onKeyDown={(e) => handleKeyDown(e, idx)}
+        maxLength={1}
+        style={{
+          width: '40px',
+          height: '40px',
+          textAlign: 'center',
+          fontSize: '18px',
+          border: '1px solid #ccc',
+          borderRadius: '6px',
+        }}
+      />
+    ))}
+  </div>
+  {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+  <Button type="primary" onClick={handleOTPDelete} style={{ marginBottom: '10px' }}>
+    Confirm
+  </Button>
+  <Button type="link" onClick={handleResend} disabled={isTimerRunning}>
+    Resend OTP {isTimerRunning && `(${formatTime(timer)})`}
+  </Button>
+</div>
+
+            ) : (
+              <>
+
+                <Routes>
+                  <Route index element={<MyProfileForm />} />
+                  <Route path="change-phone" element={<ChangePhoneNumber />} />
+                  <Route path="searches" element={<SavedSearches />} />
+                  <Route path="favorites" element={<Favorites />} />
+                </Routes>
+              </>
+            )}
           </Content>
         </Layout>
       </Layout>
@@ -390,21 +573,10 @@ const MyProfile = () => {
         open={logoutModalOpen}
         onCancel={() => setLogoutModalOpen(false)}
         footer={null}
-        title={
-          <div className="brand-modal-title-row">
-            <span>Are you sure you want to log out?</span>
-          </div>
-        }
+        title={<div className="brand-modal-title-row"><span>Are you sure you want to log out?</span></div>}
         width={400}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '10px',
-            padding: '2px',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px' }}>
           <Button
             onClick={() => setLogoutModalOpen(false)}
             style={{
@@ -437,25 +609,15 @@ const MyProfile = () => {
         </div>
       </Modal>
 
+      {/* Delete Modal */}
       <Modal
         open={deleteModalOpen}
         onCancel={() => setDeleteModalOpen(false)}
         footer={null}
-        title={
-          <div className="brand-modal-title-row">
-            <span>Are you sure to Delete your account?</span>
-          </div>
-        }
+        title={<div className="brand-modal-title-row"><span>Are you sure to Delete your account?</span></div>}
         width={300}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '10px',
-            padding: '2px',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px' }}>
           <Button
             onClick={() => setDeleteModalOpen(false)}
             style={{
@@ -473,7 +635,10 @@ const MyProfile = () => {
           </Button>
           <Button
             type="primary"
-            onClick={ () => handleDelete}
+            onClick={() => {
+              setDeleteModalOpen(false);
+              setShowOtpStep(true); // Show OTP inside content, keep sidebar
+            }}
             style={{
               width: 120,
               backgroundColor: '#008AD5',
@@ -489,6 +654,7 @@ const MyProfile = () => {
       </Modal>
     </>
   );
+
 };
 
 export default MyProfile;

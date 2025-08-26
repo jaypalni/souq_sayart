@@ -292,6 +292,9 @@ const isIndiaLocale = () => {
         model: valueOrEmpty(model, DEFAULT_MODEL),
         body_type: valueOrEmpty(bodyType, DEFAULT_BODY_TYPE),
         location: valueOrEmpty(location, DEFAULT_LOCATION),
+        price_min: priceMin !== DEFAULT_PRICE_MIN ? priceMin : '',
+        price_max: priceMax !== DEFAULT_PRICE_MAX ? priceMax : '',
+        condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
       };
 
       const response = await carAPI.getSearchCars(params);

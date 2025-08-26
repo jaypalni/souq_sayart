@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children }) => {
       content: 'Please login to access this page',
     });
 
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return (

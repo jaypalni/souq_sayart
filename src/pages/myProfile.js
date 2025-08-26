@@ -388,7 +388,7 @@ const MyProfile = () => {
             type: 'error',
             content: result?.data?.error,
           });
-          console.log('Verify otp failed', error);
+         
         }
       } catch (err) {
         message.error('OTP verification failed. Please try again.');

@@ -159,6 +159,10 @@ export const userAPI = {
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
   getDelete: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DELETE),
   getDeleteOtp: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DEELETE_OTP),
+    changephonenumber: (credentials) =>
+    api.post(API_CONFIG.ENDPOINTS.USER.POST_CHANGE_PHONENUMBER, credentials),
+      chnagenumberverifyOtp: (otpData) =>
+    api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
 };
 
 export default api;

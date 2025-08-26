@@ -509,3 +509,13 @@ color: #637D92;
 font-size: 14px;
 font-weight: 400;
  }
+
+ .datePicker :where(.css-dev-only-do-not-override-1m2bkf9).ant-picker-outlined {
+    background: #ffffff;
+    border-bottom: solid 1px #000000 !important;
+border-radius: 0px;
+border-top: none !important;
+border-left: none !important;
+border-right:  none !important;
+color: #000000 !important;
+ }

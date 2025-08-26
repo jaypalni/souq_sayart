@@ -14,13 +14,14 @@ import SellYourCar from '../components/sellYourCar';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
-import SavedSearches from '../components/userSavedsearch';
+import UserSavedsearch from '../components/userSavedsearch';
 
 const Landing = () => {
   const [,setLoading] = useState(false);
   const [carsData, setCarsData] = useState([]);
   const [carsRecomData, setCarsRecomData] = useState([]);
   const [searchbodytype, setSearchBodyType] = useState();
+  const [savesearchesreload, setSaveSearchesReload] = useState({});
 
   useEffect(() => {
     fetchFeaturedCars();
@@ -68,9 +69,9 @@ const Landing = () => {
   return (
     <>
       <div className="container py-4">
-        <LandingFilters searchbodytype={searchbodytype} />
+        <LandingFilters searchbodytype={searchbodytype} setSaveSearchesReload={setSaveSearchesReload} />
         <CarTypeList setSearchBodyType={setSearchBodyType} />
-        <SavedSearches title={'Your Saved Searches'} />
+        <UserSavedsearch title={'Your Saved Searches'} savesearchesreload={savesearchesreload} />
         <CarListing title={'Featured Car'} cardata={carsData} />
       </div>
 

@@ -8,6 +8,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, Avatar, message, Upload, Switch, DatePicker } from 'antd';
+
 import {
   EditOutlined,
   CheckOutlined,
@@ -21,6 +23,7 @@ import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
+import '../assets/styles/myProfile.css'
 
 const YES = 'yes';
 const NO = 'no';
@@ -415,6 +418,7 @@ const Userdataapi = async () => {
   }
 };
 
+
 const populateUserProfile = (user, successMsg) => {
   const userProfile = mapUserToProfile(user); 
   setUsersData(user);
@@ -430,7 +434,7 @@ const mapUserToProfile = (user) => ({
   first_name: user.first_name || '',
   last_name: user.last_name || '',
   email: user.email || '',
-  dob: user.date_of_birth || '',
+  dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
   dealer: user.is_dealer === 1 ? YES : NO,
   company: user.company_name || '',
   owner: user.owner_name || '',
@@ -446,7 +450,7 @@ const mapApiUserToProfile = (user) => ({
   first_name: user.first_name || '',
   last_name: user.last_name || '',
   email: user.email || '',
-  dob: user.date_of_birth || '',
+ dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
   dealer: user.is_dealer === 1 ? YES : NO, 
   company: user.company_name || '',
   owner: user.owner_name || '',
@@ -1126,30 +1130,39 @@ const renderAvatarContent = () => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item
-                label={
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 400,
-                      color: '#637D92',
-                    }}
-                  >
-                    Date of Birth*
-                  </span>
-                }
-                name="dob"
-              >
-                <Input
-                disabled={!editMode}
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    color: '#4A5E6D',
-                  }}
-                />
-              </Form.Item>
-            </Col>
+  <Form.Item
+    label={
+      <span
+        style={{
+          fontSize: '12px',
+          fontWeight: 400,
+          color: '#637D92',
+        }}
+      >
+        Date of Birth*
+      </span>
+    }
+    name='dob'
+    rules={[{ required: true, message: 'Please select your date of birth' }]}
+    className={!editMode?'datePicker':''}
+  >
+    {/* <div className={!editMode?'datePicker':''}> */}
+    <DatePicker
+      disabled={!editMode}
+      format='ddd, DD MMM YYYY' 
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#000000',
+      }}
+      onChange={(date) => {
+        console.log('Selected Date:', date ? dayjs(date).format('ddd, DD MMM YYYY') : null);
+      }}
+    />
+    {/* </div> */}
+  </Form.Item>
+</Col>
           </Row>
           <Row gutter={16} align="middle">
             <Col span={24}>

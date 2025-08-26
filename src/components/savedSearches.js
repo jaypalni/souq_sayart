@@ -11,6 +11,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
+import { carAPI } from '../services/api';
 import lamborgini from '../assets/images/lamborghini.png';
 import lottie from '../assets/images/lottie_search.gif';
 import { useNavigate } from 'react-router-dom';
@@ -82,26 +83,20 @@ const SavedSearches = () => {
   }, []);
 
   const Allsavedsearches = async () => {
-    try {
-      setLoading(true);
-      const response = await userAPI.getFavorites({
-        page,
-        limit,
-      });
-      const newcars = handleApiResponse(response);
-      if (newcars?.favorites) {
-        setSearches(newcars.favorites);
-      } else {
+     try {
+          const res = await carAPI.getsavedsearches(1, 10);
+          const response = handleApiResponse(res);
+    
+          if (response?.data?.searches) {
+            setSearches(response?.data?.searches);
+          } else {
         setSearches([]);
       }
-      message.success(newcars.message || 'Fetched successfully');
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to load car data');
-      setSearches([]);
-    } finally {
-      setLoading(false);
-    }
+        } catch {
+         
+        } finally {
+          setLoading(false);
+        }
   };
 
  const handleToggle = (id) => {
@@ -129,55 +124,55 @@ const SavedSearches = () => {
       <div className="saved-searches-header">Saved Searches</div>
       <div className="saved-searches-list">
         {searches.map((search) => {
-          let imageSrc = lamborgini;
-          if (search.car_image?.trim()) {
-            imageSrc = `${BASE_URL}${search.car_image}`;
-          }
-          return (
-          <div className="saved-search-item" key={search.id}>
-            <div className="saved-search-info">
-              <img
-                src={imageSrc}
-                alt="logo"
-                className="saved-search-logo"
-              />
-              <div>
-                <div className="saved-search-title">
-                  {search.make + ' - ' + search.model}
-                </div>
-                {search.price && (
-                  <div
-                    className="saved-search-subtitle"
-                    style={{
-                      fontSize: '14',
-                      fontWeight: '400',
-                      color: '#0A0A0B',
-                    }}
-                  >
-                    {'$' + search.price + ' . From' + search.year}
-                  </div>
-                )}
-                <div className="saved-search-details">{search.details}</div>
-                <div
-                  className="saved-search-notify-label"
-                  style={{
-                    fontSize: '16',
-                    fontWeight: '600',
-                    color: '#0A0A0B',
-                  }}
-                >
-                  Get Notified about new offers.
-                </div>
-              </div>
-            </div>
-            <Switch
-              checked={search.notify}
-              onChange={() => handleToggle(search.id)}
-              className="saved-search-switch"
-            />
+  const { make, model } = search.search_params; // extract make and model
+  const imageSrc = search.make_image?.trim() ? `${BASE_URL}${search.make_image}` : lamborgini;
+
+  return (
+    <div className="saved-search-item" key={search.id}>
+      <div className="saved-search-info">
+        <img
+          src={imageSrc}
+          alt="logo"
+          className="saved-search-logo"
+        />
+        <div>
+          <div className="saved-search-title">
+            {make || 'N/A'} - {model || 'N/A'}
           </div>
-          );
-        })}
+          {search.search_params.price_to && (
+            <div
+              className="saved-search-subtitle"
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#0A0A0B',
+              }}
+            >
+              {`$${search.search_params.price_to} . From ${search.search_params.year_min || 'N/A'}`}
+            </div>
+          )}
+          <div className="saved-search-details">{search.details}</div>
+          <div
+            className="saved-search-notify-label"
+            style={{
+              fontSize: 16,
+              fontWeight: 600,
+              color: '#0A0A0B',
+            }}
+          >
+            Get Notified about new offers.
+          </div>
+        </div>
+      </div>
+      <Switch
+        checked={search.notification === 1}
+        onChange={() => handleToggle(search.id)}
+        className="saved-search-switch"
+      />
+    </div>
+  );
+})}
+
       </div>
     </div>
   );

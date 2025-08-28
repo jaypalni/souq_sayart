@@ -146,6 +146,71 @@ const handleKeywordsChange = (keywords, setKeywords) => (value) => {
   }
 };
 
+// Helper functions for filter data preparation
+const getFilterValue = (value, defaultValue = '') => {
+  return value !== defaultValue ? value : '';
+};
+
+const getArrayFilterValue = (array, defaultValue = 'Any') => {
+  return array.length > 0 && array[0] !== defaultValue ? array[0] : '';
+};
+
+const getNumericFilterValue = (value) => {
+  return value ? parseInt(value) : '';
+};
+
+const prepareFilterData = (make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords) => {
+  return {
+    make: getFilterValue(make, 'Any'),
+    model: getFilterValue(model, 'All Models'),
+    trim: getFilterValue(singleInputs.trimValue, 'Any'),
+    year_min: getNumericFilterValue(rangeInputs.yearMin),
+    year_max: getNumericFilterValue(rangeInputs.yearMax),
+    price_min: getNumericFilterValue(rangeInputs.priceMin),
+    price_max: getNumericFilterValue(rangeInputs.priceMax),
+    location: getFilterValue(location, 'Any'),
+    min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
+    max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
+    colour: getFilterValue(singleInputs.colorValue, 'Any'),
+    transmission: getArrayFilterValue(filterState.transmissionselectedValues),
+    regional_specs: getFilterValue(singleInputs.regionalSpecs, 'Any'),
+    condition: getArrayFilterValue(filterState.condition),
+    body_type: getFilterValue(bodyType, 'All Body Types'),
+    number_of_doors: getArrayFilterValue(filterState.doorselectedValues),
+    fuel_type: getArrayFilterValue(filterState.selectedValues),
+    owner_type: getArrayFilterValue(filterState.ownerType),
+    keyword: keywords.length > 0 ? keywords.join(', ') : '',
+    page: 1,
+    limit: 20
+  };
+};
+
+// PropTypes for helper functions
+getFilterValue.propTypes = {
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
+
+getArrayFilterValue.propTypes = {
+  array: PropTypes.array.isRequired,
+  defaultValue: PropTypes.string,
+};
+
+getNumericFilterValue.propTypes = {
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
+
+prepareFilterData.propTypes = {
+  make: PropTypes.string,
+  model: PropTypes.string,
+  bodyType: PropTypes.string,
+  location: PropTypes.string,
+  singleInputs: PropTypes.object.isRequired,
+  rangeInputs: PropTypes.object.isRequired,
+  filterState: PropTypes.object.isRequired,
+  keywords: PropTypes.array.isRequired,
+};
+
 // Extracted components
 const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, minPlaceholder, maxPlaceholder }) => (
   <div style={{ marginBottom: 16 }}>
@@ -395,37 +460,10 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
     }
   };
 
-  const prepareFilterData = () => {
-    const filterData = {
-      make: make !== 'Any' ? make : '',
-      model: model !== 'All Models' ? model : '',
-      trim: singleInputs.trimValue !== 'Any' ? singleInputs.trimValue : '',
-      year_min: rangeInputs.yearMin ? parseInt(rangeInputs.yearMin) : '',
-      year_max: rangeInputs.yearMax ? parseInt(rangeInputs.yearMax) : '',
-      price_min: rangeInputs.priceMin ? parseInt(rangeInputs.priceMin) : '', 
-      price_max: rangeInputs.priceMax ? parseInt(rangeInputs.priceMax) : '', 
-      location: location !== 'Any' ? location : '',
-      min_kilometers: rangeInputs.kilometersMin ? parseInt(rangeInputs.kilometersMin) : '',
-      max_kilometers: rangeInputs.kilometersMax ? parseInt(rangeInputs.kilometersMax) : '',
-      colour: singleInputs.colorValue !== 'Any' ? singleInputs.colorValue : '',
-      transmission: filterState.transmissionselectedValues.length > 0 && filterState.transmissionselectedValues[0] !== 'Any' ? filterState.transmissionselectedValues[0] : '',
-      regional_specs: singleInputs.regionalSpecs !== 'Any' ? singleInputs.regionalSpecs : '',
-      condition: filterState.condition.length > 0 && filterState.condition[0] !== 'Any' ? filterState.condition[0] : '',
-      body_type: bodyType !== 'All Body Types' ? bodyType : '',
-      number_of_doors: filterState.doorselectedValues.length > 0 && filterState.doorselectedValues[0] !== 'Any' ? filterState.doorselectedValues[0] : '',
-      fuel_type: filterState.selectedValues.length > 0 && filterState.selectedValues[0] !== 'Any' ? filterState.selectedValues[0] : '',
-      owner_type: filterState.ownerType.length > 0 && filterState.ownerType[0] !== 'Any' ? filterState.ownerType[0] : '',
-      keyword: keywords.length > 0 ? keywords.join(', ') : '',
-      page: 1, 
-      limit: 20 
-    };
-    return filterData;
-  };
-
   const handleApplyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData();
+      const filterData = prepareFilterData(make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords);
       const response = await carAPI.searchCars(filterData);      
       
       if (onSearchResults && response.data) {

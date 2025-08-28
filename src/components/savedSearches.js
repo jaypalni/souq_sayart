@@ -6,17 +6,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Switch, Button } from 'antd';
+import { Switch, Button,message,Modal } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message } from 'antd';
 import { carAPI } from '../services/api';
 import lamborgini from '../assets/images/lamborghini.png';
 import lottie from '../assets/images/lottie_search.gif';
 import { useNavigate } from 'react-router-dom';
+import deleteIcon from '../assets/images/Delete_icon.png';
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 15;
+const DEFAULT_LIMIT = 10;
 
 const EmptyState = () => {
   const navigate = useNavigate();
@@ -77,6 +76,9 @@ const SavedSearches = () => {
   const [, setLoading] = useState(false);
   const [page] = useState(DEFAULT_PAGE);
   const [limit] = useState(DEFAULT_LIMIT);
+  const [messageApi, contextHolder] = message.useMessage();
+  const BASE_URL = process.env.REACT_APP_API_URL;
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     Allsavedsearches();
@@ -84,20 +86,27 @@ const SavedSearches = () => {
 
   const Allsavedsearches = async () => {
      try {
-          const res = await carAPI.getsavedsearches(1, 10);
+          const res = await carAPI.getsavedsearches(page, limit);
           const response = handleApiResponse(res);
     
           if (response?.data?.searches) {
             setSearches(response?.data?.searches);
+             messageApi.open({ type: 'success', content: response.data.message });
           } else {
         setSearches([]);
       }
-        } catch {
+        } catch(error) {
+          const errorData = handleApiError(error);
+          messageApi.open({ type: 'error', content: errorData.message });
          
         } finally {
           setLoading(false);
         }
   };
+
+  const handleDeleteNotification = async () => {
+
+  }
 
  const handleToggle = (id) => {
    setSearches((prevSearches) =>
@@ -118,13 +127,14 @@ const SavedSearches = () => {
   if (searches.length === 0) {
     return <EmptyState />;
   }
-  const BASE_URL = 'http://192.168.2.68:5000';
+
   return (
     <div className="saved-searches-main">
+      {contextHolder}
       <div className="saved-searches-header">Saved Searches</div>
       <div className="saved-searches-list">
         {searches.map((search) => {
-  const { make, model } = search.search_params; // extract make and model
+  const { make, model } = search.search_params;
   const imageSrc = search.make_image?.trim() ? `${BASE_URL}${search.make_image}` : lamborgini;
 
   return (
@@ -139,7 +149,6 @@ const SavedSearches = () => {
           <div className="saved-search-title">
             {make || 'N/A'} - {model || 'N/A'}
           </div>
-          {search.search_params.price_to && (
             <div
               className="saved-search-subtitle"
               style={{
@@ -148,9 +157,16 @@ const SavedSearches = () => {
                 color: '#0A0A0B',
               }}
             >
-              {`$${search.search_params.price_to} . From ${search.search_params.year_min || 'N/A'}`}
+              {[
+                 search.search_params.price_to && `$${search.search_params.price_to}`,
+                 search.search_params.price_min && `$${search.search_params.price_min}`,
+                 search.search_params.year_min && `From ${search.search_params.year_min}`,
+                 search.search_params.max_kilometers && `to ${search.search_params.max_kilometers}`,
+                 search.search_params.number_of_seats && `number of seats: ${search.search_params.number_of_seats}`,
+                ]
+                 .filter(Boolean) 
+                 .join(' • ')}
             </div>
-          )}
           <div className="saved-search-details">{search.details}</div>
           <div
             className="saved-search-notify-label"
@@ -164,11 +180,57 @@ const SavedSearches = () => {
           </div>
         </div>
       </div>
-      <Switch
+      <div style={{display:'flex', gap:10}}>
+     <Switch
         checked={search.notification === 1}
         onChange={() => handleToggle(search.id)}
         className="saved-search-switch"
       />
+      <img src={deleteIcon} alt="Delete" style={{ width: 25, height: 25, marginTop:5,cursor:'pointer' }}   onClick={ () => setDeleteModalOpen(true)}/>
+      </div>
+     
+     <Modal
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        footer={null}
+        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px', fontWeight: 700}}>Are you sure you want to delete this saved search?</span></div>}
+        width={350}
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
+          <Button
+            onClick={() => setDeleteModalOpen(false)}
+            style={{
+              width: 120,
+              backgroundColor: '#ffffff',
+              color: '#008AD5',
+              borderColor: '#008AD5',
+              borderWidth: 1,
+              fontSize: '16px',
+              fontWeight: 700,
+              borderRadius: '24px',
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              setDeleteModalOpen(false);
+              handleDeleteNotification();
+            }}
+            style={{
+              width: 120,
+              backgroundColor: '#008AD5',
+              color: '#ffffff',
+              fontSize: '16px',
+              fontWeight: 700,
+              borderRadius: '24px',
+            }}
+          >
+            Yes
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 })}

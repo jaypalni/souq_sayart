@@ -679,10 +679,10 @@ const MyProfile = () => {
         open={logoutModalOpen}
         onCancel={() => setLogoutModalOpen(false)}
         footer={null}
-        title={<div className="brand-modal-title-row"><span>Are you sure you want to log out?</span></div>}
-        width={400}
+        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',margin:'15px 0px 0px 15px',fontWeight: 700}}>Are you sure you want to log out?</span></div>}
+        width={350}
       >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px',marginTop:'15px' }}>
           <Button
             onClick={() => setLogoutModalOpen(false)}
             style={{
@@ -720,7 +720,7 @@ const MyProfile = () => {
         open={deleteModalOpen}
         onCancel={() => setDeleteModalOpen(false)}
         footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px'}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
+        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
         width={500}
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>

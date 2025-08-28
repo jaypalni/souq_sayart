@@ -168,7 +168,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const prepareFilterData = () => {
     const filterData = {
       make: make !== 'Any' ? make : '',
-      model: model !== 'Any' ? model : '',
+      model: model !== 'All Models' ? model : '',
       trim: trimValue !== 'Any' ? trimValue : '',
       year_min: yearMin ? parseInt(yearMin) : '',
       year_max: yearMax ? parseInt(yearMax) : '',
@@ -181,7 +181,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       transmission: transmissionselectedValues.length > 0 && transmissionselectedValues[0] !== 'Any' ? transmissionselectedValues[0] : '',
       regional_specs: regionalSpecs !== 'Any' ? regionalSpecs : '',
       condition: condition.length > 0 && condition[0] !== 'Any' ? condition[0] : '',
-      body_type: bodyType !== 'Any' ? bodyType : '',
+      body_type: bodyType !== 'All Body Types' ? bodyType : '',
       number_of_doors: doorselectedValues.length > 0 && doorselectedValues[0] !== 'Any' ? doorselectedValues[0] : '',
       fuel_type: selectedValues.length > 0 && selectedValues[0] !== 'Any' ? selectedValues[0] : '',
       owner_type: ownerType.length > 0 && ownerType[0] !== 'Any' ? ownerType[0] : '',

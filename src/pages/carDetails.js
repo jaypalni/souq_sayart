@@ -84,6 +84,32 @@ const getAdditionalDetails = (d) => [
 ];
 
 // Sub-components
+const ThumbnailButton = ({ img, idx, isActive, onClick }) => {
+  const thumbClass = `thumbnail-img${isActive ? ' active' : ''}`;
+  
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Show image ${idx + 1}`}
+      style={{ background: 'none', border: 'none', padding: 0 }}
+    >
+      <img
+        src={img}
+        alt={`thumb-${idx}`}
+        className={thumbClass}
+      />
+    </button>
+  );
+};
+
+ThumbnailButton.propTypes = {
+  img: PropTypes.string.isRequired,
+  idx: PropTypes.number.isRequired,
+  isActive: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
 const InfoTable = ({ title, rows = [] }) => (
   <div className="col-md-6">
     <div className="car-details-table-title">{title}</div>
@@ -138,27 +164,15 @@ const ImageGallery = ({ images }) => {
         </button>
       </div>
       <div className="thumbnail-row mt-3 d-flex gap-2">
-        {images.map((img, idx) => {
-          let thumbClass = 'thumbnail-img';
-          if (mainImageIdx === idx) {
-            thumbClass += ' active';
-          }
-          return (
-            <button
-              type="button"
-              key={img}
-              onClick={() => setMainImageIdx(idx)}
-              aria-label={`Show image ${idx + 1}`}
-              style={{ background: 'none', border: 'none', padding: 0 }}
-            >
-              <img
-                src={img}
-                alt={`thumb-${idx}`}
-                className={thumbClass}
-              />
-            </button>
-          );
-        })}
+        {images.map((img, idx) => (
+          <ThumbnailButton
+            key={img}
+            img={img}
+            idx={idx}
+            isActive={mainImageIdx === idx}
+            onClick={() => setMainImageIdx(idx)}
+          />
+        ))}
       </div>
     </Card>
   );
@@ -175,6 +189,7 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
     .map((f) => f.trim())
     .filter(Boolean);
 
+  const toggleFeatures = () => setOpen(!open);
   const chevron = open ? <FaChevronUp /> : <FaChevronDown />;
 
   return (
@@ -187,7 +202,7 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
           <span style={{ fontWeight: 500, fontSize: '14px' }}>Extra Features</span>
           <button
             type="button"
-            onClick={() => setOpen(!open)}
+            onClick={toggleFeatures}
             aria-expanded={open}
             aria-controls="extra-features"
             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
@@ -195,35 +210,43 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
             {chevron}
           </button>
         </div>
-        {open && (
-          <div id="extra-features" className="row mb-2 mt-2">
-            {features.map((feature) => (
-              <div className="col-md-3 col-6 mb-2" key={feature}>
-                <span className="car-details-feature-item">
-                  <FaCheckCircle color="#4fc3f7" style={{ marginRight: 6 }} />
-                  {feature}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        {open && <FeaturesList features={features} />}
       </div>
     </div>
   );
 };
 
+const FeaturesList = ({ features }) => (
+  <div id="extra-features" className="row mb-2 mt-2">
+    {features.map((feature) => (
+      <div className="col-md-3 col-6 mb-2" key={feature}>
+        <span className="car-details-feature-item">
+          <FaCheckCircle color="#4fc3f7" style={{ marginRight: 6 }} />
+          {feature}
+        </span>
+      </div>
+    ))}
+  </div>
+);
+
+FeaturesList.propTypes = {
+  features: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
 const copyToClipboard = () => {
   const url = window.location.href;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url)
-      .then(() => {
-        alert('Page URL copied to clipboard!');
-      })
-      .catch((err) => {
-        message.error('Failed to copy URL');
-        console.error(err);
-      });
-  } else {
+  
+  const copyWithClipboardAPI = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Page URL copied to clipboard!');
+    } catch (err) {
+      message.error('Failed to copy URL');
+      console.error(err);
+    }
+  };
+
+  const copyWithFallback = () => {
     const textarea = document.createElement('textarea');
     textarea.value = url;
     document.body.appendChild(textarea);
@@ -231,6 +254,12 @@ const copyToClipboard = () => {
     document.execCommand('copy');
     document.body.removeChild(textarea);
     alert('Page URL copied to clipboard!');
+  };
+
+  if (navigator.clipboard) {
+    copyWithClipboardAPI();
+  } else {
+    copyWithFallback();
   }
 };
 
@@ -338,57 +367,69 @@ const CarDetailsCards = ({ carDetails }) => {
 
       <div className="row">
         {carDetailItems.map((item) => (
-          <div className="col-md-3" key={item.label}>
-            <div
-              style={{
-                border: '1px solid #ccc',
-                borderRadius: 10,
-                padding: '8px',
-                height: 80,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-              }}
-            >
-              <div
-                style={{
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <img
-                  src={item.icon}
-                  alt=""
-                  style={{ width: 14, height: 14 }}
-                />
-                <p
-                  style={{
-                    color: '#726C6C',
-                    fontWeight: 400,
-                    fontSize: '12px',
-                    margin: 0,
-                  }}
-                >
-                  {item.label}
-                </p>
-              </div>
-              <p
-                style={{
-                  color: '#0A0A0B',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  margin: 0,
-                }}
-              >
-                {item.value}
-              </p>
-            </div>
-          </div>
+          <CarDetailCard key={item.label} item={item} />
         ))}
       </div>
     </div>
   );
+};
+
+const CarDetailCard = ({ item }) => (
+  <div className="col-md-3">
+    <div
+      style={{
+        border: '1px solid #ccc',
+        borderRadius: 10,
+        padding: '8px',
+        height: 80,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      <div
+        style={{
+          alignItems: 'center',
+          gap: '6px',
+        }}
+      >
+        <img
+          src={item.icon}
+          alt=""
+          style={{ width: 14, height: 14 }}
+        />
+        <p
+          style={{
+            color: '#726C6C',
+            fontWeight: 400,
+            fontSize: '12px',
+            margin: 0,
+          }}
+        >
+          {item.label}
+        </p>
+      </div>
+      <p
+        style={{
+          color: '#0A0A0B',
+          fontWeight: 700,
+          fontSize: '14px',
+          margin: 0,
+        }}
+      >
+        {item.value}
+      </p>
+    </div>
+  </div>
+);
+
+CarDetailCard.propTypes = {
+  item: PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    icon: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 CarDetailsCards.propTypes = {
@@ -544,6 +585,8 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
         >
           Message
         </Button>
+        
+        {/* WhatsApp Button */}
         <Button
           onClick={() => openWhatsApp(carDetails.seller.phone_number)}
           icon={<FaWhatsapp />}
@@ -560,6 +603,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
           Whatsapp
         </Button>
 
+        {/* Call Button */}
         <Button
           icon={<FaPhoneAlt style={{ color: '#fff' }} />}
           className="w-100 no-hover-bg"
@@ -599,15 +643,14 @@ const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageA
   );
 };
 
-const CarDetails = () => {
-  const { id } = useParams();
+// Custom hook for car details API logic
+const useCarDetails = (id) => {
   const [carDetails, setCarDetails] = useState(null);
   const [loading, setLoading] = useState(false);
-  const BASE_URL = process.env.REACT_APP_API_URL;
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    const Allcarsapi = async () => {
+    const fetchCarDetails = async () => {
       try {
         setLoading(true);
         const response = await carAPI.getCarById(Number(id));
@@ -631,21 +674,59 @@ const CarDetails = () => {
     };
 
     if (id) {
-      Allcarsapi();
+      fetchCarDetails();
     }
-  }, [id]);
+  }, [id, messageApi]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  return { carDetails, loading, messageApi, contextHolder };
+};
 
-  if (!carDetails) {
-    return <div>No data found</div>;
-  }
-
+// Helper function for data processing
+const processCarData = (carDetails, BASE_URL) => {
   const images = buildCarImages(carDetails?.car_image, BASE_URL, redcar_icon);
   const carInfo = getCarInfo(carDetails);
   const additionalDetails = getAdditionalDetails(carDetails);
+  return { images, carInfo, additionalDetails };
+};
+
+// Loading component
+const LoadingState = () => <div>Loading...</div>;
+
+// Error state component
+const ErrorState = () => <div>No data found</div>;
+
+// Similar cars section component
+const SimilarCarsSection = ({ carDetails }) => (
+  <div style={{ marginTop: 50 }}>
+    <CarListing
+      title={'Used ' + carDetails.ad_title}
+      cardata={carDetails.similar_cars}
+    />
+  </div>
+);
+
+SimilarCarsSection.propTypes = {
+  carDetails: PropTypes.shape({
+    ad_title: PropTypes.string.isRequired,
+    similar_cars: PropTypes.array,
+  }).isRequired,
+};
+
+const CarDetails = () => {
+  const { id } = useParams();
+  const BASE_URL = process.env.REACT_APP_API_URL;
+  
+  const { carDetails, loading, messageApi, contextHolder } = useCarDetails(id);
+  
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (!carDetails) {
+    return <ErrorState />;
+  }
+
+  const { images, carInfo, additionalDetails } = processCarData(carDetails, BASE_URL);
 
   return (
     <div className="container py-4 car-details-page">
@@ -666,16 +747,7 @@ const CarDetails = () => {
         />
       </div>
 
-      <div
-        style={{
-          marginTop: 50,
-        }}
-      >
-        <CarListing
-          title={'Used ' + carDetails.ad_title}
-          cardata={carDetails.similar_cars}
-        />
-      </div>
+      <SimilarCarsSection carDetails={carDetails} />
     </div>
   );
 };

@@ -441,7 +441,32 @@ CarDetailsCards.propTypes = {
   }).isRequired,
 };
 
+// New extracted component to reduce complexity in CarDetailsMain
+const CarInfoTables = ({ carInfo, additionalDetails }) => (
+  <div className="row g-4 mb-4">
+    <InfoTable title="Car Informations" rows={carInfo} />
+    <InfoTable title="Additional Details" rows={additionalDetails} />
+  </div>
+);
+
+CarInfoTables.propTypes = {
+  carInfo: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    })
+  ).isRequired,
+  additionalDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    })
+  ).isRequired,
+};
+
+
 // Extracted CarDetailsMain component
+// Refactored CarDetailsMain with reduced complexity
 const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails }) => {
   return (
     <div className="col-md-8">
@@ -452,15 +477,29 @@ const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetai
       <CarLocation location={carDetails.location} />
       <CarDetailsCards carDetails={carDetails} />
 
-      <div className="row g-4 mb-4">
-        <InfoTable title="Car Informations" rows={carInfo} />
-        <InfoTable title="Additional Details" rows={additionalDetails} />
-      </div>
+      <CarInfoTables 
+        carInfo={carInfo} 
+        additionalDetails={additionalDetails} 
+      />
 
-      <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} />
+      <FeaturesSection 
+        adTitle={carDetails.ad_title} 
+        featuresCsv={carDetails.extra_features} 
+      />
     </div>
   );
 };
+
+CarDetailsMain.propTypes = {
+  carDetails: PropTypes.object.isRequired,
+  BASE_URL: PropTypes.string,
+  images: PropTypes.arrayOf(PropTypes.string).isRequired,
+  carInfo: PropTypes.array.isRequired,
+  additionalDetails: PropTypes.array.isRequired,
+};
+
+
+
 
 // Extracted SellerInfoCard component
 const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi }) => {

@@ -91,8 +91,8 @@ const SavedSearches = () => {
           const response = handleApiResponse(res);
     
           if (response?.data?.searches) {
-            setSearches(response?.data?.searches);
              messageApi.open({ type: 'success', content: response.data.message });
+            setSearches(response?.data?.searches);
           } else {
         setSearches([]);
       }

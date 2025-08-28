@@ -1359,7 +1359,18 @@ const mapUserToProfile = (user) => ({
   avatar: user.profile_image || '',
 });
 
-const applyUpdatedUser = (user, successMsg, form, setUsersData, setProfile, setAvatarUrl, setDealerValue, setEditMode) => {
+const applyUpdatedUser = (updateParams) => {
+  const {
+    user,
+    successMsg,
+    form,
+    setUsersData,
+    setProfile,
+    setAvatarUrl,
+    setDealerValue,
+    setEditMode
+  } = updateParams;
+  
   const updatedProfile = mapUserToProfile(user);
   setUsersData(user);
   setProfile(updatedProfile);
@@ -1528,16 +1539,16 @@ const renderAvatarContent = () => {
     const response = await userAPI.updateProfile(payload);
     const result = handleApiResponse(response);
     if (result?.data) {
-      applyUpdatedUser(
-        result.data,
-        result.message,
+      applyUpdatedUser({
+        user: result.data,
+        successMsg: result.message,
         form,
         setUsersData,
         setProfile,
         setAvatarUrl,
         setDealerValue,
         setEditMode,
-      );
+      });
     }
     messageApi.open({
         type: 'success',
@@ -1552,104 +1563,51 @@ const renderAvatarContent = () => {
 
   /**
    * Renders the header content based on current state
-   * @param {HeaderContentProps} props - Header content props
    * @returns {JSX.Element} Header content
    */
-  const renderHeaderContent = (props) => {
-    const {
-      showOtpForm,
-      showChangePhoneForm,
-      editMode,
-      setShowOtpForm,
-      setShowChangePhoneForm,
-      setIsChangingPhone
-    } = props;
-  if (showOtpForm) {
-    return (
-      <>
-        <ArrowLeftOutlined
-          onClick={() => {
-            setShowOtpForm(false);
-            setShowChangePhoneForm(true); 
-          }}
-          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-        />
-        Enter OTP Sent To Your New Number
-      </>
-    );
-  }
-  
-  if (showChangePhoneForm) {
-    return (
-      <>
-        <ArrowLeftOutlined
-          onClick={() => {
-            setIsChangingPhone(false);
-            setShowChangePhoneForm(false);
-          }}
-          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-        />
-        Change Mobile Number
-      </>
-    );
-  }
-  
-  if (editMode) {
-    return 'Edit Profile';
-  }
-  
-  return 'My Profile';
-};
+  const renderHeaderContent = () => {
+    if (showOtpForm) {
+      return (
+        <>
+          <ArrowLeftOutlined
+            onClick={() => {
+              setShowOtpForm(false);
+              setShowChangePhoneForm(true); 
+            }}
+            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+          />
+          Enter OTP Sent To Your New Number
+        </>
+      );
+    }
+    
+    if (showChangePhoneForm) {
+      return (
+        <>
+          <ArrowLeftOutlined
+            onClick={() => {
+              setIsChangingPhone(false);
+              setShowChangePhoneForm(false);
+            }}
+            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+          />
+          Change Mobile Number
+        </>
+      );
+    }
+    
+    if (editMode) {
+      return 'Edit Profile';
+    }
+    
+    return 'My Profile';
+  };
 
   /**
    * Renders the main content based on current state
-   * @param {MainContentProps} props - Main content props
    * @returns {JSX.Element} Main content
    */
-  const renderMainContent = (props) => {
-    const {
-      showChangePhoneForm,
-      showOtpForm,
-      form,
-      profile,
-      editMode,
-      onFinish,
-      handleDealerChange,
-      fileInputRef,
-      handleFileChange,
-      setModalOpen,
-      onEdit,
-      onCancel,
-      triggerAvatarUpload,
-      handleBeforeUpload,
-      renderAvatarContent,
-      setAvatarUrl,
-      phone,
-      setPhone,
-      selectedCountry,
-      setSelectedCountry,
-      countryOptions,
-      setCountryOptions,
-      dropdownOpen,
-      setDropdownOpen,
-      emailerrormsg,
-      checked,
-      whatsapphandleChange,
-      switchStyle,
-      onContinue,
-      handlePhoneChange,
-      otp,
-      handleChange,
-      handleKeyDown,
-      error,
-      inputRefs,
-      OTP_INPUT_IDS,
-      isTimerRunning,
-      timer,
-      formatTime,
-      handleResend,
-      handleContinue
-    } = props;
+  const renderMainContent = () => {
   if (showChangePhoneForm) {
     return (
       <PhoneChangeForm 
@@ -1713,58 +1671,9 @@ const renderAvatarContent = () => {
     <div className='myprofile-main'>
       {contextHolder}
      <div className='myprofile-header' style={{ display: 'flex', alignItems: 'center' }}>
-  {renderHeaderContent({
-    showOtpForm,
-    showChangePhoneForm,
-    editMode,
-    setShowOtpForm,
-    setShowChangePhoneForm,
-    setIsChangingPhone
-  })}
+  {renderHeaderContent()}
 </div>
-      {renderMainContent({
-        showChangePhoneForm,
-        showOtpForm,
-        form,
-        profile,
-        editMode,
-        onFinish,
-        handleDealerChange,
-        fileInputRef,
-        handleFileChange,
-        setModalOpen,
-        onEdit,
-        onCancel,
-        triggerAvatarUpload,
-        handleBeforeUpload,
-        renderAvatarContent,
-        setAvatarUrl,
-        phone,
-        setPhone,
-        selectedCountry,
-        setSelectedCountry,
-        countryOptions,
-        setCountryOptions,
-        dropdownOpen,
-        setDropdownOpen,
-        emailerrormsg,
-        checked,
-        whatsapphandleChange,
-        switchStyle,
-        onContinue,
-        handlePhoneChange,
-        otp,
-        handleChange,
-        handleKeyDown,
-        error,
-        inputRefs,
-        OTP_INPUT_IDS,
-        isTimerRunning,
-        timer,
-        formatTime,
-        handleResend,
-        handleContinue
-      })}
+      {renderMainContent()}
 
       <ConfirmModal
         isOpen={modalOpen}
@@ -1812,63 +1721,12 @@ ConfirmModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
 };
 
+
+
+// PropTypes for the main component
 MyProfileForm.propTypes = {
-  // These props are used internally by the component
-  // No external props are expected, but documenting for clarity
+  // This component doesn't accept external props
+  // All state is managed internally
 };
-
-// Add PropTypes for the internal helper functions' expected props
-const HeaderContentProps = PropTypes.shape({
-  showOtpForm: PropTypes.bool.isRequired,
-  showChangePhoneForm: PropTypes.bool.isRequired,
-  editMode: PropTypes.bool.isRequired,
-  setShowOtpForm: PropTypes.func.isRequired,
-  setShowChangePhoneForm: PropTypes.func.isRequired,
-  setIsChangingPhone: PropTypes.func.isRequired,
-});
-
-const MainContentProps = PropTypes.shape({
-  showChangePhoneForm: PropTypes.bool.isRequired,
-  showOtpForm: PropTypes.bool.isRequired,
-  form: PropTypes.object.isRequired,
-  profile: PropTypes.object.isRequired,
-  editMode: PropTypes.bool.isRequired,
-  onFinish: PropTypes.func.isRequired,
-  handleDealerChange: PropTypes.func.isRequired,
-  fileInputRef: PropTypes.object.isRequired,
-  handleFileChange: PropTypes.func.isRequired,
-  setModalOpen: PropTypes.func.isRequired,
-  onEdit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  triggerAvatarUpload: PropTypes.func.isRequired,
-  handleBeforeUpload: PropTypes.func.isRequired,
-  renderAvatarContent: PropTypes.func.isRequired,
-  setAvatarUrl: PropTypes.func.isRequired,
-  phone: PropTypes.string.isRequired,
-  setPhone: PropTypes.func.isRequired,
-  selectedCountry: PropTypes.object,
-  setSelectedCountry: PropTypes.func.isRequired,
-  countryOptions: PropTypes.array.isRequired,
-  setCountryOptions: PropTypes.func.isRequired,
-  dropdownOpen: PropTypes.bool.isRequired,
-  setDropdownOpen: PropTypes.func.isRequired,
-  emailerrormsg: PropTypes.string.isRequired,
-  checked: PropTypes.bool.isRequired,
-  whatsapphandleChange: PropTypes.func.isRequired,
-  switchStyle: PropTypes.object.isRequired,
-  onContinue: PropTypes.func.isRequired,
-  handlePhoneChange: PropTypes.func.isRequired,
-  otp: PropTypes.array.isRequired,
-  handleChange: PropTypes.func.isRequired,
-  handleKeyDown: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
-  inputRefs: PropTypes.array.isRequired,
-  OTP_INPUT_IDS: PropTypes.array.isRequired,
-  isTimerRunning: PropTypes.bool.isRequired,
-  timer: PropTypes.number.isRequired,
-  formatTime: PropTypes.func.isRequired,
-  handleResend: PropTypes.func.isRequired,
-  handleContinue: PropTypes.func.isRequired,
-});
 
 export default MyProfileForm;

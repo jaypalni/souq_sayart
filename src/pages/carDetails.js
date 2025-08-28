@@ -466,7 +466,6 @@ CarInfoTables.propTypes = {
 
 
 // Extracted CarDetailsMain component
-// Refactored CarDetailsMain with reduced complexity
 const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails }) => {
   return (
     <div className="col-md-8">
@@ -477,27 +476,43 @@ const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetai
       <CarLocation location={carDetails.location} />
       <CarDetailsCards carDetails={carDetails} />
 
-      <CarInfoTables 
-        carInfo={carInfo} 
-        additionalDetails={additionalDetails} 
-      />
+      <div className="row g-4 mb-4">
+        <InfoTable title="Car Informations" rows={carInfo} />
+        <InfoTable title="Additional Details" rows={additionalDetails} />
+      </div>
 
-      <FeaturesSection 
-        adTitle={carDetails.ad_title} 
-        featuresCsv={carDetails.extra_features} 
-      />
+      <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} />
     </div>
   );
 };
 
 CarDetailsMain.propTypes = {
-  carDetails: PropTypes.object.isRequired,
+  carDetails: PropTypes.shape({
+    ad_title: PropTypes.string.isRequired,
+    extra_features: PropTypes.string,
+    location: PropTypes.string,
+    seller: PropTypes.shape({
+      first_name: PropTypes.string.isRequired,
+      member_since: PropTypes.string.isRequired,
+      phone_number: PropTypes.string.isRequired,
+      whatsapp: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
   BASE_URL: PropTypes.string,
   images: PropTypes.arrayOf(PropTypes.string).isRequired,
-  carInfo: PropTypes.array.isRequired,
-  additionalDetails: PropTypes.array.isRequired,
+  carInfo: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    })
+  ).isRequired,
+  additionalDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    })
+  ).isRequired,
 };
-
 
 
 
@@ -668,6 +683,25 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
   );
 };
 
+SellerInfoCard.propTypes = {
+  carDetails: PropTypes.shape({
+    ad_title: PropTypes.string.isRequired,
+    price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    transmission_type: PropTypes.string,
+    country_code: PropTypes.string,
+    kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    seller: PropTypes.shape({
+      first_name: PropTypes.string.isRequired,
+      member_since: PropTypes.string.isRequired,
+      phone_number: PropTypes.string.isRequired,
+      whatsapp: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
+  copyToClipboard: PropTypes.func.isRequired,
+  openWhatsApp: PropTypes.func.isRequired,
+  messageApi: PropTypes.object.isRequired,
+};
+
 // Extracted CarDetailsSidebar component
 const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageApi }) => {
   return (
@@ -680,6 +714,25 @@ const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageA
       />
     </div>
   );
+};
+
+CarDetailsSidebar.propTypes = {
+  carDetails: PropTypes.shape({
+    ad_title: PropTypes.string.isRequired,
+    price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    transmission_type: PropTypes.string,
+    country_code: PropTypes.string,
+    kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    seller: PropTypes.shape({
+      first_name: PropTypes.string.isRequired,
+      member_since: PropTypes.string.isRequired,
+      phone_number: PropTypes.string.isRequired,
+      whatsapp: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
+  copyToClipboard: PropTypes.func.isRequired,
+  openWhatsApp: PropTypes.func.isRequired,
+  messageApi: PropTypes.object.isRequired,
 };
 
 // Custom hook for car details API logic
@@ -789,6 +842,11 @@ const CarDetails = () => {
       <SimilarCarsSection carDetails={carDetails} />
     </div>
   );
+};
+
+CarDetails.propTypes = {
+  // This component doesn't accept external props
+  // All data comes from useParams and internal state
 };
 
 export default CarDetails;

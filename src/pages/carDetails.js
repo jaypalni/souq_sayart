@@ -29,7 +29,6 @@ import fuel_image from '../assets/images/fuel_image.png';
 import calender_image from '../assets/images/Layer_1.png';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { useNavigate } from 'react-router-dom';
 import CarListing from '../components/carListing';
 import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
 

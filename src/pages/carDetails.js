@@ -239,116 +239,177 @@ FeaturesSection.propTypes = {
   featuresCsv: PropTypes.string,
 };
 
+// Extracted CarHeader component
+const CarHeader = ({ carDetails }) => {
+  return (
+    <>
+      <h3 className="text-title">{carDetails.ad_title}</h3>
+      <p className="text-muted">{carDetails.description}</p>
+    </>
+  );
+};
+
+CarHeader.propTypes = {
+  carDetails: PropTypes.shape({
+    ad_title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+  }).isRequired,
+};
+
+// Extracted CarEngineSummary component
+const CarEngineSummary = ({ carDetails }) => {
+  return (
+    <div
+      className="d-flex align-items-center gap-3 mb-2"
+      style={{ color: '#2B2829', fontWeight: 400, fontSize: '14px' }}
+    >
+      {formatEngineSummary(carDetails)}
+    </div>
+  );
+};
+
+CarEngineSummary.propTypes = {
+  carDetails: PropTypes.shape({
+    fuel_type: PropTypes.string,
+    no_of_cylinders: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    engine_cc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
+};
+
+// Extracted CarLocation component
+const CarLocation = ({ location }) => {
+  return (
+    <div className="d-flex align-items-center gap-1 mb-2">
+      <img
+        src={pin_location}
+        alt="Location pin"
+        style={{
+          width: '15px',
+          height: '15px',
+        }}
+      />
+      <span
+        style={{
+          fontSize: '14px',
+          fontWeight: 400,
+          color: '#7991A4',
+        }}
+      >
+        {location}
+      </span>
+    </div>
+  );
+};
+
+CarLocation.propTypes = {
+  location: PropTypes.string.isRequired,
+};
+
+// Extracted CarDetailsCards component
+const CarDetailsCards = ({ carDetails }) => {
+  const carDetailItems = [
+    {
+      label: 'Year',
+      value: carDetails.year || '-',
+      icon: calender_image,
+    },
+    {
+      label: 'Fuel Type',
+      value: carDetails.fuel_type || '-',
+      icon: fuel_image,
+    },
+    {
+      label: 'Condition',
+      value: carDetails.condition || '-',
+      icon: gear_image,
+    },
+    {
+      label: 'Kilometers',
+      value: carDetails.kilometers || '-',
+      icon: speed_code,
+    },
+  ];
+
+  return (
+    <div className="col-md-12">
+      <div className="car-details-info" style={{ marginBottom: '10px' }}>
+        Car Details
+      </div>
+
+      <div className="row">
+        {carDetailItems.map((item) => (
+          <div className="col-md-3" key={item.label}>
+            <div
+              style={{
+                border: '1px solid #ccc',
+                borderRadius: 10,
+                padding: '8px',
+                height: 80,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <img
+                  src={item.icon}
+                  alt=""
+                  style={{ width: 14, height: 14 }}
+                />
+                <p
+                  style={{
+                    color: '#726C6C',
+                    fontWeight: 400,
+                    fontSize: '12px',
+                    margin: 0,
+                  }}
+                >
+                  {item.label}
+                </p>
+              </div>
+              <p
+                style={{
+                  color: '#0A0A0B',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  margin: 0,
+                }}
+              >
+                {item.value}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+CarDetailsCards.propTypes = {
+  carDetails: PropTypes.shape({
+    year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    fuel_type: PropTypes.string,
+    condition: PropTypes.string,
+    kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
+};
+
 // Extracted CarDetailsMain component
 const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails }) => {
   return (
     <div className="col-md-8">
       <ImageGallery images={images} />
-      <h3 className="text-title">{carDetails.ad_title}</h3>
-      <p className="text-muted">{carDetails.description}</p>
-      <div
-        className="d-flex align-items-center gap-3 mb-2"
-        style={{ color: '#2B2829', fontWeight: 400, fontSize: '14px' }}
-      >
-        {formatEngineSummary(carDetails)}
-      </div>
-      <div className="d-flex align-items-center gap-1 mb-2">
-        <img
-          src={pin_location}
-          alt=""
-          style={{
-            width: '15px',
-            height: '15px',
-          }}
-        />
-        <span
-          style={{
-            fontSize: '14px',
-            fontWeight: 400,
-            color: '#7991A4',
-          }}
-        >
-          {carDetails.location}
-        </span>
-      </div>
-      <div className="col-md-12">
-        <div className="car-details-info" style={{ marginBottom: '10px' }}>
-          Car Details
-        </div>
-
-        <div className="row">
-          {[
-            {
-              label: 'Year',
-              value: carDetails.year || '-',
-              icon: calender_image,
-            },
-            {
-              label: 'Fuel Type',
-              value: carDetails.fuel_type || '-',
-              icon: fuel_image,
-            },
-            {
-              label: 'Condition',
-              value: carDetails.condition || '-',
-              icon: gear_image,
-            },
-            {
-              label: 'Kilometers',
-              value: carDetails.kilometers || '-',
-              icon: speed_code,
-            },
-          ].map((item) => (
-            <div className="col-md-3" key={item.label}>
-              <div
-                style={{
-                  border: '1px solid #ccc',
-                  borderRadius: 10,
-                  padding: '8px',
-                  height: 80,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
-                <div
-                  style={{
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                >
-                  <img
-                    src={item.icon}
-                    alt=""
-                    style={{ width: 14, height: 14 }}
-                  />
-                  <p
-                    style={{
-                      color: '#726C6C',
-                      fontWeight: 400,
-                      fontSize: '12px',
-                      margin: 0,
-                    }}
-                  >
-                    {item.label}
-                  </p>
-                </div>
-                <p
-                  style={{
-                    color: '#0A0A0B',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    margin: 0,
-                  }}
-                >
-                  {item.value}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      
+      <CarHeader carDetails={carDetails} />
+      <CarEngineSummary carDetails={carDetails} />
+      <CarLocation location={carDetails.location} />
+      <CarDetailsCards carDetails={carDetails} />
 
       <div className="row g-4 mb-4">
         <InfoTable title="Car Informations" rows={carInfo} />

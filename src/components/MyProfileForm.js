@@ -742,16 +742,6 @@ const ProfileForm = ({
                 className={`profile-avatar-upload${
                   editMode ? ' editable' : ''
                 }`}
-                onClick={editMode ? triggerAvatarUpload : undefined}
-                onKeyDown={editMode ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    triggerAvatarUpload();
-                  }
-                } : undefined}
-                tabIndex={editMode ? 0 : -1}
-                role={editMode ? 'button' : undefined}
-                aria-label={editMode ? 'Upload profile picture' : undefined}
                 style={{ cursor: editMode ? 'pointer' : 'default' }}
               >
                <div
@@ -800,21 +790,39 @@ const ProfileForm = ({
       </div>
 
                 {editMode && (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      const file = e.target?.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) =>
-                          setAvatarUrl(ev.target?.result || '');
-                        reader.readAsDataURL(file);
-                      }
+                  <button
+                    type="button"
+                    onClick={triggerAvatarUpload}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      width: '100%',
+                      height: '100%',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      zIndex: 1
                     }}
-                  />
+                    aria-label="Upload profile picture"
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target?.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) =>
+                            setAvatarUrl(ev.target?.result || '');
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </button>
                 )}
               </div>
               <span className="profile-username">
@@ -1544,13 +1552,7 @@ const renderAvatarContent = () => {
 
   /**
    * Renders the header content based on current state
-   * @param {Object} props - Header content props
-   * @param {boolean} props.showOtpForm - Whether OTP form is shown
-   * @param {boolean} props.showChangePhoneForm - Whether phone change form is shown
-   * @param {boolean} props.editMode - Whether in edit mode
-   * @param {Function} props.setShowOtpForm - Function to set OTP form visibility
-   * @param {Function} props.setShowChangePhoneForm - Function to set phone change form visibility
-   * @param {Function} props.setIsChangingPhone - Function to set changing phone state
+   * @param {HeaderContentProps} props - Header content props
    * @returns {JSX.Element} Header content
    */
   const renderHeaderContent = (props) => {
@@ -1601,48 +1603,7 @@ const renderAvatarContent = () => {
 
   /**
    * Renders the main content based on current state
-   * @param {Object} props - Main content props
-   * @param {boolean} props.showChangePhoneForm - Whether phone change form is shown
-   * @param {boolean} props.showOtpForm - Whether OTP form is shown
-   * @param {Object} props.form - Form instance
-   * @param {Object} props.profile - User profile data
-   * @param {boolean} props.editMode - Whether in edit mode
-   * @param {Function} props.onFinish - Form submission handler
-   * @param {Function} props.handleDealerChange - Dealer change handler
-   * @param {Object} props.fileInputRef - File input reference
-   * @param {Function} props.handleFileChange - File change handler
-   * @param {Function} props.setModalOpen - Modal open state setter
-   * @param {Function} props.onEdit - Edit mode handler
-   * @param {Function} props.onCancel - Cancel handler
-   * @param {Function} props.triggerAvatarUpload - Avatar upload trigger
-   * @param {Function} props.handleBeforeUpload - Before upload handler
-   * @param {Function} props.renderAvatarContent - Avatar content renderer
-   * @param {Function} props.setAvatarUrl - Avatar URL setter
-   * @param {string} props.phone - Phone number
-   * @param {Function} props.setPhone - Phone setter
-   * @param {Object} props.selectedCountry - Selected country
-   * @param {Function} props.setSelectedCountry - Country setter
-   * @param {Array} props.countryOptions - Country options
-   * @param {Function} props.setCountryOptions - Country options setter
-   * @param {boolean} props.dropdownOpen - Dropdown open state
-   * @param {Function} props.setDropdownOpen - Dropdown state setter
-   * @param {string} props.emailerrormsg - Email error message
-   * @param {boolean} props.checked - WhatsApp checked state
-   * @param {Function} props.whatsapphandleChange - WhatsApp change handler
-   * @param {Object} props.switchStyle - Switch style object
-   * @param {Function} props.onContinue - Continue handler
-   * @param {Function} props.handlePhoneChange - Phone change handler
-   * @param {Array} props.otp - OTP array
-   * @param {Function} props.handleChange - OTP change handler
-   * @param {Function} props.handleKeyDown - OTP key down handler
-   * @param {string} props.error - Error message
-   * @param {Array} props.inputRefs - Input references
-   * @param {Array} props.OTP_INPUT_IDS - OTP input IDs
-   * @param {boolean} props.isTimerRunning - Timer running state
-   * @param {number} props.timer - Timer value
-   * @param {Function} props.formatTime - Time formatter
-   * @param {Function} props.handleResend - Resend handler
-   * @param {Function} props.handleContinue - Continue handler
+   * @param {MainContentProps} props - Main content props
    * @returns {JSX.Element} Main content
    */
   const renderMainContent = (props) => {
@@ -1851,6 +1812,63 @@ ConfirmModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
 };
 
-MyProfileForm.propTypes = {};
+MyProfileForm.propTypes = {
+  // These props are used internally by the component
+  // No external props are expected, but documenting for clarity
+};
+
+// Add PropTypes for the internal helper functions' expected props
+const HeaderContentProps = PropTypes.shape({
+  showOtpForm: PropTypes.bool.isRequired,
+  showChangePhoneForm: PropTypes.bool.isRequired,
+  editMode: PropTypes.bool.isRequired,
+  setShowOtpForm: PropTypes.func.isRequired,
+  setShowChangePhoneForm: PropTypes.func.isRequired,
+  setIsChangingPhone: PropTypes.func.isRequired,
+});
+
+const MainContentProps = PropTypes.shape({
+  showChangePhoneForm: PropTypes.bool.isRequired,
+  showOtpForm: PropTypes.bool.isRequired,
+  form: PropTypes.object.isRequired,
+  profile: PropTypes.object.isRequired,
+  editMode: PropTypes.bool.isRequired,
+  onFinish: PropTypes.func.isRequired,
+  handleDealerChange: PropTypes.func.isRequired,
+  fileInputRef: PropTypes.object.isRequired,
+  handleFileChange: PropTypes.func.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  triggerAvatarUpload: PropTypes.func.isRequired,
+  handleBeforeUpload: PropTypes.func.isRequired,
+  renderAvatarContent: PropTypes.func.isRequired,
+  setAvatarUrl: PropTypes.func.isRequired,
+  phone: PropTypes.string.isRequired,
+  setPhone: PropTypes.func.isRequired,
+  selectedCountry: PropTypes.object,
+  setSelectedCountry: PropTypes.func.isRequired,
+  countryOptions: PropTypes.array.isRequired,
+  setCountryOptions: PropTypes.func.isRequired,
+  dropdownOpen: PropTypes.bool.isRequired,
+  setDropdownOpen: PropTypes.func.isRequired,
+  emailerrormsg: PropTypes.string.isRequired,
+  checked: PropTypes.bool.isRequired,
+  whatsapphandleChange: PropTypes.func.isRequired,
+  switchStyle: PropTypes.object.isRequired,
+  onContinue: PropTypes.func.isRequired,
+  handlePhoneChange: PropTypes.func.isRequired,
+  otp: PropTypes.array.isRequired,
+  handleChange: PropTypes.func.isRequired,
+  handleKeyDown: PropTypes.func.isRequired,
+  error: PropTypes.string.isRequired,
+  inputRefs: PropTypes.array.isRequired,
+  OTP_INPUT_IDS: PropTypes.array.isRequired,
+  isTimerRunning: PropTypes.bool.isRequired,
+  timer: PropTypes.number.isRequired,
+  formatTime: PropTypes.func.isRequired,
+  handleResend: PropTypes.func.isRequired,
+  handleContinue: PropTypes.func.isRequired,
+});
 
 export default MyProfileForm;

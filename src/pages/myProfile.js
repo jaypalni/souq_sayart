@@ -379,16 +379,16 @@ const MyProfile = () => {
         };
     
         const result = await userAPI.getDeleteOtp(otpPayload);
-  
+  const data1 = handleApiResponse(result);
     
-        if (result?.data?.status_code === 200) {
+        if (data1?.status_code === 200) {
            localStorage.clear();
     dispatch(clearCustomerDetails());
     dispatch({ type: 'CLEAR_USER_DATA' });
     
           messageApi.open({
             type: 'success',
-            content: result?.data?.message,
+            content: data1?.message,
           });
     
         setTimeout(() => {
@@ -397,7 +397,7 @@ const MyProfile = () => {
         } else {
           messageApi.open({
             type: 'error',
-            content: result?.data?.error,
+            content: data1?.error,
           });
          
         }

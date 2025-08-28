@@ -466,7 +466,6 @@ CarInfoTables.propTypes = {
 
 
 // Extracted CarDetailsMain component
-// Refactored CarDetailsMain with reduced complexity
 const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails }) => {
   return (
     <div className="col-md-8">
@@ -477,27 +476,15 @@ const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetai
       <CarLocation location={carDetails.location} />
       <CarDetailsCards carDetails={carDetails} />
 
-      <CarInfoTables 
-        carInfo={carInfo} 
-        additionalDetails={additionalDetails} 
-      />
+      <div className="row g-4 mb-4">
+        <InfoTable title="Car Informations" rows={carInfo} />
+        <InfoTable title="Additional Details" rows={additionalDetails} />
+      </div>
 
-      <FeaturesSection 
-        adTitle={carDetails.ad_title} 
-        featuresCsv={carDetails.extra_features} 
-      />
+      <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} />
     </div>
   );
 };
-
-CarDetailsMain.propTypes = {
-  carDetails: PropTypes.object.isRequired,
-  BASE_URL: PropTypes.string,
-  images: PropTypes.arrayOf(PropTypes.string).isRequired,
-  carInfo: PropTypes.array.isRequired,
-  additionalDetails: PropTypes.array.isRequired,
-};
-
 
 
 

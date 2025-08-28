@@ -156,10 +156,12 @@ const getArrayFilterValue = (array, defaultValue = 'Any') => {
 };
 
 const getNumericFilterValue = (value) => {
-  return value ? parseInt(value) : '';
+  return value ? String(parseInt(value)) : '';
 };
 
-const prepareFilterData = (make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords) => {
+const prepareFilterData = (filterParams) => {
+  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords } = filterParams;
+  
   return {
     make: getFilterValue(make, 'Any'),
     model: getFilterValue(model, 'All Models'),
@@ -201,14 +203,16 @@ getNumericFilterValue.propTypes = {
 };
 
 prepareFilterData.propTypes = {
-  make: PropTypes.string,
-  model: PropTypes.string,
-  bodyType: PropTypes.string,
-  location: PropTypes.string,
-  singleInputs: PropTypes.object.isRequired,
-  rangeInputs: PropTypes.object.isRequired,
-  filterState: PropTypes.object.isRequired,
-  keywords: PropTypes.array.isRequired,
+  filterParams: PropTypes.shape({
+    make: PropTypes.string,
+    model: PropTypes.string,
+    bodyType: PropTypes.string,
+    location: PropTypes.string,
+    singleInputs: PropTypes.object.isRequired,
+    rangeInputs: PropTypes.object.isRequired,
+    filterState: PropTypes.object.isRequired,
+    keywords: PropTypes.array.isRequired,
+  }).isRequired,
 };
 
 // Extracted components
@@ -463,7 +467,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const handleApplyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData(make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords);
+      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords });
       const response = await carAPI.searchCars(filterData);      
       
       if (onSearchResults && response.data) {

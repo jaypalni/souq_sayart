@@ -281,7 +281,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
             marginTop: '24px',
           }}
         >
-          Your Saved Searches
+          {title || 'Your Saved Searches'}
         </h1>
         <button
           type="button"
@@ -349,6 +349,11 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
       </div>
     </div>
   );
+};
+
+UserSavedsearch.propTypes = {
+  title: PropTypes.string,
+  savesearchesreload: PropTypes.any,
 };
 
 export default UserSavedsearch;

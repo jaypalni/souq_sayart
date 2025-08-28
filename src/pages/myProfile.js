@@ -349,7 +349,6 @@ const MyProfile = () => {
             setOtp(newOtp);
           } else if (idx > 0) {
             inputRefs[idx - 1].current.focus();
-          } else {
           }
         }
       };

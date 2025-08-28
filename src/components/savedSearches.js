@@ -15,8 +15,7 @@ import { carAPI } from '../services/api';
 import lamborgini from '../assets/images/lamborghini.png';
 import lottie from '../assets/images/lottie_search.gif';
 import { useNavigate } from 'react-router-dom';
-const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 15;
+
 
 const EmptyState = () => {
   const navigate = useNavigate();
@@ -75,8 +74,7 @@ const EmptyState = () => {
 const SavedSearches = () => {
   const [searches, setSearches] = useState('');
   const [, setLoading] = useState(false);
-  const [page] = useState(DEFAULT_PAGE);
-  const [limit] = useState(DEFAULT_LIMIT);
+ 
 
   useEffect(() => {
     Allsavedsearches();

@@ -91,36 +91,28 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
     'Any',
   ]);
 
-  const transmissionhandleChange = (option) => {
-    if (transmissionselectedValues.includes(option)) {
-      settransmissionselectedValues(
-        transmissionselectedValues.filter((val) => val !== option)
-      );
+  const handleCheckboxChange = (option, selectedValues, setSelectedValues) => {
+    if (selectedValues.includes(option)) {
+      setSelectedValues(selectedValues.filter((val) => val !== option));
     } else {
-      settransmissionselectedValues([...transmissionselectedValues, option]);
+      setSelectedValues([...selectedValues, option]);
     }
+  };
+
+  const transmissionhandleChange = (option) => {
+    handleCheckboxChange(option, transmissionselectedValues, settransmissionselectedValues);
   };
 
   const [cylinderselectedValues, setcylinderselectedValues] = useState([]);
 
   const cylinderhandleChange = (option) => {
-    if (cylinderselectedValues.includes(option)) {
-      setcylinderselectedValues(
-        cylinderselectedValues.filter((val) => val !== option)
-      );
-    } else {
-      setcylinderselectedValues([...cylinderselectedValues, option]);
-    }
+    handleCheckboxChange(option, cylinderselectedValues, setcylinderselectedValues);
   };
 
   const [doorselectedValues, setdoorselectedValues] = useState([]);
 
   const doorhandleChange = (option) => {
-    if (doorselectedValues.includes(option)) {
-      setdoorselectedValues(doorselectedValues.filter((val) => val !== option));
-    } else {
-      setdoorselectedValues([...doorselectedValues, option]);
-    }
+    handleCheckboxChange(option, doorselectedValues, setdoorselectedValues);
   };
 
   const [search, setSearch] = useState('');
@@ -156,9 +148,24 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
     );
   };
 
+  const handleKeywordsChange = (value) => {
+    if (value.trim()) {
+      setKeywords(value.split(',').map(k => k.trim()).filter(k => k));
+    } else {
+      setKeywords([]);
+    }
+  };
+
+  const handleFuelTypeChange = (option) => {
+    if (selectedValues.includes(option)) {
+      setSelectedValues(selectedValues.filter((item) => item !== option));
+    } else {
+      setSelectedValues([...selectedValues, option]);
+    }
+  };
 
 
-  const handleApplyFilters = async () => {
+  const prepareFilterData = () => {
     const filterData = {
       make: make !== 'Any' ? make : '',
       model: model !== 'Any' ? model : '',
@@ -168,37 +175,36 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       price_min: priceMin ? parseInt(priceMin) : '', 
       price_max: priceMax ? parseInt(priceMax) : '', 
       location: location !== 'Any' ? location : '',
-       min_kilometers: kilometersMin ? parseInt(kilometersMin) : '',
+      min_kilometers: kilometersMin ? parseInt(kilometersMin) : '',
       max_kilometers: kilometersMax ? parseInt(kilometersMax) : '',
-         colour: colorValue !== 'Any' ? colorValue : '',
-         transmission: transmissionselectedValues.length > 0 && transmissionselectedValues[0] !== 'Any' ? transmissionselectedValues[0] : '',
+      colour: colorValue !== 'Any' ? colorValue : '',
+      transmission: transmissionselectedValues.length > 0 && transmissionselectedValues[0] !== 'Any' ? transmissionselectedValues[0] : '',
       regional_specs: regionalSpecs !== 'Any' ? regionalSpecs : '',
       condition: condition.length > 0 && condition[0] !== 'Any' ? condition[0] : '',
       body_type: bodyType !== 'Any' ? bodyType : '',
       number_of_doors: doorselectedValues.length > 0 && doorselectedValues[0] !== 'Any' ? doorselectedValues[0] : '',
-            fuel_type: selectedValues.length > 0 && selectedValues[0] !== 'Any' ? selectedValues[0] : '',
+      fuel_type: selectedValues.length > 0 && selectedValues[0] !== 'Any' ? selectedValues[0] : '',
       owner_type: ownerType.length > 0 && ownerType[0] !== 'Any' ? ownerType[0] : '',
       keyword: keywords.length > 0 ? keywords.join(', ') : '',
-      
       page: 1, 
       limit: 20 
     };
+    return filterData;
+  };
 
-    
+  const handleApplyFilters = async () => {
     try {
       setLoading(true);
-    
+      const filterData = prepareFilterData();
       const response = await carAPI.searchCars(filterData);      
-     
+      
       if (onSearchResults && response.data) {
         onSearchResults(response.data);
       }
       
-     
       setVisible(false);
     } catch (error) {
       console.error('Search API Error:', error);
-    
       setVisible(false);
     } finally {
       setLoading(false);
@@ -416,15 +422,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
                   <Checkbox
                     value={option}
                     checked={selectedValues.includes(option)}
-                    onChange={() => {
-                      if (selectedValues.includes(option)) {
-                        setSelectedValues(
-                          selectedValues.filter((item) => item !== option)
-                        );
-                      } else {
-                        setSelectedValues([...selectedValues, option]);
-                      }
-                    }}
+                    onChange={() => handleFuelTypeChange(option)}
                     style={{ display: 'none' }}
                   />
                   {option}
@@ -453,13 +451,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
                   <Checkbox
                     checked={condition.includes(option)}
                     onChange={() => {
-                      if (condition.includes(option)) {
-                        setCondition(
-                          condition.filter((item) => item !== option)
-                        );
-                      } else {
-                        setCondition([...condition, option]);
-                      }
+                      handleCheckboxChange(option, condition, setCondition);
                     }}
                     style={{ display: 'none' }}
                   />
@@ -800,14 +792,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             <Input
               placeholder="Enter keywords (e.g., low mileage, one owner, accident free)"
               value={keywords.join(', ')}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value.trim()) {
-                  setKeywords(value.split(',').map(k => k.trim()).filter(k => k));
-                } else {
-                  setKeywords([]);
-                }
-              }}
+              onChange={(e) => handleKeywordsChange(e.target.value)}
               style={{ width: '100%', marginTop: '10px' }}
             />
           </div>
@@ -833,13 +818,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
                   <Checkbox
                     checked={ownerType.includes(option)}
                     onChange={() => {
-                      if (ownerType.includes(option)) {
-                        setOwnerType(
-                          ownerType.filter((item) => item !== option)
-                        );
-                      } else {
-                        setOwnerType([...ownerType, option]);
-                      }
+                      handleCheckboxChange(option, ownerType, setOwnerType);
                     }}
                     style={{ display: 'none' }}
                   />

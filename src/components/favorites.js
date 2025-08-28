@@ -85,18 +85,17 @@ const MyFavoritesCars = () => {
     }
   };
 
-  return (
-    <div className="car-listing-container">
-      {contextHolder}
-      <div className="car-listing-header">
-        <span>Favorites</span>
-      </div>
-
-      {loading ? (
+  const renderContent = () => {
+    if (loading) {
+      return (
         <div style={{ textAlign: 'center', padding: '50px 0' }}>
           <Spin size="large" />
         </div>
-      ) : carsData.length === 0 ? (
+      );
+    }
+
+    if (carsData.length === 0) {
+      return (
         <div className="no-favorites" style={{ textAlign: 'center', padding: '0 0' }}>
           <img src={favoriteGif} alt="Favorite" className="modal-image" />
 
@@ -105,8 +104,8 @@ const MyFavoritesCars = () => {
           </p>
 
           <h3 style={{ marginTop: '2px', fontSize: '14px', color: '#0A0A0B', fontWeight: 400 }}>
-            you’ve got a blank slate (for now).<br />
-            we’ll let you know when updates arrive!
+            you've got a blank slate (for now).<br />
+            we'll let you know when updates arrive!
           </h3>
 
           <button
@@ -126,8 +125,11 @@ const MyFavoritesCars = () => {
             Browse Cars
           </button>
         </div>
-      ) : (
-       <div className="car-listing-flex-row">
+      );
+    }
+
+    return (
+      <div className="car-listing-flex-row">
         {carsData.map((car) => (
           <div className="car-listing-card" key={car.car_id}>
             <Link
@@ -235,7 +237,17 @@ const MyFavoritesCars = () => {
           </div>
         ))}
       </div>
-      )}
+    );
+  };
+
+  return (
+    <div className="car-listing-container">
+      {contextHolder}
+      <div className="car-listing-header">
+        <span>Favorites</span>
+      </div>
+
+      {renderContent()}
     </div>
   );
 };

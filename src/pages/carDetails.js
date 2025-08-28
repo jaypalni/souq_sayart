@@ -239,6 +239,305 @@ FeaturesSection.propTypes = {
   featuresCsv: PropTypes.string,
 };
 
+// Extracted CarDetailsMain component
+const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails }) => {
+  return (
+    <div className="col-md-8">
+      <ImageGallery images={images} />
+      <h3 className="text-title">{carDetails.ad_title}</h3>
+      <p className="text-muted">{carDetails.description}</p>
+      <div
+        className="d-flex align-items-center gap-3 mb-2"
+        style={{ color: '#2B2829', fontWeight: 400, fontSize: '14px' }}
+      >
+        {formatEngineSummary(carDetails)}
+      </div>
+      <div className="d-flex align-items-center gap-1 mb-2">
+        <img
+          src={pin_location}
+          alt=""
+          style={{
+            width: '15px',
+            height: '15px',
+          }}
+        />
+        <span
+          style={{
+            fontSize: '14px',
+            fontWeight: 400,
+            color: '#7991A4',
+          }}
+        >
+          {carDetails.location}
+        </span>
+      </div>
+      <div className="col-md-12">
+        <div className="car-details-info" style={{ marginBottom: '10px' }}>
+          Car Details
+        </div>
+
+        <div className="row">
+          {[
+            {
+              label: 'Year',
+              value: carDetails.year || '-',
+              icon: calender_image,
+            },
+            {
+              label: 'Fuel Type',
+              value: carDetails.fuel_type || '-',
+              icon: fuel_image,
+            },
+            {
+              label: 'Condition',
+              value: carDetails.condition || '-',
+              icon: gear_image,
+            },
+            {
+              label: 'Kilometers',
+              value: carDetails.kilometers || '-',
+              icon: speed_code,
+            },
+          ].map((item) => (
+            <div className="col-md-3" key={item.label}>
+              <div
+                style={{
+                  border: '1px solid #ccc',
+                  borderRadius: 10,
+                  padding: '8px',
+                  height: 80,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <img
+                    src={item.icon}
+                    alt=""
+                    style={{ width: 14, height: 14 }}
+                  />
+                  <p
+                    style={{
+                      color: '#726C6C',
+                      fontWeight: 400,
+                      fontSize: '12px',
+                      margin: 0,
+                    }}
+                  >
+                    {item.label}
+                  </p>
+                </div>
+                <p
+                  style={{
+                    color: '#0A0A0B',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    margin: 0,
+                  }}
+                >
+                  {item.value}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="row g-4 mb-4">
+        <InfoTable title="Car Informations" rows={carInfo} />
+        <InfoTable title="Additional Details" rows={additionalDetails} />
+      </div>
+
+      <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} />
+    </div>
+  );
+};
+
+// Extracted SellerInfoCard component
+const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi }) => {
+  return (
+    <Card className="seller-info-card">
+      <div className="d-flex justify-content-between align-items-center">
+        <div>
+         <div 
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+          }}>
+          <h5
+            className="mb-0 text-truncate"
+            style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#0A0A0B',
+              margin:'0',
+            }}
+          >
+            {carDetails.ad_title}
+          </h5>
+
+          <ShareAltOutlined
+            style={{
+              fontSize: '20px',
+              color: '#008ad5',
+              cursor: 'pointer',
+              flexShrink: 0,
+              marginLeft: '40px'
+            }}
+            onClick={copyToClipboard}
+          />
+         </div>
+          <div className="car-price">
+            {'IQD ' + Number(carDetails.price).toLocaleString()}
+          </div>
+          <div
+            className="d-flex align-items-center mt-2 mb-2"
+            style={{ marginLeft: '7px' }}
+          >
+            <div className="d-flex align-items-center gap-1">
+              <img
+                src={car_type}
+                alt="Car Type"
+                style={{ width: '14px', height: '14px' }}
+              />
+              <span>{carDetails.transmission_type}</span>
+            </div>
+            <span className="mx-2">|</span>
+
+            <div className="d-flex align-items-center gap-1">
+              <img
+                src={country_code}
+                alt="Country"
+                style={{ width: '16px', height: '16px' }}
+              />
+              <span>{carDetails.country_code}</span>
+            </div>
+            <span className="mx-2">|</span>
+            <div className="d-flex align-items-center gap-1">
+              <img
+                src={speed_code}
+                alt="Kilometers"
+                style={{ width: '16px', height: '16px' }}
+              />
+              <span>{carDetails.kilometers}</span>
+            </div>
+          </div>
+
+          <div
+            className="mt-2 text-muted"
+            style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0B' }}
+          >
+            Listed by Private User
+          </div>
+          <div className="d-flex align-items-center gap-2 mt-2">
+            <Avatar icon={<UserOutlined />} alt="User Avatar" />
+            <div>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: '#0A0A0B',
+                }}
+              >
+                {carDetails.seller.first_name}
+              </div>
+              <div
+                className="text-muted"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 400,
+                  color: '#0A0A0B',
+                }}
+              >
+                Member since {carDetails.seller.member_since}
+              </div>
+              <Link className="car-details-view-profile-link">
+                View Profile{' '}
+                <FaChevronRight
+                  style={{ fontSize: '9px', marginLeft: '2px' }}
+                />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="d-flex gap-2 mt-3">
+        <Button
+          icon={<MessageOutlined />}
+          className="w-100"
+          style={{
+            background: '#008AD5',
+            color: '#fff',
+            fontWeight: 500,
+            fontSize: '12px',
+          }}
+        >
+          Message
+        </Button>
+        <Button
+          onClick={() => openWhatsApp(carDetails.seller.phone_number)}
+          icon={<FaWhatsapp />}
+          className="w-100"
+          disabled={carDetails.seller.whatsapp === 'False'}
+          style={{
+            background: carDetails.seller.whatsapp === 'False' ? '#D3D3D3' : '#20B648',
+            border: 'none',
+            color: '#fff',
+            fontWeight: 500,
+            fontSize: '12px',
+          }}
+        >
+          Whatsapp
+        </Button>
+
+        <Button
+          icon={<FaPhoneAlt style={{ color: '#fff' }} />}
+          className="w-100 no-hover-bg"
+          style={{
+            background: '#323F49',
+            color: '#fff',
+            fontWeight: 500,
+            fontSize: '12px',
+            border: 'none',
+            pointerEvents: 'none',
+          }}
+          onClick={() => {
+            messageApi.open({
+              type: 'success',
+              content: carDetails.seller.phone_number,
+            });
+          }}
+        >
+          Call
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
+// Extracted CarDetailsSidebar component
+const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageApi }) => {
+  return (
+    <div className="col-md-4">
+      <SellerInfoCard 
+        carDetails={carDetails} 
+        copyToClipboard={copyToClipboard} 
+        openWhatsApp={openWhatsApp} 
+        messageApi={messageApi} 
+      />
+    </div>
+  );
+};
+
 const CarDetails = () => {
   const { id } = useParams();
   const [carDetails, setCarDetails] = useState(null);
@@ -291,281 +590,19 @@ const CarDetails = () => {
     <div className="container py-4 car-details-page">
       {contextHolder}
       <div className="row">
-        <div className="col-md-8">
-          <ImageGallery images={images} />
-          <h3 className="text-title">{carDetails.ad_title}</h3>
-          <p className="text-muted">{carDetails.description}</p>
-          <div
-            className="d-flex align-items-center gap-3 mb-2"
-            style={{ color: '#2B2829', fontWeight: 400, fontSize: '14px' }}
-          >
-            {formatEngineSummary(carDetails)}
-          </div>
-          <div className="d-flex align-items-center gap-1 mb-2">
-            <img
-              src={pin_location}
-              alt=""
-              style={{
-                width: '15px',
-                height: '15px',
-              }}
-            />
-            <span
-              style={{
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#7991A4',
-              }}
-            >
-              {carDetails.location}
-            </span>
-          </div>
-          <div className="col-md-12">
-            <div className="car-details-info" style={{ marginBottom: '10px' }}>
-              Car Details
-            </div>
-
-            <div className="row">
-              {[
-                {
-                  label: 'Year',
-                  value: carDetails.year || '-',
-                  icon: calender_image,
-                },
-                {
-                  label: 'Fuel Type',
-                  value: carDetails.fuel_type || '-',
-                  icon: fuel_image,
-                },
-                {
-                  label: 'Condition',
-                  value: carDetails.condition || '-',
-                  icon: gear_image,
-                },
-                {
-                  label: 'Kilometers',
-                  value: carDetails.kilometers || '-',
-                  icon: speed_code,
-                },
-              ].map((item) => (
-                <div className="col-md-3" key={item.label}>
-                  <div
-                    style={{
-                      border: '1px solid #ccc',
-                      borderRadius: 10,
-                      padding: '8px',
-                      height: 80,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <div
-                      style={{
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
-                    >
-                      <img
-                        src={item.icon}
-                        alt=""
-                        style={{ width: 14, height: 14 }}
-                      />
-                      <p
-                        style={{
-                          color: '#726C6C',
-                          fontWeight: 400,
-                          fontSize: '12px',
-                          margin: 0,
-                        }}
-                      >
-                        {item.label}
-                      </p>
-                    </div>
-                    <p
-                      style={{
-                        color: '#0A0A0B',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        margin: 0,
-                      }}
-                    >
-                      {item.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="row g-4 mb-4">
-            <InfoTable title="Car Informations" rows={carInfo} />
-            <InfoTable title="Additional Details" rows={additionalDetails} />
-          </div>
-
-          <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} />
-        </div>
-        <div className="col-md-4">
-          <Card className="seller-info-card">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-               <div 
-                style={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  }}>
-  <h5
-    className="mb-0 text-truncate"
-    style={{
-      fontSize: '20px',
-      fontWeight: 700,
-      color: '#0A0A0B',
-      margin:'0',
-    }}
-  >
-    {carDetails.ad_title}
-  </h5>
-
-  <ShareAltOutlined
-    style={{
-      fontSize: '20px',
-      color: '#008ad5',
-      cursor: 'pointer',
-      flexShrink: 0,
-      marginLeft: '40px'
-    }}
-    onClick={copyToClipboard}
-  />
-               </div>
-                <div className="car-price">
-                  {'IQD ' + Number(carDetails.price).toLocaleString()}
-                </div>
-                <div
-                  className="d-flex align-items-center mt-2 mb-2"
-                  style={{ marginLeft: '7px' }}
-                >
-                  <div className="d-flex align-items-center gap-1">
-                    <img
-                      src={car_type}
-                      alt="Car Type"
-                      style={{ width: '14px', height: '14px' }}
-                    />
-                    <span>{carDetails.transmission_type}</span>
-                  </div>
-                  <span className="mx-2">|</span>
-
-                  <div className="d-flex align-items-center gap-1">
-                    <img
-                      src={country_code}
-                      alt="Country"
-                      style={{ width: '16px', height: '16px' }}
-                    />
-                    <span>{carDetails.country_code}</span>
-                  </div>
-                  <span className="mx-2">|</span>
-                  <div className="d-flex align-items-center gap-1">
-                    <img
-                      src={speed_code}
-                      alt="Kilometers"
-                      style={{ width: '16px', height: '16px' }}
-                    />
-                    <span>{carDetails.kilometers}</span>
-                  </div>
-                </div>
-
-                <div
-                  className="mt-2 text-muted"
-                  style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0B' }}
-                >
-                  Listed by Private User
-                </div>
-                <div className="d-flex align-items-center gap-2 mt-2">
-                  <Avatar icon={<UserOutlined />} alt="User Avatar" />
-                  <div>
-                    <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 700,
-                        color: '#0A0A0B',
-                      }}
-                    >
-                      {carDetails.seller.first_name}
-                    </div>
-                    <div
-                      className="text-muted"
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 400,
-                        color: '#0A0A0B',
-                      }}
-                    >
-                      Member since {carDetails.seller.member_since}
-                    </div>
-                    <Link className="car-details-view-profile-link">
-                      View Profile{' '}
-                      <FaChevronRight
-                        style={{ fontSize: '9px', marginLeft: '2px' }}
-                      />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="d-flex gap-2 mt-3">
-              <Button
-                icon={<MessageOutlined />}
-                className="w-100"
-                style={{
-                  background: '#008AD5',
-                  color: '#fff',
-                  fontWeight: 500,
-                  fontSize: '12px',
-                }}
-              >
-                Message
-              </Button>
-              <Button
-                onClick={() => openWhatsApp(carDetails.seller.phone_number)}
-                icon={<FaWhatsapp />}
-                className="w-100"
-                disabled={carDetails.seller.whatsapp === 'False'}
-                style={{
-                  background: carDetails.seller.whatsapp === 'False' ? '#D3D3D3' : '#20B648',
-                  border: 'none',
-                  color: '#fff',
-                  fontWeight: 500,
-                  fontSize: '12px',
-                }}
-              >
-                Whatsapp
-              </Button>
-
-              <Button
-                icon={<FaPhoneAlt style={{ color: '#fff' }} />}
-                className="w-100 no-hover-bg"
-                style={{
-                  background: '#323F49',
-                  color: '#fff',
-                  fontWeight: 500,
-                  fontSize: '12px',
-                  border: 'none',
-                  pointerEvents: 'none',
-                }}
-                onClick={() => {
-                  messageApi.open({
-                    type: 'success',
-                    content: carDetails.seller.phone_number,
-                  });
-                }}
-              >
-                Call
-              </Button>
-            </div>
-          </Card>
-        </div>
+        <CarDetailsMain 
+          carDetails={carDetails} 
+          BASE_URL={BASE_URL} 
+          images={images} 
+          carInfo={carInfo} 
+          additionalDetails={additionalDetails} 
+        />
+        <CarDetailsSidebar 
+          carDetails={carDetails} 
+          copyToClipboard={copyToClipboard} 
+          openWhatsApp={openWhatsApp} 
+          messageApi={messageApi} 
+        />
       </div>
 
       <div

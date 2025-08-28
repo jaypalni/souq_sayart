@@ -187,7 +187,26 @@ const SavedSearches = () => {
         onChange={() => handleToggle(search.id)}
         className="saved-search-switch"
       />
-      <img src={deleteIcon} alt="Delete" style={{ width: 25, height: 25, marginTop:5,cursor:'pointer' }}   onClick={ () => setDeleteModalOpen(true)}/>
+      <button
+        type="button"
+        onClick={() => setDeleteModalOpen(true)}
+        style={{ 
+          background: 'none', 
+          border: 'none', 
+          padding: 0, 
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        aria-label="Delete saved search"
+      >
+        <img 
+          src={deleteIcon} 
+          alt="Delete" 
+          style={{ width: 25, height: 25, marginTop: 5 }} 
+        />
+      </button>
       </div>
      
      <Modal

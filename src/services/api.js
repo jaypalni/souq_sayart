@@ -161,10 +161,14 @@ export const userAPI = {
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
   getDelete: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DELETE),
   getDeleteOtp: (credentials) => api.post(API_CONFIG.ENDPOINTS.USER.POST_DEELETE_OTP, credentials),
-    changephonenumber: (credentials) =>
+  changephonenumber: (credentials) =>
     api.post(API_CONFIG.ENDPOINTS.USER.POST_CHANGE_PHONENUMBER, credentials),
-      chnagenumberverifyOtp: (otpData) =>
+  chnagenumberverifyOtp: (otpData) =>
     api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
+  deleteSavedSearch: (id) =>
+    api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id)),
+  notifySavedSearch: (id) =>
+    api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id)),
 };
 
 export default api;

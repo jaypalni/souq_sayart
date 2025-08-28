@@ -6,10 +6,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Switch, Button,message,Modal } from 'antd';
+import { Switch, Button,message,Modal,Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { carAPI } from '../services/api';
+import { carAPI,userAPI } from '../services/api';
 import lamborgini from '../assets/images/lamborghini.png';
 import lottie from '../assets/images/lottie_search.gif';
 import { useNavigate } from 'react-router-dom';
@@ -72,8 +72,10 @@ const EmptyState = () => {
 };
 
 const SavedSearches = () => {
+  const [loading, setLoading] = useState(true);
   const [searches, setSearches] = useState('');
-  const [, setLoading] = useState(false);
+  const [, setDeleteSaved] = useState('');
+  const [, setNotifySaved] = useState('');
   const [page] = useState(DEFAULT_PAGE);
   const [limit] = useState(DEFAULT_LIMIT);
   const [messageApi, contextHolder] = message.useMessage();
@@ -82,16 +84,18 @@ const SavedSearches = () => {
 
 
   useEffect(() => {
-    Allsavedsearches();
+    Allsavedsearches('3');
   }, []);
 
-  const Allsavedsearches = async () => {
+  const Allsavedsearches = async (id) => {
      try {
           const res = await carAPI.getsavedsearches(page, limit);
           const response = handleApiResponse(res);
     
           if (response?.data?.searches) {
-             messageApi.open({ type: 'success', content: response.data.message });
+            if(id === '3'){
+              messageApi.open({ type: 'success', content: response.message });
+            }
             setSearches(response?.data?.searches);
           } else {
         setSearches([]);
@@ -105,27 +109,57 @@ const SavedSearches = () => {
         }
   };
 
-  const handleDeleteNotification = async () => {
+  const handleDeleteNotification = async (id) => {
+     try {
+          const res = await userAPI.deleteSavedSearch(Number(id));
+          const response = handleApiResponse(res);
+    
+          if (response) {
+             messageApi.open({ type: 'success', content: response.message });
+            Allsavedsearches('2');
+          } else {
+        setDeleteSaved([]);
+      }
+        } catch(error) {
+          const errorData = handleApiError(error);
+          messageApi.open({ type: 'error', content: errorData.message });
+         
+        } finally {
+          setLoading(false);
+        }
 
   }
 
- const handleToggle = (id) => {
-   setSearches((prevSearches) =>
-     prevSearches.map((s) => {
-       if (s.id === id) {
-         return {
-           ...s,
-           notify: !s.notify,
-         };
-       }
-       return s;
-     }),
-   );
- };
+  const handleEnableNotification = async (id) => {
+     try {
+          const res = await userAPI.notifySavedSearch(Number(id));
+          const response = handleApiResponse(res);
+    
+          if (response) {
+             messageApi.open({ type: 'success', content: response.message });
+              Allsavedsearches('1');
+          } else {
+        setNotifySaved([]);
+      }
+        } catch(error) {
+          const errorData = handleApiError(error);
+          messageApi.open({ type: 'error', content: errorData.message });
+         
+        } finally {
+          setLoading(false);
+        }
 
+  }
 
+if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px' }}>
+       <Spin size="large" />
+      </div>
+    );
+  }
 
-  if (searches.length === 0) {
+  if (!loading && searches.length === 0) {
     return <EmptyState />;
   }
 
@@ -184,7 +218,7 @@ const SavedSearches = () => {
       <div style={{display:'flex', gap:10}}>
      <Switch
         checked={search.notification === 1}
-        onChange={() => handleToggle(search.id)}
+        onChange={() => handleEnableNotification(search.id)}
         className="saved-search-switch"
       />
       <button
@@ -236,7 +270,7 @@ const SavedSearches = () => {
             type="primary"
             onClick={() => {
               setDeleteModalOpen(false);
-              handleDeleteNotification();
+              handleDeleteNotification(search.id);
             }}
             style={{
               width: 120,

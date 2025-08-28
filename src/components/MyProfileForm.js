@@ -1359,7 +1359,18 @@ const mapUserToProfile = (user) => ({
   avatar: user.profile_image || '',
 });
 
-const applyUpdatedUser = (user, successMsg, form, setUsersData, setProfile, setAvatarUrl, setDealerValue, setEditMode) => {
+const applyUpdatedUser = (updateParams) => {
+  const {
+    user,
+    successMsg,
+    form,
+    setUsersData,
+    setProfile,
+    setAvatarUrl,
+    setDealerValue,
+    setEditMode
+  } = updateParams;
+  
   const updatedProfile = mapUserToProfile(user);
   setUsersData(user);
   setProfile(updatedProfile);
@@ -1528,16 +1539,16 @@ const renderAvatarContent = () => {
     const response = await userAPI.updateProfile(payload);
     const result = handleApiResponse(response);
     if (result?.data) {
-      applyUpdatedUser(
-        result.data,
-        result.message,
+      applyUpdatedUser({
+        user: result.data,
+        successMsg: result.message,
         form,
         setUsersData,
         setProfile,
         setAvatarUrl,
         setDealerValue,
         setEditMode,
-      );
+      });
     }
     messageApi.open({
         type: 'success',

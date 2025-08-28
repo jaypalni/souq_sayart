@@ -579,4 +579,5 @@ export default LandingFilters;
 
 LandingFilters.propTypes = {
   searchbodytype: PropTypes.string,
+  setSaveSearchesReload: PropTypes.func,
 };

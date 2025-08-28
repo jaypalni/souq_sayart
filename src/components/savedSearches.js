@@ -80,6 +80,7 @@ const SavedSearches = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
+
   useEffect(() => {
     Allsavedsearches();
   }, []);

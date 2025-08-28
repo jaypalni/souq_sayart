@@ -5,16 +5,22 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
+import {authAPI} from '../services/api';
+
 export const handleApiResponse = (response) => response?.data ?? null;
 
 export const handleApiError = (error) => {
   if (error.response) {
     const { status, data } = error.response;
+    if (data?.message ==='Invalid token or expired' ){
+  authAPI.refresh()
+    }
     return {
       status,
       message: data?.message || data?.error || 'An error occurred',
       errors: data?.errors || [],
-    };
+    
+    };                                                                                                                                                                                                                                                                                                                                                           
   } else if (error.request) {
     return {
       status: 0,

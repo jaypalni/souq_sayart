@@ -280,12 +280,13 @@ const UsersProfile = () => {
             {'Address'}
           </div>
           <div style={{ marginTop: 10 }}>
-            <label style={{ color: '#008ad5', fontWeight: 'bold' }}>
+            <label htmlFor="location-select" style={{ color: '#008ad5', fontWeight: 'bold' }}>
               Location
             </label>
 
             <div className="custom-select-wrapper">
               <Select
+                id="location-select"
                 value={location}
                 onChange={(value) => {
                   setLocation(value);
@@ -309,7 +310,7 @@ const UsersProfile = () => {
         style={{ marginLeft: '100px', marginRight: '100px', marginTop: '25px' }}
       >
         {carData.map((car, idx) => (
-          <Allcarslistdata key={idx} car={car} idx={idx} />
+          <Allcarslistdata key={`car-${car.title}-${idx}`} car={car} idx={idx} />
         ))}
       </div>
 

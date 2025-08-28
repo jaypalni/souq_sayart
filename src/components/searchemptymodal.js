@@ -181,6 +181,7 @@ Searchemptymodal.propTypes = {
   selectedLocation: PropTypes.string,
   setSelectedLocation: PropTypes.func,
   toastmessage: PropTypes.func,
+  setSaveSearchesReload: PropTypes.func,
 };
 
 const filterStyle = {

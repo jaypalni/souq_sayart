@@ -353,7 +353,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             bodyType={bodyType}
             location={location}
             onSearchResults={(searchResults) => {
-              if (searchResults && searchResults.data) {
+              if (searchResults?.data) {
                 setFilterCarsData(searchResults.data);
                 setFilterVisible(false);
               }

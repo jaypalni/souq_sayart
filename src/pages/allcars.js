@@ -51,7 +51,7 @@ const CarListing = ({ filtercarsData }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const [favoriteCars, ] = useState([]);
+ 
 
   useEffect(() => {
     if (!filtercarsData || !Array.isArray(filtercarsData.cars) || filtercarsData.cars.length === 0) {

@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FilterIcon from '../assets/images/filter_icon.svg';
 import { carAPI } from '../services/api';
@@ -28,6 +28,8 @@ import Extrasicon from '../assets/images/extras_icon.svg';
 import Safetyicon from '../assets/images/safety_icon.svg';
 import Searchicon from '../assets/images/search_icon.svg';
 import Backarrowicon from '../assets/images/backarrow_icon.svg';
+import { message } from 'antd';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 const { Option } = Select;
 
@@ -300,6 +302,25 @@ const SelectInput = ({ title, value, onChange, options, style }) => (
   </div>
 );
 
+const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
+  <div style={{ marginBottom: 16 }}>
+    <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
+      {title}
+    </div>
+    <Select
+      value={value}
+      onChange={onChange}
+      style={{ width: '100%', marginTop: '10px', ...style }}
+    >
+      {options.map(option => (
+        <Option key={option.id} value={option.trim_name}>
+          {option.trim_name}
+        </Option>
+      ))}
+    </Select>
+  </div>
+);
+
 SelectInput.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
@@ -448,13 +469,37 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const [search, setSearch] = useState('');
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [keywords, setKeywords] = useState([]);
+  const [trimData, setTrimData] = useState(false);
 
-  // Use custom hooks for state management
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
 
   const handleChange = (e) => setValue(e.target.value);
+
+  useEffect(() => {
+    fetchTrimData()
+  },[make,model])
+
+  const fetchTrimData = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.trimDetailsFilter(make,model);
+    const data1 = handleApiResponse(response);
+
+    if (data1) {
+      setTrimData(data1?.data);
+    }
+
+    message.success(data1.message || 'Fetched successfully');
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to Trim car data');
+    setTrimData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleFuelTypeChange = (option) => {
     if (filterState.selectedValues.includes(option)) {
@@ -515,11 +560,12 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           overflowY: 'auto',
           paddingRight: '8px',
         }}>
-          <SelectInput
+          
+          <SelectInputTrimData
             title="Trim"
             value={singleInputs.trimValue}
             onChange={singleInputs.setTrimValue}
-            options={['Any', 'Base', 'Sport']}
+            options={trimData}
           />
 
           <div style={{ marginBottom: 16 }}>

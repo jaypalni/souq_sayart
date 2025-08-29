@@ -32,6 +32,7 @@ const LoginScreen = () => {
   const [captchaerrormsg, setCaptchaErrorMsg] = useState('');
   const { user } = useSelector((state) => state.auth);
   const { customerDetails } = useSelector((state) => state.customerDetails);
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   const isLoggedIn = Boolean(customerDetails && user);
 
@@ -256,7 +257,7 @@ const LoginScreen = () => {
                   {selectedCountry && (
                     <>
                       <img
-                        src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
+                        src={`${BASE_URL}${selectedCountry.country_flag_image}`}
                         alt="flag"
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />
@@ -300,7 +301,7 @@ const LoginScreen = () => {
                         }}
                       >
                         <img
-                          src={`http://192.168.2.72:5001${country.country_flag_image}`}
+                          src={`${BASE_URL}${country.country_flag_image}`}
                           alt="flag"
                           style={{ width: 20, height: 14, marginRight: 6 }}
                         />

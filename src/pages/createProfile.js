@@ -27,6 +27,8 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { registerUser } from '../redux/actions/authActions';
 import whatsappIcon from '../assets/images/Whatsup.svg';
 import TermsAndconditions from './termsAndconditions';
+import dayjs from 'dayjs';
+
 
 const { Title, Text } = Typography;
 
@@ -87,95 +89,112 @@ const CreateProfile = () => {
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+  const file = e.target.files[0];
 
-    if (!file) {
-      return;
-    }
+  if (!file) return;
 
-    const isPDF = file.type === 'application/pdf';
+  const isPDF = file.type === 'application/pdf';
+  if (!isPDF) {
+    messageApi.open({
+      type: 'error',
+      content: 'Upload failed. Only .pdf documents are allowed.',
+    });
+    return;
+  }
 
-    if (!isPDF) {
-      messageApi.open({
-        type: 'error',
-        content: 'Upload failed. Only .pdf documents are allowed.',
-      });
-      return;
-    }
+  const isLt10M = file.size / 1024 / 1024 <= 10;
+  if (!isLt10M) {
+    messageApi.open({
+      type: 'error',
+      content: 'Document must be smaller than 10 MB.',
+    });
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const formData = new FormData();
-      formData.append('attachment', file);
-
-      const carResponse = await authAPI.uploadimages(formData);
-      const userdoc = handleApiResponse(carResponse);
-
-      if (userdoc?.attachment_url) {
-        setUploadedDocUrl(userdoc.attachment_url);
-        form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
-        messageApi.open({
-          type: 'success',
-          content: userdoc.message,
-        });
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBeforeUpload = async (file) => {
-    const isImage =
-      file.type === 'image/png' ||
-      file.type === 'image/jpeg' ||
-      file.type === 'image/jpg';
-
-    if (!isImage) {
-      messageApi.open({
-        type: 'error',
-        content:
-          'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
-      });
-      return Upload.LIST_IGNORE;
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    setImageUrl(previewUrl);
     const formData = new FormData();
     formData.append('attachment', file);
 
-    try {
-      const response = await authAPI.uploadimages(formData);
-      const userdoc = handleApiResponse(response);
+    const carResponse = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(carResponse);
 
-      if (userdoc?.attachment_url) {
-        setImageUrl(userdoc.attachment_url);
-        messageApi.open({
-          type: 'success',
-          content: userdoc.message,
-        });
-        return Upload.LIST_IGNORE; 
-      } else {
-        message.error(userdoc.message || 'Upload failed');
-        return Upload.LIST_IGNORE;
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
+    if (userdoc?.attachment_url) {
+      setUploadedDocUrl(userdoc.attachment_url);
+      form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
       messageApi.open({
-        type: 'error',
-        content: errorData.message,
+        type: 'success',
+        content: userdoc.message,
       });
-      message.error('Upload failed due to network error');
-      return Upload.LIST_IGNORE; 
     }
-  };
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleBeforeUpload = async (file) => {
+  const isImage =
+    file.type === 'image/png' ||
+    file.type === 'image/jpeg' ||
+    file.type === 'image/jpg';
+
+  if (!isImage) {
+    messageApi.open({
+      type: 'error',
+      content:
+        'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
+    });
+    return Upload.LIST_IGNORE;
+  }
+
+  const isLt5M = file.size / 1024 / 1024 <= 5;
+  if (!isLt5M) {
+    messageApi.open({
+      type: 'error',
+      content: 'Profile image must be smaller than 5 MB.',
+    });
+    return Upload.LIST_IGNORE;
+  }
+
+  const previewUrl = URL.createObjectURL(file);
+  setImageUrl(previewUrl);
+
+  const formData = new FormData();
+  formData.append('attachment', file);
+
+  try {
+    const response = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(response);
+
+    if (userdoc?.attachment_url) {
+      setImageUrl(userdoc.attachment_url);
+      messageApi.open({
+        type: 'success',
+        content: userdoc.message,
+      });
+      return Upload.LIST_IGNORE; 
+    } else {
+      message.error(userdoc.message || 'Upload failed');
+      return Upload.LIST_IGNORE;
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+    return Upload.LIST_IGNORE;
+  }
+};
+
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
@@ -362,6 +381,11 @@ const CreateProfile = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           initialValues={{ isDealer: false }}
+          onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  }}
         >
           <div className="row g-3">
             <div className="col-md-6">
@@ -377,7 +401,7 @@ const CreateProfile = () => {
                 rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[A-Za-z]+$/,
+                    pattern: /^[\p{L}]+$/u,
                     message: 'First name should contain only letters',
                   },
                   {
@@ -397,14 +421,14 @@ const CreateProfile = () => {
                   <span
                     style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
-                    First Name<span style={{ color: '#637D92' }}>*</span>
+                    Last Name<span style={{ color: '#637D92' }}>*</span>
                   </span>
                 }
                 name="lastName"
                 rules={[
                   { required: true, message: 'Last name is required' },
                   {
-                    pattern: /^[A-Za-z]+$/,
+                    pattern: /^[\p{L}]+$/u,
                     message: 'Last name should contain only letters',
                   },
                   {
@@ -436,39 +460,45 @@ const CreateProfile = () => {
               </Form.Item>
             </div>
             <div className="col-md-6">
-              <Form.Item
-                label={
-                  <span
-                    style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
-                  >
-                    Date Of Birth*
-                  </span>
-                }
-                name="dob"
-                rules={[
-                  {
-                    required: true,
-                    message: 'this field is mandatory please fill it',
-                  },
-                ]}
-                required={false}
-                validateStatus={dobError ? 'error' : undefined}
-                help={dobError || undefined}
-              >
-                <DatePicker
-                  style={{
-                    width: '100%',
-                    borderColor: dobError && '#ff4d4f',
-                  }}
-                  format="DD / MM / YYYY"
-                  placeholder="DD / MM / YYYY"
-                  size="middle"
-                  disabledDate={(current) =>
-                    current && current > moment().endOf('day')
-                  }
-                  inputReadOnly={true}
-                />
-              </Form.Item>
+             <Form.Item
+  label={
+    <span style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}>
+      Date Of Birth*
+    </span>
+  }
+  name="dob"
+  rules={[
+    {
+      required: true,
+      message: 'This field is mandatory, please fill it',
+    },
+  ]}
+  required={false}
+  validateStatus={dobError ? 'error' : undefined}
+  help={dobError || undefined}
+>
+  <DatePicker
+  style={{
+    width: '100%',
+    borderColor: dobError && '#ff4d4f',
+  }}
+  format="DD/MM/YYYY"
+  placeholder="DD / MM / YYYY"
+  size="middle"
+  disabledDate={(current) =>
+    current && current > dayjs().endOf('day')
+  }
+  allowClear
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); 
+    }
+  }}
+/>
+
+</Form.Item>
+
+
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -536,6 +566,10 @@ const CreateProfile = () => {
                         required: isDealer,
                         message: 'Company name is required',
                       },
+                       {
+                    max: 100,
+                    message: 'Company name cannot exceed 100 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -558,6 +592,10 @@ const CreateProfile = () => {
                     name="ownerName"
                     rules={[
                       { required: isDealer, message: 'Owner name is required' },
+                      {
+                    max: 100,
+                    message: 'Owner name cannot exceed 100 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -585,6 +623,10 @@ const CreateProfile = () => {
                         required: isDealer,
                         message: 'Company address is required',
                       },
+                      {
+                    max: 500,
+                    message: 'Company Address cannot exceed 500 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -606,6 +648,7 @@ const CreateProfile = () => {
                     }
                     name="phoneNumber"
                     rules={[
+                      
                       {
                         required: isDealer,
                         message: 'Phone number is required',
@@ -638,6 +681,10 @@ const CreateProfile = () => {
                     name="companyCR"
                     rules={[
                       { required: isDealer, message: 'CR number is required' },
+                       {
+                    max: 100,
+                    message: 'Company CR Number cannot exceed 100 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -660,7 +707,7 @@ const CreateProfile = () => {
                     name="facebookPage"
                     required={false}
                   >
-                    <Input placeholder="Name" size="middle" />{' '}
+                    <Input placeholder="Name" size="middle" />
                   </Form.Item>
                 </div>
               </div>
@@ -681,7 +728,7 @@ const CreateProfile = () => {
                     name="instagramProfile"
                     required={false}
                   >
-                    <Input placeholder="Name" size="middle" />{' '}
+                    <Input placeholder="Name" size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">

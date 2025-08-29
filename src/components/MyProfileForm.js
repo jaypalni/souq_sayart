@@ -121,6 +121,7 @@ const PhoneChangeForm = ({
   onContinue, 
   handlePhoneChange 
 }) => {
+  const BASE_URL = process.env.REACT_APP_API_URL;
   return (
     <div
       style={{
@@ -181,7 +182,7 @@ const PhoneChangeForm = ({
                 {selectedCountry && (
                   <>
                     <img
-                      src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
+                      src={`${BASE_URL}${selectedCountry.country_flag_image}`}
                       alt="flag"
                       style={{ width: 20, height: 14, marginRight: 6 }}
                     />
@@ -225,7 +226,7 @@ const PhoneChangeForm = ({
                       }}
                     >
                       <img
-                        src={`http://192.168.2.72:5001${country.country_flag_image}`}
+                        src={`${BASE_URL}${country.country_flag_image}`}
                         alt="flag"
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />
@@ -486,6 +487,15 @@ const ProfileForm = ({
               </span>
             }
             name="company"
+             rules={[
+                      {
+                        message: 'Company name is required',
+                      },
+                       {
+                    max: 100,
+                    message: 'Company name cannot exceed 100 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -511,6 +521,13 @@ const ProfileForm = ({
               </span>
             }
             name="owner"
+             rules={[
+                      { message: 'Owner name is required' },
+                      {
+                    max: 100,
+                    message: 'Owner name cannot exceed 100 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -536,6 +553,15 @@ const ProfileForm = ({
               </span>
             }
             name="address"
+            rules={[
+                      {
+                        message: 'Company address is required',
+                      },
+                      {
+                    max: 500,
+                    message: 'Company Address cannot exceed 500 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -853,6 +879,17 @@ const ProfileForm = ({
                 </span>
               }
               name="first_name"
+               rules={[
+                  { required: true, message: 'First name is required' },
+                  {
+                    pattern: /^[\p{L}]+$/u,
+                    message: 'First name should contain only letters',
+                  },
+                  {
+                    max: 50,
+                    message: 'First name cannot exceed 50 characters',
+                  },
+                ]}
             >
               <Input
               disabled={!editMode}
@@ -878,6 +915,17 @@ const ProfileForm = ({
                 </span>
               }
               name="last_name"
+               rules={[
+                  { required: true, message: 'Last name is required' },
+                  {
+                    pattern: /^[\p{L}]+$/u,
+                    message: 'Last name should contain only letters',
+                  },
+                  {
+                    max: 50,
+                    message: 'Last name cannot exceed 50 characters',
+                  },
+                ]}
             >
               <Input
               disabled={!editMode}
@@ -939,7 +987,7 @@ const ProfileForm = ({
       width: '100%',
       fontSize: '12px',
       fontWeight: 400,
-      color: '#000000',
+      color: '#4A5E6D',
     }}
     onChange={(date) => {
       console.log('Selected Date:', date ? dayjs(date).format('ddd, DD MMM YYYY') : null);
@@ -1531,7 +1579,7 @@ const renderAvatarContent = () => {
       facebook_page: values.facebook || '',
       instagram_company_profile: values.instagram || '',
       profile_pic: imageUrl || '',
-      whatsapp: values.phone || '',
+      whatsapp: toWhatsappFlag(checked) || '',
       location: values.address || '',
       document: uploadedDocUrl
     };

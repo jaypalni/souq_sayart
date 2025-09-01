@@ -73,6 +73,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [carCount] = useState(DEFAULT_CAR_COUNT);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [savedModel, setSavedModel] = useState(null);
   const dropdownRefs = {
     [DROPDOWN_NEW_USED]: useRef(),
     [DROPDOWN_PRICE_MIN]: useRef(),
@@ -84,17 +85,36 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
       fetchMakeCars({ setLoading, setCarMakes });
     }, []);
 
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('searchcardata'));
-      if (saved) {
-        setMake(saved.make || DEFAULT_MAKE);
-        setModel(saved.model || DEFAULT_MODEL);
-        setBodyType(saved.body_type || DEFAULT_BODY_TYPE);
-        setLocation(saved.location || DEFAULT_LOCATION);
-      }
-    } catch (e) {}
-  }, []);
+ // After restoring saved search values
+useEffect(() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved) {
+      setMake(saved.make || DEFAULT_MAKE);
+      setModel(saved.model || DEFAULT_MODEL);
+      setBodyType(saved.body_type || DEFAULT_BODY_TYPE);
+      setLocation(saved.location || DEFAULT_LOCATION);
+    }
+  } catch (e) {}
+}, []);
+
+// 👇 this will call fetchModelCars once make is set (from localStorage or manually)
+ useEffect(() => {
+    if (make && make !== DEFAULTS.ALL_MAKE) {
+      fetchModelCars({ setLoading, setCarModels, make }).then((models) => {
+        // If saved model exists & is valid, select it
+        if (savedModel && models.some((m) => m.model_name === savedModel)) {
+          setModel(savedModel);
+        } else {
+          setModel(DEFAULTS.ALL_MODELS);
+        }
+      });
+    } else {
+      setCarModels([]);
+      setModel(DEFAULTS.ALL_MODELS);
+    }
+  }, [make]);
+
   useEffect(() => {
     if (model) {
       fetchBodyTypeCars();
@@ -286,23 +306,24 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="model-select">Model</label>
             <Select
-              id="model-select"
-              value={model}
-              onChange={(value) => {
-                setModel(value);
-                handleChange('Model', value);
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-              disabled={make === DEFAULTS.ALL_MAKE}
-            >
-              {carModels?.map((m) => (
-                <Option key={m} value={m.model_name}>
-                  {m.model_name}
-                </Option>
-              ))}
-            </Select>
+  id="model-select"
+  value={model}
+  onChange={(value) => {
+    setModel(value);
+    handleChange('Model', value);
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  disabled={make === DEFAULTS.ALL_MAKE}
+>
+  {carModels?.map((m) => (
+    <Option key={m} value={m.model_name}>
+      {m.model_name}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="bodytype-select">Body Type</label>

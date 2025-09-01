@@ -228,19 +228,35 @@ const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, 
         <Input 
           placeholder={minPlaceholder || 'Min'} 
           value={minValue}
-          onChange={onMinChange}
+          onChange={(e) => handleNumberInput(e, onMinChange)}
         />
       </Col>
       <Col span={12}>
         <Input 
           placeholder={maxPlaceholder || 'Max'} 
           value={maxValue}
-          onChange={onMaxChange}
+          onChange={(e) => handleNumberInput(e, onMaxChange)}
         />
       </Col>
     </Row>
   </div>
 );
+
+const MAX_PRICE = 5000000000;
+
+ const handleNumberInput = (e, callback) => {
+  let value = e.target.value.replace(/[^0-9]/g, ''); // remove non-numeric
+
+  if (value) {
+    let num = parseInt(value, 10);
+    if (num > MAX_PRICE) {
+      num = MAX_PRICE; // enforce max
+    }
+    value = String(num);
+  }
+
+  callback({ target: { value } }); // trigger state update with clean & capped value
+};
 
 RangeInputGroup.propTypes = {
   label: PropTypes.string.isRequired,
@@ -528,6 +544,44 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
     }
   };
 
+    const handleResetFilters = () => {
+    // Reset range inputs
+    rangeInputs.setKilometersMin('');
+    rangeInputs.setKilometersMax('');
+    rangeInputs.setYearMin('');
+    rangeInputs.setYearMax('');
+    rangeInputs.setPriceMin('');
+    rangeInputs.setPriceMax('');
+    rangeInputs.setPowerMin('');
+    rangeInputs.setPowerMax('');
+    rangeInputs.setConsumptionMin('');
+    rangeInputs.setConsumptionMax('');
+    rangeInputs.setSeatsMin('');
+    rangeInputs.setSeatsMax('');
+
+    // Reset filter state
+    filterState.setSelectedValues(['Any']);
+    filterState.settransmissionselectedValues(['Any']);
+    filterState.setcylinderselectedValues([]);
+    filterState.setdoorselectedValues([]);
+    filterState.setCondition(['Any']);
+    filterState.setOwnerType(['Any']);
+
+    // Reset single inputs
+    singleInputs.setTrimValue('Any');
+    singleInputs.setColorValue('Any');
+    singleInputs.setInteriorValue('Any');
+    singleInputs.setPaymentOptions('Any');
+    singleInputs.setRegionalSpecs('Any');
+    setKeywords([]);
+    setSelectedFeatures([]);
+
+    setValue('Any');
+
+    message.success('Filters have been reset!');
+  };
+
+
   return (
     <>
       <button
@@ -765,9 +819,33 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           />
 
           <Divider />
-          <Button type="primary" block onClick={handleApplyFilters} loading={loading}>
-            {loading ? 'Searching...' : 'Apply Filters'}
-          </Button>
+
+<Row gutter={12}>
+  <Col span={12}>
+    <Button
+      type="primary"
+      block
+      onClick={handleApplyFilters}
+      loading={loading}
+    >
+      {loading ? 'Searching...' : 'Apply Filters'}
+    </Button>
+  </Col>
+  <Col span={12}>
+    <Button
+      block
+      onClick={handleResetFilters}
+      style={{
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #008ad5',
+        color: '#008ad5',
+      }}
+    >
+      Reset Filters
+    </Button>
+  </Col>
+</Row>
+
         </div>
       </Drawer>
 

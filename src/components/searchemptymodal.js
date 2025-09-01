@@ -80,19 +80,26 @@ const Searchemptymodal = ({
         });
          setSaveSearchesReload(searchparams)
       } else {
-        message.success({
-          content: 'Search saved successfully!',
-          onClose: () => {
-            onClose();
-          },
-        });
-       
+        // message.success({
+        //   content: 'Search saved successfully!',
+        //   onClose: () => {
+        //     onClose();
+        //   },
+        // });
+      
       }
 
       toastmessage(data?.message);
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(errorData.message || 'Failed to save search');
+       messageApi.error({
+          type: 'success',
+          content: errorData?.message,
+          onClose: () => {
+            onClose();
+          },
+        });
     }
   };
 

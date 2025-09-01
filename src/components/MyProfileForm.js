@@ -23,6 +23,7 @@ import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
+import { AiOutlineLeft } from 'react-icons/ai';
 
 const YES = 'yes';
 const NO = 'no';
@@ -252,7 +253,7 @@ const PhoneChangeForm = ({
             {emailerrormsg}
           </div>
         </div>
-        <div style={{marginBottom: 12}}>
+        {/* <div style={{marginBottom: 12}}>
               <div
                 style={{
                   display: 'flex',
@@ -279,7 +280,7 @@ const PhoneChangeForm = ({
                   style={switchStyle}
                 />
               </div>
-            </div>
+            </div> */}
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             style={{
@@ -330,7 +331,7 @@ PhoneChangeForm.propTypes = {
   handlePhoneChange: PropTypes.func.isRequired,
 };
 
-// Extracted OTPForm component
+
 const OTPForm = ({ 
   otp, 
   handleChange, 
@@ -721,21 +722,12 @@ const ProfileForm = ({
         <>
           <Button
             className="btn-solid-blue"
-            icon={<CheckOutlined />}
             shape="round"
             type="primary"
             htmlType="submit"
             style={{ marginRight: 8 }}
           >
-            Update
-          </Button>
-          <Button
-            className="btn-outline-blue"
-            icon={<CloseOutlined />}
-            shape="round"
-            onClick={onCancel}
-          >
-            Cancel
+            Save Changes
           </Button>
         </>
       );
@@ -1195,6 +1187,7 @@ const handleKeyDown = (e, idx) => {
         setLoading(true);
         const savePhone = `${selectedCountry.country_code}${phone}`;
         localStorage.setItem('phonenumber', savePhone);
+        console.log('New Number', savePhone)
   
         const response = await userAPI.changephonenumber({
           phone_number: savePhone,
@@ -1210,7 +1203,7 @@ const handleKeyDown = (e, idx) => {
            setShowChangePhoneForm(false);
           setShowOtpForm(true);
            if (intervalRef.current) clearInterval(intervalRef.current); 
-        setTimer(30); 
+        setTimer(60); 
         setIsTimerRunning(true);
 
         intervalRef.current = setInterval(() => {
@@ -1275,12 +1268,12 @@ const handleKeyDown = (e, idx) => {
   
   const handleResend = async () => {
     if (!isTimerRunning) {
-      setTimer(30);
+      setTimer(60);
       setIsTimerRunning(true);
     }
   
     try {
-      const usermobilenumber = localStorage.getItem('phone_number');
+      const usermobilenumber = localStorage.getItem('phonenumber');
       setLoading(true);
   
       const response = await authAPI.resendotp({
@@ -1294,6 +1287,19 @@ const handleKeyDown = (e, idx) => {
           type: 'success',
           content: data.message,
         });
+          if (intervalRef.current) clearInterval(intervalRef.current); 
+        setTimer(60); 
+        setIsTimerRunning(true);
+        intervalRef.current = setInterval(() => {
+          setTimer((prev) => {
+            if (prev <= 1) {
+              clearInterval(intervalRef.current);
+              setIsTimerRunning(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       }
     } catch (err) {
       const errorData = handleApiError(err);
@@ -1614,42 +1620,51 @@ const renderAvatarContent = () => {
    * @returns {JSX.Element} Header content
    */
   const renderHeaderContent = () => {
-    if (showOtpForm) {
-      return (
-        <>
-          <ArrowLeftOutlined
-            onClick={() => {
-              setShowOtpForm(false);
-              setShowChangePhoneForm(true); 
-            }}
-            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-          />
-          Enter OTP Sent To Your New Number
-        </>
-      );
-    }
-    
-    if (showChangePhoneForm) {
-      return (
-        <>
-          <ArrowLeftOutlined
-            onClick={() => {
-              setIsChangingPhone(false);
-              setShowChangePhoneForm(false);
-            }}
-            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-          />
-          Change Mobile Number
-        </>
-      );
-    }
-    
-    if (editMode) {
-      return 'Edit Profile';
-    }
-    
-    return 'My Profile';
-  };
+  if (showOtpForm) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={() => {
+            setShowOtpForm(false);
+            setShowChangePhoneForm(true);
+          }}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Enter OTP Sent To Your New Number
+      </>
+    );
+  }
+
+  if (showChangePhoneForm) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={() => {
+            setIsChangingPhone(false);
+            setShowChangePhoneForm(false);
+          }}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Change Mobile Number
+      </>
+    );
+  }
+
+  if (editMode) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={onCancel}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Edit Profile
+      </>
+    );
+  }
+
+  return 'My Profile';
+};
+
 
   /**
    * Renders the main content based on current state
@@ -1740,7 +1755,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
     <div className='small-popup-container'>
       <div className='small-popup'>
         <button
-          className='popup-close-icon'
+          className= 'popup-close-icon'
           type="button"
           onClick={onClose}
           aria-label='Close'

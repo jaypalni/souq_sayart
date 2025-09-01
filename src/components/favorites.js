@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../assets/styles/favorites.css';
 import { message, Spin } from 'antd';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
@@ -27,8 +27,14 @@ const MyFavoritesCars = () => {
   const [page] = useState(1);
   const [limit] = useState(15);
 
+ const effectRan = useRef(false);
+
   useEffect(() => {
-    fetchFavorites();
+    if (effectRan.current === false) {
+      fetchFavorites();
+      console.log('API called only once');
+      effectRan.current = true;
+    }
   }, []);
 
   const fetchFavorites = async () => {
@@ -73,6 +79,7 @@ const MyFavoritesCars = () => {
           content: data.message,
         });
         fetchFavorites();
+        console.log('Api Call Fav')
       }
     } catch (error) {
       const errorData = handleApiError(error);

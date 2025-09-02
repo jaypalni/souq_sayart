@@ -413,38 +413,45 @@ useEffect(() => {
           </button>
           <div className="landing-filters-row landing-filters-row-text">
          
-            <div>
-        {!showMinInput ? (
-          <div
-            style={{
-              // border: '1px solid #d9d9d9',
-              borderRadius: '4px',
-              padding: '6px 12px',
-              cursor: 'pointer',
-              fontSize: '15px',
-              color: '#008AD5',
-              minWidth: '100px',
-              textAlign: 'center',
-              fontWeight: 400,
-            }}
-            onClick={() => setShowMinInput(true)}
-          >
-            {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
-          </div>
-        ) : (
-          <InputNumber
-            style={{ width: '100px' }}
-            min={0}
-            value={minPrice}
-            onChange={setMinPrice}
-            onBlur={() => {
-              if (minPrice === null) setShowMinInput(false);
-            }}
-            placeholder='Min'
-          />
-        )}
-      </div>
-      {/* Price Max */}
+            {/* Price Min */}
+<div>
+  {!showMinInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#008AD5',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 400,
+      }}
+      onClick={() => setShowMinInput(true)}
+    >
+      {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '100px' }}
+      min={0}
+      value={minPrice}
+      onChange={(value) => {
+        if (maxPrice !== null && value >= maxPrice) {
+          messageApi.error('Minimum price should be less than Maximum price');
+          return;
+        }
+        setMinPrice(value);
+      }}
+      onBlur={() => {
+        if (minPrice === null) setShowMinInput(false);
+      }}
+      placeholder="Min"
+    />
+  )}
+</div>
+
+{/* Price Max */}
 <div>
   {!showMaxInput ? (
     <div
@@ -472,6 +479,10 @@ useEffect(() => {
           messageApi.error('Maximum allowed price is ₹5,000,000,000');
           return;
         }
+        if (minPrice !== null && value <= minPrice) {
+          messageApi.error('Maximum price should be greater than Minimum price');
+          return;
+        }
         setMaxPrice(value);
       }}
       onBlur={() => {
@@ -481,6 +492,7 @@ useEffect(() => {
     />
   )}
 </div>
+
 
         </div>
         </div>

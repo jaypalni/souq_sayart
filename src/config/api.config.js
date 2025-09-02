@@ -38,6 +38,7 @@ const API_CONFIG = {
       GET_SAVED_SEARCHES: (page, limit) =>
         `/api/users/saved-searches?page=${page}&limit=${limit}`,
       GET_TERM_AND_CONDITIONS: '/api/users/content',
+      GET_CARS_TOTALCOUNT: '/api/cars/total_count'
     },
     AUTH: {
       LOGIN: '/api/auth/login',

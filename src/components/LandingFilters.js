@@ -79,7 +79,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
-  const carCount = DEFAULT_CAR_COUNT;
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,6 +87,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [showMaxInput, setShowMaxInput] = useState(false);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
+  const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
   const dropdownRefs = {
     newUsed: useRef(),
@@ -97,6 +97,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
+    fetchtotalcarcount()
   }, []);
 
   useEffect(() => {
@@ -435,6 +436,26 @@ const isIndiaLocale = () => {
     </div>
   );
 
+  const fetchtotalcarcount = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.totalcarscount();
+    const data1 = handleApiResponse(response);
+
+    if (data1?.total_cars !== undefined) {
+      setCarCount(data1.total_cars); 
+    } else {
+      message.error('No content found');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return (
     <div className="landing-filters-outer">
       {contextHolder}
@@ -525,14 +546,15 @@ const isIndiaLocale = () => {
           </div>
           <div className="landing-filters-col landing-filters-btn-col">
             <Button
-              type="primary"
-              size="large"
-              onClick={handleSearch}
-              icon={<SearchOutlined />}
-              className="landing-filters-btn"
-            >
-              <span>Show {carCount.toLocaleString()} Cars</span>
-            </Button>
+  type="primary"
+  size="large"
+  onClick={handleSearch}
+  icon={<SearchOutlined />}
+  className="landing-filters-btn"
+>
+  <span>Show {carCount.toLocaleString()} Cars</span>
+</Button>
+
           </div>
         </div>
         <div className="landing-filters-row landing-filters-row-text">

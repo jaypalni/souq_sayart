@@ -1617,14 +1617,19 @@ const handleSubmitError = (error, onFinishFailed) => {
     const response = await userAPI.updateProfile(payload);
     
     const result = handleApiResponse(response);
-    
-    if (result?.data) {
+    console.log('User Profile', result)
+      dispatch(updateCustomerDetails({
+          first_name: result?.user?.first_name,
+          last_name: result?.user?.last_name,
+        }));
+    if (result?.user) {
       
 
     try {
         const profileResponse = await userAPI.getProfile({});
         
         const profileResult = handleApiResponse(profileResponse);
+        
         
         if (profileResult?.data) {
           applyUpdatedUser({

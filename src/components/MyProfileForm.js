@@ -804,7 +804,7 @@ const ProfileForm = ({
           >
             {renderAvatarContent()}
 
-            <PlusCircleFilled
+       {  editMode &&  <PlusCircleFilled
               style={{
                 position: 'absolute',
                 bottom: 6,
@@ -815,7 +815,7 @@ const ProfileForm = ({
                 borderRadius: '50%',
                 border: '2px solid #fff',
               }}
-            />
+            />}
           </div>
         </Upload>
       </div>
@@ -1348,17 +1348,10 @@ const populateUserProfile = (user, successMsg) => {
   setUsersData(user);
   setProfile(userProfile);
   form.setFieldsValue(userProfile);
-<<<<<<< HEAD
   setAvatarUrl(user.profile_image || user.profile_pic || '');
-=======
-  setAvatarUrl(user.profilePic || user.profile_image);
->>>>>>> 3207676ba545d68eb690013cb6d8bb16a4d5a365
   setDealerValue(userProfile.dealer);
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
-
-const BASE_URL = process.env.REACT_APP_API_URL;
-
 const mapUserToProfile = (user) => {
   const profilePic = user.profile_pic || '';
   const fullAvatarUrl =
@@ -1404,11 +1397,7 @@ const applyUpdatedUser = (updateParams) => {
   setUsersData(user);
   setProfile(updatedProfile);
   form.setFieldsValue(updatedProfile);
-<<<<<<< HEAD
   setAvatarUrl(user.profile_image || user.profile_pic || '');
-=======
-  setAvatarUrl(user.profile_pic || '');
->>>>>>> 3207676ba545d68eb690013cb6d8bb16a4d5a365
   setDealerValue(user.is_dealer ? YES : NO);
   
  

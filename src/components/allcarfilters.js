@@ -98,11 +98,11 @@ useEffect(() => {
   } catch (e) {}
 }, []);
 
-// 👇 this will call fetchModelCars once make is set (from localStorage or manually)
+
  useEffect(() => {
     if (make && make !== DEFAULTS.ALL_MAKE) {
       fetchModelCars({ setLoading, setCarModels, make }).then((models) => {
-        // If saved model exists & is valid, select it
+       
         if (savedModel && models.some((m) => m.model_name === savedModel)) {
           setModel(savedModel);
         } else {

@@ -55,6 +55,39 @@
   height: 44px !important;
 }
 
+
+.allcars-filters-select .ant-select-selector {
+  background-color: #E7EBEF !important;
+  color: #ffffff !important;
+  border-radius: 4px; 
+  border: 1px solid #000; 
+}
+
+
+.allcars-filters-select .ant-select-selection-placeholder {
+  color: #cccccc !important;
+}
+
+
+.allcars-filters-dropdown .ant-select-item {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+
+.allcars-filters-dropdown .ant-select-item-option-active,
+.allcars-filters-dropdown .ant-select-item-option-selected {
+  background-color: #008AD5 !important;
+  color: #ffffff !important;
+}
+
+
+.allcars-filters-select .ant-select-arrow svg {
+  fill: #000000 !important;
+  color: #000000 !important;
+}
+
+
 .allcars-filters-dropdown {
   border-radius: 8px !important;
 }

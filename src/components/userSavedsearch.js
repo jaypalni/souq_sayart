@@ -286,7 +286,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
         <button
           type="button"
           className="car-listing-seeall"
-          onClick={() => navigate('/allcars')}
+          onClick={() => navigate('/myProfile/searches')}
         >
           See All
         </button>

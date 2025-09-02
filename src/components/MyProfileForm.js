@@ -7,16 +7,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch, DatePicker } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, message, Upload, DatePicker } from 'antd';
 
 import {
   EditOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { userAPI, authAPI } from '../services/api';
-import whatsappIcon from '../assets/images/Whatsup.svg';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
@@ -1265,53 +1261,6 @@ const handleKeyDown = (e, idx) => {
   }
 };
 
-  
-  const handleResend = async () => {
-    if (!isTimerRunning) {
-      setTimer(60);
-      setIsTimerRunning(true);
-    }
-  
-    try {
-      const usermobilenumber = localStorage.getItem('phonenumber');
-      setLoading(true);
-  
-      const response = await authAPI.resendotp({
-        phone_number: usermobilenumber,
-      });
-      const data = handleApiResponse(response);
-  
-      if (data) {
-        localStorage.setItem('userData', JSON.stringify(data));
-        messageApi.open({
-          type: 'success',
-          content: data.message,
-        });
-          if (intervalRef.current) clearInterval(intervalRef.current); 
-        setTimer(60); 
-        setIsTimerRunning(true);
-        intervalRef.current = setInterval(() => {
-          setTimer((prev) => {
-            if (prev <= 1) {
-              clearInterval(intervalRef.current);
-              setIsTimerRunning(false);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-    } catch (err) {
-      const errorData = handleApiError(err);
-      messageApi.open({
-        type: 'error',
-        content: errorData.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
     setDobError(dobErr ? dobErr.errors[0] : '');
@@ -1704,7 +1653,7 @@ const renderAvatarContent = () => {
         isTimerRunning={isTimerRunning} 
         timer={timer} 
         formatTime={formatTime} 
-        handleResend={handleResend} 
+        handleResend={onContinue} 
         handleContinue={handleContinue} 
       />
     );

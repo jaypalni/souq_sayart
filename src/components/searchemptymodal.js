@@ -80,12 +80,6 @@ const Searchemptymodal = ({
         });
          setSaveSearchesReload(searchparams)
       } else {
-        // message.success({
-        //   content: 'Search saved successfully!',
-        //   onClose: () => {
-        //     onClose();
-        //   },
-        // });
       
       }
 

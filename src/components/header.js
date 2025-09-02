@@ -158,7 +158,14 @@ const Header = () => {
         {contextHolder}
         <div className="row remove_gutter">
           <div className="col-3 d-flex">
-            <img className="headerLogo" src={iconWhite} style={{cursor:'pointer'}} onClick={() => navigate('/')} />
+            <button 
+              type="button" 
+              className="headerLogo" 
+              style={{cursor:'pointer', background: 'none', border: 'none', padding: 0}} 
+              onClick={() => navigate('/')}
+            >
+              <img src={iconWhite} alt="Logo" />
+            </button>
           </div>
           <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (

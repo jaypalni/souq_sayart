@@ -337,6 +337,17 @@ const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
   </div>
 );
 
+SelectInputTrimData.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    trim_name: PropTypes.string.isRequired,
+  })).isRequired,
+  style: PropTypes.object,
+};
+
 SelectInput.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,

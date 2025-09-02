@@ -870,7 +870,7 @@ const ProfileForm = ({
                rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[\p{L}]+$/u,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'First name should contain only letters',
                   },
                   {
@@ -906,7 +906,7 @@ const ProfileForm = ({
                rules={[
                   { required: true, message: 'Last name is required' },
                   {
-                    pattern: /^[\p{L}]+$/u,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'Last name should contain only letters',
                   },
                   {

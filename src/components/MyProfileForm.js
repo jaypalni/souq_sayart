@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch, DatePicker } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, message, Upload, DatePicker } from 'antd';
 
 import {
   EditOutlined,
@@ -16,7 +16,7 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { userAPI, authAPI } from '../services/api';
-import whatsappIcon from '../assets/images/Whatsup.svg';
+
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
@@ -100,9 +100,7 @@ const formatTime = (seconds) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const toWhatsappFlag = (whatsappChecked) => {
-  return whatsappChecked ? '1' : '0';
-};
+
 
 // Extracted PhoneChangeForm component
 const PhoneChangeForm = ({ 
@@ -115,9 +113,6 @@ const PhoneChangeForm = ({
   dropdownOpen, 
   setDropdownOpen, 
   emailerrormsg, 
-  checked, 
-  whatsapphandleChange, 
-  switchStyle, 
   onContinue, 
   handlePhoneChange 
 }) => {
@@ -251,34 +246,7 @@ const PhoneChangeForm = ({
             {emailerrormsg}
           </div>
         </div>
-        <div style={{marginBottom: 12}}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
-                <span
-                  style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
-                >
-                  <img
-                    src={whatsappIcon}
-                    alt="Whatsapp Icon"
-                    style={{ width: 18, height: 18, marginRight: 5 }}
-                  />
-                  {' '}
-                  Whatsapp
-                </span>
 
-                <Switch
-                  checked={checked}
-                  onChange={whatsapphandleChange}
-                  style={switchStyle}
-                />
-              </div>
-            </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             style={{
@@ -322,9 +290,6 @@ PhoneChangeForm.propTypes = {
   dropdownOpen: PropTypes.bool.isRequired,
   setDropdownOpen: PropTypes.func.isRequired,
   emailerrormsg: PropTypes.string.isRequired,
-  checked: PropTypes.bool.isRequired,
-  whatsapphandleChange: PropTypes.func.isRequired,
-  switchStyle: PropTypes.object.isRequired,
   onContinue: PropTypes.func.isRequired,
   handlePhoneChange: PropTypes.func.isRequired,
 };
@@ -701,7 +666,7 @@ const ProfileForm = ({
             htmlType="submit"
             style={{ marginRight: 8 }}
           >
-            Update
+            Update  
           </Button>
           <Button
             className="btn-outline-blue"
@@ -976,6 +941,9 @@ const ProfileForm = ({
         <Row gutter={16}>
           {renderAdditionalDealerFields(form, editMode, fileInputRef, handleFileChange)}
         </Row>
+        
+                 
+        
         <div className="profile-btns profile-btns-bottom">
           <Button
             className="btn-outline-blue"
@@ -1058,7 +1026,7 @@ const MyProfileForm = () => {
        const OTP_LENGTH = 4;
         const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
         const intervalRef = useRef(null);
-         const [checked, setChecked] = useState(false);
+
 
       const handlePhoneChange = (e) => {
     const numb = e.target.value;
@@ -1071,9 +1039,7 @@ const MyProfileForm = () => {
     setPhone(numb);
   };
 
-  const switchStyle = {
-    backgroundColor: checked ? '#008AD5' : '#ccc',
-  };
+
 
   const handleConfirm = async () => {
     try {
@@ -1148,10 +1114,9 @@ const handleKeyDown = (e, idx) => {
         const savePhone = `${selectedCountry.country_code}${phone}`;
         localStorage.setItem('phonenumber', savePhone);
   
-        const response = await userAPI.changephonenumber({
-          phone_number: savePhone,
-          is_whatsapp: toWhatsappFlag(checked),
-        });
+                 const response = await userAPI.changephonenumber({
+           phone_number: savePhone,
+         });
   
         const data = handleApiResponse(response);
         if (data) {
@@ -1396,9 +1361,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
-    const whatsapphandleChange = (value) => {
-    setChecked(value);
-  };
+    
 
 const renderAvatarContent = () => {
     if (imageUrl) {
@@ -1517,24 +1480,23 @@ const renderAvatarContent = () => {
   ? dayjs(values.dob).format('YYYY-MM-DD') 
   : '';
     
-    const payload = {
-      first_name: values.first_name || '',
-      last_name: values.last_name || '',
-      email: values.email || '',
-      date_of_birth: formattedDob,
-      is_dealer: values.dealer === 'yes',
-      company_name: values.company || '',
-      owner_name: values.owner || '',
-      company_address: values.address || '',
-      company_phone_number: values.phone || '',
-      company_registration_number: values.reg || '',
-      facebook_page: values.facebook || '',
-      instagram_company_profile: values.instagram || '',
-      profile_pic: imageUrl || '',
-      whatsapp: values.phone || '',
-      location: values.address || '',
-      document: uploadedDocUrl
-    };
+         const payload = {
+       first_name: values.first_name || '',
+       last_name: values.last_name || '',
+       email: values.email || '',
+       date_of_birth: formattedDob,
+       is_dealer: values.dealer === 'yes',
+       company_name: values.company || '',
+       owner_name: values.owner || '',
+       company_address: values.address || '',
+       company_phone_number: values.phone || '',
+       company_registration_number: values.reg || '',
+       facebook_page: values.facebook || '',
+       instagram_company_profile: values.instagram || '',
+       profile_pic: imageUrl || '',
+       location: values.address || '',
+       document: uploadedDocUrl
+     };
 
     const response = await userAPI.updateProfile(payload);
     const result = handleApiResponse(response);
@@ -1610,22 +1572,19 @@ const renderAvatarContent = () => {
   const renderMainContent = () => {
   if (showChangePhoneForm) {
     return (
-      <PhoneChangeForm 
-        phone={phone} 
-        setPhone={setPhone} 
-        selectedCountry={selectedCountry} 
-        setSelectedCountry={setSelectedCountry} 
-        countryOptions={countryOptions} 
-        setCountryOptions={setCountryOptions} 
-        dropdownOpen={dropdownOpen} 
-        setDropdownOpen={setDropdownOpen} 
-        emailerrormsg={emailerrormsg} 
-        checked={checked} 
-        whatsapphandleChange={whatsapphandleChange} 
-        switchStyle={switchStyle} 
-        onContinue={onContinue} 
-        handlePhoneChange={handlePhoneChange} 
-      />
+                           <PhoneChangeForm 
+          phone={phone} 
+          setPhone={setPhone} 
+          selectedCountry={selectedCountry} 
+          setSelectedCountry={setSelectedCountry} 
+          countryOptions={countryOptions} 
+          setCountryOptions={setCountryOptions} 
+          dropdownOpen={dropdownOpen} 
+          setDropdownOpen={setDropdownOpen} 
+          emailerrormsg={emailerrormsg} 
+          onContinue={onContinue} 
+          handlePhoneChange={handlePhoneChange} 
+        />
     );
   }
   
@@ -1648,22 +1607,22 @@ const renderAvatarContent = () => {
   }
   
   return (
-    <ProfileForm 
-      form={form} 
-      profile={profile} 
-      editMode={editMode} 
-      onFinish={onFinish} 
-      handleDealerChange={handleDealerChange} 
-      fileInputRef={fileInputRef} 
-      handleFileChange={handleFileChange} 
-      setModalOpen={setModalOpen} 
-      onEdit={onEdit} 
-      onCancel={onCancel}
-      triggerAvatarUpload={triggerAvatarUpload}
-      handleBeforeUpload={handleBeforeUpload}
-      renderAvatarContent={renderAvatarContent}
-      setAvatarUrl={setAvatarUrl}
-    />
+         <ProfileForm 
+       form={form} 
+       profile={profile} 
+       editMode={editMode} 
+       onFinish={onFinish} 
+       handleDealerChange={handleDealerChange} 
+       fileInputRef={fileInputRef} 
+       handleFileChange={handleFileChange} 
+       setModalOpen={setModalOpen} 
+       onEdit={onEdit} 
+       onCancel={onCancel}
+       triggerAvatarUpload={triggerAvatarUpload}
+       handleBeforeUpload={handleBeforeUpload}
+       renderAvatarContent={renderAvatarContent}
+       setAvatarUrl={setAvatarUrl}
+     />
   );
 };
 

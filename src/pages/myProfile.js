@@ -44,179 +44,6 @@ import deleteIcon from '../assets/images/Delete_icon.png';
 
 const { Sider, Content } = Layout;
 
-const menuItems = [
-  {
-    key: 'Personal Informations',
-    label: (
-      <Link
-        to="/myProfile"
-        style={{
-          fontSize: '14px',
-          fontWeight: 700,
-          color: '#0A0A0B',
-        }}
-      >
-        {' '}
-        Personal Informations
-      </Link>
-    ),
-  },
-  {
-    key: 'profile',
-    icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Profile
-      </Link>
-    ),
-  },
-  {
-    key: 'subscriptions',
-    icon: <img src={subsriptionIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/subscriptions"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Subscriptions
-      </Link>
-    ),
-  },
-  {
-    key: 'messages',
-    icon: <img src={messageIcon} alt="Message" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/messages"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Messages
-      </Link>
-    ),
-  },
-  {
-    key: 'notifications',
-    icon: <img src={notificationIcon} alt="Notification" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/notifications"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Manage Notifications
-      </Link>
-    ),
-  },
-  {
-    key: 'searches',
-    icon: <img src={searchesIcon} alt="Searches" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/searches"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Saved Searches
-      </Link>
-    ),
-  },
-  {
-    key: 'payments',
-    icon: <img src={paymentIcon} alt="Payment" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/payments"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Payments
-      </Link>
-    ),
-  },
-  {
-    key: 'blocked',
-    icon: <img src={blockIcon} alt="Block" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/blocked"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Blocked users
-      </Link>
-    ),
-  },
-  {
-    key: 'dashboard',
-    icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/dashboard"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Dealership Dashboard
-      </Link>
-    ),
-  },
-  {
-    key: 'favorites',
-    icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/favorites"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Favorites
-      </Link>
-    ),
-  },
-   {
-    key: 'whatsapp',
-    icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
-    label: (
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>WhatsApp</span>
-        <Switch size="small" />
-      </div>
-    ),
-  },
-
-];
 
 const manageItems = [
   { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
@@ -239,12 +66,57 @@ const MyProfile = () => {
   const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
+  const [whatsappNotification, setWhatsappNotification] = useState(false);
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const { customerDetails } = useSelector((state) => state.customerDetails);
 
-    useEffect(() => {
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await userAPI.getProfile({});
+        const profileData = handleApiResponse(response);
+        
+        if (profileData?.data?.whatsapp) {
+          setWhatsappNotification(profileData.data.whatsapp === '1');
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile data:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  const handleWhatsappToggle = async (checked) => {
+    try {
+      setWhatsappLoading(true);
+            const whatsappValue = checked ? '1' : '0';
+            const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
+      const result = handleApiResponse(response);
+      
+      if (result) {
+        setWhatsappNotification(checked);
+        messageApi.open({
+          type: 'success',
+          content: 'WhatsApp notification preference updated successfully!',
+        });
+      }
+    } catch (error) {
+      setWhatsappNotification(!checked);
+      const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData?.message || 'Failed to update WhatsApp preference',
+      });
+    } finally {
+      setWhatsappLoading(false);
+    }
+  };
+
+  useEffect(() => {
       const fromLogin = localStorage.getItem('fromLogin');
       const now = Date.now();
   
@@ -465,6 +337,184 @@ const MyProfile = () => {
         setLoading(false);
       }
     };
+
+    const menuItems = [
+      {
+        key: 'Personal Informations',
+        label: (
+          <Link
+            to="/myProfile"
+            style={{
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#0A0A0B',
+            }}
+          >
+            {' '}
+            Personal Informations
+          </Link>
+        ),
+      },
+      {
+        key: 'profile',
+        icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Profile
+          </Link>
+        ),
+      },
+      {
+        key: 'subscriptions',
+        icon: <img src={subsriptionIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/subscriptions"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Subscriptions
+          </Link>
+        ),
+      },
+      {
+        key: 'messages',
+        icon: <img src={messageIcon} alt="Message" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/messages"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Messages
+          </Link>
+        ),
+      },
+      {
+        key: 'notifications',
+        icon: <img src={notificationIcon} alt="Notification" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/notifications"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Manage Notifications
+          </Link>
+        ),
+      },
+      {
+        key: 'searches',
+        icon: <img src={searchesIcon} alt="Searches" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/searches"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Saved Searches
+          </Link>
+        ),
+      },
+      {
+        key: 'payments',
+        icon: <img src={paymentIcon} alt="Payment" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/payments"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Payments
+          </Link>
+        ),
+      },
+      {
+        key: 'blocked',
+        icon: <img src={blockIcon} alt="Block" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/blocked"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Blocked users
+          </Link>
+        ),
+      },
+      {
+        key: 'dashboard',
+        icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/dashboard"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Dealership Dashboard
+          </Link>
+        ),
+      },
+      {
+        key: 'favorites',
+        icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/favorites"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Favorites
+          </Link>
+        ),
+      },
+       {
+        key: 'whatsapp',
+        icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>WhatsApp</span>
+            <Switch 
+              size="small" 
+              checked={whatsappNotification}
+              onChange={handleWhatsappToggle}
+              loading={whatsappLoading}
+            />
+          </div>
+        ),
+      },
+    ];
 
     return (
     <>

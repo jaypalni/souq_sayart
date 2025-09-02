@@ -96,7 +96,7 @@ export const authAPI = {
       },
     }),
   refresh: (credentials) =>
-    api.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
+    api.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
 };
 
 export const carAPI = {

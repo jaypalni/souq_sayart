@@ -12,9 +12,10 @@ export const handleApiResponse = (response) => response?.data ?? null;
 export const handleApiError = (error) => {
   if (error.response) {
     const { status, data } = error.response;
-    if (data?.message ==='Invalid token or expired' ){
-  authAPI.refresh()
-    }
+    console.log('refersh',data)
+  //   if (data?.message ==='Token has expired' ||data?.message ==='Please login or sign-up'  ){
+  // authAPI.refresh()
+  //   }
     return {
       status,
       message: data?.message || data?.error || 'An error occurred',

@@ -80,19 +80,26 @@ const Searchemptymodal = ({
         });
          setSaveSearchesReload(searchparams)
       } else {
-        message.success({
-          content: 'Search saved successfully!',
-          onClose: () => {
-            onClose();
-          },
-        });
-       
+        // message.success({
+        //   content: 'Search saved successfully!',
+        //   onClose: () => {
+        //     onClose();
+        //   },
+        // });
+      
       }
 
       toastmessage(data?.message);
     } catch (error) {
       const errorData = handleApiError(error);
       message.error(errorData.message || 'Failed to save search');
+       messageApi.error({
+          type: 'success',
+          content: errorData?.message,
+          onClose: () => {
+            onClose();
+          },
+        });
     }
   };
 
@@ -134,14 +141,11 @@ const Searchemptymodal = ({
               {model}
             </button>
           )}
-          {bodyType !== DEFAULT_ALL_BODY_TYPES && (
-            <button
-              style={filterStyle}
-              onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}
-            >
-              {bodyType}
-            </button>
-          )}
+          {bodyType && bodyType !== DEFAULT_ALL_BODY_TYPES && (
+    <button style={filterStyle} onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}>
+      {bodyType}
+    </button>
+  )}
           {selectedLocation !== DEFAULT_LOCATION_BAGHDAD && (
             <button
               style={filterStyle}

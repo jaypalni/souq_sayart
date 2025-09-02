@@ -236,50 +236,48 @@ const MyProfile = () => {
       };
 
      const handleOTPDelete = async () => {
-      if (!validateOtp()) {
-        return;
-      }
-    
-      try {
-        setLoading(true);
-        const otpDigits = otp.join(''); 
-        const requestId = localStorage.getItem('requestId');
-    
-        const otpPayload = {
-          otp: otpDigits,
-          request_id:requestId,
-        };
-    
-        const result = await userAPI.getDeleteOtp(otpPayload);
-  const data1 = handleApiResponse(result);
-    
-        if (data1?.status_code === 200) {
-           localStorage.clear();
-    dispatch(clearCustomerDetails());
-    dispatch({ type: 'CLEAR_USER_DATA' });
-    
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
-    
-        setTimeout(() => {
-    navigate('/');
-  }, 1000);
-        } else {
-          messageApi.open({
-            type: 'error',
-            content: data1?.error,
-          });
-         
-        }
-      } catch (err) {
-        message.error('OTP verification failed. Please try again.');
-        console.log('Verify otp failed2', error);
-      } finally {
-        setLoading(false);
-      }
+  if (!validateOtp()) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const otpDigits = otp.join('');
+    const requestId = localStorage.getItem('requestId');
+
+    const otpPayload = {
+      otp: otpDigits,
+      request_id: requestId,
     };
+
+    const result = await userAPI.getDeleteOtp(otpPayload);
+    const data1 = handleApiResponse(result);
+
+    if (data1?.status_code === 200) {
+     
+      await messageApi.open({
+        type: 'success',
+        content: data1?.message,
+        duration: 2, 
+      });
+      localStorage.clear();
+      dispatch(clearCustomerDetails());
+      dispatch({ type: 'CLEAR_USER_DATA' });
+      navigate('/');
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: data1?.error,
+      });
+    }
+  } catch (err) {
+    message.error('OTP verification failed. Please try again.');
+    console.log('Verify otp failed2', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
       
       const handleResend = async () => {
         if (!isTimerRunning) {

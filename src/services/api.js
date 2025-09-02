@@ -113,6 +113,8 @@ export const carAPI = {
     api.get(API_CONFIG.ENDPOINTS.CARS.UPLOAD_OPTION_DETAILS),
   trimDetails: (make, modalName, yearData) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.TRIM_DETAILS(make, modalName, yearData)),
+  trimDetailsFilter: (make, modalName) =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.TRIM_DETAILS_FILTERS(make, modalName)),
   uploadImages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.UPLOAD_IMAGES, formData, {
       headers: {
@@ -142,6 +144,8 @@ export const carAPI = {
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams),
   getsavedsearches: (page, limit) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
+  termsAndConditions: () =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
 };
 
 export const userAPI = {

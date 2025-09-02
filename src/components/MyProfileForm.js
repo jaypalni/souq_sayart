@@ -11,18 +11,19 @@ import { Form, Input, Button, Radio, Row, Col, message, Upload, DatePicker } fro
 
 import {
   EditOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { userAPI, authAPI } from '../services/api';
+<<<<<<< HEAD
 
+=======
+>>>>>>> cbb1d159e6fb20c0a48d2c27a4a1c00b5626777b
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
+import { AiOutlineLeft } from 'react-icons/ai';
 
 const YES = 'yes';
 const NO = 'no';
@@ -116,6 +117,7 @@ const PhoneChangeForm = ({
   onContinue, 
   handlePhoneChange 
 }) => {
+  const BASE_URL = process.env.REACT_APP_API_URL;
   return (
     <div
       style={{
@@ -176,7 +178,7 @@ const PhoneChangeForm = ({
                 {selectedCountry && (
                   <>
                     <img
-                      src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
+                      src={`${BASE_URL}${selectedCountry.country_flag_image}`}
                       alt="flag"
                       style={{ width: 20, height: 14, marginRight: 6 }}
                     />
@@ -220,7 +222,7 @@ const PhoneChangeForm = ({
                       }}
                     >
                       <img
-                        src={`http://192.168.2.72:5001${country.country_flag_image}`}
+                        src={`${BASE_URL}${country.country_flag_image}`}
                         alt="flag"
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />
@@ -246,7 +248,38 @@ const PhoneChangeForm = ({
             {emailerrormsg}
           </div>
         </div>
+<<<<<<< HEAD
 
+=======
+        {/* <div style={{marginBottom: 12}}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                }}
+              >
+                <span
+                  style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
+                >
+                  <img
+                    src={whatsappIcon}
+                    alt="Whatsapp Icon"
+                    style={{ width: 18, height: 18, marginRight: 5 }}
+                  />
+                  {' '}
+                  Whatsapp
+                </span>
+
+                <Switch
+                  checked={checked}
+                  onChange={whatsapphandleChange}
+                  style={switchStyle}
+                />
+              </div>
+            </div> */}
+>>>>>>> cbb1d159e6fb20c0a48d2c27a4a1c00b5626777b
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             style={{
@@ -294,7 +327,7 @@ PhoneChangeForm.propTypes = {
   handlePhoneChange: PropTypes.func.isRequired,
 };
 
-// Extracted OTPForm component
+
 const OTPForm = ({ 
   otp, 
   handleChange, 
@@ -451,6 +484,15 @@ const ProfileForm = ({
               </span>
             }
             name="company"
+             rules={[
+                      {
+                        message: 'Company name is required',
+                      },
+                       {
+                    max: 100,
+                    message: 'Company name cannot exceed 100 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -476,6 +518,13 @@ const ProfileForm = ({
               </span>
             }
             name="owner"
+             rules={[
+                      { message: 'Owner name is required' },
+                      {
+                    max: 100,
+                    message: 'Owner name cannot exceed 100 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -501,6 +550,15 @@ const ProfileForm = ({
               </span>
             }
             name="address"
+            rules={[
+                      {
+                        message: 'Company address is required',
+                      },
+                      {
+                    max: 500,
+                    message: 'Company Address cannot exceed 500 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -660,12 +718,12 @@ const ProfileForm = ({
         <>
           <Button
             className="btn-solid-blue"
-            icon={<CheckOutlined />}
             shape="round"
             type="primary"
             htmlType="submit"
             style={{ marginRight: 8 }}
           >
+<<<<<<< HEAD
             Update  
           </Button>
           <Button
@@ -675,6 +733,9 @@ const ProfileForm = ({
             onClick={onCancel}
           >
             Cancel
+=======
+            Save Changes
+>>>>>>> cbb1d159e6fb20c0a48d2c27a4a1c00b5626777b
           </Button>
         </>
       );
@@ -818,6 +879,17 @@ const ProfileForm = ({
                 </span>
               }
               name="first_name"
+               rules={[
+                  { required: true, message: 'First name is required' },
+                  {
+                    pattern: /^[\p{L}]+$/u,
+                    message: 'First name should contain only letters',
+                  },
+                  {
+                    max: 50,
+                    message: 'First name cannot exceed 50 characters',
+                  },
+                ]}
             >
               <Input
               disabled={!editMode}
@@ -843,6 +915,17 @@ const ProfileForm = ({
                 </span>
               }
               name="last_name"
+               rules={[
+                  { required: true, message: 'Last name is required' },
+                  {
+                    pattern: /^[\p{L}]+$/u,
+                    message: 'Last name should contain only letters',
+                  },
+                  {
+                    max: 50,
+                    message: 'Last name cannot exceed 50 characters',
+                  },
+                ]}
             >
               <Input
               disabled={!editMode}
@@ -904,7 +987,7 @@ const ProfileForm = ({
       width: '100%',
       fontSize: '12px',
       fontWeight: 400,
-      color: '#000000',
+      color: '#4A5E6D',
     }}
     onChange={(date) => {
       console.log('Selected Date:', date ? dayjs(date).format('ddd, DD MMM YYYY') : null);
@@ -1113,6 +1196,7 @@ const handleKeyDown = (e, idx) => {
         setLoading(true);
         const savePhone = `${selectedCountry.country_code}${phone}`;
         localStorage.setItem('phonenumber', savePhone);
+        console.log('New Number', savePhone)
   
                  const response = await userAPI.changephonenumber({
            phone_number: savePhone,
@@ -1127,7 +1211,7 @@ const handleKeyDown = (e, idx) => {
            setShowChangePhoneForm(false);
           setShowOtpForm(true);
            if (intervalRef.current) clearInterval(intervalRef.current); 
-        setTimer(30); 
+        setTimer(60); 
         setIsTimerRunning(true);
 
         intervalRef.current = setInterval(() => {
@@ -1188,40 +1272,6 @@ const handleKeyDown = (e, idx) => {
     setLoading(false);
   }
 };
-
-  
-  const handleResend = async () => {
-    if (!isTimerRunning) {
-      setTimer(30);
-      setIsTimerRunning(true);
-    }
-  
-    try {
-      const usermobilenumber = localStorage.getItem('phone_number');
-      setLoading(true);
-  
-      const response = await authAPI.resendotp({
-        phone_number: usermobilenumber,
-      });
-      const data = handleApiResponse(response);
-  
-      if (data) {
-        localStorage.setItem('userData', JSON.stringify(data));
-        messageApi.open({
-          type: 'success',
-          content: data.message,
-        });
-      }
-    } catch (err) {
-      const errorData = handleApiError(err);
-      messageApi.open({
-        type: 'error',
-        content: errorData.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
@@ -1480,6 +1530,7 @@ const renderAvatarContent = () => {
   ? dayjs(values.dob).format('YYYY-MM-DD') 
   : '';
     
+<<<<<<< HEAD
          const payload = {
        first_name: values.first_name || '',
        last_name: values.last_name || '',
@@ -1497,6 +1548,26 @@ const renderAvatarContent = () => {
        location: values.address || '',
        document: uploadedDocUrl
      };
+=======
+    const payload = {
+      first_name: values.first_name || '',
+      last_name: values.last_name || '',
+      email: values.email || '',
+      date_of_birth: formattedDob,
+      is_dealer: values.dealer === 'yes',
+      company_name: values.company || '',
+      owner_name: values.owner || '',
+      company_address: values.address || '',
+      company_phone_number: values.phone || '',
+      company_registration_number: values.reg || '',
+      facebook_page: values.facebook || '',
+      instagram_company_profile: values.instagram || '',
+      profile_pic: imageUrl || '',
+      whatsapp: toWhatsappFlag(checked) || '',
+      location: values.address || '',
+      document: uploadedDocUrl
+    };
+>>>>>>> cbb1d159e6fb20c0a48d2c27a4a1c00b5626777b
 
     const response = await userAPI.updateProfile(payload);
     const result = handleApiResponse(response);
@@ -1528,42 +1599,51 @@ const renderAvatarContent = () => {
    * @returns {JSX.Element} Header content
    */
   const renderHeaderContent = () => {
-    if (showOtpForm) {
-      return (
-        <>
-          <ArrowLeftOutlined
-            onClick={() => {
-              setShowOtpForm(false);
-              setShowChangePhoneForm(true); 
-            }}
-            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-          />
-          Enter OTP Sent To Your New Number
-        </>
-      );
-    }
-    
-    if (showChangePhoneForm) {
-      return (
-        <>
-          <ArrowLeftOutlined
-            onClick={() => {
-              setIsChangingPhone(false);
-              setShowChangePhoneForm(false);
-            }}
-            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-          />
-          Change Mobile Number
-        </>
-      );
-    }
-    
-    if (editMode) {
-      return 'Edit Profile';
-    }
-    
-    return 'My Profile';
-  };
+  if (showOtpForm) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={() => {
+            setShowOtpForm(false);
+            setShowChangePhoneForm(true);
+          }}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Enter OTP Sent To Your New Number
+      </>
+    );
+  }
+
+  if (showChangePhoneForm) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={() => {
+            setIsChangingPhone(false);
+            setShowChangePhoneForm(false);
+          }}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Change Mobile Number
+      </>
+    );
+  }
+
+  if (editMode) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={onCancel}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Edit Profile
+      </>
+    );
+  }
+
+  return 'My Profile';
+};
+
 
   /**
    * Renders the main content based on current state
@@ -1600,7 +1680,7 @@ const renderAvatarContent = () => {
         isTimerRunning={isTimerRunning} 
         timer={timer} 
         formatTime={formatTime} 
-        handleResend={handleResend} 
+        handleResend={onContinue} 
         handleContinue={handleContinue} 
       />
     );
@@ -1651,7 +1731,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
     <div className='small-popup-container'>
       <div className='small-popup'>
         <button
-          className='popup-close-icon'
+          className= 'popup-close-icon'
           type="button"
           onClick={onClose}
           aria-label='Close'

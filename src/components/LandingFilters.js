@@ -282,6 +282,21 @@ const isIndiaLocale = () => {
     return '';
   };
 
+  const validatePriceRange = (newMin, newMax) => {
+  if (
+    newMin !== DEFAULT_PRICE_MIN &&
+    newMax !== DEFAULT_PRICE_MAX &&
+    Number(newMin) > Number(newMax)
+  ) {
+    setPriceMax(DEFAULT_PRICE_MAX); // reset to default
+    messageApi.open({
+      type: 'warning',
+      content: "Max price can't be lesser than Min price.",
+    });
+  }
+};
+
+
   const handleSearch = async () => {
     try {
       setLoading(true);
@@ -381,6 +396,12 @@ const isIndiaLocale = () => {
           setValue(opt);
           handleChange(label, opt);
           setOpenDropdown(null);
+           if (type === 'priceMin') {
+          validatePriceRange(opt, priceMax);
+        }
+        if (type === 'priceMax') {
+          validatePriceRange(priceMin, opt);
+        }
         };
         return (
           <div

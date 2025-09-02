@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FilterIcon from '../assets/images/filter_icon.svg';
 import { carAPI } from '../services/api';
@@ -28,6 +28,8 @@ import Extrasicon from '../assets/images/extras_icon.svg';
 import Safetyicon from '../assets/images/safety_icon.svg';
 import Searchicon from '../assets/images/search_icon.svg';
 import Backarrowicon from '../assets/images/backarrow_icon.svg';
+import { message } from 'antd';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 const { Option } = Select;
 
@@ -226,19 +228,35 @@ const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, 
         <Input 
           placeholder={minPlaceholder || 'Min'} 
           value={minValue}
-          onChange={onMinChange}
+          onChange={(e) => handleNumberInput(e, onMinChange)}
         />
       </Col>
       <Col span={12}>
         <Input 
           placeholder={maxPlaceholder || 'Max'} 
           value={maxValue}
-          onChange={onMaxChange}
+          onChange={(e) => handleNumberInput(e, onMaxChange)}
         />
       </Col>
     </Row>
   </div>
 );
+
+const MAX_PRICE = 5000000000;
+
+ const handleNumberInput = (e, callback) => {
+  let value = e.target.value.replace(/[^0-9]/g, ''); // remove non-numeric
+
+  if (value) {
+    let num = parseInt(value, 10);
+    if (num > MAX_PRICE) {
+      num = MAX_PRICE; // enforce max
+    }
+    value = String(num);
+  }
+
+  callback({ target: { value } }); // trigger state update with clean & capped value
+};
 
 RangeInputGroup.propTypes = {
   label: PropTypes.string.isRequired,
@@ -294,6 +312,25 @@ const SelectInput = ({ title, value, onChange, options, style }) => (
       {options.map(option => (
         <Option key={option.value || option} value={option.value || option}>
           {option.label || option}
+        </Option>
+      ))}
+    </Select>
+  </div>
+);
+
+const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
+  <div style={{ marginBottom: 16 }}>
+    <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
+      {title}
+    </div>
+    <Select
+      value={value}
+      onChange={onChange}
+      style={{ width: '100%', marginTop: '10px', ...style }}
+    >
+      {options.map(option => (
+        <Option key={option.id} value={option.trim_name}>
+          {option.trim_name}
         </Option>
       ))}
     </Select>
@@ -448,13 +485,37 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const [search, setSearch] = useState('');
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [keywords, setKeywords] = useState([]);
+  const [trimData, setTrimData] = useState(false);
 
-  // Use custom hooks for state management
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
 
   const handleChange = (e) => setValue(e.target.value);
+
+  useEffect(() => {
+    fetchTrimData()
+  },[make,model])
+
+  const fetchTrimData = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.trimDetailsFilter(make,model);
+    const data1 = handleApiResponse(response);
+
+    if (data1) {
+      setTrimData(data1?.data);
+    }
+
+    message.success(data1.message || 'Fetched successfully');
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to Trim car data');
+    setTrimData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleFuelTypeChange = (option) => {
     if (filterState.selectedValues.includes(option)) {
@@ -482,6 +543,44 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       setLoading(false);
     }
   };
+
+    const handleResetFilters = () => {
+    // Reset range inputs
+    rangeInputs.setKilometersMin('');
+    rangeInputs.setKilometersMax('');
+    rangeInputs.setYearMin('');
+    rangeInputs.setYearMax('');
+    rangeInputs.setPriceMin('');
+    rangeInputs.setPriceMax('');
+    rangeInputs.setPowerMin('');
+    rangeInputs.setPowerMax('');
+    rangeInputs.setConsumptionMin('');
+    rangeInputs.setConsumptionMax('');
+    rangeInputs.setSeatsMin('');
+    rangeInputs.setSeatsMax('');
+
+    // Reset filter state
+    filterState.setSelectedValues(['Any']);
+    filterState.settransmissionselectedValues(['Any']);
+    filterState.setcylinderselectedValues([]);
+    filterState.setdoorselectedValues([]);
+    filterState.setCondition(['Any']);
+    filterState.setOwnerType(['Any']);
+
+    // Reset single inputs
+    singleInputs.setTrimValue('Any');
+    singleInputs.setColorValue('Any');
+    singleInputs.setInteriorValue('Any');
+    singleInputs.setPaymentOptions('Any');
+    singleInputs.setRegionalSpecs('Any');
+    setKeywords([]);
+    setSelectedFeatures([]);
+
+    setValue('Any');
+
+    message.success('Filters have been reset!');
+  };
+
 
   return (
     <>
@@ -515,11 +614,12 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           overflowY: 'auto',
           paddingRight: '8px',
         }}>
-          <SelectInput
+          
+          <SelectInputTrimData
             title="Trim"
             value={singleInputs.trimValue}
             onChange={singleInputs.setTrimValue}
-            options={['Any', 'Base', 'Sport']}
+            options={trimData}
           />
 
           <div style={{ marginBottom: 16 }}>
@@ -719,9 +819,33 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           />
 
           <Divider />
-          <Button type="primary" block onClick={handleApplyFilters} loading={loading}>
-            {loading ? 'Searching...' : 'Apply Filters'}
-          </Button>
+
+<Row gutter={12}>
+  <Col span={12}>
+    <Button
+      type="primary"
+      block
+      onClick={handleApplyFilters}
+      loading={loading}
+    >
+      {loading ? 'Searching...' : 'Apply Filters'}
+    </Button>
+  </Col>
+  <Col span={12}>
+    <Button
+      block
+      onClick={handleResetFilters}
+      style={{
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #008ad5',
+        color: '#008ad5',
+      }}
+    >
+      Reset Filters
+    </Button>
+  </Col>
+</Row>
+
         </div>
       </Drawer>
 

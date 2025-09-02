@@ -300,18 +300,20 @@ const isIndiaLocale = () => {
   }
 };
 
-
   const handleSearch = async () => {
     try {
       setLoading(true);
+
+      const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
 
       const params = {
         make: valueOrEmpty(make, DEFAULT_MAKE),
         model: valueOrEmpty(model, DEFAULT_MODEL),
         body_type: valueOrEmpty(bodyType, DEFAULT_BODY_TYPE),
         location: valueOrEmpty(location, DEFAULT_LOCATION),
-        price_min: priceMin !== DEFAULT_PRICE_MIN ? priceMin : '',
-        price_max: priceMax !== DEFAULT_PRICE_MAX ? priceMax : '',
+         price_min: cleanedMin,
+      price_max: cleanedMax,
         condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
       };
 

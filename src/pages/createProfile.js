@@ -45,6 +45,29 @@ const CreateProfile = () => {
   const closeModal = () => setShowModal(false);
   const [messageApi, contextHolder] = message.useMessage();
 
+<<<<<<< HEAD
+=======
+  const { customerDetails } = useSelector((state) => state.customerDetails);
+  const isLoggedIn = customerDetails?.first_name;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/landing');
+    }
+  }, []);
+
+  useEffect(() => {
+    const accesstoken = localStorage.getItem('token');
+
+    if (
+      accesstoken === 'undefined' ||
+      accesstoken === '' ||
+      accesstoken === null
+    ) {
+      navigate('/');
+    }
+  });
+>>>>>>> e7f2442573b8c58d856fbec6885a8712e7905f52
 
   const handleChange = (value) => {
     setChecked(value);

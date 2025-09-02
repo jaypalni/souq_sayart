@@ -5,7 +5,6 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import {authAPI} from '../services/api';
 
 export const handleApiResponse = (response) => response?.data ?? null;
 

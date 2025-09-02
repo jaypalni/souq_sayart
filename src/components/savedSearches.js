@@ -130,26 +130,27 @@ const SavedSearches = () => {
 
   }
 
-  const handleEnableNotification = async (id) => {
-     try {
-          const res = await userAPI.notifySavedSearch(Number(id));
-          const response = handleApiResponse(res);
-    
-          if (response) {
-             messageApi.open({ type: 'success', content: response.message });
-              Allsavedsearches('1');
-          } else {
-        setNotifySaved([]);
-      }
-        } catch(error) {
-          const errorData = handleApiError(error);
-          messageApi.open({ type: 'error', content: errorData.message });
-         
-        } finally {
-          setLoading(false);
-        }
+  const handleEnableNotification = async (id, enabled) => {
+  try {
+    const body = { notification: enabled ? 1 : 0 };
 
+    const res = await userAPI.notifySavedSearch(id, body);
+    const response = handleApiResponse(res);
+
+    if (response) {
+      messageApi.open({ type: 'success', content: response.message });
+      Allsavedsearches('1');
+    } else {
+      setNotifySaved([]);
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({ type: 'error', content: errorData.message });
+  } finally {
+    setLoading(false);
   }
+};
+
 
 if (loading) {
     return (
@@ -218,7 +219,7 @@ if (loading) {
       <div style={{display:'flex', gap:10}}>
      <Switch
         checked={search.notification === 1}
-        onChange={() => handleEnableNotification(search.id)}
+        onChange={(checked) => handleEnableNotification(search.id,checked)}
         className="saved-search-switch"
       />
       <button

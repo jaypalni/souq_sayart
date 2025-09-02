@@ -171,8 +171,9 @@ export const userAPI = {
     api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
   deleteSavedSearch: (id) =>
     api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id)),
-  notifySavedSearch: (id) =>
-    api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id)),
+  notifySavedSearch: (id, body) =>
+  api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body),
+
 };
 
-export default api;
+export default api; 

@@ -21,7 +21,6 @@ import {
   Modal,
 } from 'antd';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { registerUser } from '../redux/actions/authActions';
@@ -49,23 +48,23 @@ const CreateProfile = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const isLoggedIn = customerDetails?.first_name;
 
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     navigate('/landing');
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/landing');
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   const accesstoken = localStorage.getItem('token');
+  useEffect(() => {
+    const accesstoken = localStorage.getItem('token');
 
-  //   if (
-  //     accesstoken === 'undefined' ||
-  //     accesstoken === '' ||
-  //     accesstoken === null
-  //   ) {
-  //     navigate('/');
-  //   }
-  // });
+    if (
+      accesstoken === 'undefined' ||
+      accesstoken === '' ||
+      accesstoken === null
+    ) {
+      navigate('/');
+    }
+  });
 
   const handleChange = (value) => {
     setChecked(value);

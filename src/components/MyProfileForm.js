@@ -1265,8 +1265,6 @@ const handleKeyDown = (e, idx) => {
     const result = await userAPI.chnagenumberverifyOtp(otpPayload);
 
     if (result?.data?.success) {
-      localStorage.setItem('token', result.data?.access_token);
-
       messageApi.open({
         type: 'success',
         content: result?.data?.message,

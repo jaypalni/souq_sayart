@@ -506,35 +506,41 @@ const ProfileForm = ({
         </Col>
         <Col span={6}>
           <Form.Item
-            label={
-              <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
-              >
-                Owner's Name
-              </span>
-            }
-            name="owner"
-             rules={[
-                      { message: 'Owner name is required' },
-                      {
-                    max: 100,
-                    message: 'Owner name cannot exceed 100 characters',
-                  },
-                    ]}
-          >
-            <Input
-             disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
-            />
-          </Form.Item>
+  label={
+    <span
+      style={{
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#637D92',
+      }}
+    >
+      Owner's Name
+    </span>
+  }
+  name="owner"
+  rules={[
+    {
+      required: true,
+      message: 'Owner name is required',
+    },
+    {
+      pattern: /^[a-zA-Z\s'-]{1,100}$/,
+      message:
+        'Owner name can only contain letters'
+    },
+  ]}
+>
+  <Input
+    disabled={!editMode}
+    style={{
+      fontSize: '12px',
+      fontWeight: 400,
+      color: '#4A5E6D',
+    }}
+    maxLength={100} // enforce max length at input level
+  />
+</Form.Item>
+
         </Col>
         <Col span={6}>
           <Form.Item
@@ -698,7 +704,7 @@ const ProfileForm = ({
                             required={false}
                           >
                             <Input
-                            disabled={true}
+                            disabled={false}
                               type="file"
                               placeholder="Documents"
                               size="middle"
@@ -870,7 +876,7 @@ const ProfileForm = ({
                rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[\p{L}]+$/u,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'First name should contain only letters',
                   },
                   {
@@ -906,7 +912,7 @@ const ProfileForm = ({
                rules={[
                   { required: true, message: 'Last name is required' },
                   {
-                    pattern: /^[\p{L}]+$/u,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'Last name should contain only letters',
                   },
                   {
@@ -927,29 +933,45 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
             <Form.Item
-              label={
-                <span
-                disabled={!editMode}
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    color: '#637D92',
-                  }}
-                >
-                  Email
-                </span>
-              }
-              name="email"
-            >
-              <Input
-              disabled={!editMode}
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#4A5E6D',
-                }}
-              />
-            </Form.Item>
+  label={
+    <span
+      disabled={!editMode}
+      style={{
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#637D92',
+      }}
+    >
+      Email
+    </span>
+  }
+  name="email"
+  rules={[
+    {
+      type: 'email',
+      message: 'Please enter a valid email address',
+      validator: (_, value) => {
+        if (!value || value.trim() === '') {
+          return Promise.resolve();
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value)
+          ? Promise.resolve()
+          : Promise.reject('Please enter a valid email address');
+      },
+    },
+  ]}
+>
+  <Input
+    disabled={!editMode}
+    style={{
+      fontSize: '12px',
+      fontWeight: 400,
+      color: '#4A5E6D',
+    }}
+  />
+</Form.Item>
+
           </Col>
           <Col span={6}>
 <Form.Item

@@ -194,11 +194,6 @@ setError('');
 };
 
 const handleResend = async () => {
-  if (!isTimerRunning) {
-    setTimer(60);
-    setIsTimerRunning(true);
-  }
-
   try {
     const usermobilenumber = localStorage.getItem('phone_number');
     setLoading(true);
@@ -209,6 +204,10 @@ const handleResend = async () => {
     const data = handleApiResponse(response);
 
     if (data) {
+      const newEndTime = Date.now() + 60 * 1000;
+      localStorage.setItem('otpEndTime', newEndTime);
+      setTimer(60);
+      setIsTimerRunning(true);
       localStorage.setItem('userData', JSON.stringify(data));
       messageApi.open({
         type: 'success',

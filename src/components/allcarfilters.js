@@ -73,7 +73,6 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [carCount] = useState(DEFAULT_CAR_COUNT);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [savedModel, setSavedModel] = useState(null);
   const dropdownRefs = {
     [DROPDOWN_NEW_USED]: useRef(),
     [DROPDOWN_PRICE_MIN]: useRef(),
@@ -101,13 +100,8 @@ useEffect(() => {
 
  useEffect(() => {
     if (make && make !== DEFAULTS.ALL_MAKE) {
-      fetchModelCars({ setLoading, setCarModels, make }).then((models) => {
-       
-        if (savedModel && models.some((m) => m.model_name === savedModel)) {
-          setModel(savedModel);
-        } else {
-          setModel(DEFAULTS.ALL_MODELS);
-        }
+      fetchModelCars({ setLoading, setCarModels, make }).then(() => {
+        setModel(DEFAULTS.ALL_MODELS);
       });
     } else {
       setCarModels([]);

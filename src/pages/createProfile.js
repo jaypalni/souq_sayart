@@ -21,13 +21,13 @@ import {
   Modal,
 } from 'antd';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { registerUser } from '../redux/actions/authActions';
 import whatsappIcon from '../assets/images/Whatsup.svg';
 import TermsAndconditions from './termsAndconditions';
 import dayjs from 'dayjs';
+
 
 
 const { Title, Text } = Typography;
@@ -45,27 +45,24 @@ const CreateProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
   const [messageApi, contextHolder] = message.useMessage();
+   const { customerDetails } = useSelector((state) => state.customerDetails);
+  const isLoggedIn = customerDetails;
 
-  const { customerDetails } = useSelector((state) => state.customerDetails);
-  const isLoggedIn = customerDetails?.first_name;
-
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     navigate('/landing');
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const accesstoken = localStorage.getItem('token');
-
-  //   if (
-  //     accesstoken === 'undefined' ||
-  //     accesstoken === '' ||
-  //     accesstoken === null
-  //   ) {
-  //     navigate('/');
-  //   }
-  // });
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/landing');
+    }
+  }, []);
+  useEffect(() => {
+    const accesstoken = localStorage.getItem('token');
+    if (
+      accesstoken === 'undefined' ||
+      accesstoken === '' ||
+      accesstoken === null
+    ) {
+      navigate('/');
+    }
+  });
 
   const handleChange = (value) => {
     setChecked(value);
@@ -401,7 +398,7 @@ const CreateProfile = () => {
                 rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[\p{L}]+$/u,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'First name should contain only letters',
                   },
                   {
@@ -428,7 +425,7 @@ const CreateProfile = () => {
                 rules={[
                   { required: true, message: 'Last name is required' },
                   {
-                    pattern: /^[\p{L}]+$/u,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'Last name should contain only letters',
                   },
                   {

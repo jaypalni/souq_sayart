@@ -464,6 +464,7 @@ const ProfileForm = ({
   renderAvatarContent,
   setAvatarUrl
 }) => {
+  
   const renderDealerFields = (form, editMode) => {
     if (form.getFieldValue('dealer') !== 'yes') {
       return null;
@@ -1361,30 +1362,41 @@ const Userdataapi = async () => {
 };
 
 const populateUserProfile = (user, successMsg) => {
-  const userProfile = mapUserToProfile(user); 
+  const userProfile = mapUserToProfile(user);
   setUsersData(user);
   setProfile(userProfile);
   form.setFieldsValue(userProfile);
-  setAvatarUrl(user.profile_image || '');
+  setAvatarUrl(user.profilePic || user.profile_image);
   setDealerValue(userProfile.dealer);
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
 
-const mapUserToProfile = (user) => ({
-  first_name: user.first_name || '',
-  last_name: user.last_name || '',
-  email: user.email || '',
-  dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
-  dealer: user.is_dealer === 1 ? YES : NO,
-  company: user.company_name || '',
-  owner: user.owner_name || '',
-  address: user.company_address || '',
-  phone: user.phone_number || '',
-  reg: user.company_registration_number || '',
-  facebook: user.facebook_page || '',
-  instagram: user.instagram_company_profile || '',
-  avatar: user.profile_image || '',
-});
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+const mapUserToProfile = (user) => {
+  const profilePic = user.profile_pic || '';
+  const fullAvatarUrl =
+    profilePic && !profilePic.startsWith('http')
+      ? `${BASE_URL}${profilePic}`
+      : profilePic;
+
+  return {
+    first_name: user.first_name || '',
+    last_name: user.last_name || '',
+    email: user.email || '',
+    dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
+    dealer: user.is_dealer === 1 ? YES : NO,
+    company: user.company_name || '',
+    owner: user.owner_name || '',
+    address: user.company_address || '',
+    phone: user.phone_number || '',
+    reg: user.company_registration_number || '',
+    facebook: user.facebook_page || '',
+    instagram: user.instagram_company_profile || '',
+    avatar: fullAvatarUrl, 
+  };
+};
+
 
 const applyUpdatedUser = (updateParams) => {
   const {
@@ -1402,7 +1414,7 @@ const applyUpdatedUser = (updateParams) => {
   setUsersData(user);
   setProfile(updatedProfile);
   form.setFieldsValue(updatedProfile);
-  setAvatarUrl(user.profile_image || '');
+  setAvatarUrl(user.profile_pic || '');
   setDealerValue(user.is_dealer ? YES : NO);
   setEditMode(false);
   message.success(successMsg || MSG_PROFILE_UPDATED);

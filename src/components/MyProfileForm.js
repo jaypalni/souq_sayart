@@ -1098,7 +1098,6 @@ const MyProfileForm = () => {
         const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
         const intervalRef = useRef(null);
          const [checked, setChecked] = useState(false);
-  const BASE_URL = process.env.REACT_APP_API_URL;
 
       const handlePhoneChange = (e) => {
     const numb = e.target.value;
@@ -1352,6 +1351,9 @@ const populateUserProfile = (user, successMsg) => {
   setDealerValue(userProfile.dealer);
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
+
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 const mapUserToProfile = (user) => {
   const profilePic = user.profile_pic || '';
   const fullAvatarUrl =
@@ -1399,8 +1401,6 @@ const applyUpdatedUser = (updateParams) => {
   form.setFieldsValue(updatedProfile);
   setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(user.is_dealer ? YES : NO);
-  
- 
   
   setEditMode(false);
   

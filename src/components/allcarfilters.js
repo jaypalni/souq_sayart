@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button, message } from 'antd';
+import { Select, Button, message, InputNumber } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
@@ -73,6 +73,10 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [carCount] = useState(DEFAULT_CAR_COUNT);
   const [openDropdown, setOpenDropdown] = useState(null);
+   const [showMinInput, setShowMinInput] = useState(false);
+    const [showMaxInput, setShowMaxInput] = useState(false);
+    const [minPrice, setMinPrice] = useState(null);
+    const [maxPrice, setMaxPrice] = useState(null);
   const dropdownRefs = {
     [DROPDOWN_NEW_USED]: useRef(),
     [DROPDOWN_PRICE_MIN]: useRef(),
@@ -190,11 +194,15 @@ useEffect(() => {
 
     try {
       setLoading(true);
+       const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
       const apiParams = {
         make: '',
         model: '',
         body_type: '',
         location: '',
+        price_min: cleanedMin,
+      price_max: cleanedMax,
       };
       if (make !== DEFAULTS.ALL_MAKE) {
         apiParams.make = make;
@@ -403,44 +411,78 @@ useEffect(() => {
             {openDropdown === DROPDOWN_NEW_USED &&
               renderDropdown(DROPDOWN_NEW_USED, newUsedOptions, newUsed, setNewUsed)}
           </button>
-          <button
-            type="button"
-            className="allcars-filters-text"
-            onClick={() => toggleDropdown(DROPDOWN_PRICE_MIN)}
-            aria-expanded={openDropdown === DROPDOWN_PRICE_MIN}
-            aria-controls={`menu-${DROPDOWN_PRICE_MIN}`}
+          <div className="landing-filters-row landing-filters-row-text">
+         
+            <div>
+        {!showMinInput ? (
+          <div
+            style={{
+              // border: '1px solid #d9d9d9',
+              borderRadius: '4px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              fontSize: '15px',
+              color: '#008AD5',
+              minWidth: '100px',
+              textAlign: 'center',
+              fontWeight: 400,
+            }}
+            onClick={() => setShowMinInput(true)}
           >
-            {priceMin}{' '}
-            <span className="allcars-filters-text-arrow">
-              <MdKeyboardArrowDown />
-            </span>
-            {openDropdown === DROPDOWN_PRICE_MIN &&
-              renderDropdown(
-                DROPDOWN_PRICE_MIN,
-                priceMinOptions,
-                priceMin,
-                setPriceMin,
-              )}
-          </button>
-          <button
-            type="button"
-            className="allcars-filters-text"
-            onClick={() => toggleDropdown(DROPDOWN_PRICE_MAX)}
-            aria-expanded={openDropdown === DROPDOWN_PRICE_MAX}
-            aria-controls={`menu-${DROPDOWN_PRICE_MAX}`}
-          >
-            {priceMax}{' '}
-            <span className="allcars-filters-text-arrow">
-              <MdKeyboardArrowDown />
-            </span>
-            {openDropdown === DROPDOWN_PRICE_MAX &&
-              renderDropdown(
-                DROPDOWN_PRICE_MAX,
-                priceMaxOptions,
-                priceMax,
-                setPriceMax,
-              )}
-          </button>
+            {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+          </div>
+        ) : (
+          <InputNumber
+            style={{ width: '100px' }}
+            min={0}
+            value={minPrice}
+            onChange={setMinPrice}
+            onBlur={() => {
+              if (minPrice === null) setShowMinInput(false);
+            }}
+            placeholder='Min'
+          />
+        )}
+      </div>
+      {/* Price Max */}
+<div>
+  {!showMaxInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#008AD5',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 400,
+      }}
+      onClick={() => setShowMaxInput(true)}
+    >
+      {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '120px' }}
+      min={0}
+      value={maxPrice}
+      onChange={(value) => {
+        if (value > 5000000000) {
+          messageApi.error('Maximum allowed price is ₹5,000,000,000');
+          return;
+        }
+        setMaxPrice(value);
+      }}
+      onBlur={() => {
+        if (maxPrice === null) setShowMaxInput(false);
+      }}
+      placeholder="Max"
+    />
+  )}
+</div>
+
+        </div>
         </div>
       </div>
       <Searchemptymodal

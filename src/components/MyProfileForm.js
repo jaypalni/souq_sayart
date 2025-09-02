@@ -452,16 +452,18 @@ const ProfileForm = ({
   profile, 
   editMode, 
   onFinish, 
+  onFinishFailed,
   handleDealerChange, 
   fileInputRef, 
   handleFileChange, 
   setModalOpen, 
   onEdit, 
   onCancel,
-  triggerAvatarUpload,
   handleBeforeUpload,
   renderAvatarContent,
-  setAvatarUrl
+  setAvatarUrl,
+  imageUrl,
+  avatarUrl
 }) => {
   const renderDealerFields = (form, editMode) => {
     if (form.getFieldValue('dealer') !== 'yes') {
@@ -713,6 +715,7 @@ const ProfileForm = ({
   };
 
   const renderActionButtons = (editMode, onEdit, onCancel) => {
+    
     if (editMode) {
       return (
         <>
@@ -722,12 +725,14 @@ const ProfileForm = ({
             type="primary"
             htmlType="submit"
             style={{ marginRight: 8 }}
+           
           >
             Save Changes
           </Button>
         </>
       );
     }
+
     return (
       <Button
         className="btn-solid-blue"
@@ -766,7 +771,11 @@ const ProfileForm = ({
           marginBottom: 24,
         }}
       >
-        <Upload showUploadList={false} beforeUpload={handleBeforeUpload}>
+        <Upload 
+          showUploadList={false} 
+          beforeUpload={handleBeforeUpload}
+          disabled={!editMode}
+        >
           <div
             style={{
               width: 90,
@@ -782,7 +791,7 @@ const ProfileForm = ({
               fontWeight: 700,
               marginBottom: 8,
               overflow: 'hidden',
-              cursor: 'pointer',
+              cursor: editMode ? 'pointer' : 'default',
             }}
           >
             {renderAvatarContent()}
@@ -802,42 +811,6 @@ const ProfileForm = ({
           </div>
         </Upload>
       </div>
-
-                {editMode && (
-                  <button
-                    type="button"
-                    onClick={triggerAvatarUpload}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      width: '100%',
-                      height: '100%',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      zIndex: 1
-                    }}
-                    aria-label="Upload profile picture"
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      ref={fileInputRef}
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target?.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (ev) =>
-                            setAvatarUrl(ev.target?.result || '');
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </button>
-                )}
               </div>
               <span className="profile-username">
               </span>
@@ -849,7 +822,8 @@ const ProfileForm = ({
         form={form}
         layout="vertical"
         initialValues={profile}
-        onFinish={onFinish}
+        onFinish={onFinish} 
+        onFinishFailed={onFinishFailed}
         className={editMode ? '' : 'edit-mode-form'}
       >
         <Row gutter={16}>
@@ -1052,16 +1026,18 @@ ProfileForm.propTypes = {
   }).isRequired,
   editMode: PropTypes.bool.isRequired,
   onFinish: PropTypes.func.isRequired,
+  onFinishFailed: PropTypes.func.isRequired,
   handleDealerChange: PropTypes.func.isRequired,
   fileInputRef: PropTypes.object.isRequired,
   handleFileChange: PropTypes.func.isRequired,
   setModalOpen: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
-  triggerAvatarUpload: PropTypes.func.isRequired,
   handleBeforeUpload: PropTypes.func.isRequired,
   renderAvatarContent: PropTypes.func.isRequired,
   setAvatarUrl: PropTypes.func.isRequired,
+  imageUrl: PropTypes.string,
+  avatarUrl: PropTypes.string,
 };
 
 const MyProfileForm = () => {
@@ -1072,7 +1048,7 @@ const MyProfileForm = () => {
   const fileInputRef = useRef();
   const [, setDealerValue] = useState(YES);
   const [messageApi, contextHolder] = message.useMessage();
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [, setUsersData] = useState({});
   const [, setDobError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -1095,6 +1071,7 @@ const MyProfileForm = () => {
         const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
         const intervalRef = useRef(null);
          const [checked, setChecked] = useState(false);
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
       const handlePhoneChange = (e) => {
     const numb = e.target.value;
@@ -1183,7 +1160,6 @@ const handleKeyDown = (e, idx) => {
         setLoading(true);
         const savePhone = `${selectedCountry.country_code}${phone}`;
         localStorage.setItem('phonenumber', savePhone);
-        console.log('New Number', savePhone)
   
         const response = await userAPI.changephonenumber({
           phone_number: savePhone,
@@ -1261,25 +1237,33 @@ const handleKeyDown = (e, idx) => {
   }
 };
 
-  const onFinishFailed = ({ errorFields }) => {
+  const onFinishFailed = ({ errorFields, values }) => {
+    
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
     setDobError(dobErr ? dobErr.errors[0] : '');
+    
+   
   };
 
   const onFinish = async (values) => {
-    setProfile({ ...values, avatar: avatarUrl });
-    setEditMode(false);
-    message.success(MSG_PROFILE_UPDATED);
-    await onClickContinue();
+    
+    try {
+      await onClickContinue();
+    } catch (error) {
+      console.error('Error in onFinish:', error);
+    }
   };
 
   const onEdit = () => {
+
     setEditMode(true);
     form.setFieldsValue(profile);
   };
 
   const onCancel = () => {
+
     setEditMode(false);
+    setImageUrl(null); // Clear any new image selection
     setAvatarUrl(profile.avatar || '');
     form.setFieldsValue(profile);
   };
@@ -1309,15 +1293,13 @@ const handleKeyDown = (e, idx) => {
     }
   };
 
-  const triggerAvatarUpload = () => {
-    if (editMode && fileInputRef.current) {
-      fileInputRef.current.click(); 
-    }
-  };
+
 
   useEffect(() => {
     Userdataapi();
   }, []);
+
+
 
 const Userdataapi = async () => {
   try {
@@ -1341,7 +1323,7 @@ const populateUserProfile = (user, successMsg) => {
   setUsersData(user);
   setProfile(userProfile);
   form.setFieldsValue(userProfile);
-  setAvatarUrl(user.profile_image || '');
+  setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(userProfile.dealer);
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
@@ -1371,16 +1353,24 @@ const applyUpdatedUser = (updateParams) => {
     setProfile,
     setAvatarUrl,
     setDealerValue,
-    setEditMode
+    setEditMode,
+    setImageUrl
   } = updateParams;
   
+  
+  
   const updatedProfile = mapUserToProfile(user);
+  
   setUsersData(user);
   setProfile(updatedProfile);
   form.setFieldsValue(updatedProfile);
-  setAvatarUrl(user.profile_image || '');
+  setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(user.is_dealer ? YES : NO);
+  
+ 
+  
   setEditMode(false);
+  
   message.success(successMsg || MSG_PROFILE_UPDATED);
 };
 
@@ -1393,9 +1383,9 @@ const handleSubmitError = (error, onFinishFailed) => {
   message.error(errorData.message || MSG_UPDATE_FAILED);
 };
 
- const getInitials = () => {
-    const first = form.getFieldValue('firstName') || '';
-    const last = form.getFieldValue('lastName') || '';
+   const getInitials = () => {
+    const first = form.getFieldValue('first_name') || '';
+    const last = form.getFieldValue('last_name') || '';
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
@@ -1403,13 +1393,17 @@ const handleSubmitError = (error, onFinishFailed) => {
     setChecked(value);
   };
 
-const renderAvatarContent = () => {
-    if (imageUrl) {
+  const renderAvatarContent = () => {
+    // Priority: imageUrl (newly uploaded) > avatarUrl (current) > profile.avatar (saved)
+    const displayImage = imageUrl || avatarUrl || profile.avatar;
+   
+    if (displayImage) {
       return (
         <img
-          src={imageUrl}
+          src={displayImage}
           alt="avatar"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+         
         />
       );
     }
@@ -1465,7 +1459,7 @@ const renderAvatarContent = () => {
       }
     };
 
-  const handleBeforeUpload = async (file) => {
+  const handleBeforeUpload = async (file) => {    
     const isImage =
       file.type === 'image/png' ||
       file.type === 'image/jpeg' ||
@@ -1479,46 +1473,91 @@ const renderAvatarContent = () => {
       });
       return Upload.LIST_IGNORE;
     }
-
+    // Show preview immediately
     const previewUrl = URL.createObjectURL(file);
     setImageUrl(previewUrl);
+    
     const formData = new FormData();
     formData.append('attachment', file);
 
     try {
+      setLoading(true);
+    
       const response = await authAPI.uploadimages(formData);
+     
+      
       const userdoc = handleApiResponse(response);
 
-      if (userdoc?.attachment_url) {
-        setImageUrl(userdoc.attachment_url);
+      // Check for different possible field names
+      const possibleImageFields = ['attachment_url', 'image_url', 'url', 'file_url', 'path', 'data'];
+      let imageUrl = null;
+      
+      for (const field of possibleImageFields) {
+        if (userdoc?.[field]) {
+          imageUrl = userdoc[field];
+          break;
+        }
+      }
+
+      if (imageUrl) {
+        // Ensure we have a complete URL
+        let finalImageUrl = imageUrl;
+        
+        // If the URL is relative, make it absolute
+        if (finalImageUrl.startsWith('/')) {
+          finalImageUrl = `http://13.202.75.187:5002${finalImageUrl}`;
+          
+        }
+        
+        
+        // Update both imageUrl and avatarUrl with the complete URL
+        setImageUrl(finalImageUrl);
+        setAvatarUrl(finalImageUrl);
+      
+        
         messageApi.open({
           type: 'success',
-          content: userdoc.message,
+          content: userdoc.message || 'Profile image uploaded successfully',
         });
         return Upload.LIST_IGNORE; 
       } else {
-        message.error(userdoc.message || 'Upload failed');
+       
+        message.error(userdoc?.message || 'Upload failed - no image URL received');
         return Upload.LIST_IGNORE;
       }
     } catch (error) {
+     
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
-        content: errorData.message,
+        content: errorData.message || 'Upload failed due to network error',
       });
-      message.error('Upload failed due to network error');
       return Upload.LIST_IGNORE; 
+    } finally {
+      setLoading(false);
     }
   };
 
   const onClickContinue = async () => {
   try {
+    
     setLoading(true);
+    
+   
     const values = await form.validateFields();
-
+    
+    // Check if required fields are filled
+    if (!values.first_name || !values.last_name || !values.dob) {
+      message.error('Please fill in all required fields (First Name, Last Name, Date of Birth)');
+      return;
+    }
+ 
     const formattedDob = values.dob 
   ? dayjs(values.dob).format('YYYY-MM-DD') 
   : '';
+    
+    const profilePicUrl = imageUrl || avatarUrl || '';
+
     
     const payload = {
       first_name: values.first_name || '',
@@ -1533,30 +1572,71 @@ const renderAvatarContent = () => {
       company_registration_number: values.reg || '',
       facebook_page: values.facebook || '',
       instagram_company_profile: values.instagram || '',
-      profile_pic: imageUrl || '',
+      profile_pic: profilePicUrl,
       whatsapp: toWhatsappFlag(checked) || '',
       location: values.address || '',
       document: uploadedDocUrl
     };
-
+   
     const response = await userAPI.updateProfile(payload);
+    
     const result = handleApiResponse(response);
+    
     if (result?.data) {
-      applyUpdatedUser({
-        user: result.data,
-        successMsg: result.message,
-        form,
-        setUsersData,
-        setProfile,
-        setAvatarUrl,
-        setDealerValue,
-        setEditMode,
-      });
+      
+
+      try {
+        const profileResponse = await userAPI.getProfile({});
+        
+        const profileResult = handleApiResponse(profileResponse);
+        
+        if (profileResult?.data) {
+          applyUpdatedUser({
+            user: profileResult.data,
+            successMsg: result.message,
+            form,
+            setUsersData,
+            setProfile,
+            setAvatarUrl,
+            setDealerValue,
+            setEditMode,
+            setImageUrl,
+          });
+        } else {
+          applyUpdatedUser({
+            user: result.data,
+            successMsg: result.message,
+            form,
+            setUsersData,
+            setProfile,
+            setAvatarUrl,
+            setDealerValue,
+            setEditMode,
+            setImageUrl,
+          });
+        }
+      } catch (profileError) {
+        applyUpdatedUser({
+          user: result.data,
+          successMsg: result.message,
+          form,
+          setUsersData,
+          setProfile,
+          setAvatarUrl,
+          setDealerValue,
+          setEditMode,
+          setImageUrl,
+        });
+      }
+    } else {
+      console.log('❌ Full result:', result);
     }
+    
     messageApi.open({
         type: 'success',
         content: result.message || 'Profile updated successfully',
       });
+      
   } catch (error) {
     handleSubmitError(error, onFinishFailed);
   } finally {
@@ -1665,16 +1745,18 @@ const renderAvatarContent = () => {
       profile={profile} 
       editMode={editMode} 
       onFinish={onFinish} 
+      onFinishFailed={onFinishFailed}
       handleDealerChange={handleDealerChange} 
       fileInputRef={fileInputRef} 
       handleFileChange={handleFileChange} 
       setModalOpen={setModalOpen} 
       onEdit={onEdit} 
       onCancel={onCancel}
-      triggerAvatarUpload={triggerAvatarUpload}
       handleBeforeUpload={handleBeforeUpload}
       renderAvatarContent={renderAvatarContent}
       setAvatarUrl={setAvatarUrl}
+      imageUrl={imageUrl}
+      avatarUrl={avatarUrl}
     />
   );
 };

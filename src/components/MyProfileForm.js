@@ -20,6 +20,8 @@ import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
 import { AiOutlineLeft } from 'react-icons/ai';
+import { useDispatch } from 'react-redux';
+import { updateCustomerDetails } from '../redux/actions/authActions';
 
 const YES = 'yes';
 const NO = 'no';
@@ -376,7 +378,6 @@ const OTPForm = ({
       );
     }
   };
-
   return (
     <div style={{ justifyContent: 'flex-start'}}>
       <p className="otp-desc">
@@ -861,6 +862,7 @@ const ProfileForm = ({
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item
+              required={false} 
               label={
                 <span
                   style={{
@@ -897,6 +899,7 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
             <Form.Item
+            required={false} 
               label={
                 <span
                   style={{
@@ -975,6 +978,7 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
 <Form.Item
+required={false} 
   label={
     <span
       style={{
@@ -1022,7 +1026,7 @@ const ProfileForm = ({
               }
               name="dealer"
             >
-              <Radio.Group onChange={handleDealerChange}>
+              <Radio.Group onChange={handleDealerChange} disabled={!editMode}>
                 <Radio value="yes">Yes</Radio>
                 <Radio value="no">No</Radio>
               </Radio.Group>
@@ -1533,6 +1537,9 @@ const renderAvatarContent = () => {
     }
   };
 
+    const dispatch = useDispatch();
+
+
   const onClickContinue = async () => {
   try {
     setLoading(true);
@@ -1563,7 +1570,12 @@ const renderAvatarContent = () => {
 
     const response = await userAPI.updateProfile(payload);
     const result = handleApiResponse(response);
-    if (result?.data) {
+     dispatch(updateCustomerDetails({
+          first_name: result?.user?.first_name,
+          last_name: result?.user?.last_name,
+          
+        }));
+    if (result?.user) {
       applyUpdatedUser({
         user: result.data,
         successMsg: result.message,

@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Form,
   Input,
@@ -29,6 +29,7 @@ import TermsAndconditions from './termsAndconditions';
 import dayjs from 'dayjs';
 
 
+
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
@@ -44,6 +45,8 @@ const CreateProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
   const [messageApi, contextHolder] = message.useMessage();
+   const { customerDetails } = useSelector((state) => state.customerDetails);
+  const isLoggedIn = customerDetails;
 
   useEffect(() => {
     if (isLoggedIn) {

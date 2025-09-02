@@ -79,8 +79,6 @@ const Searchemptymodal = ({
           },
         });
          setSaveSearchesReload(searchparams)
-      } else {
-      
       }
 
       toastmessage(data?.message);

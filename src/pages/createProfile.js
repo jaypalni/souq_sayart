@@ -452,6 +452,21 @@ const CreateProfile = () => {
                 }
                 name="email"
                 required={false}
+                 rules={[
+                    {
+                      type: 'email',
+                      message: 'Please enter a valid email address',
+                      validator: (_, value) => {
+                        if (!value || value.trim() === '') {
+                          return Promise.resolve();
+                        }
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(value)
+                          ? Promise.resolve()
+                          : Promise.reject('Please enter a valid email address');
+                      },
+                    },
+                  ]}
               >
                 <Input placeholder="Email" size="middle" />
               </Form.Item>

@@ -452,6 +452,21 @@ const CreateProfile = () => {
                 }
                 name="email"
                 required={false}
+                 rules={[
+                    {
+                      type: 'email',
+                      message: 'Please enter a valid email address',
+                      validator: (_, value) => {
+                        if (!value || value.trim() === '') {
+                          return Promise.resolve();
+                        }
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(value)
+                          ? Promise.resolve()
+                          : Promise.reject('Please enter a valid email address');
+                      },
+                    },
+                  ]}
               >
                 <Input placeholder="Email" size="middle" />
               </Form.Item>
@@ -494,10 +509,37 @@ const CreateProfile = () => {
 />
 
 </Form.Item>
-
-
             </div>
           </div>
+          <div className="row g-3">
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                     padding: 20,
+                  }}
+                >
+                  <span
+                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
+                  >
+                    <img
+                      src={whatsappIcon}
+                      alt="Whatsapp Icon"
+                      style={{ width: 18, height: 18, marginRight: 5 }}
+                    />
+                    {' '}
+                    Whatsapp
+                  </span>
+
+                  <Switch
+  checked={checked}
+  onChange={handleChange}
+  style={switchStyle}
+                  />
+                </div>
+              </div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Form.Item
               label={
@@ -753,34 +795,6 @@ const CreateProfile = () => {
                       accept=".pdf"
                     />{' '}
                   </Form.Item>
-                </div>
-              </div>
-              <div className="row g-3">
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    width: '100%',
-                  }}
-                >
-                  <span
-                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
-                  >
-                    <img
-                      src={whatsappIcon}
-                      alt="Whatsapp Icon"
-                      style={{ width: 18, height: 18, marginRight: 5 }}
-                    />
-                    {' '}
-                    Whatsapp
-                  </span>
-
-                  <Switch
-  checked={checked}
-  onChange={handleChange}
-  style={switchStyle}
-                  />
                 </div>
               </div>
             </>

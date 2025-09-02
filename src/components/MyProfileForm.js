@@ -20,6 +20,8 @@ import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
 import { AiOutlineLeft } from 'react-icons/ai';
+import { useDispatch } from 'react-redux';
+import { updateCustomerDetails } from '../redux/actions/authActions';
 
 const YES = 'yes';
 const NO = 'no';
@@ -376,7 +378,6 @@ const OTPForm = ({
       );
     }
   };
-
   return (
     <div style={{ justifyContent: 'flex-start'}}>
       <p className="otp-desc">
@@ -465,6 +466,7 @@ const ProfileForm = ({
   imageUrl,
   avatarUrl
 }) => {
+  
   const renderDealerFields = (form, editMode) => {
     if (form.getFieldValue('dealer') !== 'yes') {
       return null;
@@ -508,35 +510,41 @@ const ProfileForm = ({
         </Col>
         <Col span={6}>
           <Form.Item
-            label={
-              <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
-              >
-                Owner's Name
-              </span>
-            }
-            name="owner"
-             rules={[
-                      { message: 'Owner name is required' },
-                      {
-                    max: 100,
-                    message: 'Owner name cannot exceed 100 characters',
-                  },
-                    ]}
-          >
-            <Input
-             disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
-            />
-          </Form.Item>
+  label={
+    <span
+      style={{
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#637D92',
+      }}
+    >
+      Owner's Name
+    </span>
+  }
+  name="owner"
+  rules={[
+    {
+      required: true,
+      message: 'Owner name is required',
+    },
+    {
+      pattern: /^[a-zA-Z\s'-]{1,100}$/,
+      message:
+        'Owner name can only contain letters'
+    },
+  ]}
+>
+  <Input
+    disabled={!editMode}
+    style={{
+      fontSize: '12px',
+      fontWeight: 400,
+      color: '#4A5E6D',
+    }}
+    maxLength={100} // enforce max length at input level
+  />
+</Form.Item>
+
         </Col>
         <Col span={6}>
           <Form.Item
@@ -700,7 +708,7 @@ const ProfileForm = ({
                             required={false}
                           >
                             <Input
-                            disabled={true}
+                            disabled={false}
                               type="file"
                               placeholder="Documents"
                               size="middle"
@@ -829,6 +837,7 @@ const ProfileForm = ({
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item
+              required={false} 
               label={
                 <span
                   style={{
@@ -865,6 +874,7 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
             <Form.Item
+            required={false} 
               label={
                 <span
                   style={{
@@ -901,32 +911,49 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
             <Form.Item
-              label={
-                <span
-                disabled={!editMode}
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    color: '#637D92',
-                  }}
-                >
-                  Email
-                </span>
-              }
-              name="email"
-            >
-              <Input
-              disabled={!editMode}
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#4A5E6D',
-                }}
-              />
-            </Form.Item>
+  label={
+    <span
+      disabled={!editMode}
+      style={{
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#637D92',
+      }}
+    >
+      Email
+    </span>
+  }
+  name="email"
+  rules={[
+    {
+      type: 'email',
+      message: 'Please enter a valid email address',
+      validator: (_, value) => {
+        if (!value || value.trim() === '') {
+          return Promise.resolve();
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value)
+          ? Promise.resolve()
+          : Promise.reject('Please enter a valid email address');
+      },
+    },
+  ]}
+>
+  <Input
+    disabled={!editMode}
+    style={{
+      fontSize: '12px',
+      fontWeight: 400,
+      color: '#4A5E6D',
+    }}
+  />
+</Form.Item>
+
           </Col>
           <Col span={6}>
 <Form.Item
+required={false} 
   label={
     <span
       style={{
@@ -974,7 +1001,7 @@ const ProfileForm = ({
               }
               name="dealer"
             >
-              <Radio.Group onChange={handleDealerChange}>
+              <Radio.Group onChange={handleDealerChange} disabled={!editMode}>
                 <Radio value="yes">Yes</Radio>
                 <Radio value="no">No</Radio>
               </Radio.Group>
@@ -1215,8 +1242,6 @@ const handleKeyDown = (e, idx) => {
     const result = await userAPI.chnagenumberverifyOtp(otpPayload);
 
     if (result?.data?.success) {
-      localStorage.setItem('token', result.data?.access_token);
-
       messageApi.open({
         type: 'success',
         content: result?.data?.message,
@@ -1319,30 +1344,45 @@ const Userdataapi = async () => {
 };
 
 const populateUserProfile = (user, successMsg) => {
-  const userProfile = mapUserToProfile(user); 
+  const userProfile = mapUserToProfile(user);
   setUsersData(user);
   setProfile(userProfile);
   form.setFieldsValue(userProfile);
+<<<<<<< HEAD
   setAvatarUrl(user.profile_image || user.profile_pic || '');
+=======
+  setAvatarUrl(user.profilePic || user.profile_image);
+>>>>>>> 3207676ba545d68eb690013cb6d8bb16a4d5a365
   setDealerValue(userProfile.dealer);
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
 
-const mapUserToProfile = (user) => ({
-  first_name: user.first_name || '',
-  last_name: user.last_name || '',
-  email: user.email || '',
-  dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
-  dealer: user.is_dealer === 1 ? YES : NO,
-  company: user.company_name || '',
-  owner: user.owner_name || '',
-  address: user.company_address || '',
-  phone: user.phone_number || '',
-  reg: user.company_registration_number || '',
-  facebook: user.facebook_page || '',
-  instagram: user.instagram_company_profile || '',
-  avatar: user.profile_image || '',
-});
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+const mapUserToProfile = (user) => {
+  const profilePic = user.profile_pic || '';
+  const fullAvatarUrl =
+    profilePic && !profilePic.startsWith('http')
+      ? `${BASE_URL}${profilePic}`
+      : profilePic;
+
+  return {
+    first_name: user.first_name || '',
+    last_name: user.last_name || '',
+    email: user.email || '',
+    dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
+    dealer: user.is_dealer === 1 ? YES : NO,
+    company: user.company_name || '',
+    owner: user.owner_name || '',
+    address: user.company_address || '',
+    phone: user.phone_number || '',
+    reg: user.company_registration_number || '',
+    facebook: user.facebook_page || '',
+    instagram: user.instagram_company_profile || '',
+    avatar: fullAvatarUrl, 
+  };
+};
+
 
 const applyUpdatedUser = (updateParams) => {
   const {
@@ -1364,7 +1404,11 @@ const applyUpdatedUser = (updateParams) => {
   setUsersData(user);
   setProfile(updatedProfile);
   form.setFieldsValue(updatedProfile);
+<<<<<<< HEAD
   setAvatarUrl(user.profile_image || user.profile_pic || '');
+=======
+  setAvatarUrl(user.profile_pic || '');
+>>>>>>> 3207676ba545d68eb690013cb6d8bb16a4d5a365
   setDealerValue(user.is_dealer ? YES : NO);
   
  
@@ -1538,6 +1582,9 @@ const handleSubmitError = (error, onFinishFailed) => {
     }
   };
 
+    const dispatch = useDispatch();
+
+
   const onClickContinue = async () => {
   try {
     
@@ -1585,7 +1632,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     if (result?.data) {
       
 
-      try {
+    try {
         const profileResponse = await userAPI.getProfile({});
         
         const profileResult = handleApiResponse(profileResponse);

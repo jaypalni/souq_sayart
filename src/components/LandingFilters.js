@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button } from 'antd';
+import { Select, Button, InputNumber } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import '../assets/styles/landingFilters.css';
 import { carAPI } from '../services/api';
@@ -84,6 +84,10 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [, setToastMsg] = useState('');
+  const [showMinInput, setShowMinInput] = useState(false);
+  const [showMaxInput, setShowMaxInput] = useState(false);
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
 
   const dropdownRefs = {
     newUsed: useRef(),
@@ -541,38 +545,75 @@ const isIndiaLocale = () => {
             {openDropdown === 'newUsed' &&
               renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
           </button>
-          <button
-            type="button"
-            className="landing-filters-text"
-            onClick={() => toggleDropdown('priceMin')}
-            style={{ background: 'transparent', border: 'none', padding: 0 }}
+            <div>
+        {!showMinInput ? (
+          <div
+            style={{
+              // border: '1px solid #d9d9d9',
+              borderRadius: '4px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              fontSize: '15px',
+              color: '#fff',
+              minWidth: '100px',
+              textAlign: 'center',
+              fontWeight: 700,
+            }}
+            onClick={() => setShowMinInput(true)}
           >
-            <span className="landing-filters-text-label">{priceMin}</span>
-            <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'priceMin' &&
-              renderDropdown(
-                'priceMin',
-                priceMinOptions,
-                priceMin,
-                setPriceMin,
-              )}
-          </button>
-          <button
-            type="button"
-            className="landing-filters-text"
-            onClick={() => toggleDropdown('priceMax')}
-            style={{ background: 'transparent', border: 'none', padding: 0 }}
-          >
-            <span className="landing-filters-text-label">{priceMax}</span>
-            <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'priceMax' &&
-              renderDropdown(
-                'priceMax',
-                priceMaxOptions,
-                priceMax,
-                setPriceMax,
-              )}
-          </button>
+            {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+          </div>
+        ) : (
+          <InputNumber
+            style={{ width: '100px' }}
+            min={0}
+            value={minPrice}
+            onChange={setMinPrice}
+            onBlur={() => {
+              if (minPrice === null) setShowMinInput(false);
+            }}
+            placeholder='Min'
+          />
+        )}
+      </div>
+      {/* Price Max */}
+<div>
+  {!showMaxInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#fff',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 700,
+      }}
+      onClick={() => setShowMaxInput(true)}
+    >
+      {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '120px' }}
+      min={0}
+      value={maxPrice}
+      onChange={(value) => {
+        if (value > 5000000000) {
+          messageApi.error('Maximum allowed price is ₹5,000,000,000');
+          return;
+        }
+        setMaxPrice(value);
+      }}
+      onBlur={() => {
+        if (maxPrice === null) setShowMaxInput(false);
+      }}
+      placeholder="Max"
+    />
+  )}
+</div>
+
         </div>
       </div>
 

@@ -78,9 +78,10 @@ const MyProfile = () => {
       try {
         const response = await userAPI.getProfile({});
         const profileData = handleApiResponse(response);
-        
-        if (profileData?.data?.whatsapp) {
-          setWhatsappNotification(profileData.data.whatsapp === '1');
+        console.log('Whatsap', profileData)
+        if (profileData) {
+          setWhatsappNotification(profileData?.data?.whatsapp);
+          
         }
       } catch (error) {
         console.error('Failed to fetch profile data:', error);

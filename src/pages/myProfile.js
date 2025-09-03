@@ -290,8 +290,22 @@ const MyProfile = () => {
       });
     }
   } catch (err) {
-    message.error('OTP verification failed. Please try again.');
-    console.log('Verify otp failed2', err);
+    console.error('OTP Delete Error:', err);
+
+    let errorMessage = 'Something went wrong!';
+    if (err?.response?.data?.error) {
+      
+      errorMessage = err.response.data.error;
+    } else if (err.message) {
+      
+      errorMessage = err.message;
+    }
+
+    setIsDeleteContinueDisabled(false);
+    messageApi.open({
+      type: 'error',
+      content: errorMessage,
+    });
   } finally {
     setIsDeleteContinueDisabled(false);
     setLoading(false);

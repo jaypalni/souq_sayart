@@ -199,22 +199,22 @@ console.log('Sort By', sortedbydata)
       break;
 
     case 'Price : Low to High':
-      sortbypriceormileage = 'Price';
+      sortbypriceormileage = 'price';
       sortorder = 'asc';
       break;
 
     case 'Price : High to Low':
-      sortbypriceormileage = 'Price';
+      sortbypriceormileage = 'price';
       sortorder = 'desc';
       break;
 
     case 'Mileage: Low to High':
-      sortbypriceormileage = 'Mileage';
+      sortbypriceormileage = 'mileage';
       sortorder = 'asc';
       break;
 
     case 'Mileage: High to Low':
-      sortbypriceormileage = 'Mileage';
+      sortbypriceormileage = 'mileage';
       sortorder = 'desc';
       break;
 

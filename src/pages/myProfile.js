@@ -45,10 +45,6 @@ import deleteIcon from '../assets/images/Delete_icon.png';
 const { Sider, Content } = Layout;
 
 
-const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
-  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
-];
 
 const MyProfile = () => {
   const location = useLocation();
@@ -72,6 +68,27 @@ const MyProfile = () => {
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const { customerDetails } = useSelector((state) => state.customerDetails);
+   const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
+   const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
+
+   const manageItems = [
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+   {
+      key: 'delete',
+      icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
+      label: 'Delete Account',
+      disabled: isDeleteDisabled, 
+    },
+];
+
+ useEffect(() => {
+    
+    const timer = setTimeout(() => {
+      setIsDeleteDisabled(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -255,26 +272,42 @@ const MyProfile = () => {
     const data1 = handleApiResponse(result);
 
     if (data1?.status_code === 200) {
-     
+     setIsDeleteContinueDisabled(true);
       await messageApi.open({
         type: 'success',
         content: data1?.message,
-        duration: 2, 
+        duration: 1, 
       });
       localStorage.clear();
       dispatch(clearCustomerDetails());
       dispatch({ type: 'CLEAR_USER_DATA' });
       navigate('/');
     } else {
+      setIsDeleteContinueDisabled(false);
       messageApi.open({
         type: 'error',
         content: data1?.error,
       });
     }
   } catch (err) {
-    message.error('OTP verification failed. Please try again.');
-    console.log('Verify otp failed2', err);
+    console.error('OTP Delete Error:', err);
+
+    let errorMessage = 'Something went wrong!';
+    if (err?.response?.data?.error) {
+      
+      errorMessage = err.response.data.error;
+    } else if (err.message) {
+     
+      errorMessage = err.message;
+    }
+
+    setIsDeleteContinueDisabled(false);
+    messageApi.open({
+      type: 'error',
+      content: errorMessage,
+    });
   } finally {
+    setIsDeleteContinueDisabled(false);
     setLoading(false);
   }
 };
@@ -566,9 +599,9 @@ const MyProfile = () => {
               mode="inline"
               style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
               items={manageItems}
-              onClick={({ key }) => {
+             onClick={({ key }) => {
                 if (key === 'logout') setLogoutModalOpen(true);
-                if (key === 'delete') setDeleteModalOpen(true);
+                if (key === 'delete' && !isDeleteDisabled) setDeleteModalOpen(true); // Only open modal if not disabled
               }}
             />
           </div>
@@ -679,6 +712,7 @@ const MyProfile = () => {
     setTimer(30);
     setIsTimerRunning(false);
            setShowOtpStep(false);
+           setIsDeleteDisabled(false);
         }}
          style={{
               width: 120,
@@ -696,13 +730,18 @@ const MyProfile = () => {
       </button>
 
       <button
-        className="otp-btn otp-btn-filled"
-        type="button"
-        onClick={handleOTPDelete}
-        style={{height: 35}}
-      >
-        Continue
-      </button>
+  className="otp-btn otp-btn-filled"
+  type="button"
+  onClick={() => {
+    setIsDeleteContinueDisabled(true); // Disable immediately
+    handleOTPDelete();                 // Then run delete logic
+  }}
+  disabled={isDeleteContinueDisabled}  // Button respects state
+  style={{ height: 35 }}
+>
+  {isDeleteContinueDisabled ? 'Continue' : 'Continue'}
+</button>
+
     </div>
      
     
@@ -773,7 +812,10 @@ const MyProfile = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
           <Button
-            onClick={() => setDeleteModalOpen(false)}
+             onClick={() => {
+              setDeleteModalOpen(false);
+              setIsDeleteDisabled(false);
+            }}
             style={{
               width: 120,
               backgroundColor: '#ffffff',
@@ -791,6 +833,7 @@ const MyProfile = () => {
             type="primary"
             onClick={() => {
               setDeleteModalOpen(false);
+              setIsDeleteDisabled(true);
               setShowOtpStep(true); 
               setTimer(30);
               setIsTimerRunning(true);

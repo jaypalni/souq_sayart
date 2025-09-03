@@ -133,6 +133,7 @@ const LoginScreen = () => {
     }
 
     setPhone(numb);
+  setEmailErrorMsg(''); 
   };
 
   const handleCaptchaChange = (value) => {
@@ -145,6 +146,11 @@ const LoginScreen = () => {
       setEmailErrorMsg('Phone number is required!');
       return;
     }
+
+     if (phone.length < 6 || phone.length > 13) {
+    setEmailErrorMsg('Please Enter Valid Phone Number.');
+    return;
+  }
 
     if (!verified) {
       setCaptchaErrorMsg('Captcha is required!');
@@ -320,6 +326,7 @@ const LoginScreen = () => {
                 value={phone}
                 onChange={handlePhoneChange}
                 id="phone-input"
+                maxLength={13}
               />
             </div>
 

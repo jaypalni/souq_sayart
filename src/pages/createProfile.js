@@ -196,7 +196,7 @@ const CreateProfile = () => {
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
     const errorMessage = dobErr ? dobErr.errors[0] : undefined;
-    setDobError(errorMessage);
+    // setDobError(errorMessage);
     return errorMessage;
   };
 
@@ -744,6 +744,19 @@ const CreateProfile = () => {
                       </span>
                     }
                     name="facebookPage"
+                    rules={[
+    {
+      validator: (_, value) => {
+        if (!value || value.trim() === '') {
+          return Promise.resolve(); 
+        }
+        if (!value.includes('facebook.com')) {
+          return Promise.reject(new Error('URL must contain facebook.com'));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
                     required={false}
                   >
                     <Input placeholder="Name" size="middle" />
@@ -765,6 +778,19 @@ const CreateProfile = () => {
                       </span>
                     }
                     name="instagramProfile"
+                     rules={[
+    {
+      validator: (_, value) => {
+        if (!value || value.trim() === '') {
+          return Promise.resolve(); 
+        }
+        if (!value.includes('instagram.com')) {
+          return Promise.reject(new Error('URL must contain instagram.com'));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
                     required={false}
                   >
                     <Input placeholder="Name" size="middle" />

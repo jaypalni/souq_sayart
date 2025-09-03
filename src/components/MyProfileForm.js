@@ -854,7 +854,7 @@ const mapUserToProfile = (user) => {
     company: user.company_name || '',
     owner: user.owner_name || '',
     address: user.company_address || '',
-    phone: user.phone_number || '',
+    phone: user.company_phone_number || '',
     reg: user.company_registration_number || '',
     facebook: user.facebook_page || '',
     instagram: user.instagram_company_profile || '',

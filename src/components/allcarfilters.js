@@ -290,10 +290,10 @@ console.log('Sort By', sortedbydata)
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
           // Dispatch custom event to update breadcrumb
           window.dispatchEvent(new CustomEvent('searchDataUpdated'));
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
+          // messageApi.open({
+          //   type: 'success',
+          //   content: data1?.message,
+          // });
         }
       }
     } catch (error) {

@@ -289,8 +289,8 @@ const Header = () => {
                 onChange={(value) => console.log('Selected:', value)}
               >
                 <Option value="En">English</Option>
-                <Option value="Ar">Arabic</Option>
-                <Option value="Ku">Kurdish</Option>
+                <Option value="Ar">أرابيك</Option>
+                <Option value="Ku">کوردی</Option>
               </Select>
             </div>
           </div>

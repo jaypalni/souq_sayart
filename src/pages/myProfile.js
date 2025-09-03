@@ -78,7 +78,7 @@ const MyProfile = () => {
       try {
         const response = await userAPI.getProfile({});
         const profileData = handleApiResponse(response);
-        console.log('Whatsap', profileData)
+
         if (profileData) {
           setWhatsappNotification(profileData?.data?.whatsapp);
           
@@ -273,7 +273,7 @@ const MyProfile = () => {
     }
   } catch (err) {
     message.error('OTP verification failed. Please try again.');
-    console.log('Verify otp failed2', err);
+
   } finally {
     setLoading(false);
   }

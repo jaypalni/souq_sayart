@@ -27,9 +27,7 @@ const CarListing = ({ title, cardata }) => {
   const [visibleCars, setVisibleCars] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
-  console.log('🔍 CarListing received cardata:', cardata);
-  console.log('🔍 CarListing cardata type:', typeof cardata);
-  console.log('🔍 CarListing cardata length:', Array.isArray(cardata) ? cardata.length : 'not array');
+
 
   useEffect(() => {
     if (Array.isArray(cardata) && cardata.length > 0) {

@@ -166,14 +166,14 @@ const prepareFilterData = (filterParams) => {
   const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords } = filterParams;
   
   return {
-    make: getFilterValue(make, 'Any'),
+    make: getFilterValue(make, 'All Make'),
     model: getFilterValue(model, 'All Models'),
     trim: getFilterValue(singleInputs.trimValue, 'Any'),
     year_min: getNumericFilterValue(rangeInputs.yearMin),
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    location: getFilterValue(location, 'Any'),
+    location: getFilterValue(location, 'Baghdad'),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
     colour: getFilterValue(singleInputs.colorValue, 'Any'),

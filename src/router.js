@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,6 +31,17 @@ import Captcha from './pages/captcha';
 import ChangePhoneNumberPage from './pages/changePhoneNumber';
 import ChangePhoneOtpPage from './pages/changePhoneOtp';
 import ProtectedRoute from './components/ProtectedRoute';
+
+// ScrollToTop component to scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const AppRouterContent = () => {
   const location = useLocation();
@@ -66,6 +77,7 @@ const AppRouterContent = () => {
 
   return (
     <>
+      <ScrollToTop />
       {!hideFooter && <Header />}
       {!hideBanner && <Banner />}
       <Routes>

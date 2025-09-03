@@ -173,7 +173,7 @@ const prepareFilterData = (filterParams) => {
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    location: getFilterValue(location, 'Baghdad'),
+    location: getFilterValue(location, ''),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
     colour: getFilterValue(singleInputs.colorValue, 'Any'),

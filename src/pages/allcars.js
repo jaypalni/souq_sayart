@@ -24,7 +24,7 @@ import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('Dubai');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
 
   // Initialize selectedLocation from localStorage on component mount
   useEffect(() => {
@@ -32,6 +32,8 @@ const Allcars = () => {
       const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
       if (savedSearchData?.location) {
         setSelectedLocation(savedSearchData.location);
+      } else {
+        setSelectedLocation('All Locations');
       }
     } catch (error) {
       // Silent error handling

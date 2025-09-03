@@ -66,7 +66,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
    const [carModels, setCarModels] = useState([]);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
-  const [location, setLocation] = useState(DEFAULTS.BAGHDAD);
+  const [location, setLocation] = useState('');
   const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
@@ -98,7 +98,7 @@ useEffect(() => {
       setMake(saved.make === '' ? DEFAULTS.ALL_MAKE : (saved.make || DEFAULTS.ALL_MAKE));
       setModel(saved.model === '' ? DEFAULTS.ALL_MODELS : (saved.model || DEFAULTS.ALL_MODELS));
       setBodyType(saved.body_type === '' ? DEFAULTS.ALL_BODY_TYPES : (saved.body_type || DEFAULTS.ALL_BODY_TYPES));
-      setLocation(saved.location === '' ? DEFAULTS.BAGHDAD : (saved.location || DEFAULTS.BAGHDAD));
+      setLocation(saved.location || '');
     }
   } catch (e) {
     // Silent error handling
@@ -229,7 +229,7 @@ handleSearch()
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
       body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
-      location: location === DEFAULTS.BAGHDAD ? '' : location,
+      location: location || '',
       newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
       priceMin,
       priceMax,
@@ -282,7 +282,7 @@ handleSearch()
       } else {
         apiParams.body_type = '';
       }
-      if (location !== DEFAULTS.BAGHDAD) {
+      if (location && location !== '') {
         apiParams.location = location;
       } else {
         apiParams.location = '';

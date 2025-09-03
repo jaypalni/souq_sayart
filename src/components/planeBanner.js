@@ -21,9 +21,9 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   const getSelectedLocation = () => {
     try {
       const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
-      return savedSearchData?.location || 'Dubai'; // Default to Dubai if no location found
+      return savedSearchData?.location || 'All Locations'; // Default to All Locations if no location found
     } catch (error) {
-      return 'Dubai'; // Default fallback
+      return 'All Locations'; // Default fallback
     }
   };
 
@@ -180,7 +180,8 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
             marginLeft: '-980px',
             display: 'flex',
             alignItems: 'center',
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
+            marginBottom:'30px',
           }}
         >
           {breadcrumbItems.map((item, index) => (

@@ -30,7 +30,7 @@ const { Option } = Select;
 const CORRECT_DEFAULT_MAKE = 'All Make';
 const CORRECT_DEFAULT_MODEL = 'All Models';
 const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
-const CORRECT_DEFAULT_LOCATION = 'Baghdad';
+const CORRECT_DEFAULT_LOCATION = 'All';
 
 const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';

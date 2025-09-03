@@ -55,7 +55,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 342642;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData }) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
@@ -119,6 +119,10 @@ useEffect(() => {
       fetchBodyTypeCars();
     }
   }, []);
+
+  useEffect(() => {
+handleSearch()
+  }, [sortedbydata]);
   
   useEffect(() => {
     if (make) {
@@ -180,6 +184,44 @@ useEffect(() => {
   };
 
   const handleSearch = async () => {
+    let sortbynewlist = false;
+  let sortbyold = false;
+  let sortbypriceormileage = '';
+  let sortorder = '';
+console.log('Sort By', sortedbydata)
+  switch (sortedbydata) {
+    case 'Newest Listing':
+      sortbynewlist = true;
+      break;
+
+    case 'Oldest Listing':
+      sortbyold = true;
+      break;
+
+    case 'Price : Low to High':
+      sortbypriceormileage = 'Price';
+      sortorder = 'asc';
+      break;
+
+    case 'Price : High to Low':
+      sortbypriceormileage = 'Price';
+      sortorder = 'desc';
+      break;
+
+    case 'Mileage: Low to High':
+      sortbypriceormileage = 'Mileage';
+      sortorder = 'asc';
+      break;
+
+    case 'Mileage: High to Low':
+      sortbypriceormileage = 'Mileage';
+      sortorder = 'desc';
+      break;
+
+    default:
+      // No sort selected, keep defaults
+      break;
+  }
     const saveParams = {
       make,
       model,
@@ -188,7 +230,13 @@ useEffect(() => {
       newUsed,
       priceMin,
       priceMax,
+      newest_listing: sortbynewlist,
+      oldest_listing: sortbyold,
+      sort_by: sortbypriceormileage,
+      sort_order: sortorder,
     };
+
+    console.log('Save Prams', saveParams)
 
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
     // Dispatch custom event to update breadcrumb
@@ -206,6 +254,10 @@ useEffect(() => {
         location: '',
         price_min: cleanedMin,
       price_max: cleanedMax,
+      newest_listing: sortbynewlist,
+      oldest_listing: sortbyold,
+      sort_by: sortbypriceormileage,
+      sort_order: sortorder,
       };
       if (make !== DEFAULTS.ALL_MAKE) {
         apiParams.make = make;

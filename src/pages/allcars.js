@@ -23,6 +23,7 @@ import { message, Pagination } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
+  const [sortedbydata, setSortedbyData] = useState('')
   
   console.log('🔍 Allcars filtercarsData:', filtercarsData);
   console.log('🔍 Allcars filtercarsData.cars:', filtercarsData.cars);
@@ -33,18 +34,20 @@ const Allcars = () => {
       <AllCarFilters
         filtercarsData={filtercarsData}
         setFilterCarsData={setFilterCarsData}
+        sortedbydata={sortedbydata}
       />
       <CarListing
         filtercarsData={filtercarsData}
         cardata={filtercarsData.cars || []}
         title="Search Results"
+        setSortedbyData={setSortedbyData}
       />
       <Bestcarsalebytype />
     </div>
   );
 };
 
-const CarListing = ({ filtercarsData, cardata, title }) => {
+const CarListing = ({ filtercarsData, cardata, setSortedbyData, title }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
   const passedCars = location.state?.cars || [];
@@ -143,7 +146,8 @@ const Removefavcarapi = async (carId) => {
   };
 
   const handleSelect = (option) => {
-    setSortOption(option);
+    setSortOption(option); 
+    setSortedbyData(option); 
     setIsOpen(false);
     console.log('Selected:', option);
   };

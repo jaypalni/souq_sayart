@@ -519,7 +519,7 @@ const MyProfile = () => {
     <>
     <div className="page-header">
                   {contextHolder}
-                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>Sell Your Car In IRAQ</div>
+                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>My Profile</div>
                   <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
      </div>
       <Layout style={{ background: '#fff' }}>

@@ -146,6 +146,8 @@ export const carAPI = {
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
   termsAndConditions: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
+  totalcarscount: () => 
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
 };
 
 export const userAPI = {

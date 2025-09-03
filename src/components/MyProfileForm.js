@@ -1609,7 +1609,6 @@ const handleSubmitError = (error, onFinishFailed) => {
       facebook_page: values.facebook || '',
       instagram_company_profile: values.instagram || '',
       profile_pic: profilePicUrl,
-      whatsapp: toWhatsappFlag(checked) || '',
       location: values.address || '',
       document: uploadedDocUrl
     };

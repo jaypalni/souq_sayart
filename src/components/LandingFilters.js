@@ -79,7 +79,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
-  const carCount = DEFAULT_CAR_COUNT;
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,6 +87,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [showMaxInput, setShowMaxInput] = useState(false);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
+  const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
   const dropdownRefs = {
     newUsed: useRef(),
@@ -97,6 +97,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
+    fetchtotalcarcount()
   }, []);
 
   useEffect(() => {
@@ -435,6 +436,26 @@ const isIndiaLocale = () => {
     </div>
   );
 
+  const fetchtotalcarcount = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.totalcarscount();
+    const data1 = handleApiResponse(response);
+
+    if (data1?.total_cars !== undefined) {
+      setCarCount(data1.total_cars); 
+    } else {
+      message.error('No content found');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return (
     <div className="landing-filters-outer">
       {contextHolder}
@@ -525,14 +546,15 @@ const isIndiaLocale = () => {
           </div>
           <div className="landing-filters-col landing-filters-btn-col">
             <Button
-              type="primary"
-              size="large"
-              onClick={handleSearch}
-              icon={<SearchOutlined />}
-              className="landing-filters-btn"
-            >
-              <span>Show {carCount.toLocaleString()} Cars</span>
-            </Button>
+  type="primary"
+  size="large"
+  onClick={handleSearch}
+  icon={<SearchOutlined />}
+  className="landing-filters-btn"
+>
+  <span>Show {carCount.toLocaleString()} Cars</span>
+</Button>
+
           </div>
         </div>
         <div className="landing-filters-row landing-filters-row-text">
@@ -547,38 +569,45 @@ const isIndiaLocale = () => {
             {openDropdown === 'newUsed' &&
               renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
           </button>
-            <div>
-        {!showMinInput ? (
-          <div
-            style={{
-              // border: '1px solid #d9d9d9',
-              borderRadius: '4px',
-              padding: '6px 12px',
-              cursor: 'pointer',
-              fontSize: '15px',
-              color: '#fff',
-              minWidth: '100px',
-              textAlign: 'center',
-              fontWeight: 700,
-            }}
-            onClick={() => setShowMinInput(true)}
-          >
-            {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
-          </div>
-        ) : (
-          <InputNumber
-            style={{ width: '100px' }}
-            min={0}
-            value={minPrice}
-            onChange={setMinPrice}
-            onBlur={() => {
-              if (minPrice === null) setShowMinInput(false);
-            }}
-            placeholder='Min'
-          />
-        )}
-      </div>
-      {/* Price Max */}
+            {/* Price Min */}
+<div>
+  {!showMinInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#fff',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 700,
+      }}
+      onClick={() => setShowMinInput(true)}
+    >
+      {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '100px' }}
+      min={0}
+      value={minPrice}
+      onChange={(value) => {
+        if (maxPrice !== null && value >= maxPrice) {
+          messageApi.error('Minimum price should be less than Maximum price');
+          return;
+        }
+        setMinPrice(value);
+      }}
+      onBlur={() => {
+        if (minPrice === null) setShowMinInput(false);
+      }}
+      placeholder="Min"
+    />
+  )}
+</div>
+
+{/* Price Max */}
 <div>
   {!showMaxInput ? (
     <div
@@ -606,6 +635,10 @@ const isIndiaLocale = () => {
           messageApi.error('Maximum allowed price is ₹5,000,000,000');
           return;
         }
+        if (minPrice !== null && value <= minPrice) {
+          messageApi.error('Maximum price should be greater than Minimum price');
+          return;
+        }
         setMaxPrice(value);
       }}
       onBlur={() => {
@@ -615,6 +648,7 @@ const isIndiaLocale = () => {
     />
   )}
 </div>
+
 
         </div>
       </div>

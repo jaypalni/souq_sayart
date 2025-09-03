@@ -47,7 +47,7 @@ const ChangePhoneOtpPage = () => {
   const [error, setError] = useState('');
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [, setDeleteModalOpen] = useState(false);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];

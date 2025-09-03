@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { message, Layout, Menu, Avatar, Button, Switch, Modal } from 'antd';
 import { AiOutlineLeft } from 'react-icons/ai';
@@ -30,9 +30,6 @@ import logoutIcon from '../assets/images/Logout_icon.png';
 import deleteIcon from '../assets/images/Delete_icon.png';
 
 const { Sider, Content } = Layout;
-
-const YES = 'yes';
-const NO = 'no';
 const CACHE_KEY = 'geoDataCache';
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const INDIA_TZ_OFFSET_MINUTES = -330;
@@ -119,7 +116,7 @@ const ChangePhoneNumberPage = () => {
   const [checked, setChecked] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [, setDeleteModalOpen] = useState(false);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -412,14 +409,6 @@ const ChangePhoneNumberPage = () => {
     }
 
     setPhone(numb);
-  };
-
-  const switchStyle = {
-    backgroundColor: checked ? '#008AD5' : '#ccc',
-  };
-
-  const whatsapphandleChange = (value) => {
-    setChecked(value);
   };
 
   const onContinue = async () => {

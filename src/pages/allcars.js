@@ -24,8 +24,7 @@ import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   
-  console.log('🔍 Allcars filtercarsData:', filtercarsData);
-  console.log('🔍 Allcars filtercarsData.cars:', filtercarsData.cars);
+
   
   return (
     <div>

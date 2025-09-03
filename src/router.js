@@ -28,6 +28,8 @@ import NewSell from './pages/newsell';
 import UserProfile from './pages/userProfile';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
+import ChangePhoneNumberPage from './pages/changePhoneNumber';
+import ChangePhoneOtpPage from './pages/changePhoneOtp';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRouterContent = () => {
@@ -47,6 +49,8 @@ const AppRouterContent = () => {
     '/myProfile/blocked',
     '/myProfile/dashboard',
     '/myProfile/favorites',
+    '/myProfile/change-phone',
+    '/myProfile/change-phone-otp',
     '/termsAndconditions',
     '/captchatoken',
   ];
@@ -103,6 +107,22 @@ const AppRouterContent = () => {
                     </ProtectedRoute>
                   } 
                 />
+        <Route 
+          path="/myProfile/change-phone" 
+          element={
+            <ProtectedRoute>
+              <ChangePhoneNumberPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/myProfile/change-phone-otp" 
+          element={
+            <ProtectedRoute>
+              <ChangePhoneOtpPage />
+            </ProtectedRoute>
+          } 
+        />
       
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

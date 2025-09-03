@@ -191,6 +191,8 @@ useEffect(() => {
     };
 
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
+    // Dispatch custom event to update breadcrumb
+    window.dispatchEvent(new CustomEvent('searchDataUpdated'));
     message.success('Filters saved!');
 
     try {
@@ -234,6 +236,8 @@ useEffect(() => {
         } else {
           setFilterCarsData(data1.data); // Pass the full data object with cars and pagination
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
+          // Dispatch custom event to update breadcrumb
+          window.dispatchEvent(new CustomEvent('searchDataUpdated'));
           messageApi.open({
             type: 'success',
             content: data1?.message,
@@ -379,6 +383,8 @@ useEffect(() => {
               onChange={(value) => {
                 setLocation(value);
                 handleChange('Location', value);
+                // Dispatch custom event to update breadcrumb
+                window.dispatchEvent(new CustomEvent('searchDataUpdated'));
               }}
               className="allcars-filters-select"
               size="large"

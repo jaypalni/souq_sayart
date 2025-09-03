@@ -20,7 +20,7 @@ import bluecar_icon from '../assets/images/blackcar_icon.png';
 const { Option } = Select;
 
 const LOCATIONS = ['Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
-const DEFAULT_LOCATION = 'Baghdad';
+const DEFAULT_LOCATION = '';
 const DEFAULT_PRICE = '$30,435';
 const DEFAULT_ENGINE = '6 Cyl 3.0L Petrol';
 const DEFAULT_MILEAGE = '55000';

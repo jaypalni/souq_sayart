@@ -26,6 +26,12 @@ import {
 } from '../utils/apiUtils';
 const { Option } = Select;
 
+// Correct constants to match UI values
+const CORRECT_DEFAULT_MAKE = 'All Make';
+const CORRECT_DEFAULT_MODEL = 'All Models';
+const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
+const CORRECT_DEFAULT_LOCATION = 'All';
+
 const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
 const DEFAULT_PRICE_MAX = 'Price Max';
@@ -68,10 +74,10 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [, setLoading] = useState(false);
-  const [make, setMake] = useState(DEFAULT_MAKE);
-  const [model, setModel] = useState(DEFAULT_MODEL);
-  const [bodyType, setBodyType] = useState(DEFAULT_BODY_TYPE);
-  const [location, setLocation] = useState(DEFAULT_LOCATION);
+  const [make, setMake] = useState(CORRECT_DEFAULT_MAKE);
+  const [model, setModel] = useState(CORRECT_DEFAULT_MODEL);
+  const [bodyType, setBodyType] = useState(CORRECT_DEFAULT_BODY_TYPE);
+  const [location, setLocation] = useState(CORRECT_DEFAULT_LOCATION);
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
@@ -309,10 +315,10 @@ const isIndiaLocale = () => {
     const cleanedMax = maxPrice !== null ? maxPrice : '';
 
       const params = {
-        make: valueOrEmpty(make, DEFAULT_MAKE),
-        model: valueOrEmpty(model, DEFAULT_MODEL),
-        body_type: valueOrEmpty(bodyType, DEFAULT_BODY_TYPE),
-        location: valueOrEmpty(location, DEFAULT_LOCATION),
+        make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
+        model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
+        body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
+        location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
          price_min: cleanedMin,
       price_max: cleanedMax,
         condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,

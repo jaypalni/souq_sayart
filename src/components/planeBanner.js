@@ -8,16 +8,33 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 
-const PlaneBanner = () => {
+const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [selectedLocation, setSelectedLocation] = useState('Dubai');
+  const [selectedLocation, setSelectedLocation] = useState(propSelectedLocation || 'Dubai');
   const isLoginPage =
     location.pathname === '/' ||
     location.pathname === '/verifyOtp' ||
     location.pathname === '/createProfile';
 
-  // Update selected location when localStorage changes
+  // Function to get selected location from localStorage
+  const getSelectedLocation = () => {
+    try {
+      const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
+      return savedSearchData?.location || 'All Locations'; // Default to All Locations if no location found
+    } catch (error) {
+      return 'All Locations'; // Default fallback
+    }
+  };
+
+  // Update selected location when prop changes
+  useEffect(() => {
+    if (propSelectedLocation && propSelectedLocation !== selectedLocation) {
+      setSelectedLocation(propSelectedLocation);
+    }
+  }, [propSelectedLocation, selectedLocation]);
+
+  // Update selected location when localStorage changes (fallback)
   useEffect(() => {
     const updateLocation = () => {
       const newLocation = getSelectedLocation();
@@ -49,15 +66,17 @@ const PlaneBanner = () => {
     };
   }, []);
 
-  // Function to get selected location from localStorage
-  const getSelectedLocation = () => {
-    try {
-      const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
-      return savedSearchData?.location || 'Dubai'; // Default to Dubai if no location found
-    } catch {
-      return 'Dubai'; // Default fallback
-    }
-  };
+  // Additional effect to check for location changes periodically (fallback)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocation = getSelectedLocation();
+      if (currentLocation !== selectedLocation) {
+        setSelectedLocation(currentLocation);
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(interval);
+  }, [selectedLocation]);
 
   // Function to generate breadcrumb from current path
   const generateBreadcrumb = () => {
@@ -161,7 +180,8 @@ const PlaneBanner = () => {
             marginLeft: '-980px',
             display: 'flex',
             alignItems: 'center',
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
+            marginBottom:'30px',
           }}
         >
           {breadcrumbItems.map((item, index) => (

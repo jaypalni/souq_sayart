@@ -55,17 +55,18 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 342642;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata }) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
 
 const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
+
   const [model, setModel] = useState(DEFAULTS.ALL_MODELS);
   const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
    const [carModels, setCarModels] = useState([]);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
-  const [location, setLocation] = useState(DEFAULTS.BAGHDAD);
+  const [location, setLocation] = useState('');
   const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
@@ -94,12 +95,14 @@ useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     if (saved) {
-      setMake(saved.make || DEFAULT_MAKE);
-      setModel(saved.model || DEFAULT_MODEL);
-      setBodyType(saved.body_type || DEFAULT_BODY_TYPE);
-      setLocation(saved.location || DEFAULT_LOCATION);
+      setMake(saved.make === '' ? DEFAULTS.ALL_MAKE : (saved.make || DEFAULTS.ALL_MAKE));
+      setModel(saved.model === '' ? DEFAULTS.ALL_MODELS : (saved.model || DEFAULTS.ALL_MODELS));
+      setBodyType(saved.body_type === '' ? DEFAULTS.ALL_BODY_TYPES : (saved.body_type || DEFAULTS.ALL_BODY_TYPES));
+      setLocation(saved.location || '');
     }
-  } catch (e) {}
+  } catch (e) {
+    // Silent error handling
+  }
 }, []);
 
 
@@ -188,7 +191,7 @@ handleSearch()
   let sortbyold = false;
   let sortbypriceormileage = '';
   let sortorder = '';
-console.log('Sort By', sortedbydata)
+
   switch (sortedbydata) {
     case 'Newest Listing':
       sortbynewlist = true;
@@ -223,11 +226,11 @@ console.log('Sort By', sortedbydata)
       break;
   }
     const saveParams = {
-      make,
-      model,
-      body_type: bodyType,
-      location,
-      newUsed,
+      make: make === DEFAULTS.ALL_MAKE ? '' : make,
+      model: model === DEFAULTS.ALL_MODELS ? '' : model,
+      body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+      location: location || '',
+      newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
       priceMin,
       priceMax,
       newest_listing: sortbynewlist,
@@ -236,10 +239,14 @@ console.log('Sort By', sortedbydata)
       sort_order: sortorder,
     };
 
-    console.log('Save Prams', saveParams)
+
 
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
-    // Dispatch custom event to update breadcrumb
+    // Update breadcrumb directly via prop
+    if (setSelectedLocation) {
+      setSelectedLocation(location);
+    }
+    // Dispatch custom event to update breadcrumb (fallback)
     window.dispatchEvent(new CustomEvent('searchDataUpdated'));
     message.success('Filters saved!');
 
@@ -259,28 +266,34 @@ console.log('Sort By', sortedbydata)
       sort_by: sortbypriceormileage,
       sort_order: sortorder,
       };
-      if (make !== DEFAULTS.ALL_MAKE) {
-        apiParams.make = make;
-      }
+       // Handle make parameter
+       if (make === DEFAULTS.ALL_MAKE) {
+         apiParams.make = '';
+       } else {
+         apiParams.make = make;
+       }
       if (model !== DEFAULTS.ALL_MODELS) {
         apiParams.model = model;
+      } else {
+        apiParams.model = '';
       }
       if (bodyType !== DEFAULTS.ALL_BODY_TYPES) {
         apiParams.body_type = bodyType;
+      } else {
+        apiParams.body_type = '';
       }
-      if (location !== DEFAULTS.BAGHDAD) {
+      if (location && location !== '') {
         apiParams.location = location;
+      } else {
+        apiParams.location = '';
       }
 
-      console.log('🔍 AllCarFilters API Params:', apiParams);
+
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('🔍 AllCarFilters API Response:', response);
       const data1 = handleApiResponse(response);
-      console.log('🔍 AllCarFilters Processed Data:', data1);
 
       if (data1) {
         const results = data1?.data?.cars || [];
-        console.log('🔍 AllCarFilters Results:', results);
         setCarSearch(results);
 
         if (results.length === 0) {
@@ -288,7 +301,11 @@ console.log('Sort By', sortedbydata)
         } else {
           setFilterCarsData(data1.data); // Pass the full data object with cars and pagination
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-          // Dispatch custom event to update breadcrumb
+          // Update breadcrumb directly via prop
+          if (setSelectedLocation) {
+            setSelectedLocation(location);
+          }
+          // Dispatch custom event to update breadcrumb (fallback)
           window.dispatchEvent(new CustomEvent('searchDataUpdated'));
           // messageApi.open({
           //   type: 'success',
@@ -435,7 +452,11 @@ console.log('Sort By', sortedbydata)
               onChange={(value) => {
                 setLocation(value);
                 handleChange('Location', value);
-                // Dispatch custom event to update breadcrumb
+                // Update breadcrumb directly via prop
+                if (setSelectedLocation) {
+                  setSelectedLocation(value);
+                }
+                // Dispatch custom event to update breadcrumb (fallback)
                 window.dispatchEvent(new CustomEvent('searchDataUpdated'));
               }}
               className="allcars-filters-select"
@@ -458,9 +479,7 @@ console.log('Sort By', sortedbydata)
             bodyType={bodyType}
             location={location}
             onSearchResults={(searchResults) => {
-              console.log('🔍 Parent received searchResults:', searchResults);
               if (searchResults?.data !== undefined) {
-                console.log('🔍 Setting filterCarsData to:', searchResults.data);
                 setFilterCarsData(searchResults.data);
                 setFilterVisible(false);
               }

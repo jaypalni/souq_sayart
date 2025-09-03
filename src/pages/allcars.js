@@ -23,17 +23,32 @@ import { message, Pagination } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
-  const [sortedbydata, setSortedbyData] = useState('')
-  
+  const [sortedbydata, setSortedbyData] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+
+  // Initialize selectedLocation from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
+      if (savedSearchData?.location) {
+        setSelectedLocation(savedSearchData.location);
+      } else {
+        setSelectedLocation('All Locations');
+      }
+    } catch (error) {
+      // Silent error handling
+    }
+  }, []);
 
   
   return (
     <div>
-      <PlaneBanner name={'jdi'} />
+      <PlaneBanner name={'jdi'} selectedLocation={selectedLocation} />
       <AllCarFilters
         filtercarsData={filtercarsData}
         setFilterCarsData={setFilterCarsData}
         sortedbydata={sortedbydata}
+        setSelectedLocation={setSelectedLocation}
       />
       <CarListing
         filtercarsData={filtercarsData}
@@ -148,7 +163,6 @@ const Removefavcarapi = async (carId) => {
     setSortOption(option); 
     setSortedbyData(option); 
     setIsOpen(false);
-    console.log('Selected:', option);
   };
   return (
     <div className="car-listing-container">

@@ -95,7 +95,7 @@ const MyProfile = () => {
       try {
         const response = await userAPI.getProfile({});
         const profileData = handleApiResponse(response);
-        console.log('Whatsap', profileData)
+
         if (profileData) {
           setWhatsappNotification(profileData?.data?.whatsapp);
           
@@ -290,22 +290,8 @@ const MyProfile = () => {
       });
     }
   } catch (err) {
-    console.error('OTP Delete Error:', err);
-
-    let errorMessage = 'Something went wrong!';
-    if (err?.response?.data?.error) {
-      
-      errorMessage = err.response.data.error;
-    } else if (err.message) {
-     
-      errorMessage = err.message;
-    }
-
-    setIsDeleteContinueDisabled(false);
-    messageApi.open({
-      type: 'error',
-      content: errorMessage,
-    });
+    message.error('OTP verification failed. Please try again.');
+    console.log('Verify otp failed2', err);
   } finally {
     setIsDeleteContinueDisabled(false);
     setLoading(false);

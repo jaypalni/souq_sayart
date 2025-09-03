@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 const DEFAULT_ALL_MAKE = 'All';
 const DEFAULT_ALL_MODELS = 'All Models';
 const DEFAULT_ALL_BODY_TYPES = 'All Body Types';
-const DEFAULT_LOCATION_BAGHDAD = 'Baghdad';
+const DEFAULT_LOCATION_BAGHDAD = '';
 
 const Searchemptymodal = ({
   visible,

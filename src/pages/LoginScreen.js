@@ -225,7 +225,7 @@ const LoginScreen = () => {
             Login
           </h2>
           <p style={{ color: '#0A0A0B', fontSize: 14, fontFamily: 'Roboto' }}>
-            Enter Your Phone Number to login to our app
+            Enter Your Phone Number to login
           </p>
           <div style={{ margin: '20px 0' }}>
             <label
@@ -242,7 +242,7 @@ const LoginScreen = () => {
               Enter Your Phone Number
             </label>
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
-              <div style={{ position: 'relative', width: 102, height: 52 }}>
+              <div style={{ position: 'relative'}}>
                 <button
                   type="button"
                   style={{

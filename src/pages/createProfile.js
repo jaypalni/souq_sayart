@@ -457,7 +457,7 @@ const CreateProfile = () => {
                       type: 'email',
                       message: 'Please enter a valid email address',
                       validator: (_, value) => {
-                        if (!value || value.trim() === '') {
+                        if (!value || value?.trim() === '') {
                           return Promise.resolve();
                         }
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -30,6 +30,7 @@ import Searchicon from '../assets/images/search_icon.svg';
 import Backarrowicon from '../assets/images/backarrow_icon.svg';
 import { message } from 'antd';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import Searchemptymodal from './searchemptymodal';
 
 const { Option } = Select;
 
@@ -141,8 +142,8 @@ const handleFeatureToggle = (selectedFeatures, setSelectedFeatures) => (feature)
 };
 
 const handleKeywordsChange = (keywords, setKeywords) => (value) => {
-  if (value.trim()) {
-    setKeywords(value.split(',').map(k => k.trim()).filter(k => k));
+  if (value?.trim()) {
+    setKeywords(value?.split(',').map(k => k?.trim()).filter(k => k));
   } else {
     setKeywords([]);
   }
@@ -245,7 +246,7 @@ const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, 
 const MAX_PRICE = 5000000000;
 
  const handleNumberInput = (e, callback) => {
-  let value = e.target.value.replace(/[^0-9]/g, ''); // remove non-numeric
+  let value = e.target.value?.replace(/[^0-9]/g, ''); // remove non-numeric
 
   if (value) {
     let num = parseInt(value, 10);
@@ -497,6 +498,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [trimData, setTrimData] = useState(false);
+  const [isEmptyModalOpen, setIsEmptyModalOpen] = useState(false);
 
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
@@ -542,8 +544,26 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords });
       const response = await carAPI.searchCars(filterData);      
       
-      if (onSearchResults && response.data) {
-        onSearchResults(response.data);
+      if (response.data) {
+        const results = response.data.cars || response.data || [];
+        
+        console.log('🔍 Search API Response:', response.data);
+        console.log('🔍 Results array:', results);
+        console.log('🔍 Results length:', results.length);
+        
+        // Always call onSearchResults to update parent component, even with empty results
+        if (onSearchResults) {
+          console.log('🔍 Calling onSearchResults with:', response.data);
+          onSearchResults(response.data);
+        }
+        
+        if (results.length === 0) {
+          // Show empty state modal
+          setIsEmptyModalOpen(true);
+          message.info('No cars found with the current filters. Try adjusting your search criteria.');
+        } else {
+          message.success(`Found ${results.length} car(s) matching your filters!`);
+        }
       }
       
       setVisible(false);
@@ -816,7 +836,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             <Input
               placeholder="Enter keywords (e.g., low mileage, one owner, accident free)"
               value={keywords.join(', ')}
-              onChange={handleKeywordsChange(keywords, setKeywords)}
+              onChange={(e) => handleKeywordsChange(keywords, setKeywords)(e.target.value)}
               style={{ width: '100%', marginTop: '10px' }}
             />
           </div>
@@ -867,6 +887,21 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
         onSearchChange={(e) => setSearch(e.target.value)}
         selectedFeatures={selectedFeatures}
         onFeatureToggle={handleFeatureToggle(selectedFeatures, setSelectedFeatures)}
+      />
+
+      <Searchemptymodal
+        visible={isEmptyModalOpen}
+        onClose={() => setIsEmptyModalOpen(false)}
+        make={make}
+        setMake={() => {}} // Placeholder - parent component should handle this
+        model={model}
+        setModel={() => {}} // Placeholder - parent component should handle this
+        bodyType={bodyType}
+        setBodyType={() => {}} // Placeholder - parent component should handle this
+        selectedLocation={location}
+        setSelectedLocation={() => {}} // Placeholder - parent component should handle this
+        toastmessage="No cars found with the current filters. Try removing some filters or adjusting your search criteria."
+        setSaveSearchesReload={() => {}}
       />
     </>
   );

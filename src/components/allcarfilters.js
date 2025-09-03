@@ -217,17 +217,21 @@ useEffect(() => {
         apiParams.location = location;
       }
 
+      console.log('🔍 AllCarFilters API Params:', apiParams);
       const response = await carAPI.getSearchCars(apiParams);
+      console.log('🔍 AllCarFilters API Response:', response);
       const data1 = handleApiResponse(response);
+      console.log('🔍 AllCarFilters Processed Data:', data1);
 
       if (data1) {
-        const results = data1?.data || [];
+        const results = data1?.data?.cars || [];
+        console.log('🔍 AllCarFilters Results:', results);
         setCarSearch(results);
 
         if (results.length === 0) {
           setIsModalOpen(true);
         } else {
-          setFilterCarsData(results);
+          setFilterCarsData(data1.data); // Pass the full data object with cars and pagination
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
           messageApi.open({
             type: 'success',
@@ -376,7 +380,9 @@ useEffect(() => {
             bodyType={bodyType}
             location={location}
             onSearchResults={(searchResults) => {
-              if (searchResults?.data) {
+              console.log('🔍 Parent received searchResults:', searchResults);
+              if (searchResults?.data !== undefined) {
+                console.log('🔍 Setting filterCarsData to:', searchResults.data);
                 setFilterCarsData(searchResults.data);
                 setFilterVisible(false);
               }

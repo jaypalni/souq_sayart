@@ -27,6 +27,10 @@ const CarListing = ({ title, cardata }) => {
   const [visibleCars, setVisibleCars] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
+  console.log('🔍 CarListing received cardata:', cardata);
+  console.log('🔍 CarListing cardata type:', typeof cardata);
+  console.log('🔍 CarListing cardata length:', Array.isArray(cardata) ? cardata.length : 'not array');
+
   useEffect(() => {
     if (Array.isArray(cardata) && cardata.length > 0) {
       let startIndex = 0;
@@ -41,6 +45,9 @@ const CarListing = ({ title, cardata }) => {
       const interval = setInterval(updateVisibleCars, 900000);
 
       return () => clearInterval(interval);
+    } else {
+      // Clear visible cars when cardata is empty
+      setVisibleCars([]);
     }
   }, [cardata]);
 
@@ -113,6 +120,19 @@ const CarListing = ({ title, cardata }) => {
           >
             See All
           </button>
+        </div>
+      )}
+      {visibleCars.length === 0 && Array.isArray(cardata) && cardata.length === 0 && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          color: '#666',
+          fontSize: '16px'
+        }}>
+          <p>No cars found matching your search criteria.</p>
+          <p style={{ fontSize: '14px', marginTop: '10px' }}>
+            Try adjusting your filters or search terms.
+          </p>
         </div>
       )}
       <div className="car-listing-flex-row">

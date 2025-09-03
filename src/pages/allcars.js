@@ -23,6 +23,10 @@ import { message, Pagination } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
+  
+  console.log('🔍 Allcars filtercarsData:', filtercarsData);
+  console.log('🔍 Allcars filtercarsData.cars:', filtercarsData.cars);
+  
   return (
     <div>
       <PlaneBanner name={'jdi'} />
@@ -31,8 +35,8 @@ const Allcars = () => {
         setFilterCarsData={setFilterCarsData}
       />
       <CarListing
-        filtercarsData={filtercarsData}
-        setFilterCarsData={setFilterCarsData}
+        cardata={filtercarsData.cars || []}
+        title="Search Results"
       />
       <Bestcarsalebytype />
     </div>
@@ -54,12 +58,25 @@ const CarListing = ({ filtercarsData }) => {
  
 
   useEffect(() => {
-    if (!filtercarsData || !Array.isArray(filtercarsData.cars) || filtercarsData.cars.length === 0) {
-      setCarsData(passedCars);
-      setPaginationData(passedPagination);
-    } else {
+    console.log('🔍 AllCars useEffect triggered');
+    console.log('🔍 filtercarsData:', filtercarsData);
+    console.log('🔍 passedCars:', passedCars);
+    console.log('🔍 filtercarsData.cars:', filtercarsData?.cars);
+    
+    // Check if filtercarsData has been set by a filter search (not just initial empty state)
+    const hasFilterData = filtercarsData && 
+                         Array.isArray(filtercarsData.cars) && 
+                         (filtercarsData.cars.length > 0 || filtercarsData.pagination && Object.keys(filtercarsData.pagination).length > 0);
+    
+    if (hasFilterData) {
+      console.log('🔍 Using filtercarsData.cars:', filtercarsData.cars);
       setCarsData(filtercarsData.cars);
       setPaginationData(filtercarsData.pagination);
+    } else {
+      console.log('🔍 Falling back to passedCars:', passedCars);
+      // Use passedCars from navigation state (initial load or when no filters applied)
+      setCarsData(passedCars);
+      setPaginationData(passedPagination);
     }
   }, [filtercarsData, passedCars, passedPagination]);
 
@@ -214,8 +231,25 @@ const Removefavcarapi = async (carId) => {
           )}
         </div>
       </div>
+      
+      {/* Empty state message */}
+      {carsData && carsData.length === 0 && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          color: '#666',
+          fontSize: '16px'
+        }}>
+          <p>No cars found matching your search criteria.</p>
+          <p style={{ fontSize: '14px', marginTop: '10px' }}>
+            Try adjusting your filters or search terms.
+          </p>
+        </div>
+      )}
+      
       <div className="row">
-  {carsData?.map((car) => { 
+  {console.log('🔍 Rendering carsData:', carsData, 'Length:', carsData?.length)}
+  {carsData && carsData.length > 0 && carsData.map((car) => { 
 
     return (
       <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>

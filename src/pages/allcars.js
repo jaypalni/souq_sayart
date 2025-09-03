@@ -35,6 +35,7 @@ const Allcars = () => {
         setFilterCarsData={setFilterCarsData}
       />
       <CarListing
+        filtercarsData={filtercarsData}
         cardata={filtercarsData.cars || []}
         title="Search Results"
       />
@@ -43,7 +44,7 @@ const Allcars = () => {
   );
 };
 
-const CarListing = ({ filtercarsData }) => {
+const CarListing = ({ filtercarsData, cardata, title }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
   const passedCars = location.state?.cars || [];
@@ -58,27 +59,23 @@ const CarListing = ({ filtercarsData }) => {
  
 
   useEffect(() => {
-    console.log('🔍 AllCars useEffect triggered');
-    console.log('🔍 filtercarsData:', filtercarsData);
-    console.log('🔍 passedCars:', passedCars);
-    console.log('🔍 filtercarsData.cars:', filtercarsData?.cars);
-    
     // Check if filtercarsData has been set by a filter search (not just initial empty state)
     const hasFilterData = filtercarsData && 
                          Array.isArray(filtercarsData.cars) && 
-                         (filtercarsData.cars.length > 0 || filtercarsData.pagination && Object.keys(filtercarsData.pagination).length > 0);
+                         (filtercarsData.cars.length > 0 || (filtercarsData.pagination && Object.keys(filtercarsData.pagination).length > 0));
     
     if (hasFilterData) {
-      console.log('🔍 Using filtercarsData.cars:', filtercarsData.cars);
       setCarsData(filtercarsData.cars);
       setPaginationData(filtercarsData.pagination);
+    } else if (cardata && cardata.length > 0) {
+      setCarsData(cardata);
+      setPaginationData(filtercarsData?.pagination || {});
     } else {
-      console.log('🔍 Falling back to passedCars:', passedCars);
       // Use passedCars from navigation state (initial load or when no filters applied)
       setCarsData(passedCars);
       setPaginationData(passedPagination);
     }
-  }, [filtercarsData, passedCars, passedPagination]);
+  }, [filtercarsData, cardata, passedCars, passedPagination]);
 
  const Addfavcarapi = async (carId) => {
   try {
@@ -248,7 +245,6 @@ const Removefavcarapi = async (carId) => {
       )}
       
       <div className="row">
-  {console.log('🔍 Rendering carsData:', carsData, 'Length:', carsData?.length)}
   {carsData && carsData.length > 0 && carsData.map((car) => { 
 
     return (
@@ -397,8 +393,12 @@ CarListing.propTypes = {
       limit: PropTypes.number,
     }),
   }),
+  cardata: PropTypes.array,
+  title: PropTypes.string,
 };
 
 CarListing.defaultProps = {
   filtercarsData: { cars: [], pagination: {} },
+  cardata: [],
+  title: 'Search Results',
 };

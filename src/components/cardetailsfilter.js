@@ -547,13 +547,8 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       if (response.data) {
         const results = response.data.cars || response.data || [];
         
-        console.log('🔍 Search API Response:', response.data);
-        console.log('🔍 Results array:', results);
-        console.log('🔍 Results length:', results.length);
-        
         // Always call onSearchResults to update parent component, even with empty results
         if (onSearchResults) {
-          console.log('🔍 Calling onSearchResults with:', response.data);
           onSearchResults(response.data);
         }
         
@@ -569,6 +564,12 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       setVisible(false);
     } catch (error) {
       console.error('Search API Error:', error);
+      
+      // Still try to call onSearchResults with empty data to reset the state
+      if (onSearchResults) {
+        onSearchResults({ cars: [], pagination: {} });
+      }
+      
       setVisible(false);
     } finally {
       setLoading(false);

@@ -21,6 +21,7 @@ import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
 import { AiOutlineLeft } from 'react-icons/ai';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { updateCustomerDetails } from '../redux/actions/authActions';
 
 const YES = 'yes';
@@ -103,349 +104,7 @@ const toWhatsappFlag = (whatsappChecked) => {
   return whatsappChecked ? '1' : '0';
 };
 
-// Extracted PhoneChangeForm component
-const PhoneChangeForm = ({ 
-  phone, 
-  setPhone, 
-  selectedCountry, 
-  setSelectedCountry, 
-  countryOptions, 
-  setCountryOptions, 
-  dropdownOpen, 
-  setDropdownOpen, 
-  emailerrormsg, 
-  checked, 
-  whatsapphandleChange, 
-  switchStyle, 
-  onContinue, 
-  handlePhoneChange 
-}) => {
-  const BASE_URL = process.env.REACT_APP_API_URL;
-  return (
-    <div
-      style={{
-        flex: 1,
-        background: '#fff',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '12px 0',
-      }}
-    >
-      <div
-        style={{
-          width: 400,
-          background: '#fff',
-          borderRadius: 8,
-          textAlign: 'left',
-          marginLeft: -530,
-        }}
-      >
-        <p style={{ color: '#0A0A0B', fontSize: 14, fontFamily: 'Roboto' }}>
-         Enter Your New Phone Number to change
-        </p>
-        <div style={{ margin: '20px 0' }}>
-          <label
-            style={{
-              display: 'block',
-              marginBottom: 6,
-              fontWeight: 500,
-              color: '#637D92',
-              textAlign: 'left',
-              fontSize: 12,
-            }}
-            htmlFor="phone-input"
-          >
-            Enter Your Phone Number
-          </label>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ position: 'relative', width: 100, height: 57 }}>
-              <button
-                type="button"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  borderRadius: 8,
-                  padding: '8px 12px',
-                  background: '#E7EBEF',
-                  border: 'none',
-                  width: '80%',
-                  height: '80%',
-                }}
-                aria-expanded={dropdownOpen}
-                aria-controls="country-menu"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {selectedCountry && (
-                  <>
-                    <img
-                      src={`${BASE_URL}${selectedCountry.country_flag_image}`}
-                      alt="flag"
-                      style={{ width: 20, height: 14, marginRight: 6 }}
-                    />
-                    <span style={{ fontSize: 16 }}>
-                      {selectedCountry.country_code}
-                    </span>
-                  </>
-                )}
-              </button>
-              {dropdownOpen && (
-                <div
-                  id="country-menu"
-                  style={{
-                    position: 'absolute',
-                    top: 42,
-                    left: 0,
-                    background: '#fff',
-                    border: '1px solid #ccc',
-                    borderRadius: 4,
-                    zIndex: 10,
-                    minWidth: 120,
-                  }}
-                >
-                  {countryOptions.map((country) => (
-                    <button
-                      type="button"
-                      key={country.id}
-                      style={{
-                        padding: '6px 12px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: '100%',
-                        background: 'transparent',
-                        border: 'none',
-                        textAlign: 'left',
-                      }}
-                      onClick={() => {
-                        setSelectedCountry(country);
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      <img
-                        src={`${BASE_URL}${country.country_flag_image}`}
-                        alt="flag"
-                        style={{ width: 20, height: 14, marginRight: 6 }}
-                      />
-                      <span style={{ fontSize: 15 }}>
-                        {country.country_code}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <input
-              className="login-box"
-              type="tel"
-              placeholder="Enter phone number"
-              value={phone}
-              onChange={handlePhoneChange}
-              id="phone-input"
-            />
-          </div>
 
-          <div className="emailerror-msg" style={{ marginLeft: 110 }}>
-            {emailerrormsg}
-          </div>
-        </div>
-        {/* <div style={{marginBottom: 12}}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
-                <span
-                  style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
-                >
-                  <img
-                    src={whatsappIcon}
-                    alt="Whatsapp Icon"
-                    style={{ width: 18, height: 18, marginRight: 5 }}
-                  />
-                  {' '}
-                  Whatsapp
-                </span>
-
-                <Switch
-                  checked={checked}
-                  onChange={whatsapphandleChange}
-                  style={switchStyle}
-                />
-              </div>
-            </div> */}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            style={{
-              background: '#0090d4',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 20,
-              padding: '2px 52px',
-              cursor: 'pointer',
-              fontFamily: 'Roboto',
-              fontWeight: 700,
-              fontSize: 14,
-            }}
-             onClick={onContinue}
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-PhoneChangeForm.propTypes = {
-  phone: PropTypes.string.isRequired,
-  setPhone: PropTypes.func.isRequired,
-  selectedCountry: PropTypes.shape({
-    id: PropTypes.number,
-    country_code: PropTypes.string,
-    country_flag_image: PropTypes.string,
-    country_name: PropTypes.string,
-  }),
-  setSelectedCountry: PropTypes.func.isRequired,
-  countryOptions: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    country_code: PropTypes.string.isRequired,
-    country_flag_image: PropTypes.string.isRequired,
-    country_name: PropTypes.string.isRequired,
-  })).isRequired,
-  setCountryOptions: PropTypes.func.isRequired,
-  dropdownOpen: PropTypes.bool.isRequired,
-  setDropdownOpen: PropTypes.func.isRequired,
-  emailerrormsg: PropTypes.string.isRequired,
-  checked: PropTypes.bool.isRequired,
-  whatsapphandleChange: PropTypes.func.isRequired,
-  switchStyle: PropTypes.object.isRequired,
-  onContinue: PropTypes.func.isRequired,
-  handlePhoneChange: PropTypes.func.isRequired,
-};
-
-
-const OTPForm = ({ 
-  otp, 
-  handleChange, 
-  handleKeyDown, 
-  error, 
-  inputRefs, 
-  OTP_INPUT_IDS, 
-  isTimerRunning, 
-  timer, 
-  formatTime, 
-  handleResend, 
-  handleContinue 
-}) => {
-  const buildOtpInputClass = (digit, error) => {
-    let inputClass = 'otp-input';
-
-    if (digit) {
-      inputClass += ' filled';
-    }
-
-    if (error && (digit === '' || !/^\d$/.test(digit))) {
-      inputClass += ' otp-input-error';
-    }
-
-    return inputClass;
-  };
-
-  const renderTimerContent = (isTimerRunning, timer, formatTime, handleResend) => {
-    if (isTimerRunning) {
-      return (
-        <span>
-          Resend in{' '}
-          <span className="otp-timer-count">{formatTime(timer)}</span>
-        </span>
-      );
-    } else {
-      return (
-        <button
-          type="button"
-          className="otp-resend"
-          onClick={handleResend}
-          style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
-        >
-          Resend
-        </button>
-      );
-    }
-  };
-  return (
-    <div style={{ justifyContent: 'flex-start'}}>
-      <p className="otp-desc">
-        Enter the verification code sent to your phone number
-      </p>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}>
-        {otp.map((digit, idx) => {
-          const inputClass = buildOtpInputClass(digit, error);
-          const inputKey = OTP_INPUT_IDS[idx];
-          return (
-            <input
-              key={inputKey}
-              ref={inputRefs[idx]}
-              type="tel"
-              className={inputClass}
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(e, idx)}
-              onKeyDown={(e) => handleKeyDown(e, idx)}
-            />
-          );
-        })}
-      </div>
-
-      {error && (
-        <div
-          className="otp-error"
-          style={{
-            color: '#ff4d4f',
-            marginTop: 8,
-            marginBottom: 4,
-            textAlign: 'center',
-          }}
-        >
-          {error}
-        </div>
-      )}
-
-      <div className="otp-timer">
-        {renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}
-      </div>
-        <button
-          className="otp-btn otp-btn-filled"
-          type="button"
-          onClick={handleContinue}
-          style={{height: 35}}
-        >
-          Continue
-        </button>
-      
-    </div>
-  );
-};
-
-OTPForm.propTypes = {
-  otp: PropTypes.arrayOf(PropTypes.string).isRequired,
-  handleChange: PropTypes.func.isRequired,
-  handleKeyDown: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
-  inputRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
-  OTP_INPUT_IDS: PropTypes.arrayOf(PropTypes.string).isRequired,
-  isTimerRunning: PropTypes.bool.isRequired,
-  timer: PropTypes.number.isRequired,
-  formatTime: PropTypes.func.isRequired,
-  handleResend: PropTypes.func.isRequired,
-  handleContinue: PropTypes.func.isRequired,
-};
 
 // Extracted ProfileForm component
 const ProfileForm = ({ 
@@ -978,9 +637,7 @@ required={false}
       fontWeight: 400,
       color: '#4A5E6D',
     }}
-    onChange={(date) => {
-      console.log('Selected Date:', date ? dayjs(date).format('ddd, DD MMM YYYY') : null);
-    }}
+    onChange={() => {}}
   />
 </Form.Item>
 </Col>
@@ -1081,185 +738,12 @@ const MyProfileForm = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
-   const [showChangePhoneForm, setShowChangePhoneForm] = useState(false);
-   const [, setIsChangingPhone] = useState(false);
-     const [dropdownOpen, setDropdownOpen] = useState(false);
-     const [selectedCountry, setSelectedCountry] = useState(null);
-      const [countryOptions, setCountryOptions] = useState([]);
-      const [phone, setPhone] = useState('');
-      const [emailerrormsg, setEmailErrorMsg] = useState('');
-      const [showOtpForm, setShowOtpForm] = useState(false);
-      const [otp, setOtp] = useState(['', '', '', '']);
-      const [timer, setTimer] = useState(60);
-        const [isTimerRunning, setIsTimerRunning] = useState(true);
-        const [error, setError] = useState('');
-        const inputRefs = [useRef(), useRef(), useRef(), useRef()];
-       const OTP_LENGTH = 4;
-        const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
-        const intervalRef = useRef(null);
-         const [checked, setChecked] = useState(false);
+  const navigate = useNavigate();
 
-      const handlePhoneChange = (e) => {
-    const numb = e.target.value;
-    setEmailErrorMsg('');
-
-    if (!/^\d*$/.test(numb)) {
-      return;
-    }
-
-    setPhone(numb);
+  const handleConfirm = () => {
+    setModalOpen(false);
+    navigate('/myProfile/change-phone');
   };
-
-  const switchStyle = {
-    backgroundColor: checked ? '#008AD5' : '#ccc',
-  };
-
-  const handleConfirm = async () => {
-    try {
-      const response = await authAPI.countrycode();
-      const data = handleApiResponse(response);
-
-      if (!data || data.length === 0) {
-        throw new Error('No countries found');
-      }
-
-      const geoData = await getGeoData();
-      const defaultCountry = getDefaultCountry(data, geoData);
-
-      setSelectedCountry(defaultCountry || data[0]);
-      setCountryOptions(data);
-
-      setModalOpen(false);
-      setEditMode(false);
-      setShowChangePhoneForm(true);
-      setIsChangingPhone(true);
-    } catch (err) {
-      console.error('Error fetching country:', err);
-    }
-  };
-
- const handleChange = (e, idx) => {
-  const val = e.target.value.replace(/\D/g, '');
-
-  const newOtp = [...otp];
-  if (val) {
-    newOtp[idx] = val[val.length - 1];
-    setOtp(newOtp);
-    setError('');
-    if (idx < OTP_LENGTH - 1) {
-      inputRefs[idx + 1].current.focus();
-    }
-  } else {
-    newOtp[idx] = '';
-    setOtp(newOtp);
-  }
-};
-
-const handleKeyDown = (e, idx) => {
-    if (e.key === 'Backspace') {
-      if (otp[idx]) {
-        const newOtp = [...otp];
-        newOtp[idx] = '';
-        setOtp(newOtp);
-      } else if (idx > 0) {
-        inputRefs[idx - 1].current.focus();
-      }
-    }
-  };
-
-   const validateOtp = () => {
-    if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
-      setError('Please enter the OTP.');
-      return false;
-    }
-    setError('');
-    return true;
-  };
-
-  const onContinue = async () => {
-      if (phone === '') {
-        setEmailErrorMsg('Phone number is required!');
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const savePhone = `${selectedCountry.country_code}${phone}`;
-        localStorage.setItem('phonenumber', savePhone);
-  
-        const response = await userAPI.changephonenumber({
-          phone_number: savePhone,
-          is_whatsapp: toWhatsappFlag(checked),
-        });
-  
-        const data = handleApiResponse(response);
-        if (data) {
-          messageApi.open({ type: 'success', content: data.message });
-           if (data.request_id) {
-        localStorage.setItem('request_id', data.request_id);
-      }
-           setShowChangePhoneForm(false);
-          setShowOtpForm(true);
-           if (intervalRef.current) clearInterval(intervalRef.current); 
-        setTimer(60); 
-        setIsTimerRunning(true);
-
-        intervalRef.current = setInterval(() => {
-          setTimer((prev) => {
-            if (prev <= 1) {
-              clearInterval(intervalRef.current);
-              setIsTimerRunning(false);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-        }
-      } catch (error) {
-        const errorData = handleApiError(error);
-        messageApi.open({ type: 'error', content: errorData.message });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-   const handleContinue = async () => {
-  if (!validateOtp()) {
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const otpDigits = otp.join('');
-    const requestId = localStorage.getItem('request_id'); 
-
-    const otpPayload = {
-      otp: otpDigits,
-      request_id: requestId,
-    };
-
-    const result = await userAPI.chnagenumberverifyOtp(otpPayload);
-
-    if (result?.data?.success) {
-      messageApi.open({
-        type: 'success',
-        content: result?.data?.message,
-      });
-
-      setShowChangePhoneForm(false);
-      setShowOtpForm(false);
-    } else {
-      messageApi.open({
-        type: 'error',
-        content: result?.data?.error,
-      });
-    }
-  } catch (err) {
-    message.error('OTP verification failed. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
 
   const onFinishFailed = ({ errorFields, values }) => {
     
@@ -1422,9 +906,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
-    const whatsapphandleChange = (value) => {
-    setChecked(value);
-  };
+
 
   const renderAvatarContent = () => {
     // Priority: imageUrl (newly uploaded) > avatarUrl (current) > profile.avatar (saved)
@@ -1616,7 +1098,6 @@ const handleSubmitError = (error, onFinishFailed) => {
     const response = await userAPI.updateProfile(payload);
     
     const result = handleApiResponse(response);
-    console.log('User Profile', result)
       dispatch(updateCustomerDetails({
           first_name: result?.user?.first_name,
           last_name: result?.user?.last_name,
@@ -1668,8 +1149,6 @@ const handleSubmitError = (error, onFinishFailed) => {
           setImageUrl,
         });
       }
-    } else {
-      console.log('❌ Full result:', result);
     }
     
     messageApi.open({
@@ -1689,36 +1168,6 @@ const handleSubmitError = (error, onFinishFailed) => {
    * @returns {JSX.Element} Header content
    */
   const renderHeaderContent = () => {
-  if (showOtpForm) {
-    return (
-      <>
-        <AiOutlineLeft
-          onClick={() => {
-            setShowOtpForm(false);
-            setShowChangePhoneForm(true);
-          }}
-          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-        />
-        Enter OTP Sent To Your New Number
-      </>
-    );
-  }
-
-  if (showChangePhoneForm) {
-    return (
-      <>
-        <AiOutlineLeft
-          onClick={() => {
-            setIsChangingPhone(false);
-            setShowChangePhoneForm(false);
-          }}
-          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-        />
-        Change Mobile Number
-      </>
-    );
-  }
-
   if (editMode) {
     return (
       <>
@@ -1740,45 +1189,6 @@ const handleSubmitError = (error, onFinishFailed) => {
    * @returns {JSX.Element} Main content
    */
   const renderMainContent = () => {
-  if (showChangePhoneForm) {
-    return (
-      <PhoneChangeForm 
-        phone={phone} 
-        setPhone={setPhone} 
-        selectedCountry={selectedCountry} 
-        setSelectedCountry={setSelectedCountry} 
-        countryOptions={countryOptions} 
-        setCountryOptions={setCountryOptions} 
-        dropdownOpen={dropdownOpen} 
-        setDropdownOpen={setDropdownOpen} 
-        emailerrormsg={emailerrormsg} 
-        checked={checked} 
-        whatsapphandleChange={whatsapphandleChange} 
-        switchStyle={switchStyle} 
-        onContinue={onContinue} 
-        handlePhoneChange={handlePhoneChange} 
-      />
-    );
-  }
-  
-  if (showOtpForm) {
-    return (
-      <OTPForm 
-        otp={otp} 
-        handleChange={handleChange} 
-        handleKeyDown={handleKeyDown} 
-        error={error} 
-        inputRefs={inputRefs} 
-        OTP_INPUT_IDS={OTP_INPUT_IDS} 
-        isTimerRunning={isTimerRunning} 
-        timer={timer} 
-        formatTime={formatTime} 
-        handleResend={onContinue} 
-        handleContinue={handleContinue} 
-      />
-    );
-  }
-  
   return (
     <ProfileForm 
       form={form} 

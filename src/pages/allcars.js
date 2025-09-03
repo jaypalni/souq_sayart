@@ -25,8 +25,7 @@ const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('')
   
-  console.log('🔍 Allcars filtercarsData:', filtercarsData);
-  console.log('🔍 Allcars filtercarsData.cars:', filtercarsData.cars);
+
   
   return (
     <div>

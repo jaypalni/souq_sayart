@@ -30,8 +30,10 @@ const Allcars = () => {
   useEffect(() => {
     try {
       const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
-      if (savedSearchData?.location) {
-        setSelectedLocation(savedSearchData.location);
+      const location = savedSearchData?.location;
+      // Set to 'All Locations' if location is empty, null, or undefined
+      if (location && location !== '') {
+        setSelectedLocation(location);
       } else {
         setSelectedLocation('All Locations');
       }

@@ -30,7 +30,7 @@ const { Option } = Select;
 const CORRECT_DEFAULT_MAKE = 'All Make';
 const CORRECT_DEFAULT_MODEL = 'All Models';
 const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
-const CORRECT_DEFAULT_LOCATION = 'All';
+const CORRECT_DEFAULT_LOCATION = 'All Locations';
 
 const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
@@ -78,6 +78,12 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [model, setModel] = useState(CORRECT_DEFAULT_MODEL);
   const [bodyType, setBodyType] = useState(CORRECT_DEFAULT_BODY_TYPE);
   const [location, setLocation] = useState(CORRECT_DEFAULT_LOCATION);
+  
+  // Force location to "All Locations" on component mount
+  useEffect(() => {
+    setLocation('All Locations');
+  }, []);
+  
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
@@ -216,23 +222,8 @@ const getGeoData = async () => {
 };
 
 const resolveDefaultLocation = (locations, geoData) => {
-  if (!locations || locations.length === 0) {
-    return null;
-  }
-
-  const geoMatch = getLocationFromGeo(locations, geoData);
-  if (geoMatch) {
-    return geoMatch;
-  }
-
-  if (isIndiaLocale()) {
-    return (
-      locations.find((loc) => loc.location.toLowerCase() === 'india') ||
-      locations.find((loc) => loc.location.toLowerCase() === 'dubai')
-    );
-  }
-
-  return locations[0];
+  // Always return null to use "All Locations" as default
+  return null;
 };
 
 const getLocationFromGeo = (locations, geoData) => {
@@ -274,7 +265,10 @@ const isIndiaLocale = () => {
     }
   };
 
-  const handleChange = () => {};
+  const handleChange = (field, value) => {
+    console.log(`LandingFilters - handleChange called with field: ${field}, value: ${value}`);
+    // This function can be used for additional logic if needed
+  };
 
   const getDropdownLabel = (type) => {
     if (type === 'newUsed') {
@@ -323,6 +317,7 @@ const isIndiaLocale = () => {
       price_max: cleanedMax,
         condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
       };
+
 
     
 
@@ -473,9 +468,11 @@ const isIndiaLocale = () => {
               id="make-select"
               value={make}
               onChange={(value) => {
+                console.log('LandingFilters - Make selection changed to:', value);
                 setMake(value);
                 setModel('All Models');
                 handleChange('Make', value);
+                console.log('LandingFilters - Make state should now be:', value);
               }}
               className="landing-filters-select"
               size="large"
@@ -543,6 +540,9 @@ const isIndiaLocale = () => {
               size="large"
               dropdownClassName="landing-filters-dropdown"
             >
+              <Option key="all-locations" value="All Locations">
+                All Locations
+              </Option>
               {carLocation.map((l) => (
                 <Option key={l.id} value={l.location}>
                   {l.location}

@@ -175,7 +175,7 @@ const prepareFilterData = (filterParams) => {
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    location: getFilterValue(location, ''),
+    location: getFilterValue(location, 'All Locations'),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
     colour: getFilterValue(singleInputs.colorValue, 'Any'),
@@ -906,7 +906,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
         visible={isEmptyModalOpen}
         onClose={() => setIsEmptyModalOpen(false)}
         make={make}
-        setMake={() => {}} // Placeholder - parent component should handle this
+        setMake={() => {}} 
         model={model}
         setModel={() => {}} // Placeholder - parent component should handle this
         bodyType={bodyType}

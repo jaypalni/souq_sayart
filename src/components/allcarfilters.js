@@ -47,7 +47,7 @@ const bodyTypes = [
   'Coupe',
   'Convertible',
 ];
-const locations = [DEFAULTS.BAGHDAD, 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+const locations = ['All Locations', 'Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
 const newUsedOptions = [DEFAULTS.NEW_USED, 'New', 'Used'];
 const PRICE_MIN_VALUES = [5000, 10000, 20000, 30000, 40000];
 const PRICE_MAX_VALUES = [20000, 30000, 40000, 50000, 100000];
@@ -60,13 +60,65 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, so
   const [, setCarSearch] = useState([]);
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
 
-const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
+// Initialize make from localStorage if available
+const getInitialMake = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.make && saved.make !== '') {
+      return saved.make;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.ALL_MAKE;
+};
 
-  const [model, setModel] = useState(DEFAULTS.ALL_MODELS);
-  const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
+const [make, setMake] = useState(getInitialMake);
+
+// Initialize model from localStorage if available
+const getInitialModel = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.model && saved.model !== '') {
+      return saved.model;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.ALL_MODELS;
+};
+
+  const [model, setModel] = useState(getInitialModel);
+// Initialize bodyType from localStorage if available
+const getInitialBodyType = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.body_type && saved.body_type !== '') {
+      return saved.body_type;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.ALL_BODY_TYPES;
+};
+
+  const [bodyType, setBodyType] = useState(getInitialBodyType);
    const [carModels, setCarModels] = useState([]);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
-  const [location, setLocation] = useState('');
+// Initialize location from localStorage if available
+const getInitialLocation = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.location && saved.location !== '') {
+      return saved.location;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return 'All Locations';
+};
+
+  const [location, setLocation] = useState(getInitialLocation);
   const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
@@ -90,23 +142,35 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
       fetchtotalcarcount();
     }, []);
 
- // After restoring saved search values
+// State is now initialized directly from localStorage in useState calls above
+
+// Clear any cached location data and ensure "All Locations" is the default
 useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved) {
-      setMake(saved.make === '' ? DEFAULTS.ALL_MAKE : (saved.make || DEFAULTS.ALL_MAKE));
-      setModel(saved.model === '' ? DEFAULTS.ALL_MODELS : (saved.model || DEFAULTS.ALL_MODELS));
-      setBodyType(saved.body_type === '' ? DEFAULTS.ALL_BODY_TYPES : (saved.body_type || DEFAULTS.ALL_BODY_TYPES));
-      setLocation(saved.location || '');
+    
+    // If there's cached data with a specific location, clear it and set to "All Locations"
+    if (saved && saved.location && saved.location !== '' && saved.location !== 'All Locations') {
+      const updatedSaved = { ...saved, location: '' };
+      localStorage.setItem('searchcardata', JSON.stringify(updatedSaved));
+      setLocation('All Locations');
+    } else if (!saved || !saved.location || saved.location === '') {
+      // If no location data or empty location, ensure it's set to "All Locations"
+      setLocation('All Locations');
     }
   } catch (e) {
-    // Silent error handling
+    setLocation('All Locations');
   }
 }, []);
 
+// Temporary: Add a function to manually clear localStorage (for debugging)
+useEffect(() => {
+  // Uncomment the next line to clear localStorage on component mount
+  // localStorage.removeItem('searchcardata');
+}, []);
 
- useEffect(() => {
+
+useEffect(() => {
     if (make && make !== DEFAULTS.ALL_MAKE) {
       fetchModelCars({ setLoading, setCarModels, make }).then(() => {
         setModel(DEFAULTS.ALL_MODELS);
@@ -229,7 +293,7 @@ handleSearch()
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
       body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
-      location: location || '',
+      location: location === 'All Locations' ? '' : (location || ''),
       newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
       priceMin,
       priceMax,
@@ -282,12 +346,11 @@ handleSearch()
       } else {
         apiParams.body_type = '';
       }
-      if (location && location !== '') {
+      if (location && location !== '' && location !== 'All Locations') {
         apiParams.location = location;
       } else {
         apiParams.location = '';
       }
-
 
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);

@@ -21,7 +21,9 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   const getSelectedLocation = () => {
     try {
       const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
-      return savedSearchData?.location || 'All Locations'; // Default to All Locations if no location found
+      const location = savedSearchData?.location;
+      // Return 'All Locations' if location is empty, null, or undefined
+      return (location && location !== '') ? location : 'All Locations';
     } catch (error) {
       return 'All Locations'; // Default fallback
     }

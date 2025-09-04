@@ -938,7 +938,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     if (displayImage) {
       return (
         <img
-          src={displayImage}
+          src={`${BASE_URL}${displayImage}`}
           alt="avatar"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
          
@@ -1049,7 +1049,8 @@ const handleSubmitError = (error, onFinishFailed) => {
         
         // If the URL is relative, make it absolute
         if (finalImageUrl.startsWith('/')) {
-          finalImageUrl = `http://13.202.75.187:5002${finalImageUrl}`;
+          finalImageUrl = finalImageUrl;
+          
           
         }
         

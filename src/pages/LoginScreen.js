@@ -21,6 +21,7 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
   const [emailerrormsg, setEmailErrorMsg] = useState('');
   const [captchaerrormsg, setCaptchaErrorMsg] = useState('');
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -274,7 +275,7 @@ const LoginScreen = () => {
                   {selectedCountry && (
                     <>
                       <img
-                        src={`http://13.202.75.187:5002${selectedCountry.country_flag_image}`}
+                        src={`${BASE_URL}${selectedCountry.country_flag_image}`}
                         alt='flag'
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />
@@ -312,7 +313,8 @@ const LoginScreen = () => {
                         }}
                       >
                         <img
-                          src={`http://192.168.2.72:5001${country.country_flag_image}`}
+                        
+                          src={`${BASE_URL}${country.country_flag_image}`}
                           alt='flag'
                           style={{ width: 20, height: 14, marginRight: 6 }}
                         />
@@ -387,7 +389,7 @@ const LoginScreen = () => {
               onClick={() => onClickContinue()}
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Continue'}
+              {loading ? 'Loading' : 'Continue'}
             </button>
           </div>
         </div>

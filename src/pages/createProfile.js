@@ -47,6 +47,7 @@ const CreateProfile = () => {
   const [messageApi, contextHolder] = message.useMessage();
    const { customerDetails } = useSelector((state) => state.customerDetails);
   const isLoggedIn = customerDetails;
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -210,7 +211,7 @@ const CreateProfile = () => {
     if (imageUrl) {
       return (
         <img
-          src={imageUrl}
+          src={`${BASE_URL}${imageUrl}`}
           alt="avatar"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />

@@ -274,7 +274,7 @@ const LoginScreen = () => {
                   {selectedCountry && (
                     <>
                       <img
-                        src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
+                        src={`http://13.202.75.187:5002${selectedCountry.country_flag_image}`}
                         alt='flag'
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />

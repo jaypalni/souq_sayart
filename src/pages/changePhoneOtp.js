@@ -635,14 +635,22 @@ const ChangePhoneOtpPage = () => {
                   </div>
                 )}
 
-                <div className="row g-3">
+               
+
+                <div className="otp-timer">
+                  {renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}
+                </div>
+
+                 <div className="row g-3">
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     width: '29%',
-                     padding: 20,
+                    //  padding: 10,
+                    marginBottom: 15,
+                    marginTop: 0,
                   }}
                 >
                   <span
@@ -664,10 +672,6 @@ const ChangePhoneOtpPage = () => {
                   />
                 </div>
               </div>
-
-                <div className="otp-timer">
-                  {renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}
-                </div>
                 
                 <button
                   className="otp-btn otp-btn-filled"

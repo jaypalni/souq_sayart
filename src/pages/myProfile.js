@@ -70,6 +70,8 @@ const MyProfile = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
    const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
    const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
+   const [selectedManageKey, setSelectedManageKey] = useState(null);
+
 
    const manageItems = [
   { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
@@ -195,6 +197,7 @@ const MyProfile = () => {
             type: 'success',
             content: data1?.message,
           });
+           navigate('/deleteaccount-otp')
         }
       } catch (error) {
         setDeleteData([])
@@ -834,10 +837,11 @@ const MyProfile = () => {
             onClick={() => {
               setDeleteModalOpen(false);
               setIsDeleteDisabled(true);
-              setShowOtpStep(true); 
+              // setShowOtpStep(true); 
               setTimer(30);
               setIsTimerRunning(true);
               handleDelete();
+             
             }}
             style={{
               width: 120,

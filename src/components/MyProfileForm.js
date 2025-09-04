@@ -250,7 +250,7 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Phone Number
+                Company Phone Number
               </span>
             }
             name="phone"

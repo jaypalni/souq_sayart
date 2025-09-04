@@ -29,10 +29,11 @@ import UserProfile from './pages/userProfile';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
 import ChangePhoneNumberPage from './pages/changePhoneNumber';
+import DeleteAccount from './components/deleteaccount';
 import ChangePhoneOtpPage from './pages/changePhoneOtp';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// ScrollToTop component to scroll to top on route change
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -64,6 +65,7 @@ const AppRouterContent = () => {
     '/myProfile/change-phone-otp',
     '/termsAndconditions',
     '/captchatoken',
+    '/deleteaccount-otp',
   ];
 
   const hidefooterList = ['/captchatoken'];
@@ -132,6 +134,14 @@ const AppRouterContent = () => {
           element={
             <ProtectedRoute>
               <ChangePhoneOtpPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/deleteaccount-otp" 
+          element={
+            <ProtectedRoute>
+              <DeleteAccount />
             </ProtectedRoute>
           } 
         />

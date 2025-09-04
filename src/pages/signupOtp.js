@@ -20,7 +20,7 @@ const SignupOtp = () => {
   const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
@@ -225,14 +225,14 @@ const handleResend = async () => {
   }
 };
 return (
-  <div className="otp-container">
+  <div className='otp-container'>
     {contextHolder}
-    <h2 className="otp-title">Login</h2>
-    <p className="otp-desc">
+    <h2 className='otp-title'>Login</h2>
+    <p className='otp-desc'>
       Enter the verification code sent to your phone number
     </p>
 
-    <div className="otp-inputs">
+    <div className='otp-inputs'>
       {otp.map((digit, idx) => {
         let inputClass = 'otp-input';
 
@@ -249,7 +249,7 @@ return (
           <input
             key={inputKey}
             ref={inputRefs[idx]}
-            type="tel"
+            type='tel'
             className={inputClass}
             maxLength={1}
             value={digit}
@@ -263,7 +263,7 @@ return (
 
     {error && (
       <div
-        className="otp-error"
+        className='otp-error'
         style={{
           color: '#ff4d4f',
           marginTop: 8,
@@ -276,20 +276,20 @@ return (
       </div>
     )}
 
-    <div className="otp-timer">
+    <div className='otp-timer'>
       {(() => {
         if (isTimerRunning) {
           return (
             <span>
               Resend in{' '}
-              <span className="otp-timer-count">{formatTime(timer)}</span>
+              <span className='otp-timer-count'>{formatTime(timer)}</span>
             </span>
           );
         }
        return (
   <button
-    type="button"
-    className="otp-resend"
+    type='button'
+    className='otp-resend'
     onClick={handleResend}
     style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
   >
@@ -300,16 +300,22 @@ return (
       })()}
     </div>
 
-    <div className="otp-btn-row">
-      <button className="otp-btn otp-btn-outline" type="button">
+    <div className='otp-btn-row'>
+      <button className='otp-btn otp-btn-outline' type='button'>
         Continue as guest
       </button>
       <button
-        className="otp-btn otp-btn-filled"
-        type="button"
+        className='otp-btn otp-btn-filled'
+        type='button'
         onClick={handleContinue}
+        disabled={loading}
+        style={{
+          opacity: loading ? 0.7 : 1,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          background: loading ? '#ccc' : undefined
+        }}
       >
-        Continue
+        {loading ? 'Verifying...' : 'Continue'}
       </button>
     </div>
   </div>

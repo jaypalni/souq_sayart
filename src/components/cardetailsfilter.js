@@ -127,9 +127,11 @@ const useSingleInputs = () => {
 // Helper functions
 const handleCheckboxChange = (option, selectedValues, setSelectedValues) => {
   if (selectedValues.includes(option)) {
-    setSelectedValues(selectedValues.filter((val) => val !== option));
+    // setSelectedValues(selectedValues.filter((val) => val !== option));
+     setSelectedValues([]);
   } else {
-    setSelectedValues([...selectedValues, option]);
+    // setSelectedValues([...selectedValues, option]);
+    setSelectedValues([option]);
   }
 };
 
@@ -530,13 +532,23 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   }
 };
 
-  const handleFuelTypeChange = (option) => {
-    if (filterState.selectedValues.includes(option)) {
-      filterState.setSelectedValues(filterState.selectedValues.filter((item) => item !== option));
-    } else {
-      filterState.setSelectedValues([...filterState.selectedValues, option]);
-    }
-  };
+  // const handleFuelTypeChange = (option) => {
+  //   if (filterState.selectedValues.includes(option)) {
+  //     filterState.setSelectedValues(filterState.selectedValues.filter((item) => item !== option));
+  //   } else {
+  //     filterState.setSelectedValues([...filterState.selectedValues, option]);
+  //   }
+  // };
+  const handleFuelTypeChange = (option, selectedValues, setSelectedValues) => {
+  if (selectedValues.includes(option)) {
+    // If clicked again, clear the selection
+    setSelectedValues([]);
+  } else {
+    // Allow only one selection
+    setSelectedValues([option]);
+  }
+};
+
 
   const handleApplyFilters = async () => {
     try {

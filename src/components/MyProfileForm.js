@@ -169,6 +169,7 @@ const ProfileForm = ({
         </Col>
         <Col span={6}>
           <Form.Item
+           required={false} 
   label={
     <span
       style={{

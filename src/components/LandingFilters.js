@@ -130,9 +130,18 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   setBodyType(searchbodytype);
+  // }, [searchbodytype]);
+
   useEffect(() => {
+  if (searchbodytype) {
     setBodyType(searchbodytype);
-  }, [searchbodytype]);
+  } else {
+    setBodyType(CORRECT_DEFAULT_BODY_TYPE);
+  }
+}, [searchbodytype]);
+
 
   const fetchBodyTypeCars = async () => {
     try {

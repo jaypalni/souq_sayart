@@ -756,7 +756,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             setSelectedValues={filterState.setcylinderselectedValues}
           />
 
-          <RangeInputGroup
+          {/* <RangeInputGroup
             label="Power (1hp)"
             minValue={rangeInputs.powerMin}
             maxValue={rangeInputs.powerMax}
@@ -770,7 +770,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             maxValue={rangeInputs.consumptionMax}
             onMinChange={(e) => rangeInputs.setConsumptionMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setConsumptionMax(e.target.value)}
-          />
+          /> */}
 
           <SelectInput
             title="Color"
@@ -779,15 +779,15 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             options={['Any', 'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple']}
           />
 
-          <RangeInputGroup
+          {/* <RangeInputGroup
             label="Number Of Seats"
             minValue={rangeInputs.seatsMin}
             maxValue={rangeInputs.seatsMax}
             onMinChange={(e) => rangeInputs.setSeatsMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setSeatsMax(e.target.value)}
-          />
+          /> */}
 
-          <div style={{ marginBottom: 16 }}>
+          {/* <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '3px' }}>
               Extra Features
             </div>
@@ -798,7 +798,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             >
               <Select.Option value="Any">Any</Select.Option>
             </Select>
-          </div>
+          </div> */}
 
           <CheckboxGroup
             title="Number of Doors"
@@ -808,20 +808,20 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             setSelectedValues={filterState.setdoorselectedValues}
           />
 
-          <SelectInput
+          {/* <SelectInput
             title="Interior"
             value={singleInputs.interiorValue}
             onChange={singleInputs.setInteriorValue}
             options={['Any', 'Leather', 'Cloth']}
-          />
+          /> */}
 
-          <SelectInput
+          {/* <SelectInput
             title="Payment Options"
             value={singleInputs.paymentOptions}
             onChange={singleInputs.setPaymentOptions}
             options={['Any', 'Cash', 'Installment']}
             style={{ marginTop: '3px' }}
-          />
+          /> */}
 
           <SelectInput
             title="Regional Specs"

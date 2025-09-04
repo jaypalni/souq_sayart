@@ -460,8 +460,22 @@ handleSearch()
       if (setIsLoading) {
         setIsLoading(true);
       }
+      console.log('🧹 AllCarFilters - Clearing ALL data before API call');
       // Clear previous data immediately when new search starts
       setFilterCarsData({ cars: [], pagination: {} });
+      // Also clear any cached data
+      setCarSearch([]);
+      // Force clear any other cached data
+      setCarMakes([]);
+      setCarModels([]);
+      setCarBodyTypes([]);
+      // Clear ALL localStorage cached data
+      localStorage.removeItem('cachedCarsData');
+      localStorage.removeItem('carsData');
+      localStorage.removeItem('searchcardata');
+      localStorage.removeItem('filterData');
+      localStorage.removeItem('carSearchData');
+      localStorage.removeItem('savedCarsData');
 
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
@@ -476,6 +490,11 @@ handleSearch()
           setFilterCarsData({ cars: [], pagination: {} });
         } else {
           // Set ONLY fresh API data - completely replace any old data
+          console.log('🧹 AllCarFilters - Setting ONLY fresh API data:', data1.data.cars);
+          console.log('🧹 AllCarFilters - API response cars count:', data1.data.cars?.length);
+          // Force clear any existing data first
+          setFilterCarsData({ cars: [], pagination: {} });
+          // Then set ONLY the fresh API data
           setFilterCarsData({
             cars: data1.data.cars || [],
             pagination: data1.data.pagination || {}

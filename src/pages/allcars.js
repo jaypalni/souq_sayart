@@ -49,8 +49,24 @@ const Allcars = () => {
   useEffect(() => {
     if (isLoading) {
       setFilterCarsData({ cars: [], pagination: {} });
+      // Force clear any cached data
+      setRenderKey(prev => prev + 1);
     }
   }, [isLoading]);
+
+  // Force clear all data on component mount - ensure clean state
+  useEffect(() => {
+    console.log('🧹 Allcars - Component mounted, clearing ALL data');
+    setFilterCarsData({ cars: [], pagination: {} });
+    setSelectedLocation('All Locations');
+    setSortedbyData('');
+    // Clear ALL localStorage cached data that might be causing issues
+    localStorage.removeItem('cachedCarsData');
+    localStorage.removeItem('carsData');
+    localStorage.removeItem('searchcardata');
+    localStorage.removeItem('filterData');
+    localStorage.removeItem('carSearchData');
+  }, []);
 
   // setIsLoading function with render key update
   const debugSetIsLoading = (loading) => {
@@ -73,7 +89,7 @@ const Allcars = () => {
         setIsLoading={debugSetIsLoading}
       />
       <CarListing
-        key={renderKey}
+        key={`${renderKey}-${filtercarsData?.cars?.length || 0}`}
         filtercarsData={filtercarsData}
         cardata={filtercarsData.cars || []}
         title="Search Results"
@@ -88,36 +104,20 @@ const Allcars = () => {
 const CarListing = ({ filtercarsData, cardata, setSortedbyData, title, isLoading }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
-  const [carsData, setCarsData] = useState([]);
-  const [paginationData, setPaginationData] = useState({});
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
 
- 
+  // Use filtercarsData directly - no local state to avoid duplication
+  const carsToDisplay = filtercarsData?.cars || [];
+  const paginationToDisplay = filtercarsData?.pagination || {};
+  
+  console.log('🧹 CarListing - Current carsToDisplay:', carsToDisplay);
+  console.log('🧹 CarListing - Current carsToDisplay length:', carsToDisplay.length);
+  console.log('🧹 CarListing - Current filtercarsData:', filtercarsData);
 
-  useEffect(() => {
-    // ONLY display API response data - no old data mixing
-    if (filtercarsData && filtercarsData.cars && Array.isArray(filtercarsData.cars) && filtercarsData.cars.length > 0) {
-      // Set ONLY the new API data - this completely replaces any old data
-      setCarsData(filtercarsData.cars);
-      setPaginationData(filtercarsData.pagination || {});
-    } else {
-      // If no valid API data, show empty state (no old data)
-      setCarsData([]);
-      setPaginationData({});
-    }
-  }, [filtercarsData]);
-
-  // Clear data immediately when loading starts
-  useEffect(() => {
-    if (isLoading) {
-      setCarsData([]);
-      setPaginationData({});
-    }
-  }, [isLoading]);
 
  const Addfavcarapi = async (carId) => {
   try {
@@ -126,11 +126,14 @@ const CarListing = ({ filtercarsData, cardata, setSortedbyData, title, isLoading
     const data = handleApiResponse(response);
 
     if (data) {
-      setCarsData((prevCars) =>
-        prevCars.map((car) =>
-          car.car_id === carId ? { ...car, is_favorite: true } : car
-        )
+      // Update the filtercarsData directly instead of local state
+      const updatedCars = carsToDisplay.map((car) =>
+        car.car_id === carId ? { ...car, is_favorite: true } : car
       );
+      // Update the parent state
+      if (filtercarsData?.cars) {
+        filtercarsData.cars = updatedCars;
+      }
       messageApi.open({
         type: 'success',
         content: data?.message || 'Car added to favorites',
@@ -153,11 +156,14 @@ const Removefavcarapi = async (carId) => {
     const data = handleApiResponse(response);
 
     if (data) {
-      setCarsData((prevCars) =>
-        prevCars.map((car) =>
-          car.car_id === carId ? { ...car, is_favorite: false } : car
-        )
+      // Update the filtercarsData directly instead of local state
+      const updatedCars = carsToDisplay.map((car) =>
+        car.car_id === carId ? { ...car, is_favorite: false } : car
       );
+      // Update the parent state
+      if (filtercarsData?.cars) {
+        filtercarsData.cars = updatedCars;
+      }
       messageApi.open({
         type: 'success',
         content: data?.message || 'Car removed from favorites',
@@ -193,7 +199,7 @@ const Removefavcarapi = async (carId) => {
     <div className="car-listing-container">
       {contextHolder}
       <div className="car-listing-header">
-        <span>Showing 1 - {carsData?.length} Cars</span>
+        <span>Showing 1 - {carsToDisplay?.length} Cars</span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button
             type="button"
@@ -272,7 +278,7 @@ const Removefavcarapi = async (carId) => {
       </div>
       
       {/* Empty state message - only show when not loading */}
-      {!isLoading && carsData && carsData.length === 0 && (
+      {!isLoading && carsToDisplay && carsToDisplay.length === 0 && (
         <div style={{ 
           textAlign: 'center', 
           padding: '40px 20px',
@@ -311,9 +317,12 @@ const Removefavcarapi = async (carId) => {
             </div>
           ))
         ) : (
-          carsData && carsData.length > 0 && carsData.map((car) => { 
-
-    return (
+          carsToDisplay && carsToDisplay.length > 0 ? (() => {
+            console.log('🧹 CarListing - Rendering ONLY API response data');
+            console.log('🧹 CarListing - carsToDisplay:', carsToDisplay);
+            return carsToDisplay.map((car) => {
+              console.log('🧹 CarListing - Rendering car:', car.ad_title, car.make, car.model);
+              return (
       <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
         <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
           <div className="car-listing-image-wrapper">
@@ -397,8 +406,9 @@ const Removefavcarapi = async (carId) => {
           </div>
         </Link>
       </div>
-    );
-  })
+              );
+            });
+          })() : null
         )}
 </div>
 
@@ -408,8 +418,8 @@ const Removefavcarapi = async (carId) => {
             showSizeChanger
             onShowSizeChange={onShowSizeChange}
             onChange={onPageChange}
-            defaultCurrent={paginationData?.page}
-            total={paginationData?.total}
+            defaultCurrent={paginationToDisplay?.page}
+            total={paginationToDisplay?.total}
           />
         </div>
       </div>

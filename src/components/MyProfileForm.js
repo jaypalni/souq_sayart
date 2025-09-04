@@ -143,12 +143,13 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Name
+                Company Name*
               </span>
             }
+            required={false}
             name="company"
              rules={[
-                      {
+                      {  required: true,
                         message: 'Company name is required',
                       },
                        {
@@ -178,7 +179,7 @@ const ProfileForm = ({
         color: '#637D92',
       }}
     >
-      Owner's Name
+      Owner's Name*
     </span>
   }
   name="owner"
@@ -216,12 +217,13 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Address
+                Company Address*
               </span>
             }
             name="address"
+            required={false}
             rules={[
-                      {
+                      {  required: true,
                         message: 'Company address is required',
                       },
                       {
@@ -250,11 +252,27 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Phone Number
+                Company Phone Number*
               </span>
             }
             name="phone"
-          >
+            required={false}
+           rules={[
+                  { required: true, message: 'Company Phone Number is required' },
+                  {
+                    pattern: /^[0-9]+$/,
+                    message: 'Company Phone Number should contain only numbers',
+                  },
+                  {
+                    max: 13,
+                    message: 'Company Phone Number cannot exceed 13 numbers',
+                  },
+                    {
+                    min: 6,
+                    message: 'Company Phone Number minimum 6 numbers',
+                  },
+                ]}
+         >
             <Input
             disabled={!editMode}
               style={{
@@ -262,6 +280,7 @@ const ProfileForm = ({
                 fontWeight: 400,
                 color: '#4A5E6D',
               }}
+             
             />
           </Form.Item>
         </Col>
@@ -286,11 +305,14 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Registration Number CR
+                Company Registration Number CR*
               </span>
             }
             name="reg"
-          >
+            required={false}
+         rules={[
+                  { required: true, message: 'Company Registration Number  is required' },]}
+       >
             <Input
              disabled={!editMode}
               style={{
@@ -368,14 +390,14 @@ const ProfileForm = ({
                             required={false}
                           >
                             <Input
-                            disabled={false}
+                              disabled={false}
                               type="file"
                               placeholder="Documents"
                               size="middle"
                               ref={fileInputRef}
                               onChange={handleFileChange}
                               accept=".pdf"
-                            />{' '}
+                            />
                           </Form.Item>
                         </div>
       </>
@@ -759,7 +781,7 @@ const MyProfileForm = () => {
     try {
       await onClickContinue();
     } catch (error) {
-      console.error('Error in onFinish:', error);
+      // Silent error handling
     }
   };
 
@@ -932,13 +954,10 @@ const handleSubmitError = (error, onFinishFailed) => {
 
    const handleFileChange = async (e) => {
       const file = e.target.files[0];
-  
-      if (!file) {
-        return;
-      }
-  
+
+      if (!file) return;
+
       const isPDF = file.type === 'application/pdf';
-  
       if (!isPDF) {
         messageApi.open({
           type: 'error',
@@ -946,16 +965,25 @@ const handleSubmitError = (error, onFinishFailed) => {
         });
         return;
       }
-  
+
+      const isLt10M = file.size / 1024 / 1024 <= 10;
+      if (!isLt10M) {
+        messageApi.open({
+          type: 'error',
+          content: 'Document must be smaller than 10 MB.',
+        });
+        return;
+      }
+
       try {
         setLoading(true);
-  
+
         const formData = new FormData();
         formData.append('attachment', file);
-  
+
         const carResponse = await authAPI.uploadimages(formData);
         const userdoc = handleApiResponse(carResponse);
-  
+
         if (userdoc?.attachment_url) {
           setUploadedDocUrl(userdoc.attachment_url);
           form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });

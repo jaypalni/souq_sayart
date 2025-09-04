@@ -119,16 +119,82 @@ const getInitialLocation = () => {
 };
 
   const [location, setLocation] = useState(getInitialLocation);
-  const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
-  const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
-  const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
+
+// Initialize newUsed from localStorage if available
+const getInitialNewUsed = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.condition && saved.condition !== '') {
+      return saved.condition;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.NEW_USED;
+};
+
+// Initialize priceMin from localStorage if available
+const getInitialPriceMin = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_min && saved.price_min !== '') {
+      return saved.price_min;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.PRICE_MIN;
+};
+
+// Initialize priceMax from localStorage if available
+const getInitialPriceMax = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_max && saved.price_max !== '') {
+      return saved.price_max;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.PRICE_MAX;
+};
+
+  const [newUsed, setNewUsed] = useState(getInitialNewUsed);
+  const [priceMin, setPriceMin] = useState(getInitialPriceMin);
+  const [priceMax, setPriceMax] = useState(getInitialPriceMax);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
    const [showMinInput, setShowMinInput] = useState(false);
     const [showMaxInput, setShowMaxInput] = useState(false);
-    const [minPrice, setMinPrice] = useState(null);
-    const [maxPrice, setMaxPrice] = useState(null);
+
+// Initialize minPrice and maxPrice from localStorage if available
+const getInitialMinPrice = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_min && saved.price_min !== '') {
+      return parseFloat(saved.price_min);
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return null;
+};
+
+const getInitialMaxPrice = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_max && saved.price_max !== '') {
+      return parseFloat(saved.price_max);
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return null;
+};
+
+    const [minPrice, setMinPrice] = useState(getInitialMinPrice);
+    const [maxPrice, setMaxPrice] = useState(getInitialMaxPrice);
   const dropdownRefs = {
     [DROPDOWN_NEW_USED]: useRef(),
     [DROPDOWN_PRICE_MIN]: useRef(),
@@ -144,18 +210,15 @@ const getInitialLocation = () => {
 
 // State is now initialized directly from localStorage in useState calls above
 
-// Clear any cached location data and ensure "All Locations" is the default
+// Ensure location is properly set from localStorage
 useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     
-    // If there's cached data with a specific location, clear it and set to "All Locations"
-    if (saved && saved.location && saved.location !== '' && saved.location !== 'All Locations') {
-      const updatedSaved = { ...saved, location: '' };
-      localStorage.setItem('searchcardata', JSON.stringify(updatedSaved));
-      setLocation('All Locations');
-    } else if (!saved || !saved.location || saved.location === '') {
-      // If no location data or empty location, ensure it's set to "All Locations"
+    // If there's saved location data, use it; otherwise default to "All Locations"
+    if (saved && saved.location && saved.location !== '') {
+      setLocation(saved.location);
+    } else {
       setLocation('All Locations');
     }
   } catch (e) {
@@ -200,7 +263,11 @@ useEffect(() => {
 useEffect(() => {
     if (make && make !== DEFAULTS.ALL_MAKE) {
       fetchModelCars({ setLoading, setCarModels, make }).then(() => {
-        setModel(DEFAULTS.ALL_MODELS);
+        // Only reset model if it's not already set from localStorage
+        const saved = JSON.parse(localStorage.getItem('searchcardata'));
+        if (!saved || !saved.model || saved.model === '') {
+          setModel(DEFAULTS.ALL_MODELS);
+        }
       });
     } else {
       setCarModels([]);
@@ -209,8 +276,13 @@ useEffect(() => {
   }, [make]);
 
   useEffect(() => {
-    if (model) {
-      fetchBodyTypeCars();
+    // Fetch body types on component mount
+    fetchBodyTypeCars();
+    
+    // Fetch models if there's a saved make
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
+      fetchModelCars({ setLoading, setCarModels, make: saved.make });
     }
   }, []);
 
@@ -222,7 +294,11 @@ handleSearch()
     if (make) {
       fetchModelCars({ setLoading, setCarModels, make });
     }
-    setBodyType(DEFAULTS.ALL_BODY_TYPES)
+    // Only reset body type if it's not already set from localStorage
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (!saved || !saved.body_type || saved.body_type === '') {
+      setBodyType(DEFAULTS.ALL_BODY_TYPES);
+    }
   }, [make]);
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -722,6 +798,7 @@ handleSearch()
         selectedLocation={location}
         setSelectedLocation={setLocation}
         onSave={handleSearch}
+        setSaveSearchesReload={() => {}}
       />
     </div>
   );

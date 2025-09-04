@@ -1111,7 +1111,7 @@ const DeleteAccount = () => {
             {!collapsed && <div style={{ fontWeight: 600 }}>{customerDetails.first_name + ' ' + customerDetails.last_name}</div>}
           </div>
 
-          <Menu mode="inline" selectedKeys={['profile']} style={{ borderRight: 0 }} items={menuItems} />
+          <Menu mode="inline" selectedKeys={[]} style={{ borderRight: 0 }} items={menuItems} />
 
           <div style={{ marginTop: 32 }}>
             <div
@@ -1128,6 +1128,7 @@ const DeleteAccount = () => {
             <Menu
               mode="inline"
               style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
+              selectedKeys={['delete']}
               items={manageItems}
               onClick={({ key }) => {
                 if (key === 'logout') setLogoutModalOpen(true);

@@ -55,7 +55,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 342642;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation }) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
@@ -162,6 +162,33 @@ useEffect(() => {
     setLocation('All Locations');
   }
 }, []);
+
+// Trigger search on component mount if there are saved filter values
+useEffect(() => {
+  const hasSavedFilters = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('searchcardata'));
+      return saved && (
+        (saved.make && saved.make !== '') ||
+        (saved.model && saved.model !== '') ||
+        (saved.body_type && saved.body_type !== '') ||
+        (saved.price_min && saved.price_min !== '') ||
+        (saved.price_max && saved.price_max !== '')
+      );
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Only trigger search if there are meaningful saved filters
+  if (hasSavedFilters()) {
+    // Small delay to ensure all state is initialized
+    const timer = setTimeout(() => {
+      handleSearch();
+    }, 100);
+    return () => clearTimeout(timer);
+  }
+}, []); // Empty dependency array - only run on mount
 
 // Temporary: Add a function to manually clear localStorage (for debugging)
 useEffect(() => {
@@ -305,6 +332,7 @@ handleSearch()
 
 
 
+    // Save filters to localStorage
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
     // Update breadcrumb directly via prop
     if (setSelectedLocation) {
@@ -352,6 +380,13 @@ handleSearch()
         apiParams.location = '';
       }
 
+      // Set loading state and clear previous data immediately
+      if (setIsLoading) {
+        setIsLoading(true);
+      }
+      // Clear previous data immediately when new search starts
+      setFilterCarsData({ cars: [], pagination: {} });
+
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
 
@@ -361,8 +396,15 @@ handleSearch()
 
         if (results.length === 0) {
           setIsModalOpen(true);
+          // Clear data when no results
+          setFilterCarsData({ cars: [], pagination: {} });
         } else {
-          setFilterCarsData(data1.data); // Pass the full data object with cars and pagination
+          // Set ONLY fresh API data - completely replace any old data
+          setFilterCarsData({
+            cars: data1.data.cars || [],
+            pagination: data1.data.pagination || {}
+          });
+          // Save search parameters to localStorage
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
           // Update breadcrumb directly via prop
           if (setSelectedLocation) {
@@ -382,6 +424,10 @@ handleSearch()
       setCarSearch([]);
     } finally {
       setLoading(false);
+      // Clear loading state
+      if (setIsLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -686,4 +732,7 @@ export default LandingFilters;
 LandingFilters.propTypes = {
   setFilterCarsData: PropTypes.func.isRequired,
   filtercarsData: PropTypes.any,
+  sortedbydata: PropTypes.string,
+  setSelectedLocation: PropTypes.func,
+  setIsLoading: PropTypes.func,
 };

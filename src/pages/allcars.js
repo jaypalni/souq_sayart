@@ -19,12 +19,15 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
-import { message, Pagination } from 'antd';
+import { message, Pagination, Skeleton } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [isLoading, setIsLoading] = useState(false);
+  const [renderKey, setRenderKey] = useState(0);
+
 
   // Initialize selectedLocation from localStorage on component mount
   useEffect(() => {
@@ -42,6 +45,22 @@ const Allcars = () => {
     }
   }, []);
 
+  // Clear filtercarsData when loading starts
+  useEffect(() => {
+    if (isLoading) {
+      setFilterCarsData({ cars: [], pagination: {} });
+    }
+  }, [isLoading]);
+
+  // setIsLoading function with render key update
+  const debugSetIsLoading = (loading) => {
+    setIsLoading(loading);
+    if (loading) {
+      // Force re-render when loading starts
+      setRenderKey(prev => prev + 1);
+    }
+  };
+
   
   return (
     <div>
@@ -51,50 +70,54 @@ const Allcars = () => {
         setFilterCarsData={setFilterCarsData}
         sortedbydata={sortedbydata}
         setSelectedLocation={setSelectedLocation}
+        setIsLoading={debugSetIsLoading}
       />
       <CarListing
+        key={renderKey}
         filtercarsData={filtercarsData}
         cardata={filtercarsData.cars || []}
         title="Search Results"
         setSortedbyData={setSortedbyData}
+        isLoading={isLoading}
       />
       <Bestcarsalebytype />
     </div>
   );
 };
 
-const CarListing = ({ filtercarsData, cardata, setSortedbyData, title }) => {
+const CarListing = ({ filtercarsData, cardata, setSortedbyData, title, isLoading }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
-  const passedCars = location.state?.cars || [];
-  const passedPagination = location.state?.pagination || {};
-  const [carsData, setCarsData] = useState(passedCars);
-  const [paginationData, setPaginationData] = useState(passedPagination);
+  const [carsData, setCarsData] = useState([]);
+  const [paginationData, setPaginationData] = useState({});
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
+
  
 
   useEffect(() => {
-    // Check if filtercarsData has been set by a filter search (not just initial empty state)
-    const hasFilterData = filtercarsData && 
-                         Array.isArray(filtercarsData.cars) && 
-                         (filtercarsData.cars.length > 0 || (filtercarsData.pagination && Object.keys(filtercarsData.pagination).length > 0));
-    
-    if (hasFilterData) {
+    // ONLY display API response data - no old data mixing
+    if (filtercarsData && filtercarsData.cars && Array.isArray(filtercarsData.cars) && filtercarsData.cars.length > 0) {
+      // Set ONLY the new API data - this completely replaces any old data
       setCarsData(filtercarsData.cars);
-      setPaginationData(filtercarsData.pagination);
-    } else if (cardata && cardata.length > 0) {
-      setCarsData(cardata);
-      setPaginationData(filtercarsData?.pagination || {});
+      setPaginationData(filtercarsData.pagination || {});
     } else {
-      // Use passedCars from navigation state (initial load or when no filters applied)
-      setCarsData(passedCars);
-      setPaginationData(passedPagination);
+      // If no valid API data, show empty state (no old data)
+      setCarsData([]);
+      setPaginationData({});
     }
-  }, [filtercarsData, cardata, passedCars, passedPagination]);
+  }, [filtercarsData]);
+
+  // Clear data immediately when loading starts
+  useEffect(() => {
+    if (isLoading) {
+      setCarsData([]);
+      setPaginationData({});
+    }
+  }, [isLoading]);
 
  const Addfavcarapi = async (carId) => {
   try {
@@ -248,8 +271,8 @@ const Removefavcarapi = async (carId) => {
         </div>
       </div>
       
-      {/* Empty state message */}
-      {carsData && carsData.length === 0 && (
+      {/* Empty state message - only show when not loading */}
+      {!isLoading && carsData && carsData.length === 0 && (
         <div style={{ 
           textAlign: 'center', 
           padding: '40px 20px',
@@ -264,7 +287,31 @@ const Removefavcarapi = async (carId) => {
       )}
       
       <div className="row">
-  {carsData && carsData.length > 0 && carsData.map((car) => { 
+        {isLoading ? (
+          // Show skeleton loaders while loading
+          Array.from({ length: 8 }).map((_, index) => (
+            <div className="col-3 p-0" key={`skeleton-${index}`}>
+              <div className="allcars-listing-card">
+                <Skeleton.Image 
+                  style={{ width: '100%', height: 200 }} 
+                  active 
+                />
+                <div style={{ padding: '16px' }}>
+                  <Skeleton.Input style={{ width: '100%', height: 20, marginBottom: 8 }} active />
+                  <Skeleton.Input style={{ width: '60%', height: 16, marginBottom: 8 }} active />
+                  <Skeleton.Input style={{ width: '80%', height: 14, marginBottom: 8 }} active />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
+                    <Skeleton.Input style={{ width: '30%', height: 12 }} active />
+                    <Skeleton.Input style={{ width: '30%', height: 12 }} active />
+                    <Skeleton.Input style={{ width: '30%', height: 12 }} active />
+                  </div>
+                  <Skeleton.Input style={{ width: '50%', height: 12, marginTop: 8 }} active />
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          carsData && carsData.length > 0 && carsData.map((car) => { 
 
     return (
       <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
@@ -351,7 +398,8 @@ const Removefavcarapi = async (carId) => {
         </Link>
       </div>
     );
-  })}
+  })
+        )}
 </div>
 
       <div className="row">

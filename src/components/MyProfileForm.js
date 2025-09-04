@@ -123,7 +123,9 @@ const ProfileForm = ({
   renderAvatarContent,
   setAvatarUrl,
   imageUrl,
-  avatarUrl
+  avatarUrl,
+  uploadedDocUrl,
+  handleDocumentDownload
 }) => {
   
   const renderDealerFields = (form, editMode) => {
@@ -272,7 +274,7 @@ const ProfileForm = ({
                     message: 'Company Phone Number minimum 6 numbers',
                   },
                 ]}
-         >
+          >
             <Input
             disabled={!editMode}
               style={{
@@ -288,7 +290,7 @@ const ProfileForm = ({
     );
   };
 
-  const renderAdditionalDealerFields = (form, editMode, fileInputRef, handleFileChange) => {
+  const renderAdditionalDealerFields = (form, editMode, fileInputRef, handleFileChange, uploadedDocUrl, handleDocumentDownload) => {
     if (form.getFieldValue('dealer') !== 'yes') {
       return null;
     }
@@ -312,7 +314,7 @@ const ProfileForm = ({
             required={false}
          rules={[
                   { required: true, message: 'Company Registration Number  is required' },]}
-       >
+          >
             <Input
              disabled={!editMode}
               style={{
@@ -383,21 +385,47 @@ const ProfileForm = ({
                                   fontSize: 12,
                                 }}
                               >
-                                Upload Documents
+                                Upload Documents*
                               </span>
                             }
                             name="uploadDocuments"
                             required={false}
                           >
-                            <Input
-                              disabled={false}
-                              type="file"
-                              placeholder="Documents"
-                              size="middle"
-                              ref={fileInputRef}
-                              onChange={handleFileChange}
-                              accept=".pdf"
-                            />
+                            <div>
+                              {uploadedDocUrl && (
+                                <div style={{ marginBottom: 8 }}>
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      padding: '8px 12px',
+                                      backgroundColor: '#f0f8ff',
+                                      border: '1px solid #d9d9d9',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => handleDocumentDownload(uploadedDocUrl)}
+                                  >
+                                    <span style={{ marginRight: 8 }}>📄</span>
+                                    <span style={{ flex: 1, fontSize: '14px', color: '#1890ff' }}>
+                                      {uploadedDocUrl.split('/').pop() || 'Download Document'}
+                                    </span>
+                                    <span style={{ color: '#1890ff', fontSize: '12px' }}>
+                                      Click to download
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                                                          <Input
+                                disabled={!editMode}
+                                type="file"
+                                placeholder="Documents"
+                                size="middle"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept=".pdf"
+                              />
+                            </div>
                           </Form.Item>
                         </div>
       </>
@@ -691,7 +719,7 @@ required={false}
         </Row>
 
         <Row gutter={16}>
-          {renderAdditionalDealerFields(form, editMode, fileInputRef, handleFileChange)}
+          {renderAdditionalDealerFields(form, editMode, fileInputRef, handleFileChange, uploadedDocUrl, handleDocumentDownload)}
         </Row>
         <div className="profile-btns profile-btns-bottom">
           <Button
@@ -764,9 +792,9 @@ const MyProfileForm = () => {
   const navigate = useNavigate();
 
   const handleConfirm = () => {
-    setModalOpen(false);
+      setModalOpen(false);
     navigate('/myProfile/change-phone');
-  };
+};
 
   const onFinishFailed = ({ errorFields, values }) => {
     
@@ -856,6 +884,7 @@ const populateUserProfile = (user, successMsg) => {
   form.setFieldsValue(userProfile);
   setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(userProfile.dealer);
+  setUploadedDocUrl(user.document || '');
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
 
@@ -908,6 +937,7 @@ const applyUpdatedUser = (updateParams) => {
   form.setFieldsValue(updatedProfile);
   setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(user.is_dealer ? YES : NO);
+  setUploadedDocUrl(user.document || '');
   
   setEditMode(false);
   
@@ -952,11 +982,25 @@ const handleSubmitError = (error, onFinishFailed) => {
     return <UserOutlined />;
   };
 
+   const handleDocumentDownload = (documentUrl) => {
+     try {
+       const fullUrl = documentUrl.startsWith('http') 
+         ? documentUrl 
+         : `${process.env.REACT_APP_API_URL}${documentUrl}`;
+       window.open(fullUrl, '_blank');
+     } catch (error) {
+       messageApi.open({
+         type: 'error',
+         content: 'Failed to open document. Please try again.',
+       });
+     }
+  };
+
    const handleFileChange = async (e) => {
       const file = e.target.files[0];
-
+  
       if (!file) return;
-
+  
       const isPDF = file.type === 'application/pdf';
       if (!isPDF) {
         messageApi.open({
@@ -974,19 +1018,18 @@ const handleSubmitError = (error, onFinishFailed) => {
         });
         return;
       }
-
+  
       try {
         setLoading(true);
-
+  
         const formData = new FormData();
         formData.append('attachment', file);
-
+  
         const carResponse = await authAPI.uploadimages(formData);
         const userdoc = handleApiResponse(carResponse);
-
+  
         if (userdoc?.attachment_url) {
           setUploadedDocUrl(userdoc.attachment_url);
-          form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
           messageApi.open({
             type: 'success',
             content: userdoc.message,
@@ -1236,6 +1279,8 @@ const handleSubmitError = (error, onFinishFailed) => {
       setAvatarUrl={setAvatarUrl}
       imageUrl={imageUrl}
       avatarUrl={avatarUrl}
+      uploadedDocUrl={uploadedDocUrl}
+      handleDocumentDownload={handleDocumentDownload}
     />
   );
 };

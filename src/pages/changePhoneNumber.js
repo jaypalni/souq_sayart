@@ -96,13 +96,11 @@ const getGeoData = async () => {
 };
 
 const toWhatsappFlag = (whatsappChecked) => {
-  return whatsappChecked ? '1' : '0';
+  return whatsappChecked ? 1 : 0;
 };
 
-const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
-  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
-];
+
+
 
 const ChangePhoneNumberPage = () => {
   const navigate = useNavigate();
@@ -117,9 +115,13 @@ const ChangePhoneNumberPage = () => {
   const [checked, setChecked] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [, setDeleteModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [, setDeleteData] = useState([]);
+      const [timer, setTimer] = useState(30);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
+       const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const { customerDetails } = useSelector((state) => state.customerDetails);
 
@@ -142,7 +144,7 @@ const ChangePhoneNumberPage = () => {
   const handleWhatsappToggle = async (checked) => {
     try {
       setWhatsappLoading(true);
-      const whatsappValue = checked ? '1' : '0';
+      const whatsappValue = checked ? 1 : 0;
       const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
       const result = handleApiResponse(response);
       
@@ -374,7 +376,24 @@ const ChangePhoneNumberPage = () => {
       ),
     },
   ];
+   const manageItems = [
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+   {
+      key: 'delete',
+      icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
+      label: 'Delete Account',
+      disabled: false, 
+    },
+];
 
+ useEffect(() => {
+    
+    const timer = setTimeout(() => {
+      setIsDeleteDisabled(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     const initializeCountries = async () => {
       try {
@@ -420,6 +439,9 @@ const ChangePhoneNumberPage = () => {
 
     try {
       setLoading(true);
+       localStorage.removeItem('otpEndTime'); 
+      localStorage.removeItem('fromLogin');
+      localStorage.removeItem('userData'); 
       const savePhone = `${selectedCountry.country_code}${phone}`;
       localStorage.setItem('phonenumber', savePhone);
 
@@ -433,6 +455,7 @@ const ChangePhoneNumberPage = () => {
         messageApi.open({ type: 'success', content: data.message });
         if (data.request_id) {
           localStorage.setItem('request_id', data.request_id);
+          localStorage.setItem('fromLogin', 'true');
         }
         // Navigate to OTP page
         navigate('/myProfile/change-phone-otp');
@@ -444,7 +467,30 @@ const ChangePhoneNumberPage = () => {
       setLoading(false);
     }
   };
-
+  const handleDelete = async () => {
+      try {
+        setLoading(true);
+        const response = await userAPI.getDelete();
+        const data1 = handleApiResponse(response);
+  
+        if (data1) {
+          setDeleteData(data1)
+          localStorage.setItem('requestId',data1.request_id)
+          messageApi.open({
+            type: 'success',
+            content: data1?.message,
+          });
+           navigate('/deleteaccount-otp')
+        }
+      } catch (error) {
+        setDeleteData([])
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message,
+        });
+      }
+    }
   const switchStyle = {
     backgroundColor: checked ? '#008AD5' : '#ccc',
   };
@@ -507,15 +553,15 @@ const ChangePhoneNumberPage = () => {
             >
               Manage Account
             </div>
-            <Menu
-              mode="inline"
-              style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
-              items={manageItems}
-              onClick={({ key }) => {
-                if (key === 'logout') setLogoutModalOpen(true);
-                if (key === 'delete') setDeleteModalOpen(true);
-              }}
-            />
+           <Menu
+                        mode="inline"
+                        style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
+                        items={manageItems}
+                       onClick={({ key }) => {
+                          if (key === 'logout') setLogoutModalOpen(true);
+                          if (key === 'delete' && !isDeleteDisabled) setDeleteModalOpen(true); // Only open modal if not disabled
+                        }}
+                      />
           </div>
 
           <Button
@@ -761,6 +807,56 @@ const ChangePhoneNumberPage = () => {
           </Button>
         </div>
       </Modal>
+           <Modal
+              open={deleteModalOpen}
+              onCancel={() => setDeleteModalOpen(false)}
+              footer={null}
+              title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
+              width={500}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
+                <Button
+                   onClick={() => {
+                    setDeleteModalOpen(false);
+                    setIsDeleteDisabled(false);
+                  }}
+                  style={{
+                    width: 120,
+                    backgroundColor: '#ffffff',
+                    color: '#008AD5',
+                    borderColor: '#008AD5',
+                    borderWidth: 1,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    borderRadius: '24px',
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setDeleteModalOpen(false);
+                    setIsDeleteDisabled(true);
+                    // setShowOtpStep(true); 
+                    setTimer(30);
+                    setIsTimerRunning(true);
+                    handleDelete();
+                   
+                  }}
+                  style={{
+                    width: 120,
+                    backgroundColor: '#008AD5',
+                    color: '#ffffff',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    borderRadius: '24px',
+                  }}
+                >
+                  Continue
+                </Button>
+              </div>
+            </Modal>
     </>
   );
 };

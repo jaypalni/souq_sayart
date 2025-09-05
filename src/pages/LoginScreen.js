@@ -163,12 +163,17 @@ const LoginScreen = () => {
         console.log(selectedCountry, phone);
         setLoading(true);
 
+        localStorage.removeItem('otpEndTime'); 
+      localStorage.removeItem('fromLogin');
+      localStorage.removeItem('userData'); 
+
         const response = await authAPI.login({
           captcha_token: verified,
           phone_number: `${selectedCountry.country_code}${phone}`,
         });
         const savephonenumber = `${selectedCountry.country_code}${phone}`;
         localStorage.setItem('phonenumber', savephonenumber);
+
 
         const data = handleApiResponse(response);
         if (data) {
@@ -182,6 +187,7 @@ const LoginScreen = () => {
           if (data) {
             localStorage.setItem('userData', JSON.stringify(data));
           }
+          localStorage.setItem('fromLogin', 'true');
 
           messageApi.open({
             type: 'success',

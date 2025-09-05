@@ -246,9 +246,9 @@ const CreateProfile = () => {
 
   const toWhatsappFlag = (whatsappChecked) => {
     if (whatsappChecked) {
-      return '1';
+      return 1;
     }
-    return '0';
+    return 0;
   };
 
   const buildRegistrationPayload = (values, profileImageUrl, phoneNumberValue) => ({

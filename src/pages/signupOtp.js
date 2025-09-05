@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2025 Palni. All rights reserved.
- * This file is part of the ss-frontend project.
- * Unauthorized copying, modification, or distribution of this file,
- * via any medium is strictly prohibited unless explicitly authorized.
- */
-
 import React, { useState, useRef, useEffect } from 'react';
 import '../assets/styles/signupOtp.css';
 import { useNavigate } from 'react-router-dom';
@@ -16,311 +9,221 @@ import { message } from 'antd';
 
 const SignupOtp = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
-  const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
-  const { user } = useSelector((state) => state.auth);
-  const { customerDetails } = useSelector((state) => state.customerDetails);
+
+  const { user } = useSelector(state => state.auth);
+  const { customerDetails } = useSelector(state => state.customerDetails);
   const isLoggedIn = customerDetails && user;
+
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
 
+  // Redirect if already logged in
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/landing');
-    }
+    if (isLoggedIn) navigate('/landing');
   }, [isLoggedIn, navigate]);
 
+  // Format timer display
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  useEffect(() => {
-    const fromLogin = localStorage.getItem('fromLogin');
+  // Initialize OTP timer
+ useEffect(() => {
     const now = Date.now();
+    const fromLogin = localStorage.getItem('fromLogin');
+    const savedEndTime = Number(localStorage.getItem('otpEndTime'));
 
-    if (fromLogin === 'true') {
+    if (fromLogin === 'true' || !savedEndTime || savedEndTime <= now) {
       const newEndTime = now + 60 * 1000;
       localStorage.setItem('otpEndTime', newEndTime);
       localStorage.removeItem('fromLogin');
       setTimer(60);
       setIsTimerRunning(true);
     } else {
-      const savedEndTime = localStorage.getItem('otpEndTime');
-      if (savedEndTime) {
-        const timeLeft = Math.floor((Number(savedEndTime) - now) / 1000);
-        if (timeLeft > 0) {
-          setTimer(timeLeft);
-          setIsTimerRunning(true);
-        } else {
-          setTimer(0);
-          setIsTimerRunning(false);
-        }
-      }
+      const remaining = Math.ceil((savedEndTime - now) / 1000);
+      setTimer(remaining > 0 ? remaining : 0);
+      setIsTimerRunning(remaining > 0);
     }
   }, []);
 
+
   useEffect(() => {
-    let interval;
-    if (isTimerRunning && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            setIsTimerRunning(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
+    if (!isTimerRunning) return;
+
+    const interval = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsTimerRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [isTimerRunning, timer]);
+  }, [isTimerRunning]);
 
+  // OTP input handlers
   const handleChange = (e, idx) => {
-  const val = e.target.value.replace(/\D/g, '');
+    const val = e.target.value.replace(/\D/g, '');
+    const newOtp = [...otp];
 
-  const newOtp = [...otp];
-  if (val) {
-    newOtp[idx] = val[val.length - 1];
-    setOtp(newOtp);
-    setError('');
-    if (idx < OTP_LENGTH - 1) {
-      inputRefs[idx + 1].current.focus();
+    if (val) {
+      newOtp[idx] = val[val.length - 1];
+      setOtp(newOtp);
+      setError('');
+      if (idx < OTP_LENGTH - 1) inputRefs[idx + 1].current.focus();
+    } else {
+      newOtp[idx] = '';
+      setOtp(newOtp);
     }
-  } else {
-    newOtp[idx] = '';
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+    const newOtp = [...otp];
+
+    pasteData.split('').forEach((digit, i) => {
+      newOtp[i] = digit;
+      if (inputRefs[i]?.current) inputRefs[i].current.value = digit;
+    });
+
     setOtp(newOtp);
-  }
-};
 
-const handlePaste = (e) => {
-  e.preventDefault();
-  const pasteData = e.clipboardData.getData('text').replace(/\D/g, ''); // only digits
-  if (!pasteData) return;
-
-  const digits = pasteData.split('').slice(0, OTP_LENGTH); // take only OTP_LENGTH digits
-  const newOtp = [...otp];
-
-  digits.forEach((digit, i) => {
-    newOtp[i] = digit;
-    if (inputRefs[i]?.current) {
-      inputRefs[i].current.value = digit; // update input directly
-    }
-  });
-
-  setOtp(newOtp);
-
-  // move focus to last filled field
-  const nextIndex = digits.length < OTP_LENGTH ? digits.length : OTP_LENGTH - 1;
-  if (inputRefs[nextIndex]?.current) {
-    inputRefs[nextIndex].current.focus();
-  }
-};
-
+    const nextIndex = pasteData.length < OTP_LENGTH ? pasteData.length : OTP_LENGTH - 1;
+    if (inputRefs[nextIndex]?.current) inputRefs[nextIndex].current.focus();
+  };
 
   const handleKeyDown = (e, idx) => {
     if (e.key === 'Backspace') {
+      const newOtp = [...otp];
       if (otp[idx]) {
-        const newOtp = [...otp];
         newOtp[idx] = '';
         setOtp(newOtp);
-      } else if (idx > 0) {
-        inputRefs[idx - 1].current.focus();
-      } else {
-        // No action needed when at first field with empty value
-      }
+      } else if (idx > 0) inputRefs[idx - 1].current.focus();
     }
   };
 
   const validateOtp = () => {
-    if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
+    if (otp.some(d => d === '' || !/^\d$/.test(d))) {
       setError('Please enter the OTP.');
       return false;
-    }else{
-setError('');
+    }
+    setError('');
     return true;
+  };
+
+  // Continue button handler
+  const handleContinue = async () => {
+    if (!validateOtp()) return;
+
+    try {
+      setLoading(true);
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      const otpPayload = { otp: otp.join(''), request_id: userData.request_id };
+      const result = await dispatch(verifyOTP(otpPayload));
+
+      if (result.success) {
+        localStorage.setItem('token', result.data.access_token);
+        messageApi.success(result.message);
+        navigate(result.data.is_registered ? '/landing' : '/createProfile');
+      } else {
+        messageApi.error(result.error);
+      }
+    } catch {
+      message.error('OTP verification failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
- const handleContinue = async () => {
-  if (!validateOtp()) {
-    return;
-  }
+  const handleResend = async () => {
+    try {
+      setLoading(true);
+      const phone_number = localStorage.getItem('phone_number');
+      const response = await authAPI.resendotp({ phone_number });
+      const data = handleApiResponse(response);
 
-  try {
-    setLoading(true);
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    const otpDigits = otp.join('');
-    const otpPayload = {
-      otp: otpDigits,
-      request_id: userData.request_id,
-    };
-    const result = await dispatch(verifyOTP(otpPayload));
-
-    if (result.success) {
-      localStorage.setItem('token', result.data.access_token);
-
-      messageApi.open({
-        type: 'success',
-        content: result.message,
-      });
-
-      if (result.data.is_registered) {
-        navigate('/landing');
-      } else {
-        navigate('/createProfile');
+      if (data) {
+        const newEndTime = Date.now() + 60 * 1000;
+        localStorage.setItem('otpEndTime', newEndTime);
+        localStorage.setItem('userData', JSON.stringify(data));
+        setTimer(60);
+        setIsTimerRunning(true);
+        messageApi.success(data.message);
       }
-    } else {
-      messageApi.open({
-        type: 'error',
-        content: result.error,
-      });
+    } catch (err) {
+      const errorData = handleApiError(err);
+      messageApi.error(errorData.message);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) { // renamed here
-    message.error('OTP verification failed. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-const handleResend = async () => {
-  try {
-    const usermobilenumber = localStorage.getItem('phone_number');
-    setLoading(true);
+  return (
+    <div className='otp-container'>
+      {contextHolder}
+      <h2 className='otp-title'>Login</h2>
+      <p className='otp-desc'>Enter the verification code sent to your phone number</p>
 
-    const response = await authAPI.resendotp({
-      phone_number: usermobilenumber,
-    });
-    const data = handleApiResponse(response);
+      <div className='otp-inputs'>
+        {otp.map((digit, idx) => {
+          let inputClass = 'otp-input';
+          if (digit) inputClass += ' filled';
+          if (error && (digit === '' || !/^\d$/.test(digit))) inputClass += ' otp-input-error';
 
-    if (data) {
-      const newEndTime = Date.now() + 60 * 1000;
-      localStorage.setItem('otpEndTime', newEndTime);
-      setTimer(60);
-      setIsTimerRunning(true);
-      localStorage.setItem('userData', JSON.stringify(data));
-      messageApi.open({
-        type: 'success',
-        content: data.message,
-      });
-    }
-  } catch (err) {
-    const errorData = handleApiError(err);
-    messageApi.open({
-      type: 'error',
-      content: errorData.message,
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-return (
-  <div className='otp-container'>
-    {contextHolder}
-    <h2 className='otp-title'>Login</h2>
-    <p className='otp-desc'>
-      Enter the verification code sent to your phone number
-    </p>
-
-    <div className='otp-inputs'>
-      {otp.map((digit, idx) => {
-        let inputClass = 'otp-input';
-
-        if (digit) {
-          inputClass += ' filled';
-        }
-
-        if (error && (digit === '' || !/^\d$/.test(digit))) {
-          inputClass += ' otp-input-error';
-        }
-
-        const inputKey = OTP_INPUT_IDS[idx];
-        return (
-          <input
-            key={inputKey}
-            ref={inputRefs[idx]}
-            type='tel'
-            className={inputClass}
-            maxLength={1}
-            value={digit}
-            onChange={(e) => handleChange(e, idx)}
-            onKeyDown={(e) => handleKeyDown(e, idx)}
-            onPaste={handlePaste}
-          />
-        );
-      })}
-    </div>
-
-    {error && (
-      <div
-        className='otp-error'
-        style={{
-          color: '#ff4d4f',
-          marginTop: 8,
-           marginLeft: 4,
-          marginBottom: 4,
-          textAlign: 'center',
-        }}
-      >
-        {error}
-      </div>
-    )}
-
-    <div className='otp-timer'>
-      {(() => {
-        if (isTimerRunning) {
           return (
-            <span>
-              Resend in{' '}
-              <span className='otp-timer-count'>{formatTime(timer)}</span>
-            </span>
+            <input
+              key={OTP_INPUT_IDS[idx]}
+              ref={inputRefs[idx]}
+              type='tel'
+              className={inputClass}
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(e, idx)}
+              onKeyDown={(e) => handleKeyDown(e, idx)}
+              onPaste={handlePaste}
+            />
           );
-        }
-       return (
-  <button
-    type='button'
-    className='otp-resend'
-    onClick={handleResend}
-    style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
-  >
-    Resend
-  </button>
-);
+        })}
+      </div>
 
-      })()}
+      {error && <div className='otp-error' style={{ color: '#ff4d4f', textAlign: 'center', margin: '8px 0' }}>{error}</div>}
+
+      <div className='otp-timer'>
+        {isTimerRunning ? (
+          <span>Resend in <span className='otp-timer-count'>{formatTime(timer)}</span></span>
+        ) : (
+          <button type='button' className='otp-resend' onClick={handleResend} style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}>Resend</button>
+        )}
+      </div>
+
+      <div className='otp-btn-row'>
+        <button className='otp-btn otp-btn-outline' type='button'>Continue as guest</button>
+        <button
+          className='otp-btn otp-btn-filled'
+          type='button'
+          onClick={handleContinue}
+          disabled={loading}
+          style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer', background: loading ? '#ccc' : undefined }}
+        >
+          {loading ? 'Verifying...' : 'Continue'}
+        </button>
+      </div>
     </div>
-
-    <div className='otp-btn-row'>
-      <button className='otp-btn otp-btn-outline' type='button'>
-        Continue as guest
-      </button>
-      <button
-        className='otp-btn otp-btn-filled'
-        type='button'
-        onClick={handleContinue}
-        disabled={loading}
-        style={{
-          opacity: loading ? 0.7 : 1,
-          cursor: loading ? 'not-allowed' : 'pointer',
-          background: loading ? '#ccc' : undefined
-        }}
-      >
-        {loading ? 'Verifying...' : 'Continue'}
-      </button>
-    </div>
-  </div>
-);
-
+  );
 };
 
 export default SignupOtp;

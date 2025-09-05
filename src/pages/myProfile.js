@@ -113,7 +113,7 @@ const MyProfile = () => {
   const handleWhatsappToggle = async (checked) => {
     try {
       setWhatsappLoading(true);
-            const whatsappValue = checked ? '1' : '0';
+            const whatsappValue = checked ? 1 : 0;
             const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
       const result = handleApiResponse(response);
       
@@ -189,10 +189,14 @@ const MyProfile = () => {
         setLoading(true);
         const response = await userAPI.getDelete();
         const data1 = handleApiResponse(response);
+          localStorage.removeItem('otpEndTime'); 
+      localStorage.removeItem('fromLogin');
+      localStorage.removeItem('userData'); 
   
         if (data1) {
           setDeleteData(data1)
           localStorage.setItem('requestId',data1.request_id)
+          localStorage.setItem('fromLogin', 'true');
           messageApi.open({
             type: 'success',
             content: data1?.message,

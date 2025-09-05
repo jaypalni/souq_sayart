@@ -31,10 +31,7 @@ import deleteIcon from '../assets/images/Delete_icon.png';
 
 const { Sider, Content } = Layout;
 
-const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
-  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
-];
+
 
 const ChangePhoneOtpPage = () => {
   const navigate = useNavigate();
@@ -47,15 +44,30 @@ const ChangePhoneOtpPage = () => {
   const [error, setError] = useState('');
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [, setDeleteModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
+     const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
+       const [, setDeleteData] = useState([]);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
   const { customerDetails } = useSelector((state) => state.customerDetails);
+const manageItems = [
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
+];
 
+ useEffect(() => {
+    
+    const timer = setTimeout(() => {
+      setIsDeleteDisabled(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+  // Fetch profile data
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -68,36 +80,89 @@ const ChangePhoneOtpPage = () => {
         // Handle error silently
       }
     };
-
     fetchProfileData();
   }, []);
 
+  // Initialize timer on component mount
+  useEffect(() => {
+    const now = Date.now();
+    const savedEndTime = Number(localStorage.getItem('otpEndTime')) || 0;
+
+    let remaining = Math.ceil((savedEndTime - now) / 1000);
+
+    if (!savedEndTime || remaining <= 0) {
+      const newEndTime = now + 60 * 1000;
+      localStorage.setItem('otpEndTime', newEndTime);
+      remaining = 60;
+    }
+
+    setTimer(remaining);
+    setIsTimerRunning(remaining > 0);
+  }, []);
+
+  // Countdown interval
+  useEffect(() => {
+    if (!isTimerRunning) return;
+
+    intervalRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current);
+          setIsTimerRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalRef.current);
+  }, [isTimerRunning]);
+
+  // WhatsApp toggle
   const handleWhatsappToggle = async (checked) => {
     try {
       setWhatsappLoading(true);
-      const whatsappValue = checked ? '1' : '0';
+      const whatsappValue = checked ? 1 : 0;
       const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
       const result = handleApiResponse(response);
-      
+
       if (result) {
         setWhatsappNotification(checked);
-        messageApi.open({
-          type: 'success',
-          content: 'WhatsApp notification preference updated successfully!',
-        });
+        messageApi.open({ type: 'success', content: 'WhatsApp notification preference updated successfully!' });
       }
     } catch (error) {
       setWhatsappNotification(!checked);
       const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.message || 'Failed to update WhatsApp preference',
-      });
+      messageApi.open({ type: 'error', content: errorData?.message || 'Failed to update WhatsApp preference' });
     } finally {
       setWhatsappLoading(false);
     }
   };
-
+  const handleDelete = async () => {
+      try {
+        setLoading(true);
+        const response = await userAPI.getDelete();
+        const data1 = handleApiResponse(response);
+  
+        if (data1) {
+          setDeleteData(data1)
+          localStorage.setItem('requestId',data1.request_id)
+          messageApi.open({
+            type: 'success',
+            content: data1?.message,
+          });
+           navigate('/deleteaccount-otp')
+        }
+      } catch (error) {
+        setDeleteData([])
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message,
+        });
+      }
+    }
+  // Logout functions
   const handleLogout = () => {
     setLogoutModalOpen(false);
     userlogout();
@@ -111,24 +176,143 @@ const ChangePhoneOtpPage = () => {
       localStorage.clear();
       dispatch(clearCustomerDetails());
       dispatch({ type: 'CLEAR_USER_DATA' });
-      messageApi.open({
-        type: 'success',
-        content: data1?.message,
-      });
+      messageApi.open({ type: 'success', content: data1?.message });
 
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      setTimeout(() => navigate('/'), 1000);
     } catch (error) {
       const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.error,
-      });
+      messageApi.open({ type: 'error', content: errorData?.error });
     } finally {
       setLoading(false);
     }
   };
+
+  // OTP input handlers
+  const handleChange = (e, idx) => {
+    const val = e.target.value.replace(/\D/g, '');
+    const newOtp = [...otp];
+    if (val) {
+      newOtp[idx] = val[val.length - 1];
+      setOtp(newOtp);
+      setError('');
+      if (idx < OTP_LENGTH - 1) inputRefs[idx + 1].current.focus();
+    } else {
+      newOtp[idx] = '';
+      setOtp(newOtp);
+    }
+  };
+
+  const handleKeyDown = (e, idx) => {
+    if (e.key === 'Backspace') {
+      if (otp[idx]) {
+        const newOtp = [...otp];
+        newOtp[idx] = '';
+        setOtp(newOtp);
+      } else if (idx > 0) inputRefs[idx - 1].current.focus();
+    }
+  };
+
+  const validateOtp = () => {
+    if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
+      setError('Please enter the OTP.');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
+  const handleContinue = async () => {
+    if (!validateOtp()) return;
+
+    try {
+      setLoading(true);
+      const otpDigits = otp.join('');
+      const requestId = localStorage.getItem('request_id');
+
+      const otpPayload = { otp: otpDigits, request_id: requestId };
+      const result = await userAPI.chnagenumberverifyOtp(otpPayload);
+
+      if (result?.data?.success) {
+        messageApi.open({ type: 'success', content: result?.data?.message });
+        localStorage.removeItem('request_id');
+        localStorage.removeItem('phonenumber');
+        navigate('/myProfile');
+      } else {
+        messageApi.open({ type: 'error', content: result?.data?.error });
+      }
+    } catch (err) {
+      message.error('OTP verification failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      setLoading(true);
+      const phoneNumber = localStorage.getItem('phonenumber');
+      if (!phoneNumber) {
+        messageApi.open({ type: 'error', content: 'Phone number not found. Please start over.' });
+        navigate('/myProfile/change-phone');
+        return;
+      }
+
+      const response = await userAPI.changephonenumber({ phone_number: phoneNumber, whatsapp: 0 });
+      const data = handleApiResponse(response);
+
+      if (data) {
+        messageApi.open({ type: 'success', content: data.message });
+        if (data.request_id) localStorage.setItem('request_id', data.request_id);
+
+        // Reset timer
+        const newEndTime = Date.now() + 60 * 1000;
+        localStorage.setItem('otpEndTime', newEndTime);
+        setTimer(60);
+        setIsTimerRunning(true);
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      messageApi.open({ type: 'error', content: errorData.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const buildOtpInputClass = (digit, error) => {
+    let inputClass = 'otp-input';
+    if (digit) inputClass += ' filled';
+    if (error && (digit === '' || !/^\d$/.test(digit))) inputClass += ' otp-input-error';
+    return inputClass;
+  };
+
+  const renderTimerContent = (isTimerRunning, timer, formatTime, handleResend) => {
+    if (isTimerRunning) {
+      return (
+        <span>
+          Resend in <span className="otp-timer-count">{formatTime(timer)}</span>
+        </span>
+      );
+    } else {
+      return (
+        <button
+          type="button"
+          className="otp-resend"
+          onClick={handleResend}
+          style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
+        >
+          Resend
+        </button>
+      );
+    }
+  };
+
+  // Sidebar menu items
 
   const menuItems = [
     {
@@ -308,200 +492,6 @@ const ChangePhoneOtpPage = () => {
     },
   ];
 
-  useEffect(() => {
-    // Start timer when component mounts
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    setTimer(60);
-    setIsTimerRunning(true);
-
-    intervalRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          setIsTimerRunning(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleChange = (e, idx) => {
-    const val = e.target.value.replace(/\D/g, '');
-
-    const newOtp = [...otp];
-    if (val) {
-      newOtp[idx] = val[val.length - 1];
-      setOtp(newOtp);
-      setError('');
-      if (idx < OTP_LENGTH - 1) {
-        inputRefs[idx + 1].current.focus();
-      }
-    } else {
-      newOtp[idx] = '';
-      setOtp(newOtp);
-    }
-  };
-
-  const handleKeyDown = (e, idx) => {
-    if (e.key === 'Backspace') {
-      if (otp[idx]) {
-        const newOtp = [...otp];
-        newOtp[idx] = '';
-        setOtp(newOtp);
-      } else if (idx > 0) {
-        inputRefs[idx - 1].current.focus();
-      }
-    }
-  };
-
-  const validateOtp = () => {
-    if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
-      setError('Please enter the OTP.');
-      return false;
-    }
-    setError('');
-    return true;
-  };
-
-  const handleContinue = async () => {
-    if (!validateOtp()) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const otpDigits = otp.join('');
-      const requestId = localStorage.getItem('request_id');
-
-      const otpPayload = {
-        otp: otpDigits,
-        request_id: requestId,
-      };
-
-      const result = await userAPI.chnagenumberverifyOtp(otpPayload);
-
-      if (result?.data?.success) {
-        messageApi.open({
-          type: 'success',
-          content: result?.data?.message,
-        });
-
-        // Clear stored data
-        localStorage.removeItem('request_id');
-        localStorage.removeItem('phonenumber');
-
-        // Navigate back to profile
-        navigate('/myProfile');
-      } else {
-        messageApi.open({
-          type: 'error',
-          content: result?.data?.error,
-        });
-      }
-    } catch (err) {
-      message.error('OTP verification failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      setLoading(true);
-      const phoneNumber = localStorage.getItem('phonenumber');
-
-      if (!phoneNumber) {
-        messageApi.open({
-          type: 'error',
-          content: 'Phone number not found. Please start over.',
-        });
-        navigate('/myProfile/change-phone');
-        return;
-      }
-
-      const response = await userAPI.changephonenumber({
-        phone_number: phoneNumber,
-        is_whatsapp: '0',
-      });
-
-      const data = handleApiResponse(response);
-      if (data) {
-        messageApi.open({ type: 'success', content: data.message });
-        if (data.request_id) {
-          localStorage.setItem('request_id', data.request_id);
-        }
-
-        // Reset timer
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        setTimer(60);
-        setIsTimerRunning(true);
-
-        intervalRef.current = setInterval(() => {
-          setTimer((prev) => {
-            if (prev <= 1) {
-              clearInterval(intervalRef.current);
-              setIsTimerRunning(false);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({ type: 'error', content: errorData.message });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const buildOtpInputClass = (digit, error) => {
-    let inputClass = 'otp-input';
-
-    if (digit) {
-      inputClass += ' filled';
-    }
-
-    if (error && (digit === '' || !/^\d$/.test(digit))) {
-      inputClass += ' otp-input-error';
-    }
-
-    return inputClass;
-  };
-
-  const renderTimerContent = (isTimerRunning, timer, formatTime, handleResend) => {
-    if (isTimerRunning) {
-      return (
-        <span>
-          Resend in{' '}
-          <span className="otp-timer-count">{formatTime(timer)}</span>
-        </span>
-      );
-    } else {
-      return (
-        <button
-          type="button"
-          className="otp-resend"
-          onClick={handleResend}
-          style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
-        >
-          Resend
-        </button>
-      );
-    }
-  };
-
   return (
     <>
       <div className="page-header">
@@ -510,34 +500,14 @@ const ChangePhoneOtpPage = () => {
         <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
       </div>
       <Layout style={{ background: '#fff' }}>
-        <Sider
-          width={260}
-          collapsible
-          collapsed={collapsed}
-          trigger={null}
-          style={{
-            background: '#fff',
-            borderRight: '1px solid #f0f0f0',
-            padding: '32px 0 0 0',
-          }}
-        >
+        <Sider width={260} collapsible collapsed={collapsed} trigger={null} style={{ background: '#fff', borderRight: '1px solid #f0f0f0', padding: '32px 0 0 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 4, padding: '0 24px' }}>
-            <Avatar
-              size={48}
-              style={{
-                background: '#e3f1ff',
-                color: '#1890ff',
-                fontWeight: 700,
-              }}
-            >
-              RD
-            </Avatar>
+            <Avatar size={48} style={{ background: '#e3f1ff', color: '#1890ff', fontWeight: 700 }}>RD</Avatar>
             {!collapsed && <div style={{ fontWeight: 600 }}>{customerDetails.first_name + ' ' + customerDetails.last_name}</div>}
           </div>
 
           <Menu mode="inline" selectedKeys={['profile']} style={{ borderRight: 0 }} items={menuItems} />
-
-          <div style={{ marginTop: 32 }}>
+   <div style={{ marginTop: 32 }}>
             <div
               style={{
                 padding: '0 24px',
@@ -550,88 +520,52 @@ const ChangePhoneOtpPage = () => {
               Manage Account
             </div>
             <Menu
-              mode="inline"
-              style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
-              items={manageItems}
-              onClick={({ key }) => {
-                if (key === 'logout') setLogoutModalOpen(true);
-                if (key === 'delete') setDeleteModalOpen(true);
-              }}
-            />
+                         mode="inline"
+                         style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
+                         items={manageItems}
+                        onClick={({ key }) => {
+                           if (key === 'logout') setLogoutModalOpen(true);
+                           if (key === 'delete' && !isDeleteDisabled) setDeleteModalOpen(true); // Only open modal if not disabled
+                         }}
+                       />
+          
           </div>
 
-          <Button
-            type="text"
-            className="sidebar-toggle-btn"
-            onClick={() => setCollapsed(!collapsed)}
-            style={{ position: 'absolute', top: 10, right: -18, zIndex: 1000 }}
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          />
+          <Button type="text" className="sidebar-toggle-btn" onClick={() => setCollapsed(!collapsed)} style={{ position: 'absolute', top: 10, right: -18, zIndex: 1000 }} icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} />
         </Sider>
+
         <Layout>
           <Content style={{ padding: '40px 40px 0 40px', background: '#fff' }}>
             <div className='myprofile-main'>
               <div className='myprofile-header' style={{ display: 'flex', alignItems: 'center' }}>
-                <AiOutlineLeft
-                  onClick={() => navigate('/myProfile/change-phone')}
-                  style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-                />
+                <AiOutlineLeft onClick={() => navigate('/myProfile/change-phone')} style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }} />
                 Enter OTP Sent To Your New Number
               </div>
-              
-              <div style={{ justifyContent: 'flex-start' }}>
-                <p className="otp-desc">
-                  Enter the verification code sent to your phone number
-                </p>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}>
-                  {otp.map((digit, idx) => {
-                    const inputClass = buildOtpInputClass(digit, error);
-                    const inputKey = OTP_INPUT_IDS[idx];
-                    return (
-                      <input
-                        key={inputKey}
-                        ref={inputRefs[idx]}
-                        type="tel"
-                        className={inputClass}
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => handleChange(e, idx)}
-                        onKeyDown={(e) => handleKeyDown(e, idx)}
-                      />
-                    );
-                  })}
-                </div>
+              <p className="otp-desc">Enter the verification code sent to your phone number</p>
 
-                {error && (
-                  <div
-                    className="otp-error"
-                    style={{
-                      color: '#ff4d4f',
-                      marginTop: 8,
-                      marginBottom: 4,
-                      textAlign: 'center',
-                    }}
-                  >
-                    {error}
-                  </div>
-                )}
-
-               
-
-                <div className="otp-timer">
-                  {renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}
-                </div>
-                <button
-                  className="otp-btn otp-btn-filled"
-                  type="button"
-                  onClick={handleContinue}
-                  style={{ height: 35 }}
-                  disabled={loading}
-                >
-                  {loading ? 'Verifying...' : 'Continue'}
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}>
+                {otp.map((digit, idx) => (
+                  <input
+                    key={OTP_INPUT_IDS[idx]}
+                    ref={inputRefs[idx]}
+                    type="tel"
+                    className={buildOtpInputClass(digit, error)}
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(e, idx)}
+                    onKeyDown={(e) => handleKeyDown(e, idx)}
+                  />
+                ))}
               </div>
+
+              {error && <div className="otp-error" style={{ color: '#ff4d4f', marginTop: 8, marginBottom: 4, textAlign: 'start' }}>{error}</div>}
+
+              <div className="otp-timer">{renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}</div>
+
+              <button className="otp-btn otp-btn-filled" type="button" onClick={handleContinue} style={{ height: 35 }} disabled={loading}>
+                {loading ? 'Verifying...' : 'Continue'}
+              </button>
             </div>
           </Content>
         </Layout>
@@ -641,41 +575,64 @@ const ChangePhoneOtpPage = () => {
         open={logoutModalOpen}
         onCancel={() => setLogoutModalOpen(false)}
         footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',margin:'15px 0px 0px 15px',fontWeight: 700}}>Are you sure you want to log out?</span></div>}
+        title={<div className="brand-modal-title-row"><span style={{ textAlign: 'center', margin: '15px 0px 0px 15px', fontWeight: 700 }}>Are you sure you want to log out?</span></div>}
         width={350}
       >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px',marginTop:'15px' }}>
-          <Button
-            onClick={() => setLogoutModalOpen(false)}
-            style={{
-              width: 120,
-              backgroundColor: '#ffffff',
-              color: '#008AD5',
-              borderColor: '#008AD5',
-              borderWidth: 1,
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            onClick={handleLogout}
-            style={{
-              width: 120,
-              backgroundColor: '#008AD5',
-              color: '#ffffff',
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Confirm
-          </Button>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px', marginTop: '15px' }}>
+          <Button onClick={() => setLogoutModalOpen(false)} style={{ width: 120, backgroundColor: '#ffffff', color: '#008AD5', borderColor: '#008AD5', borderWidth: 1, fontSize: '16px', fontWeight: 700, borderRadius: '24px' }}>Cancel</Button>
+          <Button type="primary" onClick={handleLogout} style={{ width: 120, backgroundColor: '#008AD5', color: '#ffffff', fontSize: '16px', fontWeight: 700, borderRadius: '24px' }}>Confirm</Button>
         </div>
       </Modal>
+           <Modal
+              open={deleteModalOpen}
+              onCancel={() => setDeleteModalOpen(false)}
+              footer={null}
+              title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
+              width={500}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
+                <Button
+                   onClick={() => {
+                    setDeleteModalOpen(false);
+                    setIsDeleteDisabled(false);
+                  }}
+                  style={{
+                    width: 120,
+                    backgroundColor: '#ffffff',
+                    color: '#008AD5',
+                    borderColor: '#008AD5',
+                    borderWidth: 1,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    borderRadius: '24px',
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setDeleteModalOpen(false);
+                    setIsDeleteDisabled(true);
+                    // setShowOtpStep(true); 
+                    setTimer(30);
+                    setIsTimerRunning(true);
+                    handleDelete();
+                   
+                  }}
+                  style={{
+                    width: 120,
+                    backgroundColor: '#008AD5',
+                    color: '#ffffff',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    borderRadius: '24px',
+                  }}
+                >
+                  Continue
+                </Button>
+              </div>
+            </Modal>
     </>
   );
 };

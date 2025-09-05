@@ -101,7 +101,7 @@ const formatTime = (seconds) => {
 };
 
 const toWhatsappFlag = (whatsappChecked) => {
-  return whatsappChecked ? '1' : '0';
+  return whatsappChecked ? 1 : 0;
 };
 
 

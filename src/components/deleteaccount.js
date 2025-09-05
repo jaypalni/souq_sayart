@@ -32,10 +32,6 @@ import deleteIcon from '../assets/images/Delete_icon.png';
 
 const { Sider, Content } = Layout;
 
-const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
-  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
-];
 
 const DeleteAccount = () => {
   const navigate = useNavigate();
@@ -48,15 +44,27 @@ const DeleteAccount = () => {
   const [error, setError] = useState('');
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [, setDeleteModalOpen] = useState(false);
+     const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
+    const [, setDeleteData] = useState([]);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
   const { customerDetails } = useSelector((state) => state.customerDetails);
 
+
+   const manageItems = [
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+   {
+      key: 'delete',
+      icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
+      label: 'Delete Account',
+      disabled: isDeleteDisabled, 
+    },
+];
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -76,7 +84,7 @@ const DeleteAccount = () => {
   const handleWhatsappToggle = async (checked) => {
     try {
       setWhatsappLoading(true);
-      const whatsappValue = checked ? '1' : '0';
+      const whatsappValue = checked ? 1 : 0;
       const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
       const result = handleApiResponse(response);
       
@@ -308,40 +316,48 @@ const DeleteAccount = () => {
       ),
     },
   ];
-
  useEffect(() => {
-  const savedExpireTime = localStorage.getItem('otpExpireTime');
-  const now = Date.now();
+    
+    const timer = setTimeout(() => {
+      setIsDeleteDisabled(false);
+    }, 5000);
 
-  if (savedExpireTime && now < parseInt(savedExpireTime)) {
-    // Resume remaining time
-    const remaining = Math.floor((parseInt(savedExpireTime) - now) / 1000);
-    setTimer(remaining);
-    setIsTimerRunning(true);
-  } else {
-    // Start fresh 60s
-    const expireTime = now + 60 * 1000;
-    localStorage.setItem('otpExpireTime', expireTime.toString());
-    setTimer(60);
-    setIsTimerRunning(true);
-  }
-
-  intervalRef.current = setInterval(() => {
-    setTimer((prev) => {
-      if (prev <= 1) {
-        clearInterval(intervalRef.current);
-        setIsTimerRunning(false);
-        localStorage.removeItem('otpExpireTime');
-        return 0;
+    return () => clearTimeout(timer);
+  }, []);
+ 
+  useEffect(() => {
+      const now = Date.now();
+      const savedEndTime = Number(localStorage.getItem('otpEndTime')) || 0;
+  
+      let remaining = Math.ceil((savedEndTime - now) / 1000);
+  
+      if (!savedEndTime || remaining <= 0) {
+        const newEndTime = now + 60 * 1000;
+        localStorage.setItem('otpEndTime', newEndTime);
+        remaining = 60;
       }
-      return prev - 1;
-    });
-  }, 1000);
-
-  return () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
-}, []);
+  
+      setTimer(remaining);
+      setIsTimerRunning(remaining > 0);
+    }, []);
+  
+    // Countdown interval
+    useEffect(() => {
+      if (!isTimerRunning) return;
+  
+      intervalRef.current = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(intervalRef.current);
+            setIsTimerRunning(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+  
+      return () => clearInterval(intervalRef.current);
+    }, [isTimerRunning]);
 
 
   const formatTime = (seconds) => {
@@ -490,7 +506,30 @@ const DeleteAccount = () => {
 
     return inputClass;
   };
-
+  const handleDelete = async () => {
+      try {
+        setLoading(true);
+        const response = await userAPI.getDelete();
+        const data1 = handleApiResponse(response);
+  
+        if (data1) {
+          setDeleteData(data1)
+          localStorage.setItem('requestId',data1.request_id)
+          messageApi.open({
+            type: 'success',
+            content: data1?.message,
+          });
+           navigate('/deleteaccount-otp')
+        }
+      } catch (error) {
+        setDeleteData([])
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message,
+        });
+      }
+    }
   const renderTimerContent = (isTimerRunning, timer, formatTime, handleResend) => {
     if (isTimerRunning) {
       return (
@@ -560,16 +599,15 @@ const DeleteAccount = () => {
             >
               Manage Account
             </div>
-            <Menu
-              mode="inline"
-              style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
-              selectedKeys={['delete']}
-              items={manageItems}
-              onClick={({ key }) => {
-                if (key === 'logout') setLogoutModalOpen(true);
-                if (key === 'delete') setDeleteModalOpen(true);
-              }}
-            />
+          <Menu
+                       mode="inline"
+                       style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
+                       items={manageItems}
+                      onClick={({ key }) => {
+                         if (key === 'logout') setLogoutModalOpen(true);
+                         if (key === 'delete' && isDeleteDisabled) setDeleteModalOpen(true); // Only open modal if not disabled
+                       }}
+                     />
           </div>
 
           <Button
@@ -622,7 +660,7 @@ const DeleteAccount = () => {
                       color: '#ff4d4f',
                       marginTop: 8,
                       marginBottom: 4,
-                      textAlign: 'center',
+                      textAlign: 'start',
                     }}
                   >
                     {error}
@@ -687,6 +725,56 @@ const DeleteAccount = () => {
           </Button>
         </div>
       </Modal>
+           <Modal
+              open={deleteModalOpen}
+              onCancel={() => setDeleteModalOpen(false)}
+              footer={null}
+              title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
+              width={500}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
+                <Button
+                   onClick={() => {
+                    setDeleteModalOpen(false);
+                    setIsDeleteDisabled(false);
+                  }}
+                  style={{
+                    width: 120,
+                    backgroundColor: '#ffffff',
+                    color: '#008AD5',
+                    borderColor: '#008AD5',
+                    borderWidth: 1,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    borderRadius: '24px',
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setDeleteModalOpen(false);
+                    setIsDeleteDisabled(true);
+                    // setShowOtpStep(true); 
+                    setTimer(30);
+                    setIsTimerRunning(true);
+                    handleDelete();
+                   
+                  }}
+                  style={{
+                    width: 120,
+                    backgroundColor: '#008AD5',
+                    color: '#ffffff',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    borderRadius: '24px',
+                  }}
+                >
+                  Continue
+                </Button>
+              </div>
+            </Modal>
     </>
   );
 };

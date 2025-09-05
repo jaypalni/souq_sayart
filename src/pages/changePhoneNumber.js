@@ -28,6 +28,7 @@ import favoriteIcon from '../assets/images/Favorites_icon.png';
 import whatsupIcon from '../assets/images/Whatsup.png';
 import logoutIcon from '../assets/images/Logout_icon.png';
 import deleteIcon from '../assets/images/Delete_icon.png';
+import whatsappIcon from '../assets/images/Whatsup.svg';
 
 const { Sider, Content } = Layout;
 const CACHE_KEY = 'geoDataCache';
@@ -444,6 +445,21 @@ const ChangePhoneNumberPage = () => {
     }
   };
 
+  const switchStyle = {
+    backgroundColor: checked ? '#008AD5' : '#ccc',
+  };
+
+   const whatsapphandleChange = (value) => {
+    setChecked(value);
+  };
+
+  const toWhatsappFlag = (whatsappChecked) => {
+    if (whatsappChecked) {
+      return 1;
+    }
+    return 0;
+  };
+
   return (
     <>
       <div className="page-header">
@@ -649,6 +665,35 @@ const ChangePhoneNumberPage = () => {
                     <div className="emailerror-msg" style={{ marginLeft: 110 }}>
                       {emailerrormsg}
                     </div>
+                    <div className="row g-3">
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                        padding: 10,
+                                      }}
+                                    >
+                                      <span
+                                        style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
+                                      >
+                                        <img
+                                          src={whatsappIcon}
+                                          alt="Whatsapp Icon"
+                                          style={{ width: 18, height: 18, marginRight: 5 }}
+                                        />
+                                        {' '}
+                                        Whatsapp
+                                      </span>
+                    
+                                      <Switch
+                      checked={checked}
+                      onChange={whatsapphandleChange}
+                      style={switchStyle}
+                                      />
+                                    </div>
+                                  </div>
                   </div>
                   
                   <div style={{ display: 'flex', gap: 12 }}>

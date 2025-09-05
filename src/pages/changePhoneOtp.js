@@ -28,7 +28,6 @@ import favoriteIcon from '../assets/images/Favorites_icon.png';
 import whatsupIcon from '../assets/images/Whatsup.png';
 import logoutIcon from '../assets/images/Logout_icon.png';
 import deleteIcon from '../assets/images/Delete_icon.png';
-import whatsappIcon from '../assets/images/Whatsup.svg';
 
 const { Sider, Content } = Layout;
 
@@ -56,7 +55,6 @@ const ChangePhoneOtpPage = () => {
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
   const { customerDetails } = useSelector((state) => state.customerDetails);
-  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -73,21 +71,6 @@ const ChangePhoneOtpPage = () => {
 
     fetchProfileData();
   }, []);
-
-  const switchStyle = {
-    backgroundColor: checked ? '#008AD5' : '#ccc',
-  };
-
-  const whatsapphandleChange = (value) => {
-    setChecked(value);
-  };
-
-  const toWhatsappFlag = (whatsappChecked) => {
-    if (whatsappChecked) {
-      return '1';
-    }
-    return '0';
-  };
 
   const handleWhatsappToggle = async (checked) => {
     try {
@@ -404,7 +387,6 @@ const ChangePhoneOtpPage = () => {
       const otpPayload = {
         otp: otpDigits,
         request_id: requestId,
-        whatsapp: toWhatsappFlag(checked),
       };
 
       const result = await userAPI.chnagenumberverifyOtp(otpPayload);
@@ -640,39 +622,6 @@ const ChangePhoneOtpPage = () => {
                 <div className="otp-timer">
                   {renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}
                 </div>
-
-                 <div className="row g-3">
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    width: '29%',
-                    //  padding: 10,
-                    marginBottom: 15,
-                    marginTop: 0,
-                  }}
-                >
-                  <span
-                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
-                  >
-                    <img
-                      src={whatsappIcon}
-                      alt="Whatsapp Icon"
-                      style={{ width: 18, height: 18, marginRight: 5 }}
-                    />
-                    {' '}
-                    Whatsapp
-                  </span>
-
-                  <Switch
-  checked={checked}
-  onChange={whatsapphandleChange}
-  style={switchStyle}
-                  />
-                </div>
-              </div>
-                
                 <button
                   className="otp-btn otp-btn-filled"
                   type="button"

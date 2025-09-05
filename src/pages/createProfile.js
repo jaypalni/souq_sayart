@@ -91,15 +91,19 @@ const CreateProfile = () => {
 
   if (!file) return;
 
-  const isPDF = file.type === 'application/pdf';
-  if (!isPDF) {
+  // ✅ Correct validation for allowed file types
+  const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+  const isAllowedType = allowedTypes.includes(file.type);
+
+  if (!isAllowedType) {
     messageApi.open({
       type: 'error',
-      content: 'Upload failed. Only .pdf documents are allowed.',
+      content: 'Upload failed. Only .pdf, .png, or .jpeg files are allowed.',
     });
     return;
   }
 
+  // ✅ Check file size (10 MB max)
   const isLt10M = file.size / 1024 / 1024 <= 10;
   if (!isLt10M) {
     messageApi.open({
@@ -136,6 +140,7 @@ const CreateProfile = () => {
     setLoading(false);
   }
 };
+
 
 
   const handleBeforeUpload = async (file) => {
@@ -825,7 +830,7 @@ const CreateProfile = () => {
     size="middle"
     ref={fileInputRef}
     onChange={handleFileChange}
-    accept=".pdf"
+    accept=".pdf, .png, .jpeg"
   />
 </Form.Item>
 

@@ -492,6 +492,31 @@ const manageItems = [
     },
   ];
 
+  const handlePaste = (e) => {
+  e.preventDefault();
+  const pasteData = e.clipboardData.getData('text').replace(/\D/g, ''); // only digits
+  if (!pasteData) return;
+
+  const digits = pasteData.split('').slice(0, OTP_LENGTH); // take only OTP_LENGTH digits
+  const newOtp = [...otp];
+
+  digits.forEach((digit, i) => {
+    newOtp[i] = digit;
+    if (inputRefs[i]?.current) {
+      inputRefs[i].current.value = digit; // update input directly
+    }
+  });
+
+  setOtp(newOtp);
+
+  // move focus to last filled field
+  const nextIndex = digits.length < OTP_LENGTH ? digits.length : OTP_LENGTH - 1;
+  if (inputRefs[nextIndex]?.current) {
+    inputRefs[nextIndex].current.focus();
+  }
+};
+
+
   return (
     <>
       <div className="page-header">
@@ -555,6 +580,7 @@ const manageItems = [
                     value={digit}
                     onChange={(e) => handleChange(e, idx)}
                     onKeyDown={(e) => handleKeyDown(e, idx)}
+                    onPaste={handlePaste}
                   />
                 ))}
               </div>

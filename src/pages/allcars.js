@@ -90,6 +90,7 @@ const Allcars = () => {
         filtercarsData={filtercarsData}
         cardata={filtercarsData.cars || []}
         title="Search Results"
+        sortedbydata={sortedbydata}
         setSortedbyData={setSortedbyData}
         isLoading={isLoading}
       />
@@ -98,14 +99,32 @@ const Allcars = () => {
   );
 };
 
-const CarListing = ({ filtercarsData, cardata, setSortedbyData, title, isLoading }) => {
+const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
-  const [sortOption, setSortOption] = useState('Newest Listing');
+  // Initialize sortOption from localStorage or prop
+  const getInitialSortOption = () => {
+    try {
+      const saved = localStorage.getItem('sortOption');
+      return saved || sortedbydata || 'Newest Listing';
+    } catch (e) {
+      return sortedbydata || 'Newest Listing';
+    }
+  };
+
+  const [sortOption, setSortOption] = useState(getInitialSortOption);
   const toggleDropdown = () => setIsOpen(!isOpen);
+
+  // Sync sortOption with sortedbydata prop
+  useEffect(() => {
+    if (sortedbydata && sortedbydata !== sortOption) {
+      setSortOption(sortedbydata);
+      localStorage.setItem('sortOption', sortedbydata);
+    }
+  }, [sortedbydata, sortOption]);
 
   // Use filtercarsData directly - no local state to avoid duplication
   const carsToDisplay = filtercarsData?.cars || [];
@@ -181,10 +200,10 @@ const Removefavcarapi = async (carId) => {
   };
   const onPageChange = (page, pageSize) => {
   };
-
   const handleSelect = (option) => {
     setSortOption(option); 
-    setSortedbyData(option); 
+    setSortedbyData(option);
+    localStorage.setItem('sortOption', option);
     setIsOpen(false);
   };
   return (

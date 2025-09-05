@@ -53,7 +53,7 @@ const PRICE_MIN_VALUES = [5000, 10000, 20000, 30000, 40000];
 const PRICE_MAX_VALUES = [20000, 30000, 40000, 50000, 100000];
 const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
-const DEFAULT_CAR_COUNT = 342642;
+const DEFAULT_CAR_COUNT = 0;
 
 const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
   const [, setLoading] = useState(false);
@@ -203,9 +203,40 @@ const getInitialMaxPrice = () => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
+  // Auto-search function to update car count on filter changes
+  const autoSearchForCount = async (filterParams = {}) => {
+    try {
+      const currentMake = filterParams.make !== undefined ? filterParams.make : make;
+      const currentModel = filterParams.model !== undefined ? filterParams.model : model;
+      const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
+      const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
+
+      const apiParams = {
+        make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
+        model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
+        body_type: currentBodyType === DEFAULTS.ALL_BODY_TYPES ? '' : currentBodyType,
+        location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
+        price_min: minPrice !== null ? minPrice : '',
+        price_max: maxPrice !== null ? maxPrice : '',
+        page: 1,
+        limit: 1, // We only need the count, so limit to 1 for efficiency
+      };
+
+      const response = await carAPI.getSearchCars(apiParams);
+      const data = handleApiResponse(response);
+
+      if (data && data.data && data.data.pagination) {
+        setCarCount(data.data.pagination.total);
+      }
+    } catch (error) {
+      // Silent error handling for auto-search
+      console.warn('Auto-search for count failed:', error);
+    }
+  };
+
     useEffect(() => {
       fetchMakeCars({ setLoading, setCarMakes });
-      fetchtotalcarcount();
+      // fetchtotalcarcount();
     }, []);
 
 // State is now initialized directly from localStorage in useState calls above
@@ -264,7 +295,7 @@ useEffect(() => {
 }, []);
 
 
-useEffect(() => {
+  useEffect(() => {
     if (make && make !== DEFAULTS.ALL_MAKE) {
       fetchModelCars({ setLoading, setCarModels, make }).then(() => {
         // Only reset model if it's not already set from localStorage
@@ -277,6 +308,9 @@ useEffect(() => {
       setCarModels([]);
       setModel(DEFAULTS.ALL_MODELS);
     }
+    
+    // Auto-search for count when make changes
+    autoSearchForCount({ make });
   }, [make]);
 
   useEffect(() => {
@@ -308,6 +342,21 @@ handleSearch()
       setBodyType(DEFAULTS.ALL_BODY_TYPES);
     }
   }, [make]);
+
+  // Auto-search for count when model changes
+  useEffect(() => {
+    autoSearchForCount({ model });
+  }, [model]);
+
+  // Auto-search for count when location changes
+  useEffect(() => {
+    autoSearchForCount({ location });
+  }, [location]);
+
+  // Auto-search for count when body type changes
+  useEffect(() => {
+    autoSearchForCount({ bodyType });
+  }, [bodyType]);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -485,6 +534,11 @@ handleSearch()
       if (data1) {
         const results = data1?.data?.cars || [];
         setCarSearch(results);
+
+        // Update car count from pagination
+        if (data1.data.pagination && data1.data.pagination.total !== undefined) {
+          setCarCount(data1.data.pagination.total);
+        }
 
         if (results.length === 0) {
           setIsModalOpen(true);

@@ -81,6 +81,7 @@ const SavedSearches = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedSearchId, setSelectedSearchId] = useState(null);
 
 
   useEffect(() => {
@@ -224,7 +225,10 @@ if (loading) {
       />
       <button
         type="button"
-        onClick={() => setDeleteModalOpen(true)}
+        onClick={() => {
+    setSelectedSearchId(search.id);  
+    setDeleteModalOpen(true);
+  }}
         style={{ 
           background: 'none', 
           border: 'none', 
@@ -271,7 +275,10 @@ if (loading) {
             type="primary"
             onClick={() => {
               setDeleteModalOpen(false);
-              handleDeleteNotification(search.id);
+             if (selectedSearchId) {
+                handleDeleteNotification(selectedSearchId);
+                setSelectedSearchId(null);
+              }
             }}
             style={{
               width: 120,

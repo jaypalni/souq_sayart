@@ -501,6 +501,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const [keywords, setKeywords] = useState([]);
   const [trimData, setTrimData] = useState(false);
   const [isEmptyModalOpen, setIsEmptyModalOpen] = useState(false);
+  const [emptySearchData, setEmptySearchData] = useState(null);
 
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
@@ -555,16 +556,16 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
       setLoading(true);
       const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords });
       const response = await carAPI.searchCars(filterData);      
-      
       if (response.data) {
         const results = response.data.cars || response.data || [];
         
-        // Always call onSearchResults to update parent component, even with empty results
         if (onSearchResults) {
           onSearchResults(response.data);
         }
         
-        if (results.length === 0) {
+        if (response?.data?.data?.cars.length === 0) {
+          // Store the complete filter data for the modal
+          setEmptySearchData(filterData);
           // Show empty state modal
           setIsEmptyModalOpen(true);
           message.info('No cars found with the current filters. Try adjusting your search criteria.');
@@ -913,8 +914,9 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
         setBodyType={() => {}} // Placeholder - parent component should handle this
         selectedLocation={location}
         setSelectedLocation={() => {}} // Placeholder - parent component should handle this
-        toastmessage="No cars found with the current filters. Try removing some filters or adjusting your search criteria."
+        toastmessage={(msg) => message.info(msg)}
         setSaveSearchesReload={() => {}}
+        filterData={emptySearchData}
       />
     </>
   );

@@ -218,13 +218,17 @@ useEffect(() => {
     // If there's saved location data, use it; otherwise default to "All Locations"
     if (saved && saved.location && saved.location !== '') {
       setLocation(saved.location);
+      // Update breadcrumb if setSelectedLocation is available
+      if (setSelectedLocation) {
+        setSelectedLocation(saved.location);
+      }
     } else {
       setLocation('All Locations');
     }
   } catch (e) {
     setLocation('All Locations');
   }
-}, []);
+}, [setSelectedLocation]);
 
 // Trigger search on component mount if there are saved filter values
 useEffect(() => {
@@ -280,9 +284,13 @@ useEffect(() => {
     fetchBodyTypeCars();
     
     // Fetch models if there's a saved make
-    const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
-      fetchModelCars({ setLoading, setCarModels, make: saved.make });
+    try {
+      const saved = JSON.parse(localStorage.getItem('searchcardata'));
+      if (saved && saved.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
+        fetchModelCars({ setLoading, setCarModels, make: saved.make });
+      }
+    } catch (e) {
+      // Silent error handling
     }
   }, []);
 
@@ -460,8 +468,16 @@ handleSearch()
       if (setIsLoading) {
         setIsLoading(true);
       }
-      // Clear previous data immediately when new search starts
+      // Clear previous search results immediately when new search starts
       setFilterCarsData({ cars: [], pagination: {} });
+      // Also clear any cached search results
+      setCarSearch([]);
+      // Clear only non-essential cached data, preserve searchcardata and filter options
+      localStorage.removeItem('cachedCarsData');
+      localStorage.removeItem('carsData');
+      localStorage.removeItem('filterData');
+      localStorage.removeItem('carSearchData');
+      localStorage.removeItem('savedCarsData');
 
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
@@ -476,6 +492,9 @@ handleSearch()
           setFilterCarsData({ cars: [], pagination: {} });
         } else {
           // Set ONLY fresh API data - completely replace any old data
+          // Force clear any existing data first
+          setFilterCarsData({ cars: [], pagination: {} });
+          // Then set ONLY the fresh API data
           setFilterCarsData({
             cars: data1.data.cars || [],
             pagination: data1.data.pagination || {}

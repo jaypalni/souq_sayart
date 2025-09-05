@@ -799,29 +799,36 @@ const CreateProfile = () => {
                 </div>
                 <div className="col-md-6">
                   <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontWeight: 400,
-                          color: '#637D92',
-                          fontSize: 12,
-                        }}
-                      >
-                        Upload Documents
-                      </span>
-                    }
-                    name="uploadDocuments"
-                    required={false}
-                  >
-                    <Input
-                      type="file"
-                      placeholder="Documents"
-                      size="middle"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      accept=".pdf"
-                    />{' '}
-                  </Form.Item>
+  label={
+    <span
+      style={{
+        fontWeight: 400,
+        color: '#637D92',
+        fontSize: 12,
+      }}
+    >
+      Upload Documents*
+    </span>
+  }
+  name="uploadDocuments"
+  rules={[
+    {
+      required: isDealer,
+      message: 'Please upload your company documents',
+    },
+  ]}
+  required={false}
+>
+  <Input
+    type="file"
+    placeholder="Documents"
+    size="middle"
+    ref={fileInputRef}
+    onChange={handleFileChange}
+    accept=".pdf"
+  />
+</Form.Item>
+
                 </div>
               </div>
             </>

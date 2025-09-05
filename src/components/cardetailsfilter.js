@@ -864,8 +864,8 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           />
 
           <Divider />
-
-<Row gutter={12}>
+        </div>
+        <Row gutter={12} className='mt-4'>
   <Col span={12}>
     <Button
       type="primary"
@@ -890,8 +890,6 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
     </Button>
   </Col>
 </Row>
-
-        </div>
       </Drawer>
 
       <ExtraFeaturesDrawer

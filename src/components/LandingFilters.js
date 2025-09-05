@@ -59,7 +59,7 @@ const PRICE_MAX_VALUES = Object.freeze([
   PRICE_50K,
   PRICE_100K,
 ]);
-const DEFAULT_CAR_COUNT = 342642;
+const DEFAULT_CAR_COUNT = 0;
 const INDIA_TZ_OFFSET_MIN = -330;
 const HTTP_STATUS_UNAUTHORIZED = 401;
 const TOKEN_EXPIRY_REDIRECT_DELAY_MS = 2000;
@@ -101,6 +101,38 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [maxPrice, setMaxPrice] = useState(null);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
+  // Auto-search function to update car count on filter changes
+  const autoSearchForCount = async (filterParams = {}) => {
+    try {
+      const currentMake = filterParams.make !== undefined ? filterParams.make : make;
+      const currentModel = filterParams.model !== undefined ? filterParams.model : model;
+      const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
+      const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
+
+      const apiParams = {
+        make: valueOrEmpty(currentMake, CORRECT_DEFAULT_MAKE),
+        model: valueOrEmpty(currentModel, CORRECT_DEFAULT_MODEL),
+        body_type: valueOrEmpty(currentBodyType, CORRECT_DEFAULT_BODY_TYPE),
+        location: valueOrEmpty(currentLocation, CORRECT_DEFAULT_LOCATION),
+        price_min: minPrice !== null ? minPrice : '',
+        price_max: maxPrice !== null ? maxPrice : '',
+        condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
+        page: 1,
+        limit: 1, // We only need the count, so limit to 1 for efficiency
+      };
+
+      const response = await carAPI.getSearchCars(apiParams);
+      const data = handleApiResponse(response);
+
+      if (data && data.data && data.data.pagination) {
+        setCarCount(data.data.pagination.total);
+      }
+    } catch (error) {
+      // Silent error handling for auto-search
+      console.warn('Auto-search for count failed:', error);
+    }
+  };
+
   const dropdownRefs = {
     newUsed: useRef(),
     priceMin: useRef(),
@@ -116,6 +148,9 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     if (make) {
       fetchModelCars({ setLoading, setCarModels, make });
     }
+    
+    // Auto-search for count when make changes
+    autoSearchForCount({ make });
   }, [make]);
 
   useEffect(() => {
@@ -141,6 +176,21 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     setBodyType(CORRECT_DEFAULT_BODY_TYPE);
   }
 }, [searchbodytype]);
+
+  // Auto-search for count when model changes
+  useEffect(() => {
+    autoSearchForCount({ model });
+  }, [model]);
+
+  // Auto-search for count when location changes
+  useEffect(() => {
+    autoSearchForCount({ location });
+  }, [location]);
+
+  // Auto-search for count when body type changes
+  useEffect(() => {
+    autoSearchForCount({ bodyType });
+  }, [bodyType]);
 
 
   const fetchBodyTypeCars = async () => {
@@ -335,6 +385,11 @@ const isIndiaLocale = () => {
 
       if (data1) {
         const results = data1?.data?.cars || [];
+
+        // Update car count from pagination
+        if (data1.data.pagination && data1.data.pagination.total !== undefined) {
+          setCarCount(data1.data.pagination.total);
+        }
 
         if (results.length === 0) {
           setIsModalOpen(true);

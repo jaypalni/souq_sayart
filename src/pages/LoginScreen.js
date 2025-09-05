@@ -248,7 +248,7 @@ const LoginScreen = () => {
             Login
           </h2>
           <p style={{ color: '#0A0A0B', fontSize: 14, fontFamily: 'Roboto' }}>
-            Enter Your Phone Number to login to our app
+            Enter Your Phone Number to login to our website.
           </p>
           <div style={{ margin: '20px 0' }}>
             {/* Single label for both fields */}

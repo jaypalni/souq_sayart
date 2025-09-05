@@ -54,16 +54,13 @@ const Allcars = () => {
     }
   }, [isLoading]);
 
-  // Force clear all data on component mount - ensure clean state
+  // Initialize component state on mount
   useEffect(() => {
-    console.log('🧹 Allcars - Component mounted, clearing ALL data');
     setFilterCarsData({ cars: [], pagination: {} });
-    setSelectedLocation('All Locations');
     setSortedbyData('');
-    // Clear ALL localStorage cached data that might be causing issues
+    // Only clear non-essential cached data, preserve searchcardata
     localStorage.removeItem('cachedCarsData');
     localStorage.removeItem('carsData');
-    localStorage.removeItem('searchcardata');
     localStorage.removeItem('filterData');
     localStorage.removeItem('carSearchData');
   }, []);
@@ -114,9 +111,6 @@ const CarListing = ({ filtercarsData, cardata, setSortedbyData, title, isLoading
   const carsToDisplay = filtercarsData?.cars || [];
   const paginationToDisplay = filtercarsData?.pagination || {};
   
-  console.log('🧹 CarListing - Current carsToDisplay:', carsToDisplay);
-  console.log('🧹 CarListing - Current carsToDisplay length:', carsToDisplay.length);
-  console.log('🧹 CarListing - Current filtercarsData:', filtercarsData);
 
 
  const Addfavcarapi = async (carId) => {
@@ -184,10 +178,8 @@ const Removefavcarapi = async (carId) => {
 
 
   const onShowSizeChange = (current, pageSize) => {
-    console.log(current, pageSize);
   };
   const onPageChange = (page, pageSize) => {
-    console.log(page, pageSize);
   };
 
   const handleSelect = (option) => {
@@ -199,7 +191,11 @@ const Removefavcarapi = async (carId) => {
     <div className="car-listing-container">
       {contextHolder}
       <div className="car-listing-header">
-        <span>Showing 1 - {carsToDisplay?.length} Cars</span>
+        <span>
+          {carsToDisplay?.length === 0 
+            ? 'No cars found' 
+            : `Showing 1 - ${carsToDisplay?.length} Cars`}
+        </span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button
             type="button"
@@ -318,10 +314,7 @@ const Removefavcarapi = async (carId) => {
           ))
         ) : (
           carsToDisplay && carsToDisplay.length > 0 ? (() => {
-            console.log('🧹 CarListing - Rendering ONLY API response data');
-            console.log('🧹 CarListing - carsToDisplay:', carsToDisplay);
             return carsToDisplay.map((car) => {
-              console.log('🧹 CarListing - Rendering car:', car.ad_title, car.make, car.model);
               return (
       <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
         <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>

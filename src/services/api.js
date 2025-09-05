@@ -96,7 +96,7 @@ export const authAPI = {
       },
     }),
   refresh: (credentials) =>
-    api.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
+    api.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
 };
 
 export const carAPI = {
@@ -113,6 +113,8 @@ export const carAPI = {
     api.get(API_CONFIG.ENDPOINTS.CARS.UPLOAD_OPTION_DETAILS),
   trimDetails: (make, modalName, yearData) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.TRIM_DETAILS(make, modalName, yearData)),
+  trimDetailsFilter: (make, modalName) =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.TRIM_DETAILS_FILTERS(make, modalName)),
   uploadImages: (formData) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.UPLOAD_IMAGES, formData, {
       headers: {
@@ -142,6 +144,10 @@ export const carAPI = {
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams),
   getsavedsearches: (page, limit) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
+  termsAndConditions: () =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
+  totalcarscount: () => 
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
 };
 
 export const userAPI = {
@@ -167,8 +173,9 @@ export const userAPI = {
     api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
   deleteSavedSearch: (id) =>
     api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id)),
-  notifySavedSearch: (id) =>
-    api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id)),
+  notifySavedSearch: (id, body) =>
+  api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body),
+
 };
 
-export default api;
+export default api; 

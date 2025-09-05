@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -28,7 +28,21 @@ import NewSell from './pages/newsell';
 import UserProfile from './pages/userProfile';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
+import ChangePhoneNumberPage from './pages/changePhoneNumber';
+import DeleteAccount from './components/deleteaccount';
+import ChangePhoneOtpPage from './pages/changePhoneOtp';
 import ProtectedRoute from './components/ProtectedRoute';
+
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const AppRouterContent = () => {
   const location = useLocation();
@@ -47,8 +61,11 @@ const AppRouterContent = () => {
     '/myProfile/blocked',
     '/myProfile/dashboard',
     '/myProfile/favorites',
+    '/myProfile/change-phone',
+    '/myProfile/change-phone-otp',
     '/termsAndconditions',
     '/captchatoken',
+    '/deleteaccount-otp',
   ];
 
   const hidefooterList = ['/captchatoken'];
@@ -62,6 +79,7 @@ const AppRouterContent = () => {
 
   return (
     <>
+      <ScrollToTop />
       {!hideFooter && <Header />}
       {!hideBanner && <Banner />}
       <Routes>
@@ -103,6 +121,30 @@ const AppRouterContent = () => {
                     </ProtectedRoute>
                   } 
                 />
+        <Route 
+          path="/myProfile/change-phone" 
+          element={
+            <ProtectedRoute>
+              <ChangePhoneNumberPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/myProfile/change-phone-otp" 
+          element={
+            <ProtectedRoute>
+              <ChangePhoneOtpPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/deleteaccount-otp" 
+          element={
+            <ProtectedRoute>
+              <DeleteAccount />
+            </ProtectedRoute>
+          } 
+        />
       
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

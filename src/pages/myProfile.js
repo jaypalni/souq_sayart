@@ -44,184 +44,7 @@ import deleteIcon from '../assets/images/Delete_icon.png';
 
 const { Sider, Content } = Layout;
 
-const menuItems = [
-  {
-    key: 'Personal Informations',
-    label: (
-      <Link
-        to="/myProfile"
-        style={{
-          fontSize: '14px',
-          fontWeight: 700,
-          color: '#0A0A0B',
-        }}
-      >
-        {' '}
-        Personal Informations
-      </Link>
-    ),
-  },
-  {
-    key: 'profile',
-    icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Profile
-      </Link>
-    ),
-  },
-  {
-    key: 'subscriptions',
-    icon: <img src={subsriptionIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/subscriptions"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Subscriptions
-      </Link>
-    ),
-  },
-  {
-    key: 'messages',
-    icon: <img src={messageIcon} alt="Message" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/messages"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Messages
-      </Link>
-    ),
-  },
-  {
-    key: 'notifications',
-    icon: <img src={notificationIcon} alt="Notification" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/notifications"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Manage Notifications
-      </Link>
-    ),
-  },
-  {
-    key: 'searches',
-    icon: <img src={searchesIcon} alt="Searches" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/searches"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Saved Searches
-      </Link>
-    ),
-  },
-  {
-    key: 'payments',
-    icon: <img src={paymentIcon} alt="Payment" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/payments"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Payments
-      </Link>
-    ),
-  },
-  {
-    key: 'blocked',
-    icon: <img src={blockIcon} alt="Block" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/blocked"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Blocked users
-      </Link>
-    ),
-  },
-  {
-    key: 'dashboard',
-    icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/dashboard"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Dealership Dashboard
-      </Link>
-    ),
-  },
-  {
-    key: 'favorites',
-    icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,
-    label: (
-      <Link
-        to="/myProfile/favorites"
-        style={{
-          fontSize: '12px',
-          fontWeight: 400,
-          color: '#0A0A0B',
-        }}
-      >
-        Favorites
-      </Link>
-    ),
-  },
-   {
-    key: 'whatsapp',
-    icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
-    label: (
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>WhatsApp</span>
-        <Switch size="small" />
-      </div>
-    ),
-  },
 
-];
-
-const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
-  { key: 'delete', icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />, label: 'Delete Account' },
-];
 
 const MyProfile = () => {
   const location = useLocation();
@@ -239,12 +62,81 @@ const MyProfile = () => {
   const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
+  const [whatsappNotification, setWhatsappNotification] = useState(false);
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const { customerDetails } = useSelector((state) => state.customerDetails);
+   const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
+   const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
+   const [selectedManageKey, setSelectedManageKey] = useState(null);
 
-    useEffect(() => {
+
+   const manageItems = [
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+   {
+      key: 'delete',
+      icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
+      label: 'Delete Account',
+      disabled: isDeleteDisabled, 
+    },
+];
+
+ useEffect(() => {
+    
+    const timer = setTimeout(() => {
+      setIsDeleteDisabled(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await userAPI.getProfile({});
+        const profileData = handleApiResponse(response);
+
+        if (profileData) {
+          setWhatsappNotification(profileData?.data?.whatsapp);
+          
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile data:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  const handleWhatsappToggle = async (checked) => {
+    try {
+      setWhatsappLoading(true);
+            const whatsappValue = checked ? '1' : '0';
+            const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
+      const result = handleApiResponse(response);
+      
+      if (result) {
+        setWhatsappNotification(checked);
+        messageApi.open({
+          type: 'success',
+          content: 'WhatsApp notification preference updated successfully!',
+        });
+      }
+    } catch (error) {
+      setWhatsappNotification(!checked);
+      const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData?.message || 'Failed to update WhatsApp preference',
+      });
+    } finally {
+      setWhatsappLoading(false);
+    }
+  };
+
+  useEffect(() => {
       const fromLogin = localStorage.getItem('fromLogin');
       const now = Date.now();
   
@@ -305,6 +197,7 @@ const MyProfile = () => {
             type: 'success',
             content: data1?.message,
           });
+           navigate('/deleteaccount-otp')
         }
       } catch (error) {
         setDeleteData([])
@@ -364,50 +257,64 @@ const MyProfile = () => {
       };
 
      const handleOTPDelete = async () => {
-      if (!validateOtp()) {
-        return;
-      }
-    
-      try {
-        setLoading(true);
-        const otpDigits = otp.join(''); 
-        const requestId = localStorage.getItem('requestId');
-    
-        const otpPayload = {
-          otp: otpDigits,
-          request_id:requestId,
-        };
-    
-        const result = await userAPI.getDeleteOtp(otpPayload);
-  const data1 = handleApiResponse(result);
-    
-        if (data1?.status_code === 200) {
-           localStorage.clear();
-    dispatch(clearCustomerDetails());
-    dispatch({ type: 'CLEAR_USER_DATA' });
-    
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
-    
-        setTimeout(() => {
-    navigate('/');
-  }, 1000);
-        } else {
-          messageApi.open({
-            type: 'error',
-            content: data1?.error,
-          });
-         
-        }
-      } catch (err) {
-        message.error('OTP verification failed. Please try again.');
-        console.log('Verify otp failed2', error);
-      } finally {
-        setLoading(false);
-      }
+  if (!validateOtp()) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const otpDigits = otp.join('');
+    const requestId = localStorage.getItem('requestId');
+
+    const otpPayload = {
+      otp: otpDigits,
+      request_id: requestId,
     };
+
+    const result = await userAPI.getDeleteOtp(otpPayload);
+    const data1 = handleApiResponse(result);
+
+    if (data1?.status_code === 200) {
+     setIsDeleteContinueDisabled(true);
+      await messageApi.open({
+        type: 'success',
+        content: data1?.message,
+        duration: 1, 
+      });
+      localStorage.clear();
+      dispatch(clearCustomerDetails());
+      dispatch({ type: 'CLEAR_USER_DATA' });
+      navigate('/');
+    } else {
+      setIsDeleteContinueDisabled(false);
+      messageApi.open({
+        type: 'error',
+        content: data1?.error,
+      });
+    }
+  } catch (err) {
+    console.error('OTP Delete Error:', err);
+
+    let errorMessage = 'Something went wrong!';
+    if (err?.response?.data?.error) {
+      
+      errorMessage = err.response.data.error;
+    } else if (err.message) {
+      
+      errorMessage = err.message;
+    }
+
+    setIsDeleteContinueDisabled(false);
+    messageApi.open({
+      type: 'error',
+      content: errorMessage,
+    });
+  } finally {
+    setIsDeleteContinueDisabled(false);
+    setLoading(false);
+  }
+};
+
       
       const handleResend = async () => {
         if (!isTimerRunning) {
@@ -466,11 +373,189 @@ const MyProfile = () => {
       }
     };
 
+    const menuItems = [
+      {
+        key: 'Personal Informations',
+        label: (
+          <Link
+            to="/myProfile"
+            style={{
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#0A0A0B',
+            }}
+          >
+            {' '}
+            Personal Informations
+          </Link>
+        ),
+      },
+      {
+        key: 'profile',
+        icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Profile
+          </Link>
+        ),
+      },
+      {
+        key: 'subscriptions',
+        icon: <img src={subsriptionIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/subscriptions"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Subscriptions
+          </Link>
+        ),
+      },
+      {
+        key: 'messages',
+        icon: <img src={messageIcon} alt="Message" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/messages"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Messages
+          </Link>
+        ),
+      },
+      {
+        key: 'notifications',
+        icon: <img src={notificationIcon} alt="Notification" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/notifications"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Manage Notifications
+          </Link>
+        ),
+      },
+      {
+        key: 'searches',
+        icon: <img src={searchesIcon} alt="Searches" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/searches"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Saved Searches
+          </Link>
+        ),
+      },
+      {
+        key: 'payments',
+        icon: <img src={paymentIcon} alt="Payment" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/payments"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Payments
+          </Link>
+        ),
+      },
+      {
+        key: 'blocked',
+        icon: <img src={blockIcon} alt="Block" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/blocked"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Blocked users
+          </Link>
+        ),
+      },
+      {
+        key: 'dashboard',
+        icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/dashboard"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Dealership Dashboard
+          </Link>
+        ),
+      },
+      {
+        key: 'favorites',
+        icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,
+        label: (
+          <Link
+            to="/myProfile/favorites"
+            style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              color: '#0A0A0B',
+            }}
+          >
+            Favorites
+          </Link>
+        ),
+      },
+       {
+        key: 'whatsapp',
+        icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>WhatsApp</span>
+            <Switch 
+              size="small" 
+              checked={whatsappNotification}
+              onChange={handleWhatsappToggle}
+              loading={whatsappLoading}
+            />
+          </div>
+        ),
+      },
+    ];
+
     return (
     <>
     <div className="page-header">
                   {contextHolder}
-                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>Sell Your Car In IRAQ</div>
+                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>My Profile</div>
                   <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
      </div>
       <Layout style={{ background: '#fff' }}>
@@ -517,9 +602,9 @@ const MyProfile = () => {
               mode="inline"
               style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
               items={manageItems}
-              onClick={({ key }) => {
+             onClick={({ key }) => {
                 if (key === 'logout') setLogoutModalOpen(true);
-                if (key === 'delete') setDeleteModalOpen(true);
+                if (key === 'delete' && !isDeleteDisabled) setDeleteModalOpen(true); // Only open modal if not disabled
               }}
             />
           </div>
@@ -630,6 +715,7 @@ const MyProfile = () => {
     setTimer(30);
     setIsTimerRunning(false);
            setShowOtpStep(false);
+           setIsDeleteDisabled(false);
         }}
          style={{
               width: 120,
@@ -647,13 +733,18 @@ const MyProfile = () => {
       </button>
 
       <button
-        className="otp-btn otp-btn-filled"
-        type="button"
-        onClick={handleOTPDelete}
-        style={{height: 35}}
-      >
-        Continue
-      </button>
+  className="otp-btn otp-btn-filled"
+  type="button"
+  onClick={() => {
+    setIsDeleteContinueDisabled(true); // Disable immediately
+    handleOTPDelete();                 // Then run delete logic
+  }}
+  disabled={isDeleteContinueDisabled}  // Button respects state
+  style={{ height: 35 }}
+>
+  {isDeleteContinueDisabled ? 'Continue' : 'Continue'}
+</button>
+
     </div>
      
     
@@ -724,7 +815,10 @@ const MyProfile = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
           <Button
-            onClick={() => setDeleteModalOpen(false)}
+             onClick={() => {
+              setDeleteModalOpen(false);
+              setIsDeleteDisabled(false);
+            }}
             style={{
               width: 120,
               backgroundColor: '#ffffff',
@@ -742,10 +836,12 @@ const MyProfile = () => {
             type="primary"
             onClick={() => {
               setDeleteModalOpen(false);
-              setShowOtpStep(true); 
+              setIsDeleteDisabled(true);
+              // setShowOtpStep(true); 
               setTimer(30);
               setIsTimerRunning(true);
               handleDelete();
+             
             }}
             style={{
               width: 120,

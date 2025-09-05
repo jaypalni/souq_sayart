@@ -21,12 +21,14 @@ import {
   Modal,
 } from 'antd';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { registerUser } from '../redux/actions/authActions';
 import whatsappIcon from '../assets/images/Whatsup.svg';
 import TermsAndconditions from './termsAndconditions';
+import dayjs from 'dayjs';
+
+
 
 const { Title, Text } = Typography;
 
@@ -43,19 +45,17 @@ const CreateProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
   const [messageApi, contextHolder] = message.useMessage();
-
-  const { customerDetails } = useSelector((state) => state.customerDetails);
-  const isLoggedIn = customerDetails?.first_name;
+   const { customerDetails } = useSelector((state) => state.customerDetails);
+  const isLoggedIn = customerDetails;
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (isLoggedIn) {
       navigate('/landing');
     }
   }, []);
-
   useEffect(() => {
     const accesstoken = localStorage.getItem('token');
-
     if (
       accesstoken === 'undefined' ||
       accesstoken === '' ||
@@ -87,100 +87,117 @@ const CreateProfile = () => {
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+  const file = e.target.files[0];
 
-    if (!file) {
-      return;
-    }
+  if (!file) return;
 
-    const isPDF = file.type === 'application/pdf';
+  const isPDF = file.type === 'application/pdf';
+  if (!isPDF) {
+    messageApi.open({
+      type: 'error',
+      content: 'Upload failed. Only .pdf documents are allowed.',
+    });
+    return;
+  }
 
-    if (!isPDF) {
-      messageApi.open({
-        type: 'error',
-        content: 'Upload failed. Only .pdf documents are allowed.',
-      });
-      return;
-    }
+  const isLt10M = file.size / 1024 / 1024 <= 10;
+  if (!isLt10M) {
+    messageApi.open({
+      type: 'error',
+      content: 'Document must be smaller than 10 MB.',
+    });
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const formData = new FormData();
-      formData.append('attachment', file);
-
-      const carResponse = await authAPI.uploadimages(formData);
-      const userdoc = handleApiResponse(carResponse);
-
-      if (userdoc?.attachment_url) {
-        setUploadedDocUrl(userdoc.attachment_url);
-        form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
-        messageApi.open({
-          type: 'success',
-          content: userdoc.message,
-        });
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBeforeUpload = async (file) => {
-    const isImage =
-      file.type === 'image/png' ||
-      file.type === 'image/jpeg' ||
-      file.type === 'image/jpg';
-
-    if (!isImage) {
-      messageApi.open({
-        type: 'error',
-        content:
-          'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
-      });
-      return Upload.LIST_IGNORE;
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    setImageUrl(previewUrl);
     const formData = new FormData();
     formData.append('attachment', file);
 
-    try {
-      const response = await authAPI.uploadimages(formData);
-      const userdoc = handleApiResponse(response);
+    const carResponse = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(carResponse);
 
-      if (userdoc?.attachment_url) {
-        setImageUrl(userdoc.attachment_url);
-        messageApi.open({
-          type: 'success',
-          content: userdoc.message,
-        });
-        return Upload.LIST_IGNORE; 
-      } else {
-        message.error(userdoc.message || 'Upload failed');
-        return Upload.LIST_IGNORE;
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
+    if (userdoc?.attachment_url) {
+      setUploadedDocUrl(userdoc.attachment_url);
+      form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
       messageApi.open({
-        type: 'error',
-        content: errorData.message,
+        type: 'success',
+        content: userdoc.message,
       });
-      message.error('Upload failed due to network error');
-      return Upload.LIST_IGNORE; 
     }
-  };
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleBeforeUpload = async (file) => {
+  const isImage =
+    file.type === 'image/png' ||
+    file.type === 'image/jpeg' ||
+    file.type === 'image/jpg';
+
+  if (!isImage) {
+    messageApi.open({
+      type: 'error',
+      content:
+        'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
+    });
+    return Upload.LIST_IGNORE;
+  }
+
+  const isLt5M = file.size / 1024 / 1024 <= 5;
+  if (!isLt5M) {
+    messageApi.open({
+      type: 'error',
+      content: 'Profile image must be smaller than 5 MB.',
+    });
+    return Upload.LIST_IGNORE;
+  }
+
+  const previewUrl = URL.createObjectURL(file);
+  setImageUrl(previewUrl);
+
+  const formData = new FormData();
+  formData.append('attachment', file);
+
+  try {
+    const response = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(response);
+
+    if (userdoc?.attachment_url) {
+      setImageUrl(userdoc.attachment_url);
+      messageApi.open({
+        type: 'success',
+        content: userdoc.message,
+      });
+      return Upload.LIST_IGNORE; 
+    } else {
+      message.error(userdoc.message || 'Upload failed');
+      return Upload.LIST_IGNORE;
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+    return Upload.LIST_IGNORE;
+  }
+};
+
 
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
     const errorMessage = dobErr ? dobErr.errors[0] : undefined;
-    setDobError(errorMessage);
+    // setDobError(errorMessage);
     return errorMessage;
   };
 
@@ -194,7 +211,7 @@ const CreateProfile = () => {
     if (imageUrl) {
       return (
         <img
-          src={imageUrl}
+          src={`${BASE_URL}${imageUrl}`}
           alt="avatar"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
@@ -362,6 +379,11 @@ const CreateProfile = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           initialValues={{ isDealer: false }}
+          onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  }}
         >
           <div className="row g-3">
             <div className="col-md-6">
@@ -377,7 +399,7 @@ const CreateProfile = () => {
                 rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[A-Za-z]+$/,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'First name should contain only letters',
                   },
                   {
@@ -397,14 +419,14 @@ const CreateProfile = () => {
                   <span
                     style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
-                    First Name<span style={{ color: '#637D92' }}>*</span>
+                    Last Name<span style={{ color: '#637D92' }}>*</span>
                   </span>
                 }
                 name="lastName"
                 rules={[
                   { required: true, message: 'Last name is required' },
                   {
-                    pattern: /^[A-Za-z]+$/,
+                    pattern: /^[a-zA-Z]+$/,
                     message: 'Last name should contain only letters',
                   },
                   {
@@ -431,46 +453,94 @@ const CreateProfile = () => {
                 }
                 name="email"
                 required={false}
+                 rules={[
+                    {
+                      type: 'email',
+                      message: 'Please enter a valid email address',
+                      validator: (_, value) => {
+                        if (!value || value?.trim() === '') {
+                          return Promise.resolve();
+                        }
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(value)
+                          ? Promise.resolve()
+                          : Promise.reject('Please enter a valid email address');
+                      },
+                    },
+                  ]}
               >
                 <Input placeholder="Email" size="middle" />
               </Form.Item>
             </div>
             <div className="col-md-6">
-              <Form.Item
-                label={
-                  <span
-                    style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
-                  >
-                    Date Of Birth*
-                  </span>
-                }
-                name="dob"
-                rules={[
-                  {
-                    required: true,
-                    message: 'this field is mandatory please fill it',
-                  },
-                ]}
-                required={false}
-                validateStatus={dobError ? 'error' : undefined}
-                help={dobError || undefined}
-              >
-                <DatePicker
-                  style={{
-                    width: '100%',
-                    borderColor: dobError && '#ff4d4f',
-                  }}
-                  format="DD / MM / YYYY"
-                  placeholder="DD / MM / YYYY"
-                  size="middle"
-                  disabledDate={(current) =>
-                    current && current > moment().endOf('day')
-                  }
-                  inputReadOnly={true}
-                />
-              </Form.Item>
+             <Form.Item
+  label={
+    <span style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}>
+      Date Of Birth*
+    </span>
+  }
+  name="dob"
+  rules={[
+    {
+      required: true,
+      message: 'This field is mandatory, please fill it',
+    },
+  ]}
+  required={false}
+  validateStatus={dobError ? 'error' : undefined}
+  help={dobError || undefined}
+>
+  <DatePicker
+  style={{
+    width: '100%',
+    borderColor: dobError && '#ff4d4f',
+  }}
+  format="DD/MM/YYYY"
+  placeholder="DD / MM / YYYY"
+  size="middle"
+  disabledDate={(current) =>
+    current && current > dayjs().endOf('day')
+  }
+  allowClear
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); 
+    }
+  }}
+/>
+
+</Form.Item>
             </div>
           </div>
+          <div className="row g-3">
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                     padding: 20,
+                  }}
+                >
+                  <span
+                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
+                  >
+                    <img
+                      src={whatsappIcon}
+                      alt="Whatsapp Icon"
+                      style={{ width: 18, height: 18, marginRight: 5 }}
+                    />
+                    {' '}
+                    Whatsapp
+                  </span>
+
+                  <Switch
+  checked={checked}
+  onChange={handleChange}
+  style={switchStyle}
+                  />
+                </div>
+              </div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Form.Item
               label={
@@ -536,6 +606,10 @@ const CreateProfile = () => {
                         required: isDealer,
                         message: 'Company name is required',
                       },
+                       {
+                    max: 100,
+                    message: 'Company name cannot exceed 100 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -558,6 +632,10 @@ const CreateProfile = () => {
                     name="ownerName"
                     rules={[
                       { required: isDealer, message: 'Owner name is required' },
+                      {
+                    max: 100,
+                    message: 'Owner name cannot exceed 100 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -585,6 +663,10 @@ const CreateProfile = () => {
                         required: isDealer,
                         message: 'Company address is required',
                       },
+                      {
+                    max: 500,
+                    message: 'Company Address cannot exceed 500 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -606,6 +688,7 @@ const CreateProfile = () => {
                     }
                     name="phoneNumber"
                     rules={[
+                      
                       {
                         required: isDealer,
                         message: 'Phone number is required',
@@ -638,6 +721,10 @@ const CreateProfile = () => {
                     name="companyCR"
                     rules={[
                       { required: isDealer, message: 'CR number is required' },
+                       {
+                    max: 100,
+                    message: 'Company CR Number cannot exceed 100 characters',
+                  },
                     ]}
                     required={false}
                   >
@@ -658,9 +745,22 @@ const CreateProfile = () => {
                       </span>
                     }
                     name="facebookPage"
+                    rules={[
+    {
+      validator: (_, value) => {
+        if (!value || value.trim() === '') {
+          return Promise.resolve(); 
+        }
+        if (!value.includes('facebook.com')) {
+          return Promise.reject(new Error('URL must contain facebook.com'));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
                     required={false}
                   >
-                    <Input placeholder="Name" size="middle" />{' '}
+                    <Input placeholder="Name" size="middle" />
                   </Form.Item>
                 </div>
               </div>
@@ -679,64 +779,56 @@ const CreateProfile = () => {
                       </span>
                     }
                     name="instagramProfile"
+                     rules={[
+    {
+      validator: (_, value) => {
+        if (!value || value.trim() === '') {
+          return Promise.resolve(); 
+        }
+        if (!value.includes('instagram.com')) {
+          return Promise.reject(new Error('URL must contain instagram.com'));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
                     required={false}
                   >
-                    <Input placeholder="Name" size="middle" />{' '}
+                    <Input placeholder="Name" size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
                   <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontWeight: 400,
-                          color: '#637D92',
-                          fontSize: 12,
-                        }}
-                      >
-                        Upload Documents
-                      </span>
-                    }
-                    name="uploadDocuments"
-                    required={false}
-                  >
-                    <Input
-                      type="file"
-                      placeholder="Documents"
-                      size="middle"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      accept=".pdf"
-                    />{' '}
-                  </Form.Item>
-                </div>
-              </div>
-              <div className="row g-3">
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    width: '100%',
-                  }}
-                >
-                  <span
-                    style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
-                  >
-                    <img
-                      src={whatsappIcon}
-                      alt="Whatsapp Icon"
-                      style={{ width: 18, height: 18, marginRight: 5 }}
-                    />
-                    {' '}
-                    Whatsapp
-                  </span>
+  label={
+    <span
+      style={{
+        fontWeight: 400,
+        color: '#637D92',
+        fontSize: 12,
+      }}
+    >
+      Upload Documents*
+    </span>
+  }
+  name="uploadDocuments"
+  rules={[
+    {
+      required: isDealer,
+      message: 'Please upload your company documents',
+    },
+  ]}
+  required={false}
+>
+  <Input
+    type="file"
+    placeholder="Documents"
+    size="middle"
+    ref={fileInputRef}
+    onChange={handleFileChange}
+    accept=".pdf"
+  />
+</Form.Item>
 
-                  <Switch
-  checked={checked}
-  onChange={handleChange}
-  style={switchStyle}
-                  />
                 </div>
               </div>
             </>

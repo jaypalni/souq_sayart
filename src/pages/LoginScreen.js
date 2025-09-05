@@ -1,192 +1,216 @@
-/*
- * Copyright (c) 2025 Palni. All rights reserved.
- * This file is part of the ss-frontend project.
- * Unauthorized copying, modification, or distribution of this file,
- * via any medium is strictly prohibited unless explicitly authorized.
- */
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import '../assets/styles/loginScreen.css';
 import ReCAPTCHA from 'react-google-recaptcha';
-
-const CACHE_KEY = 'geoDataCache';
-const MAX_AGE_MS = 24 * 60 * 60 * 1000;
-const INDIA_TZ_OFFSET_MINUTES = -330;
+// import socket from '../socket';
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
+  const [phonevalidation, setPhoneValidation] = useState('');
   const [countryOptions, setCountryOptions] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [emailerrormsg, setEmailErrorMsg] = useState('');
   const [captchaerrormsg, setCaptchaErrorMsg] = useState('');
-  const { user } = useSelector((state) => state.auth);
-  const { customerDetails } = useSelector((state) => state.customerDetails);
-
-  const isLoggedIn = Boolean(customerDetails && user);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/landing');
-    }
-  }, [isLoggedIn, navigate]);
+  const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const response = await authAPI.countrycode();
         const data = handleApiResponse(response);
+        if (data && data.length > 0) {
+          setCountryOptions(data);
+          const getGeoData = async () => {
+            try {
+              const cacheKey = 'geoDataCache';
+              const cached = localStorage.getItem(cacheKey);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                const maxAgeMs = 24 * 60 * 60 * 1000;
+                if (
+                  parsed?.ts &&
+                  Date.now() - parsed.ts < maxAgeMs &&
+                  parsed?.data
+                ) {
+                  return parsed.data;
+                }
+              }
 
-        if (!data || data.length === 0) {
-          return;
+              const geoRes = await fetch('https://ipapi.co/json/');
+              if (!geoRes.ok)
+                throw new Error(`Geo API error: ${geoRes.status}`);
+              const geoData = await geoRes.json();
+              localStorage.setItem(
+                cacheKey,
+                JSON.stringify({ ts: Date.now(), data: geoData })
+              );
+              return geoData;
+            } catch (err) {
+              return null;
+            }
+          };
+
+          const geoData = await getGeoData();
+          let defaultCountry = null;
+          if (geoData) {
+            const userCountryCode = geoData.country_calling_code;
+            defaultCountry = data.find(
+              (country) =>
+                country.country_code === userCountryCode ||
+                country.country_name?.toLowerCase() ===
+                  geoData.country_name?.toLowerCase()
+            );
+          }
+
+          if (!defaultCountry) {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const tzLower = tz ? tz.toLowerCase() : '';
+            const tzOffset = new Date().getTimezoneOffset();
+            const langs = [
+              navigator.language,
+              ...(navigator.languages || []),
+            ].filter(Boolean);
+            const isIndiaLocale =
+              tzLower === 'asia/kolkata' ||
+              tzLower === 'asia/calcutta' ||
+              tzOffset === -330 ||
+              langs.some((l) => {
+                const ll = String(l).toLowerCase();
+                return (
+                  ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in')
+                );
+              });
+            if (isIndiaLocale) {
+              defaultCountry =
+                data.find((c) => c.country_code === '+91') ||
+                data.find((c) => c.country_name?.toLowerCase() === 'india') ||
+                null;
+            }
+          }
+
+          if (!defaultCountry) {
+            defaultCountry = data[0];
+          }
+
+          if (defaultCountry) {
+            setSelectedCountry(defaultCountry);
+          }
         }
-
-        setCountryOptions(data);
-
-        const geoData = await getGeoData();
-        const defaultCountry = getDefaultCountry(data, geoData);
-        setSelectedCountry(defaultCountry || data[0]);
-      } catch {
-        // Ignore API errors silently
+      } catch (error) {
+        console.error('Failed to fetch countries', error);
       }
     };
-
     fetchCountries();
   }, []);
-
-  const getGeoData = async () => {
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed?.ts && Date.now() - parsed.ts < MAX_AGE_MS && parsed?.data) {
-          return parsed.data;
-        }
-      }
-
-      const geoRes = await fetch('https://ipapi.co/json/');
-      if (!geoRes.ok) {
-        throw new Error(`Geo API error: ${geoRes.status}`);
-      }
-      const geoData = await geoRes.json();
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: geoData }));
-      return geoData;
-    } catch {
-      return null;
-    }
-  };
-
-  const getDefaultCountry = (data, geoData) => {
-    if (geoData) {
-      const userCountryCode = geoData.country_calling_code;
-      const match = data.find(
-        (country) =>
-          country.country_code === userCountryCode ||
-          country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase(),
-      );
-      if (match) {
-        return match;
-      }
-    }
-
-    if (isIndiaLocale()) {
-      return (
-        data.find((c) => c.country_code === '+91') ||
-        data.find((c) => c.country_name?.toLowerCase() === 'india')
-      );
-    }
-
-    return null;
-  };
-
-  const isIndiaLocale = () => {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-    const tzLower = tz.toLowerCase();
-    const tzOffset = new Date().getTimezoneOffset();
-    const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
-
-    return (
-      tzLower === 'asia/kolkata' ||
-      tzLower === 'asia/calcutta' ||
-      tzOffset === INDIA_TZ_OFFSET_MINUTES ||
-      langs.some((l) => String(l).toLowerCase().includes('-in'))
-    );
-  };
 
   const handlePhoneChange = (e) => {
     const numb = e.target.value;
     setEmailErrorMsg('');
 
-    if (!/^\d*$/.test(numb)) {
-      return;
-    }
+    if (/^\d*$/.test(numb)) {
+      setPhone(numb);
 
-    setPhone(numb);
+      if (numb.length > 0) {
+        setPhoneValidation('Phone number is required!');
+      } else {
+        setPhoneValidation('');
+      }
+    }
   };
 
+  // const [msg, setMsg] = useState('');
+
+  // useEffect(() => {
+  //   socket.on('connect', () => {
+  //     console.log('Connected to WebSocket');
+  //   });
+
+  //   socket.on('newMessage', (data) => {
+  //     console.log('New message:', data);
+  //     setMsg(data);
+  //   });
+
+  //   return () => {
+  //     socket.off('newMessage');
+  //   };
+  // }, []);
+
   const handleCaptchaChange = (value) => {
-    setVerified(Boolean(value));
+    console.log('Captcha value:', value);
+    setVerified(!!value);
     setCaptchaErrorMsg('');
   };
 
   const onClickContinue = async () => {
+    console.log('continue');
     if (phone === '') {
       setEmailErrorMsg('Phone number is required!');
-      return;
-    }
-
-    if (!verified) {
+    } else if (verified == false) {
       setCaptchaErrorMsg('Captcha is required!');
-      return;
-    }
+    } else {
+      try {
+        console.log('Captcha', verified);
+        console.log(selectedCountry, phone);
+        setLoading(true);
 
-    try {
-      setLoading(true);
-      const savePhone = `${selectedCountry.country_code}${phone}`;
-      localStorage.setItem('phonenumber', savePhone);
+        const response = await authAPI.login({
+          captcha_token: verified,
+          phone_number: `${selectedCountry.country_code}${phone}`,
+        });
+        const savephonenumber = `${selectedCountry.country_code}${phone}`;
+        localStorage.setItem('phonenumber', savephonenumber);
 
-      const response = await authAPI.login({
-        captcha_token: verified,
-        phone_number: savePhone,
-      });
+        const data = handleApiResponse(response);
+        if (data) {
+          localStorage.setItem('token', data.access_token);
+          localStorage.setItem('requestid', data.request_id);
+          localStorage.setItem(
+            'phone_number',
+            `${selectedCountry.country_code}${phone}`
+          );
 
-      const data = handleApiResponse(response);
-      if (data) {
-        persistLoginData(data, savePhone);
-        messageApi.open({ type: 'success', content: data.message });
-        navigate('/verifyOtp');
+          if (data) {
+            localStorage.setItem('userData', JSON.stringify(data));
+          }
+
+          messageApi.open({
+            type: 'success',
+            content: data.message,
+          });
+          navigate('/verifyOtp');
+        }
+      } catch (error) {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'success',
+          content: errorData.error,
+        });
+        messageApi.error(
+          errorData.message || 'Login failed. Please try again.'
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({ type: 'error', content: errorData.message });
-    } finally {
-      setLoading(false);
     }
   };
-
-  const persistLoginData = (data, phoneNumber) => {
-    localStorage.setItem('token', data.access_token);
-    localStorage.setItem('requestid', data.request_id);
-    localStorage.setItem('phone_number', phoneNumber);
-    localStorage.setItem('userData', JSON.stringify(data));
-    localStorage.setItem('fromLogin', 'true');
-  };
-
   return (
     <div
       style={{ minHeight: '50vh', display: 'flex', flexDirection: 'column' }}
     >
       {contextHolder}
+      {/* Header */}
+
+      {/* Login Form */}
       <div
         style={{
           flex: 1,
@@ -221,6 +245,7 @@ const LoginScreen = () => {
             Enter Your Phone Number to login to our app
           </p>
           <div style={{ margin: '20px 0' }}>
+            {/* Single label for both fields */}
             <label
               style={{
                 display: 'block',
@@ -230,14 +255,13 @@ const LoginScreen = () => {
                 textAlign: 'left',
                 fontSize: 12,
               }}
-              htmlFor="phone-input"
             >
               Enter Your Phone Number
             </label>
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
+              {/* Country code dropdown */}
               <div style={{ position: 'relative', width: 102, height: 52 }}>
-                <button
-                  type="button"
+                <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -245,19 +269,14 @@ const LoginScreen = () => {
                     borderRadius: 8,
                     padding: '8px 12px',
                     background: '#E7EBEF',
-                    border: 'none',
-                    width: '100%',
-                    height: '100%',
                   }}
-                  aria-expanded={dropdownOpen}
-                  aria-controls="country-menu"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
                   {selectedCountry && (
                     <>
                       <img
-                        src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
-                        alt="flag"
+                        src={`${BASE_URL}${selectedCountry.country_flag_image}`}
+                        alt='flag'
                         style={{ width: 20, height: 14, marginRight: 6 }}
                       />
                       <span style={{ fontSize: 16 }}>
@@ -265,10 +284,9 @@ const LoginScreen = () => {
                       </span>
                     </>
                   )}
-                </button>
+                </div>
                 {dropdownOpen && (
                   <div
-                    id="country-menu"
                     style={{
                       position: 'absolute',
                       top: 42,
@@ -281,18 +299,13 @@ const LoginScreen = () => {
                     }}
                   >
                     {countryOptions.map((country) => (
-                      <button
-                        type="button"
+                      <div
                         key={country.id}
                         style={{
                           padding: '6px 12px',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
-                          width: '100%',
-                          background: 'transparent',
-                          border: 'none',
-                          textAlign: 'left',
                         }}
                         onClick={() => {
                           setSelectedCountry(country);
@@ -300,40 +313,41 @@ const LoginScreen = () => {
                         }}
                       >
                         <img
-                          src={`http://192.168.2.72:5001${country.country_flag_image}`}
-                          alt="flag"
+                        
+                          src={`${BASE_URL}${country.country_flag_image}`}
+                          alt='flag'
                           style={{ width: 20, height: 14, marginRight: 6 }}
                         />
                         <span style={{ fontSize: 15 }}>
                           {country.country_code}
                         </span>
-                      </button>
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
+              {/* Phone number input */}
               <input
-                className="login-box"
-                type="tel"
-                placeholder="Enter phone number"
+                className='login-box'
+                type='tel'
+                placeholder='Enter phone number'
                 value={phone}
                 onChange={handlePhoneChange}
-                id="phone-input"
               />
             </div>
 
-            <div className="emailerror-msg" style={{ marginLeft: 110 }}>
+            <div className='emailerror-msg' style={{ marginLeft: 110 }}>
               {emailerrormsg}
             </div>
           </div>
           <div style={{ margin: '10px 0px 10px 20px' }}>
             <ReCAPTCHA
-              sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+              sitekey='6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
               onChange={handleCaptchaChange}
             />
           </div>
           <div
-            className="emailerror-msg"
+            className='emailerror-msg'
             style={{ marginLeft: 10, marginBottom: 10 }}
           >
             {captchaerrormsg}
@@ -354,7 +368,6 @@ const LoginScreen = () => {
               }}
               onClick={() => {
                 dispatch({ type: 'SET_LOGIN', payload: false });
-                localStorage.setItem('isGuest', 'true');
                 navigate('/landing');
               }}
             >
@@ -362,19 +375,21 @@ const LoginScreen = () => {
             </button>
             <button
               style={{
-                background: '#0090d4',
+                background: loading ? '#ccc' : '#0090d4',
                 color: '#fff',
                 border: 'none',
                 borderRadius: 20,
                 padding: '2px 52px',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontSize: 14,
+                opacity: loading ? 0.7 : 1,
               }}
               onClick={() => onClickContinue()}
+              disabled={loading}
             >
-              Continue
+              {loading ? 'Loading' : 'Continue'}
             </button>
           </div>
         </div>

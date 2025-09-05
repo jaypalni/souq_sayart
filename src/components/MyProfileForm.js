@@ -7,22 +7,22 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Button, Radio, Row, Col, message, Upload, Switch, DatePicker } from 'antd';
+import { Form, Input, Button, Radio, Row, Col, message, Upload, DatePicker } from 'antd';
 
 import {
   EditOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { userAPI, authAPI } from '../services/api';
-import whatsappIcon from '../assets/images/Whatsup.svg';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/model.css';
 import dayjs from 'dayjs';
 import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
+import { AiOutlineLeft } from 'react-icons/ai';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { updateCustomerDetails } from '../redux/actions/authActions';
 
 const YES = 'yes';
 const NO = 'no';
@@ -104,349 +104,7 @@ const toWhatsappFlag = (whatsappChecked) => {
   return whatsappChecked ? '1' : '0';
 };
 
-// Extracted PhoneChangeForm component
-const PhoneChangeForm = ({ 
-  phone, 
-  setPhone, 
-  selectedCountry, 
-  setSelectedCountry, 
-  countryOptions, 
-  setCountryOptions, 
-  dropdownOpen, 
-  setDropdownOpen, 
-  emailerrormsg, 
-  checked, 
-  whatsapphandleChange, 
-  switchStyle, 
-  onContinue, 
-  handlePhoneChange 
-}) => {
-  return (
-    <div
-      style={{
-        flex: 1,
-        background: '#fff',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '12px 0',
-      }}
-    >
-      <div
-        style={{
-          width: 400,
-          background: '#fff',
-          borderRadius: 8,
-          textAlign: 'left',
-          marginLeft: -530,
-        }}
-      >
-        <p style={{ color: '#0A0A0B', fontSize: 14, fontFamily: 'Roboto' }}>
-         Enter Your New Phone Number to change
-        </p>
-        <div style={{ margin: '20px 0' }}>
-          <label
-            style={{
-              display: 'block',
-              marginBottom: 6,
-              fontWeight: 500,
-              color: '#637D92',
-              textAlign: 'left',
-              fontSize: 12,
-            }}
-            htmlFor="phone-input"
-          >
-            Enter Your Phone Number
-          </label>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ position: 'relative', width: 100, height: 57 }}>
-              <button
-                type="button"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  borderRadius: 8,
-                  padding: '8px 12px',
-                  background: '#E7EBEF',
-                  border: 'none',
-                  width: '80%',
-                  height: '80%',
-                }}
-                aria-expanded={dropdownOpen}
-                aria-controls="country-menu"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {selectedCountry && (
-                  <>
-                    <img
-                      src={`http://192.168.2.72:5001${selectedCountry.country_flag_image}`}
-                      alt="flag"
-                      style={{ width: 20, height: 14, marginRight: 6 }}
-                    />
-                    <span style={{ fontSize: 16 }}>
-                      {selectedCountry.country_code}
-                    </span>
-                  </>
-                )}
-              </button>
-              {dropdownOpen && (
-                <div
-                  id="country-menu"
-                  style={{
-                    position: 'absolute',
-                    top: 42,
-                    left: 0,
-                    background: '#fff',
-                    border: '1px solid #ccc',
-                    borderRadius: 4,
-                    zIndex: 10,
-                    minWidth: 120,
-                  }}
-                >
-                  {countryOptions.map((country) => (
-                    <button
-                      type="button"
-                      key={country.id}
-                      style={{
-                        padding: '6px 12px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: '100%',
-                        background: 'transparent',
-                        border: 'none',
-                        textAlign: 'left',
-                      }}
-                      onClick={() => {
-                        setSelectedCountry(country);
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      <img
-                        src={`http://192.168.2.72:5001${country.country_flag_image}`}
-                        alt="flag"
-                        style={{ width: 20, height: 14, marginRight: 6 }}
-                      />
-                      <span style={{ fontSize: 15 }}>
-                        {country.country_code}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <input
-              className="login-box"
-              type="tel"
-              placeholder="Enter phone number"
-              value={phone}
-              onChange={handlePhoneChange}
-              id="phone-input"
-            />
-          </div>
 
-          <div className="emailerror-msg" style={{ marginLeft: 110 }}>
-            {emailerrormsg}
-          </div>
-        </div>
-        <div style={{marginBottom: 12}}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
-                <span
-                  style={{ fontWeight: 700, color: '#0A0A0B', fontSize: 13 }}
-                >
-                  <img
-                    src={whatsappIcon}
-                    alt="Whatsapp Icon"
-                    style={{ width: 18, height: 18, marginRight: 5 }}
-                  />
-                  {' '}
-                  Whatsapp
-                </span>
-
-                <Switch
-                  checked={checked}
-                  onChange={whatsapphandleChange}
-                  style={switchStyle}
-                />
-              </div>
-            </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            style={{
-              background: '#0090d4',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 20,
-              padding: '2px 52px',
-              cursor: 'pointer',
-              fontFamily: 'Roboto',
-              fontWeight: 700,
-              fontSize: 14,
-            }}
-             onClick={onContinue}
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-PhoneChangeForm.propTypes = {
-  phone: PropTypes.string.isRequired,
-  setPhone: PropTypes.func.isRequired,
-  selectedCountry: PropTypes.shape({
-    id: PropTypes.number,
-    country_code: PropTypes.string,
-    country_flag_image: PropTypes.string,
-    country_name: PropTypes.string,
-  }),
-  setSelectedCountry: PropTypes.func.isRequired,
-  countryOptions: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    country_code: PropTypes.string.isRequired,
-    country_flag_image: PropTypes.string.isRequired,
-    country_name: PropTypes.string.isRequired,
-  })).isRequired,
-  setCountryOptions: PropTypes.func.isRequired,
-  dropdownOpen: PropTypes.bool.isRequired,
-  setDropdownOpen: PropTypes.func.isRequired,
-  emailerrormsg: PropTypes.string.isRequired,
-  checked: PropTypes.bool.isRequired,
-  whatsapphandleChange: PropTypes.func.isRequired,
-  switchStyle: PropTypes.object.isRequired,
-  onContinue: PropTypes.func.isRequired,
-  handlePhoneChange: PropTypes.func.isRequired,
-};
-
-// Extracted OTPForm component
-const OTPForm = ({ 
-  otp, 
-  handleChange, 
-  handleKeyDown, 
-  error, 
-  inputRefs, 
-  OTP_INPUT_IDS, 
-  isTimerRunning, 
-  timer, 
-  formatTime, 
-  handleResend, 
-  handleContinue 
-}) => {
-  const buildOtpInputClass = (digit, error) => {
-    let inputClass = 'otp-input';
-
-    if (digit) {
-      inputClass += ' filled';
-    }
-
-    if (error && (digit === '' || !/^\d$/.test(digit))) {
-      inputClass += ' otp-input-error';
-    }
-
-    return inputClass;
-  };
-
-  const renderTimerContent = (isTimerRunning, timer, formatTime, handleResend) => {
-    if (isTimerRunning) {
-      return (
-        <span>
-          Resend in{' '}
-          <span className="otp-timer-count">{formatTime(timer)}</span>
-        </span>
-      );
-    } else {
-      return (
-        <button
-          type="button"
-          className="otp-resend"
-          onClick={handleResend}
-          style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
-        >
-          Resend
-        </button>
-      );
-    }
-  };
-
-  return (
-    <div style={{ justifyContent: 'flex-start'}}>
-      <p className="otp-desc">
-        Enter the verification code sent to your phone number
-      </p>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}>
-        {otp.map((digit, idx) => {
-          const inputClass = buildOtpInputClass(digit, error);
-          const inputKey = OTP_INPUT_IDS[idx];
-          return (
-            <input
-              key={inputKey}
-              ref={inputRefs[idx]}
-              type="tel"
-              className={inputClass}
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(e, idx)}
-              onKeyDown={(e) => handleKeyDown(e, idx)}
-            />
-          );
-        })}
-      </div>
-
-      {error && (
-        <div
-          className="otp-error"
-          style={{
-            color: '#ff4d4f',
-            marginTop: 8,
-            marginBottom: 4,
-            textAlign: 'center',
-          }}
-        >
-          {error}
-        </div>
-      )}
-
-      <div className="otp-timer">
-        {renderTimerContent(isTimerRunning, timer, formatTime, handleResend)}
-      </div>
-        <button
-          className="otp-btn otp-btn-filled"
-          type="button"
-          onClick={handleContinue}
-          style={{height: 35}}
-        >
-          Continue
-        </button>
-      
-    </div>
-  );
-};
-
-OTPForm.propTypes = {
-  otp: PropTypes.arrayOf(PropTypes.string).isRequired,
-  handleChange: PropTypes.func.isRequired,
-  handleKeyDown: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
-  inputRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
-  OTP_INPUT_IDS: PropTypes.arrayOf(PropTypes.string).isRequired,
-  isTimerRunning: PropTypes.bool.isRequired,
-  timer: PropTypes.number.isRequired,
-  formatTime: PropTypes.func.isRequired,
-  handleResend: PropTypes.func.isRequired,
-  handleContinue: PropTypes.func.isRequired,
-};
 
 // Extracted ProfileForm component
 const ProfileForm = ({ 
@@ -454,17 +112,22 @@ const ProfileForm = ({
   profile, 
   editMode, 
   onFinish, 
+  onFinishFailed,
   handleDealerChange, 
   fileInputRef, 
   handleFileChange, 
   setModalOpen, 
   onEdit, 
   onCancel,
-  triggerAvatarUpload,
   handleBeforeUpload,
   renderAvatarContent,
-  setAvatarUrl
+  setAvatarUrl,
+  imageUrl,
+  avatarUrl,
+  uploadedDocUrl,
+  handleDocumentDownload
 }) => {
+  
   const renderDealerFields = (form, editMode) => {
     if (form.getFieldValue('dealer') !== 'yes') {
       return null;
@@ -482,10 +145,20 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Name
+                Company Name*
               </span>
             }
+            required={false}
             name="company"
+             rules={[
+                      {  required: true,
+                        message: 'Company name is required',
+                      },
+                       {
+                    max: 100,
+                    message: 'Company name cannot exceed 100 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -499,28 +172,42 @@ const ProfileForm = ({
         </Col>
         <Col span={6}>
           <Form.Item
-            label={
-              <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
-              >
-                Owner's Name
-              </span>
-            }
-            name="owner"
-          >
-            <Input
-             disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
-            />
-          </Form.Item>
+           required={false} 
+  label={
+    <span
+      style={{
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#637D92',
+      }}
+    >
+      Owner's Name*
+    </span>
+  }
+  name="owner"
+  rules={[
+    {
+      required: true,
+      message: 'Owner name is required',
+    },
+    {
+      pattern: /^[a-zA-Z\s'-]{1,100}$/,
+      message:
+        'Owner name can only contain letters'
+    },
+  ]}
+>
+  <Input
+    disabled={!editMode}
+    style={{
+      fontSize: '12px',
+      fontWeight: 400,
+      color: '#4A5E6D',
+    }}
+    maxLength={100} // enforce max length at input level
+  />
+</Form.Item>
+
         </Col>
         <Col span={6}>
           <Form.Item
@@ -532,10 +219,20 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Address
+                Company Address*
               </span>
             }
             name="address"
+            required={false}
+            rules={[
+                      {  required: true,
+                        message: 'Company address is required',
+                      },
+                      {
+                    max: 500,
+                    message: 'Company Address cannot exceed 500 characters',
+                  },
+                    ]}
           >
             <Input
              disabled={!editMode}
@@ -557,10 +254,26 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Phone Number
+                Company Phone Number*
               </span>
             }
             name="phone"
+            required={false}
+           rules={[
+                  { required: true, message: 'Company Phone Number is required' },
+                  {
+                    pattern: /^[0-9]+$/,
+                    message: 'Company Phone Number should contain only numbers',
+                  },
+                  {
+                    max: 13,
+                    message: 'Company Phone Number cannot exceed 13 numbers',
+                  },
+                    {
+                    min: 6,
+                    message: 'Company Phone Number minimum 6 numbers',
+                  },
+                ]}
           >
             <Input
             disabled={!editMode}
@@ -569,6 +282,7 @@ const ProfileForm = ({
                 fontWeight: 400,
                 color: '#4A5E6D',
               }}
+             
             />
           </Form.Item>
         </Col>
@@ -576,7 +290,7 @@ const ProfileForm = ({
     );
   };
 
-  const renderAdditionalDealerFields = (form, editMode, fileInputRef, handleFileChange) => {
+  const renderAdditionalDealerFields = (form, editMode, fileInputRef, handleFileChange, uploadedDocUrl, handleDocumentDownload) => {
     if (form.getFieldValue('dealer') !== 'yes') {
       return null;
     }
@@ -593,10 +307,13 @@ const ProfileForm = ({
                   color: '#637D92',
                 }}
               >
-                Company Registration Number CR
+                Company Registration Number CR*
               </span>
             }
             name="reg"
+            required={false}
+         rules={[
+                  { required: true, message: 'Company Registration Number  is required' },]}
           >
             <Input
              disabled={!editMode}
@@ -668,21 +385,47 @@ const ProfileForm = ({
                                   fontSize: 12,
                                 }}
                               >
-                                Upload Documents
+                                Upload Documents*
                               </span>
                             }
                             name="uploadDocuments"
                             required={false}
                           >
-                            <Input
-                            disabled={true}
-                              type="file"
-                              placeholder="Documents"
-                              size="middle"
-                              ref={fileInputRef}
-                              onChange={handleFileChange}
-                              accept=".pdf"
-                            />{' '}
+                            <div>
+                              {uploadedDocUrl && (
+                                <div style={{ marginBottom: 8 }}>
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      padding: '8px 12px',
+                                      backgroundColor: '#f0f8ff',
+                                      border: '1px solid #d9d9d9',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => handleDocumentDownload(uploadedDocUrl)}
+                                  >
+                                    <span style={{ marginRight: 8 }}>📄</span>
+                                    <span style={{ flex: 1, fontSize: '14px', color: '#1890ff' }}>
+                                      {uploadedDocUrl.split('/').pop() || 'Download Document'}
+                                    </span>
+                                    <span style={{ color: '#1890ff', fontSize: '12px' }}>
+                                      Click to download
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                                                          <Input
+                                disabled={!editMode}
+                                type="file"
+                                placeholder="Documents"
+                                size="middle"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept=".pdf"
+                              />
+                            </div>
                           </Form.Item>
                         </div>
       </>
@@ -690,30 +433,24 @@ const ProfileForm = ({
   };
 
   const renderActionButtons = (editMode, onEdit, onCancel) => {
+    
     if (editMode) {
       return (
         <>
           <Button
             className="btn-solid-blue"
-            icon={<CheckOutlined />}
             shape="round"
             type="primary"
             htmlType="submit"
             style={{ marginRight: 8 }}
+           
           >
-            Update
-          </Button>
-          <Button
-            className="btn-outline-blue"
-            icon={<CloseOutlined />}
-            shape="round"
-            onClick={onCancel}
-          >
-            Cancel
+            Save Changes
           </Button>
         </>
       );
     }
+
     return (
       <Button
         className="btn-solid-blue"
@@ -752,7 +489,11 @@ const ProfileForm = ({
           marginBottom: 24,
         }}
       >
-        <Upload showUploadList={false} beforeUpload={handleBeforeUpload}>
+        <Upload 
+          showUploadList={false} 
+          beforeUpload={handleBeforeUpload}
+          disabled={!editMode}
+        >
           <div
             style={{
               width: 90,
@@ -768,12 +509,12 @@ const ProfileForm = ({
               fontWeight: 700,
               marginBottom: 8,
               overflow: 'hidden',
-              cursor: 'pointer',
+              cursor: editMode ? 'pointer' : 'default',
             }}
           >
             {renderAvatarContent()}
 
-            <PlusCircleFilled
+       {  editMode &&  <PlusCircleFilled
               style={{
                 position: 'absolute',
                 bottom: 6,
@@ -784,46 +525,10 @@ const ProfileForm = ({
                 borderRadius: '50%',
                 border: '2px solid #fff',
               }}
-            />
+            />}
           </div>
         </Upload>
       </div>
-
-                {editMode && (
-                  <button
-                    type="button"
-                    onClick={triggerAvatarUpload}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      width: '100%',
-                      height: '100%',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      zIndex: 1
-                    }}
-                    aria-label="Upload profile picture"
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      ref={fileInputRef}
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target?.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (ev) =>
-                            setAvatarUrl(ev.target?.result || '');
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </button>
-                )}
               </div>
               <span className="profile-username">
               </span>
@@ -835,12 +540,14 @@ const ProfileForm = ({
         form={form}
         layout="vertical"
         initialValues={profile}
-        onFinish={onFinish}
+        onFinish={onFinish} 
+        onFinishFailed={onFinishFailed}
         className={editMode ? '' : 'edit-mode-form'}
       >
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item
+              required={false} 
               label={
                 <span
                   style={{
@@ -853,6 +560,17 @@ const ProfileForm = ({
                 </span>
               }
               name="first_name"
+               rules={[
+                  { required: true, message: 'First name is required' },
+                  {
+                    pattern: /^[a-zA-Z]+$/,
+                    message: 'First name should contain only letters',
+                  },
+                  {
+                    max: 50,
+                    message: 'First name cannot exceed 50 characters',
+                  },
+                ]}
             >
               <Input
               disabled={!editMode}
@@ -866,6 +584,7 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
             <Form.Item
+            required={false} 
               label={
                 <span
                   style={{
@@ -878,6 +597,17 @@ const ProfileForm = ({
                 </span>
               }
               name="last_name"
+               rules={[
+                  { required: true, message: 'Last name is required' },
+                  {
+                    pattern: /^[a-zA-Z]+$/,
+                    message: 'Last name should contain only letters',
+                  },
+                  {
+                    max: 50,
+                    message: 'Last name cannot exceed 50 characters',
+                  },
+                ]}
             >
               <Input
               disabled={!editMode}
@@ -891,32 +621,49 @@ const ProfileForm = ({
           </Col>
           <Col span={6}>
             <Form.Item
-              label={
-                <span
-                disabled={!editMode}
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    color: '#637D92',
-                  }}
-                >
-                  Email
-                </span>
-              }
-              name="email"
-            >
-              <Input
-              disabled={!editMode}
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#4A5E6D',
-                }}
-              />
-            </Form.Item>
+  label={
+    <span
+      disabled={!editMode}
+      style={{
+        fontSize: '12px',
+        fontWeight: 400,
+        color: '#637D92',
+      }}
+    >
+      Email
+    </span>
+  }
+  name="email"
+  rules={[
+    {
+      type: 'email',
+      message: 'Please enter a valid email address',
+      validator: (_, value) => {
+        if (!value || value?.trim() === '') {
+          return Promise.resolve();
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value)
+          ? Promise.resolve()
+          : Promise.reject('Please enter a valid email address');
+      },
+    },
+  ]}
+>
+  <Input
+    disabled={!editMode}
+    style={{
+      fontSize: '12px',
+      fontWeight: 400,
+      color: '#4A5E6D',
+    }}
+  />
+</Form.Item>
+
           </Col>
           <Col span={6}>
 <Form.Item
+required={false} 
   label={
     <span
       style={{
@@ -939,11 +686,9 @@ const ProfileForm = ({
       width: '100%',
       fontSize: '12px',
       fontWeight: 400,
-      color: '#000000',
+      color: '#4A5E6D',
     }}
-    onChange={(date) => {
-      console.log('Selected Date:', date ? dayjs(date).format('ddd, DD MMM YYYY') : null);
-    }}
+    onChange={() => {}}
   />
 </Form.Item>
 </Col>
@@ -964,7 +709,7 @@ const ProfileForm = ({
               }
               name="dealer"
             >
-              <Radio.Group onChange={handleDealerChange}>
+              <Radio.Group onChange={handleDealerChange} disabled={!editMode}>
                 <Radio value="yes">Yes</Radio>
                 <Radio value="no">No</Radio>
               </Radio.Group>
@@ -974,7 +719,7 @@ const ProfileForm = ({
         </Row>
 
         <Row gutter={16}>
-          {renderAdditionalDealerFields(form, editMode, fileInputRef, handleFileChange)}
+          {renderAdditionalDealerFields(form, editMode, fileInputRef, handleFileChange, uploadedDocUrl, handleDocumentDownload)}
         </Row>
         <div className="profile-btns profile-btns-bottom">
           <Button
@@ -1016,16 +761,18 @@ ProfileForm.propTypes = {
   }).isRequired,
   editMode: PropTypes.bool.isRequired,
   onFinish: PropTypes.func.isRequired,
+  onFinishFailed: PropTypes.func.isRequired,
   handleDealerChange: PropTypes.func.isRequired,
   fileInputRef: PropTypes.object.isRequired,
   handleFileChange: PropTypes.func.isRequired,
   setModalOpen: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
-  triggerAvatarUpload: PropTypes.func.isRequired,
   handleBeforeUpload: PropTypes.func.isRequired,
   renderAvatarContent: PropTypes.func.isRequired,
   setAvatarUrl: PropTypes.func.isRequired,
+  imageUrl: PropTypes.string,
+  avatarUrl: PropTypes.string,
 };
 
 const MyProfileForm = () => {
@@ -1036,247 +783,46 @@ const MyProfileForm = () => {
   const fileInputRef = useRef();
   const [, setDealerValue] = useState(YES);
   const [messageApi, contextHolder] = message.useMessage();
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [, setUsersData] = useState({});
   const [, setDobError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
-   const [showChangePhoneForm, setShowChangePhoneForm] = useState(false);
-   const [, setIsChangingPhone] = useState(false);
-     const [dropdownOpen, setDropdownOpen] = useState(false);
-     const [selectedCountry, setSelectedCountry] = useState(null);
-      const [countryOptions, setCountryOptions] = useState([]);
-      const [phone, setPhone] = useState('');
-      const [emailerrormsg, setEmailErrorMsg] = useState('');
-      const [showOtpForm, setShowOtpForm] = useState(false);
-      const [otp, setOtp] = useState(['', '', '', '']);
-      const [timer, setTimer] = useState(60);
-        const [isTimerRunning, setIsTimerRunning] = useState(true);
-        const [error, setError] = useState('');
-        const inputRefs = [useRef(), useRef(), useRef(), useRef()];
-       const OTP_LENGTH = 4;
-        const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
-        const intervalRef = useRef(null);
-         const [checked, setChecked] = useState(false);
+  const navigate = useNavigate();
 
-      const handlePhoneChange = (e) => {
-    const numb = e.target.value;
-    setEmailErrorMsg('');
-
-    if (!/^\d*$/.test(numb)) {
-      return;
-    }
-
-    setPhone(numb);
-  };
-
-  const switchStyle = {
-    backgroundColor: checked ? '#008AD5' : '#ccc',
-  };
-
-  const handleConfirm = async () => {
-    try {
-      const response = await authAPI.countrycode();
-      const data = handleApiResponse(response);
-
-      if (!data || data.length === 0) {
-        throw new Error('No countries found');
-      }
-
-      const geoData = await getGeoData();
-      const defaultCountry = getDefaultCountry(data, geoData);
-
-      setSelectedCountry(defaultCountry || data[0]);
-      setCountryOptions(data);
-
+  const handleConfirm = () => {
       setModalOpen(false);
-      setEditMode(false);
-      setShowChangePhoneForm(true);
-      setIsChangingPhone(true);
-    } catch (err) {
-      console.error('Error fetching country:', err);
-    }
-  };
-
- const handleChange = (e, idx) => {
-  const val = e.target.value.replace(/\D/g, '');
-
-  const newOtp = [...otp];
-  if (val) {
-    newOtp[idx] = val[val.length - 1];
-    setOtp(newOtp);
-    setError('');
-    if (idx < OTP_LENGTH - 1) {
-      inputRefs[idx + 1].current.focus();
-    }
-  } else {
-    newOtp[idx] = '';
-    setOtp(newOtp);
-  }
+    navigate('/myProfile/change-phone');
 };
 
-const handleKeyDown = (e, idx) => {
-    if (e.key === 'Backspace') {
-      if (otp[idx]) {
-        const newOtp = [...otp];
-        newOtp[idx] = '';
-        setOtp(newOtp);
-      } else if (idx > 0) {
-        inputRefs[idx - 1].current.focus();
-      }
-    }
-  };
-
-   const validateOtp = () => {
-    if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
-      setError('Please enter the OTP.');
-      return false;
-    }
-    setError('');
-    return true;
-  };
-
-  const onContinue = async () => {
-      if (phone === '') {
-        setEmailErrorMsg('Phone number is required!');
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const savePhone = `${selectedCountry.country_code}${phone}`;
-        localStorage.setItem('phonenumber', savePhone);
-  
-        const response = await userAPI.changephonenumber({
-          phone_number: savePhone,
-          is_whatsapp: toWhatsappFlag(checked),
-        });
-  
-        const data = handleApiResponse(response);
-        if (data) {
-          messageApi.open({ type: 'success', content: data.message });
-           if (data.request_id) {
-        localStorage.setItem('request_id', data.request_id);
-      }
-           setShowChangePhoneForm(false);
-          setShowOtpForm(true);
-           if (intervalRef.current) clearInterval(intervalRef.current); 
-        setTimer(30); 
-        setIsTimerRunning(true);
-
-        intervalRef.current = setInterval(() => {
-          setTimer((prev) => {
-            if (prev <= 1) {
-              clearInterval(intervalRef.current);
-              setIsTimerRunning(false);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-        }
-      } catch (error) {
-        const errorData = handleApiError(error);
-        messageApi.open({ type: 'error', content: errorData.message });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-   const handleContinue = async () => {
-  if (!validateOtp()) {
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const otpDigits = otp.join('');
-    const requestId = localStorage.getItem('request_id'); 
-
-    const otpPayload = {
-      otp: otpDigits,
-      request_id: requestId,
-    };
-
-    const result = await userAPI.chnagenumberverifyOtp(otpPayload);
-
-    if (result?.data?.success) {
-      localStorage.setItem('token', result.data?.access_token);
-
-      messageApi.open({
-        type: 'success',
-        content: result?.data?.message,
-      });
-
-      setShowChangePhoneForm(false);
-      setShowOtpForm(false);
-    } else {
-      messageApi.open({
-        type: 'error',
-        content: result?.data?.error,
-      });
-    }
-  } catch (err) {
-    message.error('OTP verification failed. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-  
-  const handleResend = async () => {
-    if (!isTimerRunning) {
-      setTimer(30);
-      setIsTimerRunning(true);
-    }
-  
-    try {
-      const usermobilenumber = localStorage.getItem('phone_number');
-      setLoading(true);
-  
-      const response = await authAPI.resendotp({
-        phone_number: usermobilenumber,
-      });
-      const data = handleApiResponse(response);
-  
-      if (data) {
-        localStorage.setItem('userData', JSON.stringify(data));
-        messageApi.open({
-          type: 'success',
-          content: data.message,
-        });
-      }
-    } catch (err) {
-      const errorData = handleApiError(err);
-      messageApi.open({
-        type: 'error',
-        content: errorData.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onFinishFailed = ({ errorFields }) => {
+  const onFinishFailed = ({ errorFields, values }) => {
+    
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
     setDobError(dobErr ? dobErr.errors[0] : '');
+    
+   
   };
 
   const onFinish = async (values) => {
-    setProfile({ ...values, avatar: avatarUrl });
-    setEditMode(false);
-    message.success(MSG_PROFILE_UPDATED);
-    await onClickContinue();
+    
+    try {
+      await onClickContinue();
+    } catch (error) {
+      // Silent error handling
+    }
   };
 
   const onEdit = () => {
+
     setEditMode(true);
     form.setFieldsValue(profile);
   };
 
   const onCancel = () => {
+
     setEditMode(false);
+    setImageUrl(null); // Clear any new image selection
     setAvatarUrl(profile.avatar || '');
     form.setFieldsValue(profile);
   };
@@ -1306,15 +852,13 @@ const handleKeyDown = (e, idx) => {
     }
   };
 
-  const triggerAvatarUpload = () => {
-    if (editMode && fileInputRef.current) {
-      fileInputRef.current.click(); 
-    }
-  };
+
 
   useEffect(() => {
     Userdataapi();
   }, []);
+
+
 
 const Userdataapi = async () => {
   try {
@@ -1334,30 +878,42 @@ const Userdataapi = async () => {
 };
 
 const populateUserProfile = (user, successMsg) => {
-  const userProfile = mapUserToProfile(user); 
+  const userProfile = mapUserToProfile(user);
   setUsersData(user);
   setProfile(userProfile);
   form.setFieldsValue(userProfile);
-  setAvatarUrl(user.profile_image || '');
+  setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(userProfile.dealer);
+  setUploadedDocUrl(user.document || '');
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
 
-const mapUserToProfile = (user) => ({
-  first_name: user.first_name || '',
-  last_name: user.last_name || '',
-  email: user.email || '',
-  dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
-  dealer: user.is_dealer === 1 ? YES : NO,
-  company: user.company_name || '',
-  owner: user.owner_name || '',
-  address: user.company_address || '',
-  phone: user.phone_number || '',
-  reg: user.company_registration_number || '',
-  facebook: user.facebook_page || '',
-  instagram: user.instagram_company_profile || '',
-  avatar: user.profile_image || '',
-});
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+const mapUserToProfile = (user) => {
+  const profilePic = user.profile_pic || '';
+  const fullAvatarUrl =
+    profilePic && !profilePic.startsWith('http')
+      ? `${BASE_URL}${profilePic}`
+      : profilePic;
+
+  return {
+    first_name: user.first_name || '',
+    last_name: user.last_name || '',
+    email: user.email || '',
+    dob: user.date_of_birth ? dayjs(user.date_of_birth) : null,
+    dealer: user.is_dealer === 1 ? YES : NO,
+    company: user.company_name || '',
+    owner: user.owner_name || '',
+    address: user.company_address || '',
+    phone: user.company_phone_number || '',
+    reg: user.company_registration_number || '',
+    facebook: user.facebook_page || '',
+    instagram: user.instagram_company_profile || '',
+    avatar: fullAvatarUrl, 
+  };
+};
+
 
 const applyUpdatedUser = (updateParams) => {
   const {
@@ -1368,16 +924,23 @@ const applyUpdatedUser = (updateParams) => {
     setProfile,
     setAvatarUrl,
     setDealerValue,
-    setEditMode
+    setEditMode,
+    setImageUrl
   } = updateParams;
   
+  
+  
   const updatedProfile = mapUserToProfile(user);
+  
   setUsersData(user);
   setProfile(updatedProfile);
   form.setFieldsValue(updatedProfile);
-  setAvatarUrl(user.profile_image || '');
+  setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(user.is_dealer ? YES : NO);
+  setUploadedDocUrl(user.document || '');
+  
   setEditMode(false);
+  
   message.success(successMsg || MSG_PROFILE_UPDATED);
 };
 
@@ -1390,23 +953,25 @@ const handleSubmitError = (error, onFinishFailed) => {
   message.error(errorData.message || MSG_UPDATE_FAILED);
 };
 
- const getInitials = () => {
-    const first = form.getFieldValue('firstName') || '';
-    const last = form.getFieldValue('lastName') || '';
+   const getInitials = () => {
+    const first = form.getFieldValue('first_name') || '';
+    const last = form.getFieldValue('last_name') || '';
     return (first[0] || '').toUpperCase() + (last[0] || '').toUpperCase();
   };
 
-    const whatsapphandleChange = (value) => {
-    setChecked(value);
-  };
 
-const renderAvatarContent = () => {
-    if (imageUrl) {
+
+  const renderAvatarContent = () => {
+    // Priority: imageUrl (newly uploaded) > avatarUrl (current) > profile.avatar (saved)
+    const displayImage = imageUrl || avatarUrl || profile.avatar;
+   
+    if (displayImage) {
       return (
         <img
-          src={imageUrl}
+          src={`${BASE_URL}${displayImage}`}
           alt="avatar"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+         
         />
       );
     }
@@ -1417,19 +982,39 @@ const renderAvatarContent = () => {
     return <UserOutlined />;
   };
 
+   const handleDocumentDownload = (documentUrl) => {
+     try {
+       const fullUrl = documentUrl.startsWith('http') 
+         ? documentUrl 
+         : `${process.env.REACT_APP_API_URL}${documentUrl}`;
+       window.open(fullUrl, '_blank');
+     } catch (error) {
+       messageApi.open({
+         type: 'error',
+         content: 'Failed to open document. Please try again.',
+       });
+     }
+  };
+
    const handleFileChange = async (e) => {
       const file = e.target.files[0];
   
-      if (!file) {
-        return;
-      }
+      if (!file) return;
   
       const isPDF = file.type === 'application/pdf';
-  
       if (!isPDF) {
         messageApi.open({
           type: 'error',
           content: 'Upload failed. Only .pdf documents are allowed.',
+        });
+        return;
+      }
+
+      const isLt10M = file.size / 1024 / 1024 <= 10;
+      if (!isLt10M) {
+        messageApi.open({
+          type: 'error',
+          content: 'Document must be smaller than 10 MB.',
         });
         return;
       }
@@ -1445,7 +1030,6 @@ const renderAvatarContent = () => {
   
         if (userdoc?.attachment_url) {
           setUploadedDocUrl(userdoc.attachment_url);
-          form.setFieldsValue({ uploadedImageUrl: userdoc.attachment_url });
           messageApi.open({
             type: 'success',
             content: userdoc.message,
@@ -1462,7 +1046,7 @@ const renderAvatarContent = () => {
       }
     };
 
-  const handleBeforeUpload = async (file) => {
+  const handleBeforeUpload = async (file) => {    
     const isImage =
       file.type === 'image/png' ||
       file.type === 'image/jpeg' ||
@@ -1476,46 +1060,95 @@ const renderAvatarContent = () => {
       });
       return Upload.LIST_IGNORE;
     }
-
+    // Show preview immediately
     const previewUrl = URL.createObjectURL(file);
     setImageUrl(previewUrl);
+    
     const formData = new FormData();
     formData.append('attachment', file);
 
     try {
+      setLoading(true);
+    
       const response = await authAPI.uploadimages(formData);
+     
+      
       const userdoc = handleApiResponse(response);
 
-      if (userdoc?.attachment_url) {
-        setImageUrl(userdoc.attachment_url);
+      // Check for different possible field names
+      const possibleImageFields = ['attachment_url', 'image_url', 'url', 'file_url', 'path', 'data'];
+      let imageUrl = null;
+      
+      for (const field of possibleImageFields) {
+        if (userdoc?.[field]) {
+          imageUrl = userdoc[field];
+          break;
+        }
+      }
+
+      if (imageUrl) {
+        // Ensure we have a complete URL
+        let finalImageUrl = imageUrl;
+        
+        // If the URL is relative, make it absolute
+        if (finalImageUrl.startsWith('/')) {
+          finalImageUrl = finalImageUrl;
+          
+          
+        }
+        
+        
+        // Update both imageUrl and avatarUrl with the complete URL
+        setImageUrl(finalImageUrl);
+        setAvatarUrl(finalImageUrl);
+      
+        
         messageApi.open({
           type: 'success',
-          content: userdoc.message,
+          content: userdoc.message || 'Profile image uploaded successfully',
         });
         return Upload.LIST_IGNORE; 
       } else {
-        message.error(userdoc.message || 'Upload failed');
+       
+        message.error(userdoc?.message || 'Upload failed - no image URL received');
         return Upload.LIST_IGNORE;
       }
     } catch (error) {
+     
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
-        content: errorData.message,
+        content: errorData.message || 'Upload failed due to network error',
       });
-      message.error('Upload failed due to network error');
       return Upload.LIST_IGNORE; 
+    } finally {
+      setLoading(false);
     }
   };
 
+    const dispatch = useDispatch();
+
+
   const onClickContinue = async () => {
   try {
+    
     setLoading(true);
+    
+   
     const values = await form.validateFields();
-
+    
+    // Check if required fields are filled
+    if (!values.first_name || !values.last_name || !values.dob) {
+      message.error('Please fill in all required fields (First Name, Last Name, Date of Birth)');
+      return;
+    }
+ 
     const formattedDob = values.dob 
   ? dayjs(values.dob).format('YYYY-MM-DD') 
   : '';
+    
+    const profilePicUrl = imageUrl || avatarUrl || '';
+
     
     const payload = {
       first_name: values.first_name || '',
@@ -1530,30 +1163,72 @@ const renderAvatarContent = () => {
       company_registration_number: values.reg || '',
       facebook_page: values.facebook || '',
       instagram_company_profile: values.instagram || '',
-      profile_pic: imageUrl || '',
-      whatsapp: values.phone || '',
+      profile_pic: profilePicUrl,
       location: values.address || '',
       document: uploadedDocUrl
     };
-
+   
     const response = await userAPI.updateProfile(payload);
+    
     const result = handleApiResponse(response);
-    if (result?.data) {
-      applyUpdatedUser({
-        user: result.data,
-        successMsg: result.message,
-        form,
-        setUsersData,
-        setProfile,
-        setAvatarUrl,
-        setDealerValue,
-        setEditMode,
-      });
+      dispatch(updateCustomerDetails({
+          first_name: result?.user?.first_name,
+          last_name: result?.user?.last_name,
+        }));
+    if (result?.user) {
+      
+
+    try {
+        const profileResponse = await userAPI.getProfile({});
+        
+        const profileResult = handleApiResponse(profileResponse);
+        
+        
+        if (profileResult?.data) {
+          applyUpdatedUser({
+            user: profileResult.data,
+            successMsg: result.message,
+            form,
+            setUsersData,
+            setProfile,
+            setAvatarUrl,
+            setDealerValue,
+            setEditMode,
+            setImageUrl,
+          });
+        } else {
+          applyUpdatedUser({
+            user: result.data,
+            successMsg: result.message,
+            form,
+            setUsersData,
+            setProfile,
+            setAvatarUrl,
+            setDealerValue,
+            setEditMode,
+            setImageUrl,
+          });
+        }
+      } catch (profileError) {
+        applyUpdatedUser({
+          user: result.data,
+          successMsg: result.message,
+          form,
+          setUsersData,
+          setProfile,
+          setAvatarUrl,
+          setDealerValue,
+          setEditMode,
+          setImageUrl,
+        });
+      }
     }
+    
     messageApi.open({
         type: 'success',
         content: result.message || 'Profile updated successfully',
       });
+      
   } catch (error) {
     handleSubmitError(error, onFinishFailed);
   } finally {
@@ -1566,103 +1241,47 @@ const renderAvatarContent = () => {
    * @returns {JSX.Element} Header content
    */
   const renderHeaderContent = () => {
-    if (showOtpForm) {
-      return (
-        <>
-          <ArrowLeftOutlined
-            onClick={() => {
-              setShowOtpForm(false);
-              setShowChangePhoneForm(true); 
-            }}
-            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-          />
-          Enter OTP Sent To Your New Number
-        </>
-      );
-    }
-    
-    if (showChangePhoneForm) {
-      return (
-        <>
-          <ArrowLeftOutlined
-            onClick={() => {
-              setIsChangingPhone(false);
-              setShowChangePhoneForm(false);
-            }}
-            style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
-          />
-          Change Mobile Number
-        </>
-      );
-    }
-    
-    if (editMode) {
-      return 'Edit Profile';
-    }
-    
-    return 'My Profile';
-  };
+  if (editMode) {
+    return (
+      <>
+        <AiOutlineLeft
+          onClick={onCancel}
+          style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
+        />
+        Edit Profile
+      </>
+    );
+  }
+
+  return 'My Profile';
+};
+
 
   /**
    * Renders the main content based on current state
    * @returns {JSX.Element} Main content
    */
   const renderMainContent = () => {
-  if (showChangePhoneForm) {
-    return (
-      <PhoneChangeForm 
-        phone={phone} 
-        setPhone={setPhone} 
-        selectedCountry={selectedCountry} 
-        setSelectedCountry={setSelectedCountry} 
-        countryOptions={countryOptions} 
-        setCountryOptions={setCountryOptions} 
-        dropdownOpen={dropdownOpen} 
-        setDropdownOpen={setDropdownOpen} 
-        emailerrormsg={emailerrormsg} 
-        checked={checked} 
-        whatsapphandleChange={whatsapphandleChange} 
-        switchStyle={switchStyle} 
-        onContinue={onContinue} 
-        handlePhoneChange={handlePhoneChange} 
-      />
-    );
-  }
-  
-  if (showOtpForm) {
-    return (
-      <OTPForm 
-        otp={otp} 
-        handleChange={handleChange} 
-        handleKeyDown={handleKeyDown} 
-        error={error} 
-        inputRefs={inputRefs} 
-        OTP_INPUT_IDS={OTP_INPUT_IDS} 
-        isTimerRunning={isTimerRunning} 
-        timer={timer} 
-        formatTime={formatTime} 
-        handleResend={handleResend} 
-        handleContinue={handleContinue} 
-      />
-    );
-  }
-  
   return (
     <ProfileForm 
       form={form} 
       profile={profile} 
       editMode={editMode} 
       onFinish={onFinish} 
+      onFinishFailed={onFinishFailed}
       handleDealerChange={handleDealerChange} 
       fileInputRef={fileInputRef} 
       handleFileChange={handleFileChange} 
       setModalOpen={setModalOpen} 
       onEdit={onEdit} 
       onCancel={onCancel}
-      triggerAvatarUpload={triggerAvatarUpload}
       handleBeforeUpload={handleBeforeUpload}
       renderAvatarContent={renderAvatarContent}
       setAvatarUrl={setAvatarUrl}
+      imageUrl={imageUrl}
+      avatarUrl={avatarUrl}
+      uploadedDocUrl={uploadedDocUrl}
+      handleDocumentDownload={handleDocumentDownload}
     />
   );
 };
@@ -1692,7 +1311,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
     <div className='small-popup-container'>
       <div className='small-popup'>
         <button
-          className='popup-close-icon'
+          className= 'popup-close-icon'
           type="button"
           onClick={onClose}
           aria-label='Close'

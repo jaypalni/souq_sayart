@@ -5,16 +5,14 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import {authAPI} from '../services/api';
 
 export const handleApiResponse = (response) => response?.data ?? null;
 
 export const handleApiError = (error) => {
   if (error.response) {
     const { status, data } = error.response;
-    if (data?.message ==='Invalid token or expired' ){
-  authAPI.refresh()
-    }
+    console.log('refersh',data)
+
     return {
       status,
       message: data?.message || data?.error || 'An error occurred',
@@ -59,4 +57,4 @@ export const createQueryString = (params) => {
 export const DEFAULT_MAKE = 'All';
 export const DEFAULT_MODEL = 'All Models';
 export const DEFAULT_BODY_TYPE = 'All Body Types';
-export const DEFAULT_LOCATION = 'Baghdad';
+export const DEFAULT_LOCATION = '';

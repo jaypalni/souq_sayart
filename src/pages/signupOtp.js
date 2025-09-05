@@ -20,7 +20,7 @@ const SignupOtp = () => {
   const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
@@ -103,6 +103,31 @@ const SignupOtp = () => {
   }
 };
 
+const handlePaste = (e) => {
+  e.preventDefault();
+  const pasteData = e.clipboardData.getData('text').replace(/\D/g, ''); // only digits
+  if (!pasteData) return;
+
+  const digits = pasteData.split('').slice(0, OTP_LENGTH); // take only OTP_LENGTH digits
+  const newOtp = [...otp];
+
+  digits.forEach((digit, i) => {
+    newOtp[i] = digit;
+    if (inputRefs[i]?.current) {
+      inputRefs[i].current.value = digit; // update input directly
+    }
+  });
+
+  setOtp(newOtp);
+
+  // move focus to last filled field
+  const nextIndex = digits.length < OTP_LENGTH ? digits.length : OTP_LENGTH - 1;
+  if (inputRefs[nextIndex]?.current) {
+    inputRefs[nextIndex].current.focus();
+  }
+};
+
+
   const handleKeyDown = (e, idx) => {
     if (e.key === 'Backspace') {
       if (otp[idx]) {
@@ -169,11 +194,6 @@ setError('');
 };
 
 const handleResend = async () => {
-  if (!isTimerRunning) {
-    setTimer(60);
-    setIsTimerRunning(true);
-  }
-
   try {
     const usermobilenumber = localStorage.getItem('phone_number');
     setLoading(true);
@@ -184,6 +204,10 @@ const handleResend = async () => {
     const data = handleApiResponse(response);
 
     if (data) {
+      const newEndTime = Date.now() + 60 * 1000;
+      localStorage.setItem('otpEndTime', newEndTime);
+      setTimer(60);
+      setIsTimerRunning(true);
       localStorage.setItem('userData', JSON.stringify(data));
       messageApi.open({
         type: 'success',
@@ -201,14 +225,14 @@ const handleResend = async () => {
   }
 };
 return (
-  <div className="otp-container">
+  <div className='otp-container'>
     {contextHolder}
-    <h2 className="otp-title">Login</h2>
-    <p className="otp-desc">
+    <h2 className='otp-title'>Login</h2>
+    <p className='otp-desc'>
       Enter the verification code sent to your phone number
     </p>
 
-    <div className="otp-inputs">
+    <div className='otp-inputs'>
       {otp.map((digit, idx) => {
         let inputClass = 'otp-input';
 
@@ -225,12 +249,13 @@ return (
           <input
             key={inputKey}
             ref={inputRefs[idx]}
-            type="tel"
+            type='tel'
             className={inputClass}
             maxLength={1}
             value={digit}
             onChange={(e) => handleChange(e, idx)}
             onKeyDown={(e) => handleKeyDown(e, idx)}
+            onPaste={handlePaste}
           />
         );
       })}
@@ -238,7 +263,7 @@ return (
 
     {error && (
       <div
-        className="otp-error"
+        className='otp-error'
         style={{
           color: '#ff4d4f',
           marginTop: 8,
@@ -251,20 +276,20 @@ return (
       </div>
     )}
 
-    <div className="otp-timer">
+    <div className='otp-timer'>
       {(() => {
         if (isTimerRunning) {
           return (
             <span>
               Resend in{' '}
-              <span className="otp-timer-count">{formatTime(timer)}</span>
+              <span className='otp-timer-count'>{formatTime(timer)}</span>
             </span>
           );
         }
        return (
   <button
-    type="button"
-    className="otp-resend"
+    type='button'
+    className='otp-resend'
     onClick={handleResend}
     style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
   >
@@ -275,16 +300,22 @@ return (
       })()}
     </div>
 
-    <div className="otp-btn-row">
-      <button className="otp-btn otp-btn-outline" type="button">
+    <div className='otp-btn-row'>
+      <button className='otp-btn otp-btn-outline' type='button'>
         Continue as guest
       </button>
       <button
-        className="otp-btn otp-btn-filled"
-        type="button"
+        className='otp-btn otp-btn-filled'
+        type='button'
         onClick={handleContinue}
+        disabled={loading}
+        style={{
+          opacity: loading ? 0.7 : 1,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          background: loading ? '#ccc' : undefined
+        }}
       >
-        Continue
+        {loading ? 'Verifying...' : 'Continue'}
       </button>
     </div>
   </div>

@@ -97,7 +97,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer-copyright">
-        Souq Siyarat@2024. All Right Reserved. Powered by TEDMOB
+        Souq Sayarat@2025. All Right Reserved.
       </div>
     </div>
   );

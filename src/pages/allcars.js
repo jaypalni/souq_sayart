@@ -19,49 +19,99 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
-import { message, Pagination } from 'antd';
+import { message, Pagination, Skeleton } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
+  const [sortedbydata, setSortedbyData] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [isLoading, setIsLoading] = useState(false);
+  const [renderKey, setRenderKey] = useState(0);
+
+
+  // Initialize selectedLocation from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
+      const location = savedSearchData?.location;
+      // Set to 'All Locations' if location is empty, null, or undefined
+      if (location && location !== '') {
+        setSelectedLocation(location);
+      } else {
+        setSelectedLocation('All Locations');
+      }
+    } catch (error) {
+      // Silent error handling
+    }
+  }, []);
+
+  // Clear filtercarsData when loading starts
+  useEffect(() => {
+    if (isLoading) {
+      setFilterCarsData({ cars: [], pagination: {} });
+      // Force clear any cached data
+      setRenderKey(prev => prev + 1);
+    }
+  }, [isLoading]);
+
+  // Initialize component state on mount
+  useEffect(() => {
+    setFilterCarsData({ cars: [], pagination: {} });
+    setSortedbyData('');
+    // Only clear non-essential cached data, preserve searchcardata
+    localStorage.removeItem('cachedCarsData');
+    localStorage.removeItem('carsData');
+    localStorage.removeItem('filterData');
+    localStorage.removeItem('carSearchData');
+  }, []);
+
+  // setIsLoading function with render key update
+  const debugSetIsLoading = (loading) => {
+    setIsLoading(loading);
+    if (loading) {
+      // Force re-render when loading starts
+      setRenderKey(prev => prev + 1);
+    }
+  };
+
+  
   return (
     <div>
-      <PlaneBanner name={'jdi'} />
+      <PlaneBanner name={'jdi'} selectedLocation={selectedLocation} />
       <AllCarFilters
         filtercarsData={filtercarsData}
         setFilterCarsData={setFilterCarsData}
+        sortedbydata={sortedbydata}
+        setSelectedLocation={setSelectedLocation}
+        setIsLoading={debugSetIsLoading}
       />
       <CarListing
+        key={`${renderKey}-${filtercarsData?.cars?.length || 0}`}
         filtercarsData={filtercarsData}
-        setFilterCarsData={setFilterCarsData}
+        cardata={filtercarsData.cars || []}
+        title="Search Results"
+        setSortedbyData={setSortedbyData}
+        isLoading={isLoading}
       />
       <Bestcarsalebytype />
     </div>
   );
 };
 
-const CarListing = ({ filtercarsData }) => {
+const CarListing = ({ filtercarsData, cardata, setSortedbyData, title, isLoading }) => {
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
-  const passedCars = location.state?.cars || [];
-  const passedPagination = location.state?.pagination || {};
-  const [carsData, setCarsData] = useState(passedCars);
-  const [paginationData, setPaginationData] = useState(passedPagination);
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest Listing');
   const toggleDropdown = () => setIsOpen(!isOpen);
- 
 
-  useEffect(() => {
-    if (!filtercarsData || !Array.isArray(filtercarsData.cars) || filtercarsData.cars.length === 0) {
-      setCarsData(passedCars);
-      setPaginationData(passedPagination);
-    } else {
-      setCarsData(filtercarsData.cars);
-      setPaginationData(filtercarsData.pagination);
-    }
-  }, [filtercarsData, passedCars, passedPagination]);
+  // Use filtercarsData directly - no local state to avoid duplication
+  const carsToDisplay = filtercarsData?.cars || [];
+  const paginationToDisplay = filtercarsData?.pagination || {};
+  
+
 
  const Addfavcarapi = async (carId) => {
   try {
@@ -70,11 +120,14 @@ const CarListing = ({ filtercarsData }) => {
     const data = handleApiResponse(response);
 
     if (data) {
-      setCarsData((prevCars) =>
-        prevCars.map((car) =>
-          car.car_id === carId ? { ...car, is_favorite: true } : car
-        )
+      // Update the filtercarsData directly instead of local state
+      const updatedCars = carsToDisplay.map((car) =>
+        car.car_id === carId ? { ...car, is_favorite: true } : car
       );
+      // Update the parent state
+      if (filtercarsData?.cars) {
+        filtercarsData.cars = updatedCars;
+      }
       messageApi.open({
         type: 'success',
         content: data?.message || 'Car added to favorites',
@@ -97,11 +150,14 @@ const Removefavcarapi = async (carId) => {
     const data = handleApiResponse(response);
 
     if (data) {
-      setCarsData((prevCars) =>
-        prevCars.map((car) =>
-          car.car_id === carId ? { ...car, is_favorite: false } : car
-        )
+      // Update the filtercarsData directly instead of local state
+      const updatedCars = carsToDisplay.map((car) =>
+        car.car_id === carId ? { ...car, is_favorite: false } : car
       );
+      // Update the parent state
+      if (filtercarsData?.cars) {
+        filtercarsData.cars = updatedCars;
+      }
       messageApi.open({
         type: 'success',
         content: data?.message || 'Car removed from favorites',
@@ -122,22 +178,24 @@ const Removefavcarapi = async (carId) => {
 
 
   const onShowSizeChange = (current, pageSize) => {
-    console.log(current, pageSize);
   };
   const onPageChange = (page, pageSize) => {
-    console.log(page, pageSize);
   };
 
   const handleSelect = (option) => {
-    setSortOption(option);
+    setSortOption(option); 
+    setSortedbyData(option); 
     setIsOpen(false);
-    console.log('Selected:', option);
   };
   return (
     <div className="car-listing-container">
       {contextHolder}
       <div className="car-listing-header">
-        <span>Showing 1 - {carsData?.length} Cars</span>
+        <span>
+          {carsToDisplay?.length === 0 
+            ? 'No cars found' 
+            : `Showing 1 - ${carsToDisplay?.length} Cars`}
+        </span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button
             type="button"
@@ -214,10 +272,50 @@ const Removefavcarapi = async (carId) => {
           )}
         </div>
       </div>
+      
+      {/* Empty state message - only show when not loading */}
+      {!isLoading && carsToDisplay && carsToDisplay.length === 0 && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          color: '#666',
+          fontSize: '16px'
+        }}>
+          <p>No cars found matching your search criteria.</p>
+          <p style={{ fontSize: '14px', marginTop: '10px' }}>
+            Try adjusting your filters or search terms.
+          </p>
+        </div>
+      )}
+      
       <div className="row">
-  {carsData?.map((car) => { 
-
-    return (
+        {isLoading ? (
+          // Show skeleton loaders while loading
+          Array.from({ length: 8 }).map((_, index) => (
+            <div className="col-3 p-0" key={`skeleton-${index}`}>
+              <div className="allcars-listing-card">
+                <Skeleton.Image 
+                  style={{ width: '100%', height: 200 }} 
+                  active 
+                />
+                <div style={{ padding: '16px' }}>
+                  <Skeleton.Input style={{ width: '100%', height: 20, marginBottom: 8 }} active />
+                  <Skeleton.Input style={{ width: '60%', height: 16, marginBottom: 8 }} active />
+                  <Skeleton.Input style={{ width: '80%', height: 14, marginBottom: 8 }} active />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
+                    <Skeleton.Input style={{ width: '30%', height: 12 }} active />
+                    <Skeleton.Input style={{ width: '30%', height: 12 }} active />
+                    <Skeleton.Input style={{ width: '30%', height: 12 }} active />
+                  </div>
+                  <Skeleton.Input style={{ width: '50%', height: 12, marginTop: 8 }} active />
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          carsToDisplay && carsToDisplay.length > 0 ? (() => {
+            return carsToDisplay.map((car) => {
+              return (
       <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
         <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
           <div className="car-listing-image-wrapper">
@@ -301,8 +399,10 @@ const Removefavcarapi = async (carId) => {
           </div>
         </Link>
       </div>
-    );
-  })}
+              );
+            });
+          })() : null
+        )}
 </div>
 
       <div className="row">
@@ -311,8 +411,8 @@ const Removefavcarapi = async (carId) => {
             showSizeChanger
             onShowSizeChange={onShowSizeChange}
             onChange={onPageChange}
-            defaultCurrent={paginationData?.page}
-            total={paginationData?.total}
+            defaultCurrent={paginationToDisplay?.page}
+            total={paginationToDisplay?.total}
           />
         </div>
       </div>
@@ -363,8 +463,12 @@ CarListing.propTypes = {
       limit: PropTypes.number,
     }),
   }),
+  cardata: PropTypes.array,
+  title: PropTypes.string,
 };
 
 CarListing.defaultProps = {
   filtercarsData: { cars: [], pagination: {} },
+  cardata: [],
+  title: 'Search Results',
 };

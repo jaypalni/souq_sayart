@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FilterIcon from '../assets/images/filter_icon.svg';
 import { carAPI } from '../services/api';
@@ -28,6 +28,9 @@ import Extrasicon from '../assets/images/extras_icon.svg';
 import Safetyicon from '../assets/images/safety_icon.svg';
 import Searchicon from '../assets/images/search_icon.svg';
 import Backarrowicon from '../assets/images/backarrow_icon.svg';
+import { message } from 'antd';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import Searchemptymodal from './searchemptymodal';
 
 const { Option } = Select;
 
@@ -124,9 +127,11 @@ const useSingleInputs = () => {
 // Helper functions
 const handleCheckboxChange = (option, selectedValues, setSelectedValues) => {
   if (selectedValues.includes(option)) {
-    setSelectedValues(selectedValues.filter((val) => val !== option));
+    // setSelectedValues(selectedValues.filter((val) => val !== option));
+     setSelectedValues([]);
   } else {
-    setSelectedValues([...selectedValues, option]);
+    // setSelectedValues([...selectedValues, option]);
+    setSelectedValues([option]);
   }
 };
 
@@ -139,8 +144,8 @@ const handleFeatureToggle = (selectedFeatures, setSelectedFeatures) => (feature)
 };
 
 const handleKeywordsChange = (keywords, setKeywords) => (value) => {
-  if (value.trim()) {
-    setKeywords(value.split(',').map(k => k.trim()).filter(k => k));
+  if (value?.trim()) {
+    setKeywords(value?.split(',').map(k => k?.trim()).filter(k => k));
   } else {
     setKeywords([]);
   }
@@ -163,14 +168,14 @@ const prepareFilterData = (filterParams) => {
   const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords } = filterParams;
   
   return {
-    make: getFilterValue(make, 'Any'),
+    make: getFilterValue(make, 'All Make'),
     model: getFilterValue(model, 'All Models'),
     trim: getFilterValue(singleInputs.trimValue, 'Any'),
     year_min: getNumericFilterValue(rangeInputs.yearMin),
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    location: getFilterValue(location, 'Any'),
+    location: getFilterValue(location, 'All Locations'),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
     colour: getFilterValue(singleInputs.colorValue, 'Any'),
@@ -226,19 +231,35 @@ const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, 
         <Input 
           placeholder={minPlaceholder || 'Min'} 
           value={minValue}
-          onChange={onMinChange}
+          onChange={(e) => handleNumberInput(e, onMinChange)}
         />
       </Col>
       <Col span={12}>
         <Input 
           placeholder={maxPlaceholder || 'Max'} 
           value={maxValue}
-          onChange={onMaxChange}
+          onChange={(e) => handleNumberInput(e, onMaxChange)}
         />
       </Col>
     </Row>
   </div>
 );
+
+const MAX_PRICE = 5000000000;
+
+ const handleNumberInput = (e, callback) => {
+  let value = e.target.value?.replace(/[^0-9]/g, ''); // remove non-numeric
+
+  if (value) {
+    let num = parseInt(value, 10);
+    if (num > MAX_PRICE) {
+      num = MAX_PRICE; // enforce max
+    }
+    value = String(num);
+  }
+
+  callback({ target: { value } }); // trigger state update with clean & capped value
+};
 
 RangeInputGroup.propTypes = {
   label: PropTypes.string.isRequired,
@@ -299,6 +320,36 @@ const SelectInput = ({ title, value, onChange, options, style }) => (
     </Select>
   </div>
 );
+
+const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
+  <div style={{ marginBottom: 16 }}>
+    <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
+      {title}
+    </div>
+    <Select
+      value={value}
+      onChange={onChange}
+      style={{ width: '100%', marginTop: '10px', ...style }}
+    >
+      {options.map(option => (
+        <Option key={option.id} value={option.trim_name}>
+          {option.trim_name}
+        </Option>
+      ))}
+    </Select>
+  </div>
+);
+
+SelectInputTrimData.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    trim_name: PropTypes.string.isRequired,
+  })).isRequired,
+  style: PropTypes.object,
+};
 
 SelectInput.propTypes = {
   title: PropTypes.string.isRequired,
@@ -448,40 +499,133 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const [search, setSearch] = useState('');
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [keywords, setKeywords] = useState([]);
+  const [trimData, setTrimData] = useState(false);
+  const [isEmptyModalOpen, setIsEmptyModalOpen] = useState(false);
+  const [emptySearchData, setEmptySearchData] = useState(null);
 
-  // Use custom hooks for state management
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
 
   const handleChange = (e) => setValue(e.target.value);
 
-  const handleFuelTypeChange = (option) => {
-    if (filterState.selectedValues.includes(option)) {
-      filterState.setSelectedValues(filterState.selectedValues.filter((item) => item !== option));
-    } else {
-      filterState.setSelectedValues([...filterState.selectedValues, option]);
+  useEffect(() => {
+    fetchTrimData()
+  },[make,model])
+
+  const fetchTrimData = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.trimDetailsFilter(make,model);
+    const data1 = handleApiResponse(response);
+
+    if (data1) {
+      setTrimData(data1?.data);
     }
-  };
+
+    message.success(data1.message || 'Fetched successfully');
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to Trim car data');
+    setTrimData([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // const handleFuelTypeChange = (option) => {
+  //   if (filterState.selectedValues.includes(option)) {
+  //     filterState.setSelectedValues(filterState.selectedValues.filter((item) => item !== option));
+  //   } else {
+  //     filterState.setSelectedValues([...filterState.selectedValues, option]);
+  //   }
+  // };
+  const handleFuelTypeChange = (option, selectedValues, setSelectedValues) => {
+  if (selectedValues.includes(option)) {
+    // If clicked again, clear the selection
+    setSelectedValues([]);
+  } else {
+    // Allow only one selection
+    setSelectedValues([option]);
+  }
+};
+
 
   const handleApplyFilters = async () => {
     try {
       setLoading(true);
       const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords });
       const response = await carAPI.searchCars(filterData);      
-      
-      if (onSearchResults && response.data) {
-        onSearchResults(response.data);
+      if (response.data) {
+        const results = response.data.cars || response.data || [];
+        
+        if (onSearchResults) {
+          onSearchResults(response.data);
+        }
+        
+        if (response?.data?.data?.cars.length === 0) {
+          // Store the complete filter data for the modal
+          setEmptySearchData(filterData);
+          // Show empty state modal
+          setIsEmptyModalOpen(true);
+          message.info('No cars found with the current filters. Try adjusting your search criteria.');
+        } else {
+          message.success(`Found ${results.length} car(s) matching your filters!`);
+        }
       }
       
       setVisible(false);
     } catch (error) {
       console.error('Search API Error:', error);
+      
+      // Still try to call onSearchResults with empty data to reset the state
+      if (onSearchResults) {
+        onSearchResults({ cars: [], pagination: {} });
+      }
+      
       setVisible(false);
     } finally {
       setLoading(false);
     }
   };
+
+    const handleResetFilters = () => {
+    // Reset range inputs
+    rangeInputs.setKilometersMin('');
+    rangeInputs.setKilometersMax('');
+    rangeInputs.setYearMin('');
+    rangeInputs.setYearMax('');
+    rangeInputs.setPriceMin('');
+    rangeInputs.setPriceMax('');
+    rangeInputs.setPowerMin('');
+    rangeInputs.setPowerMax('');
+    rangeInputs.setConsumptionMin('');
+    rangeInputs.setConsumptionMax('');
+    rangeInputs.setSeatsMin('');
+    rangeInputs.setSeatsMax('');
+
+    // Reset filter state
+    filterState.setSelectedValues(['Any']);
+    filterState.settransmissionselectedValues(['Any']);
+    filterState.setcylinderselectedValues([]);
+    filterState.setdoorselectedValues([]);
+    filterState.setCondition(['Any']);
+    filterState.setOwnerType(['Any']);
+
+    // Reset single inputs
+    singleInputs.setTrimValue('Any');
+    singleInputs.setColorValue('Any');
+    singleInputs.setInteriorValue('Any');
+    singleInputs.setPaymentOptions('Any');
+    singleInputs.setRegionalSpecs('Any');
+    setKeywords([]);
+    setSelectedFeatures([]);
+
+    setValue('Any');
+
+    message.success('Filters have been reset!');
+  };
+
 
   return (
     <>
@@ -515,11 +659,12 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           overflowY: 'auto',
           paddingRight: '8px',
         }}>
-          <SelectInput
+          
+          <SelectInputTrimData
             title="Trim"
             value={singleInputs.trimValue}
             onChange={singleInputs.setTrimValue}
-            options={['Any', 'Base', 'Sport']}
+            options={trimData}
           />
 
           <div style={{ marginBottom: 16 }}>
@@ -624,7 +769,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             setSelectedValues={filterState.setcylinderselectedValues}
           />
 
-          <RangeInputGroup
+          {/* <RangeInputGroup
             label="Power (1hp)"
             minValue={rangeInputs.powerMin}
             maxValue={rangeInputs.powerMax}
@@ -638,7 +783,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             maxValue={rangeInputs.consumptionMax}
             onMinChange={(e) => rangeInputs.setConsumptionMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setConsumptionMax(e.target.value)}
-          />
+          /> */}
 
           <SelectInput
             title="Color"
@@ -647,15 +792,15 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             options={['Any', 'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple']}
           />
 
-          <RangeInputGroup
+          {/* <RangeInputGroup
             label="Number Of Seats"
             minValue={rangeInputs.seatsMin}
             maxValue={rangeInputs.seatsMax}
             onMinChange={(e) => rangeInputs.setSeatsMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setSeatsMax(e.target.value)}
-          />
+          /> */}
 
-          <div style={{ marginBottom: 16 }}>
+          {/* <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '3px' }}>
               Extra Features
             </div>
@@ -666,7 +811,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             >
               <Select.Option value="Any">Any</Select.Option>
             </Select>
-          </div>
+          </div> */}
 
           <CheckboxGroup
             title="Number of Doors"
@@ -676,20 +821,20 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             setSelectedValues={filterState.setdoorselectedValues}
           />
 
-          <SelectInput
+          {/* <SelectInput
             title="Interior"
             value={singleInputs.interiorValue}
             onChange={singleInputs.setInteriorValue}
             options={['Any', 'Leather', 'Cloth']}
-          />
+          /> */}
 
-          <SelectInput
+          {/* <SelectInput
             title="Payment Options"
             value={singleInputs.paymentOptions}
             onChange={singleInputs.setPaymentOptions}
             options={['Any', 'Cash', 'Installment']}
             style={{ marginTop: '3px' }}
-          />
+          /> */}
 
           <SelectInput
             title="Regional Specs"
@@ -705,7 +850,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             <Input
               placeholder="Enter keywords (e.g., low mileage, one owner, accident free)"
               value={keywords.join(', ')}
-              onChange={handleKeywordsChange(keywords, setKeywords)}
+              onChange={(e) => handleKeywordsChange(keywords, setKeywords)(e.target.value)}
               style={{ width: '100%', marginTop: '10px' }}
             />
           </div>
@@ -719,9 +864,33 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           />
 
           <Divider />
-          <Button type="primary" block onClick={handleApplyFilters} loading={loading}>
-            {loading ? 'Searching...' : 'Apply Filters'}
-          </Button>
+
+<Row gutter={12}>
+  <Col span={12}>
+    <Button
+      type="primary"
+      block
+      onClick={handleApplyFilters}
+      loading={loading}
+    >
+      {loading ? 'Searching...' : 'Apply Filters'}
+    </Button>
+  </Col>
+  <Col span={12}>
+    <Button
+      block
+      onClick={handleResetFilters}
+      style={{
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #008ad5',
+        color: '#008ad5',
+      }}
+    >
+      Reset Filters
+    </Button>
+  </Col>
+</Row>
+
         </div>
       </Drawer>
 
@@ -732,6 +901,22 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
         onSearchChange={(e) => setSearch(e.target.value)}
         selectedFeatures={selectedFeatures}
         onFeatureToggle={handleFeatureToggle(selectedFeatures, setSelectedFeatures)}
+      />
+
+      <Searchemptymodal
+        visible={isEmptyModalOpen}
+        onClose={() => setIsEmptyModalOpen(false)}
+        make={make}
+        setMake={() => {}} 
+        model={model}
+        setModel={() => {}} // Placeholder - parent component should handle this
+        bodyType={bodyType}
+        setBodyType={() => {}} // Placeholder - parent component should handle this
+        selectedLocation={location}
+        setSelectedLocation={() => {}} // Placeholder - parent component should handle this
+        toastmessage={(msg) => message.info(msg)}
+        setSaveSearchesReload={() => {}}
+        filterData={emptySearchData}
       />
     </>
   );

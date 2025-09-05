@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button, message } from 'antd';
+import { Select, Button, message, InputNumber } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
@@ -24,7 +24,7 @@ const DEFAULTS = {
   ALL_MODELS: 'All Models',
   ALL_BODY_TYPES: 'All Body Types',
   BAGHDAD: 'Baghdad',
-  NEW_USED: 'New & Used111111',
+  NEW_USED: 'New & Used',
   PRICE_MIN: 'Price Min',
   PRICE_MAX: 'Price Max',
 };
@@ -47,7 +47,7 @@ const bodyTypes = [
   'Coupe',
   'Convertible',
 ];
-const locations = [DEFAULTS.BAGHDAD, 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+const locations = ['All Locations', 'Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
 const newUsedOptions = [DEFAULTS.NEW_USED, 'New', 'Used'];
 const PRICE_MIN_VALUES = [5000, 10000, 20000, 30000, 40000];
 const PRICE_MAX_VALUES = [20000, 30000, 40000, 50000, 100000];
@@ -55,57 +55,258 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 342642;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData }) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
 
-const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
-  const [model, setModel] = useState(DEFAULTS.ALL_MODELS);
-  const [bodyType, setBodyType] = useState(DEFAULTS.ALL_BODY_TYPES);
+// Initialize make from localStorage if available
+const getInitialMake = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.make && saved.make !== '') {
+      return saved.make;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.ALL_MAKE;
+};
+
+const [make, setMake] = useState(getInitialMake);
+
+// Initialize model from localStorage if available
+const getInitialModel = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.model && saved.model !== '') {
+      return saved.model;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.ALL_MODELS;
+};
+
+  const [model, setModel] = useState(getInitialModel);
+// Initialize bodyType from localStorage if available
+const getInitialBodyType = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.body_type && saved.body_type !== '') {
+      return saved.body_type;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.ALL_BODY_TYPES;
+};
+
+  const [bodyType, setBodyType] = useState(getInitialBodyType);
    const [carModels, setCarModels] = useState([]);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
-  const [location, setLocation] = useState(DEFAULTS.BAGHDAD);
-  const [newUsed, setNewUsed] = useState(DEFAULTS.NEW_USED);
-  const [priceMin, setPriceMin] = useState(DEFAULTS.PRICE_MIN);
-  const [priceMax, setPriceMax] = useState(DEFAULTS.PRICE_MAX);
+// Initialize location from localStorage if available
+const getInitialLocation = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.location && saved.location !== '') {
+      return saved.location;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return 'All Locations';
+};
+
+  const [location, setLocation] = useState(getInitialLocation);
+
+// Initialize newUsed from localStorage if available
+const getInitialNewUsed = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.condition && saved.condition !== '') {
+      return saved.condition;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.NEW_USED;
+};
+
+// Initialize priceMin from localStorage if available
+const getInitialPriceMin = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_min && saved.price_min !== '') {
+      return saved.price_min;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.PRICE_MIN;
+};
+
+// Initialize priceMax from localStorage if available
+const getInitialPriceMax = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_max && saved.price_max !== '') {
+      return saved.price_max;
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return DEFAULTS.PRICE_MAX;
+};
+
+  const [newUsed, setNewUsed] = useState(getInitialNewUsed);
+  const [priceMin, setPriceMin] = useState(getInitialPriceMin);
+  const [priceMax, setPriceMax] = useState(getInitialPriceMax);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [carCount] = useState(DEFAULT_CAR_COUNT);
   const [openDropdown, setOpenDropdown] = useState(null);
+   const [showMinInput, setShowMinInput] = useState(false);
+    const [showMaxInput, setShowMaxInput] = useState(false);
+
+// Initialize minPrice and maxPrice from localStorage if available
+const getInitialMinPrice = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_min && saved.price_min !== '') {
+      return parseFloat(saved.price_min);
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return null;
+};
+
+const getInitialMaxPrice = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (saved && saved.price_max && saved.price_max !== '') {
+      return parseFloat(saved.price_max);
+    }
+  } catch (e) {
+    // Silent error handling
+  }
+  return null;
+};
+
+    const [minPrice, setMinPrice] = useState(getInitialMinPrice);
+    const [maxPrice, setMaxPrice] = useState(getInitialMaxPrice);
   const dropdownRefs = {
     [DROPDOWN_NEW_USED]: useRef(),
     [DROPDOWN_PRICE_MIN]: useRef(),
     [DROPDOWN_PRICE_MAX]: useRef(),
   };
   const [filterVisible, setFilterVisible] = useState(false);
+  const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
     useEffect(() => {
       fetchMakeCars({ setLoading, setCarMakes });
+      fetchtotalcarcount();
     }, []);
 
-  useEffect(() => {
+// State is now initialized directly from localStorage in useState calls above
+
+// Ensure location is properly set from localStorage
+useEffect(() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    
+    // If there's saved location data, use it; otherwise default to "All Locations"
+    if (saved && saved.location && saved.location !== '') {
+      setLocation(saved.location);
+      // Update breadcrumb if setSelectedLocation is available
+      if (setSelectedLocation) {
+        setSelectedLocation(saved.location);
+      }
+    } else {
+      setLocation('All Locations');
+    }
+  } catch (e) {
+    setLocation('All Locations');
+  }
+}, [setSelectedLocation]);
+
+// Trigger search on component mount if there are saved filter values
+useEffect(() => {
+  const hasSavedFilters = () => {
     try {
       const saved = JSON.parse(localStorage.getItem('searchcardata'));
-      if (saved) {
-        setMake(saved.make || DEFAULT_MAKE);
-        setModel(saved.model || DEFAULT_MODEL);
-        setBodyType(saved.body_type || DEFAULT_BODY_TYPE);
-        setLocation(saved.location || DEFAULT_LOCATION);
-      }
-    } catch (e) {}
-  }, []);
+      return saved && (
+        (saved.make && saved.make !== '') ||
+        (saved.model && saved.model !== '') ||
+        (saved.body_type && saved.body_type !== '') ||
+        (saved.price_min && saved.price_min !== '') ||
+        (saved.price_max && saved.price_max !== '')
+      );
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Only trigger search if there are meaningful saved filters
+  if (hasSavedFilters()) {
+    // Small delay to ensure all state is initialized
+    const timer = setTimeout(() => {
+      handleSearch();
+    }, 100);
+    return () => clearTimeout(timer);
+  }
+}, []); // Empty dependency array - only run on mount
+
+// Temporary: Add a function to manually clear localStorage (for debugging)
+useEffect(() => {
+  // Uncomment the next line to clear localStorage on component mount
+  // localStorage.removeItem('searchcardata');
+}, []);
+
+
+useEffect(() => {
+    if (make && make !== DEFAULTS.ALL_MAKE) {
+      fetchModelCars({ setLoading, setCarModels, make }).then(() => {
+        // Only reset model if it's not already set from localStorage
+        const saved = JSON.parse(localStorage.getItem('searchcardata'));
+        if (!saved || !saved.model || saved.model === '') {
+          setModel(DEFAULTS.ALL_MODELS);
+        }
+      });
+    } else {
+      setCarModels([]);
+      setModel(DEFAULTS.ALL_MODELS);
+    }
+  }, [make]);
+
   useEffect(() => {
-    if (model) {
-      fetchBodyTypeCars();
+    // Fetch body types on component mount
+    fetchBodyTypeCars();
+    
+    // Fetch models if there's a saved make
+    try {
+      const saved = JSON.parse(localStorage.getItem('searchcardata'));
+      if (saved && saved.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
+        fetchModelCars({ setLoading, setCarModels, make: saved.make });
+      }
+    } catch (e) {
+      // Silent error handling
     }
   }, []);
+
+  useEffect(() => {
+handleSearch()
+  }, [sortedbydata]);
   
   useEffect(() => {
     if (make) {
       fetchModelCars({ setLoading, setCarModels, make });
     }
-    setBodyType(DEFAULTS.ALL_BODY_TYPES)
+    // Only reset body type if it's not already set from localStorage
+    const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    if (!saved || !saved.body_type || saved.body_type === '') {
+      setBodyType(DEFAULTS.ALL_BODY_TYPES);
+    }
   }, [make]);
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -161,56 +362,155 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
   };
 
   const handleSearch = async () => {
+    let sortbynewlist = false;
+  let sortbyold = false;
+  let sortbypriceormileage = '';
+  let sortorder = '';
+
+  switch (sortedbydata) {
+    case 'Newest Listing':
+      sortbynewlist = true;
+      break;
+
+    case 'Oldest Listing':
+      sortbyold = true;
+      break;
+
+    case 'Price : Low to High':
+      sortbypriceormileage = 'price';
+      sortorder = 'asc';
+      break;
+
+    case 'Price : High to Low':
+      sortbypriceormileage = 'price';
+      sortorder = 'desc';
+      break;
+
+    case 'Mileage: Low to High':
+      sortbypriceormileage = 'mileage';
+      sortorder = 'asc';
+      break;
+
+    case 'Mileage: High to Low':
+      sortbypriceormileage = 'mileage';
+      sortorder = 'desc';
+      break;
+
+    default:
+      // No sort selected, keep defaults
+      break;
+  }
     const saveParams = {
-      make,
-      model,
-      body_type: bodyType,
-      location,
-      newUsed,
+      make: make === DEFAULTS.ALL_MAKE ? '' : make,
+      model: model === DEFAULTS.ALL_MODELS ? '' : model,
+      body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+      location: location === 'All Locations' ? '' : (location || ''),
+      newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
       priceMin,
       priceMax,
+      newest_listing: sortbynewlist,
+      oldest_listing: sortbyold,
+      sort_by: sortbypriceormileage,
+      sort_order: sortorder,
     };
 
+
+
+    // Save filters to localStorage
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
+    // Update breadcrumb directly via prop
+    if (setSelectedLocation) {
+      setSelectedLocation(location);
+    }
+    // Dispatch custom event to update breadcrumb (fallback)
+    window.dispatchEvent(new CustomEvent('searchDataUpdated'));
     message.success('Filters saved!');
 
     try {
       setLoading(true);
+       const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
       const apiParams = {
         make: '',
         model: '',
         body_type: '',
         location: '',
+        price_min: cleanedMin,
+      price_max: cleanedMax,
+      newest_listing: sortbynewlist,
+      oldest_listing: sortbyold,
+      sort_by: sortbypriceormileage,
+      sort_order: sortorder,
       };
-      if (make !== DEFAULTS.ALL_MAKE) {
-        apiParams.make = make;
-      }
+       // Handle make parameter
+       if (make === DEFAULTS.ALL_MAKE) {
+         apiParams.make = '';
+       } else {
+         apiParams.make = make;
+       }
       if (model !== DEFAULTS.ALL_MODELS) {
         apiParams.model = model;
+      } else {
+        apiParams.model = '';
       }
       if (bodyType !== DEFAULTS.ALL_BODY_TYPES) {
         apiParams.body_type = bodyType;
+      } else {
+        apiParams.body_type = '';
       }
-      if (location !== DEFAULTS.BAGHDAD) {
+      if (location && location !== '' && location !== 'All Locations') {
         apiParams.location = location;
+      } else {
+        apiParams.location = '';
       }
+
+      // Set loading state and clear previous data immediately
+      if (setIsLoading) {
+        setIsLoading(true);
+      }
+      // Clear previous search results immediately when new search starts
+      setFilterCarsData({ cars: [], pagination: {} });
+      // Also clear any cached search results
+      setCarSearch([]);
+      // Clear only non-essential cached data, preserve searchcardata and filter options
+      localStorage.removeItem('cachedCarsData');
+      localStorage.removeItem('carsData');
+      localStorage.removeItem('filterData');
+      localStorage.removeItem('carSearchData');
+      localStorage.removeItem('savedCarsData');
 
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
 
       if (data1) {
-        const results = data1?.data || [];
+        const results = data1?.data?.cars || [];
         setCarSearch(results);
 
         if (results.length === 0) {
           setIsModalOpen(true);
+          // Clear data when no results
+          setFilterCarsData({ cars: [], pagination: {} });
         } else {
-          setFilterCarsData(results);
-          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
+          // Set ONLY fresh API data - completely replace any old data
+          // Force clear any existing data first
+          setFilterCarsData({ cars: [], pagination: {} });
+          // Then set ONLY the fresh API data
+          setFilterCarsData({
+            cars: data1.data.cars || [],
+            pagination: data1.data.pagination || {}
           });
+          // Save search parameters to localStorage
+          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
+          // Update breadcrumb directly via prop
+          if (setSelectedLocation) {
+            setSelectedLocation(location);
+          }
+          // Dispatch custom event to update breadcrumb (fallback)
+          window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+          // messageApi.open({
+          //   type: 'success',
+          //   content: data1?.message,
+          // });
         }
       }
     } catch (error) {
@@ -219,6 +519,10 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
       setCarSearch([]);
     } finally {
       setLoading(false);
+      // Clear loading state
+      if (setIsLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -257,6 +561,25 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
     </div>
   );
 
+  const fetchtotalcarcount = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.totalcarscount();
+      const data1 = handleApiResponse(response);
+  
+      if (data1?.total_cars !== undefined) {
+        setCarCount(data1.total_cars); 
+      } else {
+        message.error('No content found');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="allcars-filters-outer">
       {contextHolder}
@@ -286,23 +609,24 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="model-select">Model</label>
             <Select
-              id="model-select"
-              value={model}
-              onChange={(value) => {
-                setModel(value);
-                handleChange('Model', value);
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-              disabled={make === DEFAULTS.ALL_MAKE}
-            >
-              {carModels?.map((m) => (
-                <Option key={m} value={m.model_name}>
-                  {m.model_name}
-                </Option>
-              ))}
-            </Select>
+  id="model-select"
+  value={model}
+  onChange={(value) => {
+    setModel(value);
+    handleChange('Model', value);
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  disabled={make === DEFAULTS.ALL_MAKE}
+>
+  {carModels?.map((m) => (
+    <Option key={m} value={m.model_name}>
+      {m.model_name}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="bodytype-select">Body Type</label>
@@ -332,6 +656,12 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
               onChange={(value) => {
                 setLocation(value);
                 handleChange('Location', value);
+                // Update breadcrumb directly via prop
+                if (setSelectedLocation) {
+                  setSelectedLocation(value);
+                }
+                // Dispatch custom event to update breadcrumb (fallback)
+                window.dispatchEvent(new CustomEvent('searchDataUpdated'));
               }}
               className="allcars-filters-select"
               size="large"
@@ -353,7 +683,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             bodyType={bodyType}
             location={location}
             onSearchResults={(searchResults) => {
-              if (searchResults?.data) {
+              if (searchResults?.data !== undefined) {
                 setFilterCarsData(searchResults.data);
                 setFilterVisible(false);
               }
@@ -361,15 +691,15 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
           />
 
           <div className="allcars-filters-col allcars-filters-btn-col">
-            <Button
-              type="primary"
-              size="large"
-              onClick={handleSearch}
-              icon={<SearchOutlined />}
-              className="allcars-filters-btn"
-            >
-              <span>Show {carCount.toLocaleString()} Cars</span>
-            </Button>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleSearch}
+            icon={<SearchOutlined />}
+            className="landing-filters-btn"
+          >
+            <span>Show {carCount.toLocaleString()} Cars</span>
+          </Button>
           </div>
         </div>
 
@@ -388,44 +718,90 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
             {openDropdown === DROPDOWN_NEW_USED &&
               renderDropdown(DROPDOWN_NEW_USED, newUsedOptions, newUsed, setNewUsed)}
           </button>
-          <button
-            type="button"
-            className="allcars-filters-text"
-            onClick={() => toggleDropdown(DROPDOWN_PRICE_MIN)}
-            aria-expanded={openDropdown === DROPDOWN_PRICE_MIN}
-            aria-controls={`menu-${DROPDOWN_PRICE_MIN}`}
-          >
-            {priceMin}{' '}
-            <span className="allcars-filters-text-arrow">
-              <MdKeyboardArrowDown />
-            </span>
-            {openDropdown === DROPDOWN_PRICE_MIN &&
-              renderDropdown(
-                DROPDOWN_PRICE_MIN,
-                priceMinOptions,
-                priceMin,
-                setPriceMin,
-              )}
-          </button>
-          <button
-            type="button"
-            className="allcars-filters-text"
-            onClick={() => toggleDropdown(DROPDOWN_PRICE_MAX)}
-            aria-expanded={openDropdown === DROPDOWN_PRICE_MAX}
-            aria-controls={`menu-${DROPDOWN_PRICE_MAX}`}
-          >
-            {priceMax}{' '}
-            <span className="allcars-filters-text-arrow">
-              <MdKeyboardArrowDown />
-            </span>
-            {openDropdown === DROPDOWN_PRICE_MAX &&
-              renderDropdown(
-                DROPDOWN_PRICE_MAX,
-                priceMaxOptions,
-                priceMax,
-                setPriceMax,
-              )}
-          </button>
+          <div className="landing-filters-row landing-filters-row-text">
+         
+            {/* Price Min */}
+<div>
+  {!showMinInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#008AD5',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 400,
+      }}
+      onClick={() => setShowMinInput(true)}
+    >
+      {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '100px' }}
+      min={0}
+      value={minPrice}
+      onChange={(value) => {
+        if (maxPrice !== null && value >= maxPrice) {
+          messageApi.error('Minimum price should be less than Maximum price');
+          return;
+        }
+        setMinPrice(value);
+      }}
+      onBlur={() => {
+        if (minPrice === null) setShowMinInput(false);
+      }}
+      placeholder="Min"
+    />
+  )}
+</div>
+
+{/* Price Max */}
+<div>
+  {!showMaxInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#008AD5',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 400,
+      }}
+      onClick={() => setShowMaxInput(true)}
+    >
+      {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '120px' }}
+      min={0}
+      value={maxPrice}
+      onChange={(value) => {
+        if (value > 5000000000) {
+          messageApi.error('Maximum allowed price is ₹5,000,000,000');
+          return;
+        }
+        if (minPrice !== null && value <= minPrice) {
+          messageApi.error('Maximum price should be greater than Minimum price');
+          return;
+        }
+        setMaxPrice(value);
+      }}
+      onBlur={() => {
+        if (maxPrice === null) setShowMaxInput(false);
+      }}
+      placeholder="Max"
+    />
+  )}
+</div>
+
+
+        </div>
         </div>
       </div>
       <Searchemptymodal
@@ -441,6 +817,7 @@ const [make, setMake] = useState(DEFAULTS.ALL_MAKE);
         selectedLocation={location}
         setSelectedLocation={setLocation}
         onSave={handleSearch}
+        setSaveSearchesReload={() => {}}
       />
     </div>
   );
@@ -451,4 +828,7 @@ export default LandingFilters;
 LandingFilters.propTypes = {
   setFilterCarsData: PropTypes.func.isRequired,
   filtercarsData: PropTypes.any,
+  sortedbydata: PropTypes.string,
+  setSelectedLocation: PropTypes.func,
+  setIsLoading: PropTypes.func,
 };

@@ -1,73 +1,88 @@
-/*
- * Copyright (c) 2025 Palni. All rights reserved.
- * This file is part of the ss-frontend project.
- * Unauthorized copying, modification, or distribution of this file,
- * via any medium is strictly prohibited unless explicitly authorized.
- */
+import React, { useEffect, useState } from 'react';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { message, Typography, Spin } from 'antd';
 
-import React from 'react';
-import { Typography } from 'antd';
-
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
 
 const TermsAndconditions = () => {
+  const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [contentData, setContentData] = useState(null);
+
+  useEffect(() => {
+    fetchContentData();
+  }, []);
+
+  // Convert emails inside text into clickable mailto links
+  const convertEmailsToLinks = (text) => {
+    if (!text) return '';
+    return text.replace(
+      /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
+      "<a href='mailto:$1' style='color:#1890ff; text-decoration:underline;'>$1</a>"
+    );
+  };
+
+  const fetchContentData = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.termsAndConditions();
+      const data1 = handleApiResponse(response);
+
+      if (data1?.data) {
+        setContentData(data1.data);
+        messageApi.open({
+          type: 'success',
+          content: data1?.message || 'Content loaded successfully',
+        });
+      } else {
+        message.error('No content found');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div style={{ maxWidth: 800, margin: '5 auto', padding: '2rem' }}>
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: '2rem' }}>
+      {contextHolder}
       <Typography>
-        <Title level={3}>Terms & Conditions</Title>
+        {loading ? (
+          <Spin tip="Loading content..." />
+        ) : (
+          <>
+            {/* Privacy Policy Section */}
+            <Title level={3} style={{ marginTop: '2rem' }}>
+              Privacy Policy
+            </Title>
+            {contentData?.privacy_policy?.map((item) => (
+              <Paragraph
+                key={item.id}
+                style={{ whiteSpace: 'pre-line', lineHeight: '1.7' }}
+              >
+                {item.message}
+              </Paragraph>
+            ))}
 
-        <Paragraph>
-          Welcome to our application. By using our services, you agree to be
-          bound by the following terms and conditions. Please read them
-          carefully.
-        </Paragraph>
-
-        <Title level={4}>1. Acceptance of Terms</Title>
-        <Paragraph>
-          By accessing and using this app, you accept and agree to be bound by
-          the terms and provision of this agreement. If you do not agree, you
-          must not use the app.
-        </Paragraph>
-
-        <Title level={4}>2. Privacy Policy</Title>
-        <Paragraph>
-          We respect your privacy and are committed to protecting your personal
-          data. Our Privacy Policy explains how we collect, use, and safeguard
-          your information.
-        </Paragraph>
-
-        <Title level={4}>3. User Conduct</Title>
-        <Paragraph>
-          You agree not to misuse the app or help anyone else to do so. Misuse
-          includes accessing or tampering with the app’s functionality, data, or
-          resources.
-        </Paragraph>
-
-        <Title level={4}>4. Intellectual Property</Title>
-        <Paragraph>
-          All content on this app is the property of the company and is
-          protected by copyright, trademark, and other intellectual property
-          laws.
-        </Paragraph>
-
-        <Title level={4}>5. Termination</Title>
-        <Paragraph>
-          We may suspend or terminate your access if you violate these terms or
-          engage in activities that may harm the app or other users.
-        </Paragraph>
-
-        <Title level={4}>6. Changes to Terms</Title>
-        <Paragraph>
-          We reserve the right to update these terms at any time. Continued use
-          of the app after changes constitutes acceptance of the new terms.
-        </Paragraph>
-
-        <Paragraph>
-          <Text strong>
-            If you have any questions regarding these Terms & Conditions, please
-            contact us at support@example.com.
-          </Text>
-        </Paragraph>
+            {/* Terms & Conditions Section */}
+            <Title level={3}>Terms & Conditions</Title>
+            {contentData?.terms_conditions?.map((item) => (
+              <Paragraph
+                key={item.id}
+                style={{ whiteSpace: 'pre-line', lineHeight: '1.7' }}
+              >
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: convertEmailsToLinks(item.message),
+                  }}
+                />
+              </Paragraph>
+            ))}
+          </>
+        )}
       </Typography>
     </div>
   );

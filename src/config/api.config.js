@@ -12,6 +12,8 @@ const API_CONFIG = {
       UPLOAD_OPTION_DETAILS: 'api/cars/upload-option-details',
       TRIM_DETAILS: (make, modalName, yearData) =>
         `/api/cars/trims?make_name=${make}&model_name=${modalName}&year=${yearData}`,
+       TRIM_DETAILS_FILTERS: (make, modalName) =>
+        `/api/cars/trims?make_name=${make}&model_name=${modalName}`,
       GET_ALL: '/api/cars/list',
       GET_BY_ID: (id) => `/api/cars/details/${id}`,
       GET_CAR_MYLISTINGS: (page, limit, status) =>
@@ -35,6 +37,8 @@ const API_CONFIG = {
       POST_SAVE_SEARCHES: '/api/users/saved-searches',
       GET_SAVED_SEARCHES: (page, limit) =>
         `/api/users/saved-searches?page=${page}&limit=${limit}`,
+      GET_TERM_AND_CONDITIONS: '/api/users/content',
+      GET_CARS_TOTALCOUNT: '/api/cars/total_count'
     },
     AUTH: {
       LOGIN: '/api/auth/login',

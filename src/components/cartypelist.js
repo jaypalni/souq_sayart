@@ -169,6 +169,7 @@ const CarTypeList = () => {
         bodyType={bodyType}
         setBodyType={setBodyType}
         onSave={handleSearch}
+        setSaveSearchesReload={() => {}}
       />
     </div>
   );

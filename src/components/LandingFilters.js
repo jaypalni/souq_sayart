@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button } from 'antd';
+import { Select, Button, InputNumber } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import '../assets/styles/landingFilters.css';
 import { carAPI } from '../services/api';
@@ -25,6 +25,12 @@ import {
   DEFAULT_LOCATION,
 } from '../utils/apiUtils';
 const { Option } = Select;
+
+// Correct constants to match UI values
+const CORRECT_DEFAULT_MAKE = 'All Make';
+const CORRECT_DEFAULT_MODEL = 'All Models';
+const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
+const CORRECT_DEFAULT_LOCATION = 'All Locations';
 
 const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
@@ -68,10 +74,16 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [, setLoading] = useState(false);
-  const [make, setMake] = useState(DEFAULT_MAKE);
-  const [model, setModel] = useState(DEFAULT_MODEL);
-  const [bodyType, setBodyType] = useState(DEFAULT_BODY_TYPE);
-  const [location, setLocation] = useState(DEFAULT_LOCATION);
+  const [make, setMake] = useState(CORRECT_DEFAULT_MAKE);
+  const [model, setModel] = useState(CORRECT_DEFAULT_MODEL);
+  const [bodyType, setBodyType] = useState(CORRECT_DEFAULT_BODY_TYPE);
+  const [location, setLocation] = useState(CORRECT_DEFAULT_LOCATION);
+  
+  // Force location to "All Locations" on component mount
+  useEffect(() => {
+    setLocation('All Locations');
+  }, []);
+  
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
@@ -79,11 +91,15 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
   const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
   const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
-  const carCount = DEFAULT_CAR_COUNT;
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [, setToastMsg] = useState('');
+  const [showMinInput, setShowMinInput] = useState(false);
+  const [showMaxInput, setShowMaxInput] = useState(false);
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
+  const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
   const dropdownRefs = {
     newUsed: useRef(),
@@ -93,6 +109,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
+    fetchtotalcarcount()
   }, []);
 
   useEffect(() => {
@@ -113,9 +130,18 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   setBodyType(searchbodytype);
+  // }, [searchbodytype]);
+
   useEffect(() => {
+  if (searchbodytype) {
     setBodyType(searchbodytype);
-  }, [searchbodytype]);
+  } else {
+    setBodyType(CORRECT_DEFAULT_BODY_TYPE);
+  }
+}, [searchbodytype]);
+
 
   const fetchBodyTypeCars = async () => {
     try {
@@ -205,23 +231,8 @@ const getGeoData = async () => {
 };
 
 const resolveDefaultLocation = (locations, geoData) => {
-  if (!locations || locations.length === 0) {
-    return null;
-  }
-
-  const geoMatch = getLocationFromGeo(locations, geoData);
-  if (geoMatch) {
-    return geoMatch;
-  }
-
-  if (isIndiaLocale()) {
-    return (
-      locations.find((loc) => loc.location.toLowerCase() === 'india') ||
-      locations.find((loc) => loc.location.toLowerCase() === 'dubai')
-    );
-  }
-
-  return locations[0];
+  // Always return null to use "All Locations" as default
+  return null;
 };
 
 const getLocationFromGeo = (locations, geoData) => {
@@ -263,7 +274,10 @@ const isIndiaLocale = () => {
     }
   };
 
-  const handleChange = () => {};
+  const handleChange = (field, value) => {
+    console.log(`LandingFilters - handleChange called with field: ${field}, value: ${value}`);
+    // This function can be used for additional logic if needed
+  };
 
   const getDropdownLabel = (type) => {
     if (type === 'newUsed') {
@@ -282,19 +296,37 @@ const isIndiaLocale = () => {
     return '';
   };
 
+  const validatePriceRange = (newMin, newMax) => {
+  if (
+    newMin !== DEFAULT_PRICE_MIN &&
+    newMax !== DEFAULT_PRICE_MAX &&
+    Number(newMin) > Number(newMax)
+  ) {
+    setPriceMax(DEFAULT_PRICE_MAX); // reset to default
+    messageApi.open({
+      type: 'warning',
+      content: "Max price can't be lesser than Min price.",
+    });
+  }
+};
+
   const handleSearch = async () => {
     try {
       setLoading(true);
 
+      const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
+
       const params = {
-        make: valueOrEmpty(make, DEFAULT_MAKE),
-        model: valueOrEmpty(model, DEFAULT_MODEL),
-        body_type: valueOrEmpty(bodyType, DEFAULT_BODY_TYPE),
-        location: valueOrEmpty(location, DEFAULT_LOCATION),
-        price_min: priceMin !== DEFAULT_PRICE_MIN ? priceMin : '',
-        price_max: priceMax !== DEFAULT_PRICE_MAX ? priceMax : '',
+        make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
+        model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
+        body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
+        location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
+         price_min: cleanedMin,
+      price_max: cleanedMax,
         condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
       };
+
 
     
 
@@ -381,6 +413,12 @@ const isIndiaLocale = () => {
           setValue(opt);
           handleChange(label, opt);
           setOpenDropdown(null);
+           if (type === 'priceMin') {
+          validatePriceRange(opt, priceMax);
+        }
+        if (type === 'priceMax') {
+          validatePriceRange(priceMin, opt);
+        }
         };
         return (
           <div
@@ -408,6 +446,26 @@ const isIndiaLocale = () => {
     </div>
   );
 
+  const fetchtotalcarcount = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.totalcarscount();
+    const data1 = handleApiResponse(response);
+
+    if (data1?.total_cars !== undefined) {
+      setCarCount(data1.total_cars); 
+    } else {
+      message.error('No content found');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return (
     <div className="landing-filters-outer">
       {contextHolder}
@@ -419,9 +477,11 @@ const isIndiaLocale = () => {
               id="make-select"
               value={make}
               onChange={(value) => {
+                console.log('LandingFilters - Make selection changed to:', value);
                 setMake(value);
                 setModel('All Models');
                 handleChange('Make', value);
+                console.log('LandingFilters - Make state should now be:', value);
               }}
               className="landing-filters-select"
               size="large"
@@ -489,6 +549,9 @@ const isIndiaLocale = () => {
               size="large"
               dropdownClassName="landing-filters-dropdown"
             >
+              <Option key="all-locations" value="All Locations">
+                All Locations
+              </Option>
               {carLocation.map((l) => (
                 <Option key={l.id} value={l.location}>
                   {l.location}
@@ -498,14 +561,15 @@ const isIndiaLocale = () => {
           </div>
           <div className="landing-filters-col landing-filters-btn-col">
             <Button
-              type="primary"
-              size="large"
-              onClick={handleSearch}
-              icon={<SearchOutlined />}
-              className="landing-filters-btn"
-            >
-              <span>Show {carCount.toLocaleString()} Cars</span>
-            </Button>
+  type="primary"
+  size="large"
+  onClick={handleSearch}
+  icon={<SearchOutlined />}
+  className="landing-filters-btn"
+>
+  <span>Show {carCount.toLocaleString()} Cars</span>
+</Button>
+
           </div>
         </div>
         <div className="landing-filters-row landing-filters-row-text">
@@ -520,38 +584,87 @@ const isIndiaLocale = () => {
             {openDropdown === 'newUsed' &&
               renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
           </button>
-          <button
-            type="button"
-            className="landing-filters-text"
-            onClick={() => toggleDropdown('priceMin')}
-            style={{ background: 'transparent', border: 'none', padding: 0 }}
-          >
-            <span className="landing-filters-text-label">{priceMin}</span>
-            <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'priceMin' &&
-              renderDropdown(
-                'priceMin',
-                priceMinOptions,
-                priceMin,
-                setPriceMin,
-              )}
-          </button>
-          <button
-            type="button"
-            className="landing-filters-text"
-            onClick={() => toggleDropdown('priceMax')}
-            style={{ background: 'transparent', border: 'none', padding: 0 }}
-          >
-            <span className="landing-filters-text-label">{priceMax}</span>
-            <span className="landing-filters-text-arrow">▼</span>
-            {openDropdown === 'priceMax' &&
-              renderDropdown(
-                'priceMax',
-                priceMaxOptions,
-                priceMax,
-                setPriceMax,
-              )}
-          </button>
+            {/* Price Min */}
+<div>
+  {!showMinInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#fff',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 700,
+      }}
+      onClick={() => setShowMinInput(true)}
+    >
+      {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '100px' }}
+      min={0}
+      value={minPrice}
+      onChange={(value) => {
+        if (maxPrice !== null && value >= maxPrice) {
+          messageApi.error('Minimum price should be less than Maximum price');
+          return;
+        }
+        setMinPrice(value);
+      }}
+      onBlur={() => {
+        if (minPrice === null) setShowMinInput(false);
+      }}
+      placeholder="Min"
+    />
+  )}
+</div>
+
+{/* Price Max */}
+<div>
+  {!showMaxInput ? (
+    <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#fff',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 700,
+      }}
+      onClick={() => setShowMaxInput(true)}
+    >
+      {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
+    </div>
+  ) : (
+    <InputNumber
+      style={{ width: '120px' }}
+      min={0}
+      value={maxPrice}
+      onChange={(value) => {
+        if (value > 5000000000) {
+          messageApi.error('Maximum allowed price is ₹5,000,000,000');
+          return;
+        }
+        if (minPrice !== null && value <= minPrice) {
+          messageApi.error('Maximum price should be greater than Minimum price');
+          return;
+        }
+        setMaxPrice(value);
+      }}
+      onBlur={() => {
+        if (maxPrice === null) setShowMaxInput(false);
+      }}
+      placeholder="Max"
+    />
+  )}
+</div>
+
+
         </div>
       </div>
 

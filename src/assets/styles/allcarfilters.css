@@ -58,7 +58,7 @@
 
 .allcars-filters-select .ant-select-selector {
   background-color: #E7EBEF !important;
-  color: #ffffff !important;
+  /* color: #ffffff !important; */
   border-radius: 4px; 
   border: 1px solid #000; 
 }

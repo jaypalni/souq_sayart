@@ -4,27 +4,22 @@
  * Unauthorized copying, modification, or distribution of this file,
  * via any medium is strictly prohibited unless explicitly authorized.
  */
-
 import React, { useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
-
 const Captcha = () => {
-  const [setVerified] = useState(false);
+  const [verified, setVerified] = useState(false);
   const handleCaptchaChange = (value) => {
     setVerified(!!value);
-
+    // Always send a safe string to Flutter
     if (window.Captcha) {
-      window.Captcha.postMessage(value);
+      window.Captcha.postMessage(value ? String(value) : '');
     }
   };
   return (
-    <>
-      <ReCAPTCHA
-        sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-        onChange={handleCaptchaChange}
-      />
-    </>
+    <ReCAPTCHA
+      sitekey='6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // test key
+      onChange={handleCaptchaChange}
+    />
   );
 };
-
 export default Captcha;

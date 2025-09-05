@@ -295,7 +295,7 @@ const Removefavcarapi = async (carId) => {
             <div className="col-3 p-0" key={`skeleton-${index}`}>
               <div className="allcars-listing-card">
                 <Skeleton.Image 
-                  style={{ width: '100%', height: 200 }} 
+                  // style={{ }} 
                   active 
                 />
                 <div style={{ padding: '16px' }}>

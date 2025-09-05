@@ -276,12 +276,13 @@ const Header = () => {
                 defaultValue="En"
                 bordered={false}
                 style={{
-                  width: 90,
+                  // width: 90,
                   color: '#FAFAFA',
                   backgroundColor: 'transparent',
                   fontSize: '12px',
                   fontWeight: 700,
                 }}
+                className='laguageSelect'
                 dropdownStyle={{
                   backgroundColor: 'white',
                   boxShadow: 'none',

@@ -131,4 +131,15 @@
 
 :where(.css-dev-only-do-not-override-1m2bkf9).ant-select .ant-select-arrow {
   color: #fafafa !important;
+  top :54% !important;
+
 }
+.laguageSelect :where(.css-1m2bkf9).ant-select-single .ant-select-selector {
+  color: #fafafa !important;
+}
+
+:where(.css-1m2bkf9).ant-select .ant-select-arrow {
+    align-items: center;
+    color: #fafafa;}
+
+   

@@ -71,6 +71,7 @@ const MyProfile = () => {
    const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
    const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
    const [selectedManageKey, setSelectedManageKey] = useState(null);
+   const BASE_URL = process.env.REACT_APP_API_URL;
 
 
    const manageItems = [
@@ -555,6 +556,8 @@ const MyProfile = () => {
       },
     ];
 
+    console.log('customerDetails123',customerDetails)
+
     return (
     <>
     <div className="page-header">
@@ -576,15 +579,15 @@ const MyProfile = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 4,padding:'0 24px' }}>
   <Avatar
-    size={48}
+    size={48} 
+    src={`${BASE_URL}${customerDetails.profile_pic}`}
     style={{
       background: '#e3f1ff',
       color: '#1890ff',
       fontWeight: 700,
     }}
-  >
-    RD
-  </Avatar>
+  />
+  
   {!collapsed && <div style={{ fontWeight: 600 }}>{customerDetails.first_name + ' ' + customerDetails.last_name}</div>}
 </div>
 

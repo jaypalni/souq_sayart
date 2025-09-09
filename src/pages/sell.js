@@ -182,7 +182,6 @@ const Sell = () => {
     handlePostData(text);
   };
 
-<<<<<<< HEAD
 //   const handlePostData = async (text) => {
 //     console.log('Api Hitted')
 //     const values = await form.validateFields();
@@ -261,14 +260,6 @@ const Sell = () => {
 
 const handlePostData = async (text) => {
   try {
-=======
-  const handlePostData = async (text) => {
-    const staticImages = [
-    '/api/search/upload-attachment/bmw_logo_20250905_122011_ce396f74.png',
-    '/api/search/upload-attachment/audi_logo_20250905.png',
-    '/api/search/upload-attachment/benz_logo_20250905.png',
-   ];
->>>>>>> 59f7e0f9048e6375e4e2689d1d2d1d7c43bc1200
     const values = await form.validateFields();
     const formData = new FormData();
 
@@ -279,7 +270,7 @@ const handlePostData = async (text) => {
     formData.append('price', '');
     formData.append('description', values?.description || '');
     formData.append('ad_title', values?.adTitle || '');
-    formData.append('color', selectedColor || '');
+    formData.append('exterior_color', selectedColor || '');
     formData.append('mileage', values?.kilometers || '');
     formData.append('fuel_type', values?.fuelType || '');
     formData.append('transmission_type', values?.transmissionType || '');
@@ -287,7 +278,7 @@ const handlePostData = async (text) => {
     formData.append('condition', values?.condition || '');
     formData.append('location', selectedRegion || '');
     formData.append('interior', values?.interior || '');
-    formData.append('trim', selectedBrandName || '');
+    formData.append('trim', selectedTrim || '');
     formData.append('regional_specs', selectedRegionalSpecs || '');
     formData.append('badges', values?.badges || '');
     formData.append('warranty_date', values?.warrantyDate || '');
@@ -301,7 +292,6 @@ const handlePostData = async (text) => {
     formData.append('no_of_cylinders', values?.cylinders || '');
     formData.append('payment_option', '');
     formData.append('draft', '');
-<<<<<<< HEAD
 
     // ✅ Append actual files
     // if (values.media && values.media.length > 0) {
@@ -337,23 +327,6 @@ const handlePostData = async (text) => {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-=======
-    
-    staticImages.forEach((imgPath) => {
-    formData.append('car_image', imgPath);
-   });
-  
-//   if (values.media && values.media.length > 0) {
-//   values.media.forEach((file) => {
-//     const fileObj = file?.originFileObj || file;
-//     if (fileObj instanceof File) {
-      
-//     }
-//   });
-// }
-    try {
-      setLoading(true);
->>>>>>> 59f7e0f9048e6375e4e2689d1d2d1d7c43bc1200
 
     setLoading(true);
 
@@ -556,7 +529,7 @@ const BrandInput = () => {
     formData.append('price', '');
     formData.append('description', values?.description);
     formData.append('ad_title', values?.adTitle);
-    formData.append('color', selectedColor);
+    formData.append('exterior_color', selectedColor);
     formData.append('mileage', values?.kilometers);
     formData.append('fuel_type', values?.fuelType);
     formData.append('transmission_type', values?.transmissionType);
@@ -564,7 +537,7 @@ const BrandInput = () => {
     formData.append('condition', values?.condition);
     formData.append('location', selectedRegion);
     formData.append('interior', values?.interior);
-    formData.append('trim', selectedBrandName);
+    formData.append('trim', selectedTrim);
     formData.append('regional_specs', selectedRegionalSpecs);
     formData.append('badges', values?.badges);
     formData.append('warranty_date', values?.warrantyDate);

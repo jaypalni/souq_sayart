@@ -126,8 +126,6 @@ export const registerUser = (userData) => async (dispatch) => {
     const response = await authAPI.register(userData);
     const apiData = response.data;
     
-    console.log('Registration API Response:', response);
-    console.log('Registration API Data:', apiData);
     
     // Store the same data as login/OTP verification
     if (apiData.access_token) {
@@ -138,8 +136,6 @@ export const registerUser = (userData) => async (dispatch) => {
     const user = apiData.user || apiData;
     const phoneNumber = user.phone_number || userData.phone_number;
     
-    console.log('Registration user data:', user);
-    console.log('Registration phone number:', phoneNumber);
     
     // Store user data in both customerDetails and auth
     dispatch(customerDetailsSuccess(user));
@@ -150,7 +146,6 @@ export const registerUser = (userData) => async (dispatch) => {
       dispatch(setPhoneNumber(phoneNumber));
     }
     
-    console.log('Registration completed - user data stored in Redux');
     
     return { success: true, data: user };
   } catch (error) {

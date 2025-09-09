@@ -78,32 +78,16 @@ api.interceptors.response.use(
       
       // Handle authentication errors
       if (status === 401) {
-        console.warn(`Authentication error (${status}): Token may be invalid or expired`);
-        console.warn('No token sync attempted - using Redux only');
+        // Token may be invalid or expired
       } else if (status === 422) {
-        console.warn(`Unprocessable Entity (${status}): Request data may be invalid or missing required fields`);
-        console.warn('Request URL:', error.config?.url);
-        console.warn('Request data:', error.config?.data);
-        
-        // Special handling for saved-searches endpoint
-        if (error.config?.url?.includes('/saved-searches')) {
-          console.warn('Saved-searches API 422 error - this may be due to token issues');
-        }
-        
-        console.warn('No token sync attempted - using Redux only');
+        // Request data may be invalid or missing required fields
       } else if (status === HTTP_STATUS.FORBIDDEN) {
-        console.info('Access forbidden (403)');
+        // Access forbidden
       } else if (status === HTTP_STATUS.NOT_FOUND) {
-        console.info('Resource not found (404)');
+        // Resource not found
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
-        console.info('Internal server error (500)');
-      } else {
-        console.info(`HTTP error (${status})`);
+        // Internal server error
       }
-    } else if (error.request) {
-      console.info('No response received from server');
-    } else {
-      console.info('Request setup failed', error.message);
     }
 
     if (error instanceof Error) {
@@ -176,37 +160,31 @@ export const carAPI = {
   getLocationCars: () =>
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
   getSearchCars: async (params) => {
-    console.log('GetSearchCars API called with params:', params);
     try {
       return await api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params);
     } catch (error) {
       // If 422 error, try with public API as fallback
       if (error.response?.status === 422) {
-        console.warn('GetSearchCars API returned 422, trying public API as fallback');
         return await publicApi.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params);
       }
       throw error;
     }
   },
   searchCars: async (params) => {
-    console.log('Search API called with params:', params);
     try {
       return await api.post('/api/search/search', params);
     } catch (error) {
       // If 422 error, try with public API as fallback
       if (error.response?.status === 422) {
-        console.warn('Search API returned 422, trying public API as fallback');
         return await publicApi.post('/api/search/search', params);
       }
       throw error;
     }
   },
   postsavesearches: async (searchparams) => {
-    console.log('PostSaveSearches API called with params:', searchparams);
     return await api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams);
   },
   getsavedsearches: async (page, limit) => {
-    console.log('GetSavedSearches API called with page:', page, 'limit:', limit);
     return await api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit));
   },
   termsAndConditions: () =>
@@ -228,7 +206,6 @@ export const userAPI = {
   removeFavorite: (carId) =>
     api.delete(API_CONFIG.ENDPOINTS.USER.REMOVE_FAVORITE(carId)),
   savedSearches: async (page, limit) => {
-    console.log('UserAPI SavedSearches called with page:', page, 'limit:', limit);
     return await api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit));
   },
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
@@ -239,11 +216,9 @@ export const userAPI = {
   chnagenumberverifyOtp: (otpData) =>
     api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
   deleteSavedSearch: async (id) => {
-    console.log('DeleteSavedSearch API called with id:', id);
     return await api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id));
   },
   notifySavedSearch: async (id, body) => {
-    console.log('NotifySavedSearch API called with id:', id, 'body:', body);
     return await api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body);
   },
 

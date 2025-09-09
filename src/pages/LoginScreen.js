@@ -6,6 +6,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import '../assets/styles/loginScreen.css';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { setPhoneNumber, loginSuccess, setToken, clearCustomerDetails } from '../redux/actions/authActions';
 // import socket from '../socket';
 
 const LoginScreen = () => {
@@ -164,30 +165,41 @@ const LoginScreen = () => {
         setLoading(true);
 
         localStorage.removeItem('otpEndTime'); 
-      localStorage.removeItem('fromLogin');
-      localStorage.removeItem('userData'); 
+        localStorage.removeItem('fromLogin');
+        localStorage.removeItem('userData');
+        localStorage.removeItem('customerDetails'); // Clear any existing customer details
+        
+        // Clear Redux state
+        dispatch(clearCustomerDetails()); 
 
         const response = await authAPI.login({
           captcha_token: verified,
           phone_number: `${selectedCountry.country_code}${phone}`,
         });
-        const savephonenumber = `${selectedCountry.country_code}${phone}`;
-        localStorage.setItem('phonenumber', savephonenumber);
-
+        const phoneNumber = `${selectedCountry.country_code}${phone}`;
 
         const data = handleApiResponse(response);
         if (data) {
+          console.log('Login response data:', data);
+          
+          // Update Redux state
+          dispatch(setToken(data.access_token));
+          dispatch(setPhoneNumber(phoneNumber));
+          
+          // Don't set user data yet - wait for OTP verification
+          // dispatch(loginSuccess(data, data.access_token, phoneNumber));
+          
+          // Update localStorage for compatibility
           localStorage.setItem('token', data.access_token);
           localStorage.setItem('requestid', data.request_id);
-          localStorage.setItem(
-            'phone_number',
-            `${selectedCountry.country_code}${phone}`
-          );
 
           if (data) {
             localStorage.setItem('userData', JSON.stringify(data));
           }
           localStorage.setItem('fromLogin', 'true');
+          
+          console.log('Set fromLogin flag to true');
+          console.log('About to navigate to /verifyOtp');
 
           messageApi.open({
             type: 'success',

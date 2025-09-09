@@ -14,6 +14,7 @@ import { userAPI, authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearCustomerDetails } from '../redux/actions/authActions';
+import { usePhoneNumber } from '../hooks/usePhoneNumber';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css';
 import profileIcon from '../assets/images/Profile_icon.svg';
@@ -48,6 +49,7 @@ const ChangePhoneOtpPage = () => {
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
      const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
+  const phoneNumber = usePhoneNumber();
        const [, setDeleteData] = useState([]);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
@@ -235,7 +237,7 @@ const manageItems = [
       if (result?.data?.success) {
         messageApi.open({ type: 'success', content: result?.data?.message });
         localStorage.removeItem('request_id');
-        localStorage.removeItem('phonenumber');
+        // Phone number is now stored in Redux state
         navigate('/myProfile');
       } else {
         messageApi.open({ type: 'error', content: result?.data?.error });
@@ -250,7 +252,6 @@ const manageItems = [
   const handleResend = async () => {
     try {
       setLoading(true);
-      const phoneNumber = localStorage.getItem('phonenumber');
       if (!phoneNumber) {
         messageApi.open({ type: 'error', content: 'Phone number not found. Please start over.' });
         navigate('/myProfile/change-phone');

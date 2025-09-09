@@ -1,0 +1,263 @@
+/* Banner Base Styles */
+.banner-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-header {
+  background: #008ad5;
+  color: #fff;
+  padding: 32px 0 16px 0;
+}
+
+.banner-header-content {
+  max-width: 1200px;
+  margin: 0 35px;
+}
+
+.banner-header-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 25px;
+  font-family: 'Roboto';
+}
+
+.banner-header-subtitle {
+  margin: 0;
+  margin-top: 5px;
+  font-weight: 400;
+  font-size: 12px;
+  font-family: 'Roboto';
+}
+
+.banner-main {
+  width: 100%;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 70%;
+}
+
+.banner-title {
+  position: absolute;
+  color: #fff;
+  font-weight: 700;
+  font-size: 32px;
+  font-family: 'Roboto';
+}
+
+/* Default banner height for desktop */
+.banner-main {
+  height: 526px;
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+  .banner-main {
+    height: 200px !important;
+  }
+  
+  .banner-header {
+    padding: 16px 0 12px 0 !important;
+  }
+  
+  .banner-header-content {
+    margin: 0 15px !important;
+  }
+  
+  .banner-header-title {
+    font-size: 18px !important;
+  }
+  
+  .banner-header-subtitle {
+    font-size: 10px !important;
+    margin-top: 3px !important;
+  }
+  
+  .banner-title {
+    font-size: 20px !important;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 991px) {
+  .banner-main {
+    height: 300px !important;
+  }
+  
+  .banner-header {
+    padding: 20px 0 14px 0 !important;
+  }
+  
+  .banner-header-content {
+    margin: 0 25px !important;
+  }
+  
+  .banner-header-title {
+    font-size: 20px !important;
+  }
+  
+  .banner-header-subtitle {
+    font-size: 11px !important;
+    margin-top: 4px !important;
+  }
+  
+  .banner-title {
+    font-size: 24px !important;
+  }
+}
+
+/* Medium Desktop Styles */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .banner-main {
+    height: 400px !important;
+  }
+  
+  .banner-title {
+    font-size: 28px !important;
+  }
+}
+
+/* Large Desktop Styles */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .banner-main {
+    height: 450px !important;
+  }
+  
+  .banner-title {
+    font-size: 30px !important;
+  }
+}
+
+/* Extra Large Desktop Styles */
+@media (min-width: 1400px) {
+  .banner-main {
+    height: 526px !important;
+  }
+  
+  .banner-title {
+    font-size: 32px !important;
+  }
+}
+
+/* Plane Banner Specific Styles */
+.plane-banner-main {
+  width: 100%;
+  background: #008ad5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  height: 125px;
+}
+
+.breadcrumb-container {
+  font-size: 14px;
+  color: #fff;
+  margin-top: -52px;
+  margin-left: -980px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.breadcrumb-link {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.breadcrumb-link:hover {
+  opacity: 0.8;
+}
+
+.breadcrumb-text {
+  color: #fff;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #fff;
+}
+
+.plane-banner-title {
+  position: absolute;
+  color: #fff;
+  font-weight: 700;
+  font-size: 32px;
+}
+
+/* Plane Banner Responsive Styles */
+@media (max-width: 767px) {
+  .plane-banner-main {
+    height: 80px !important;
+  }
+  
+  .breadcrumb-container {
+    font-size: 10px !important;
+    margin-top: -30px !important;
+    margin-left: -200px !important;
+    margin-bottom: 15px !important;
+  }
+  
+  .plane-banner-title {
+    font-size: 18px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .plane-banner-main {
+    height: 100px !important;
+  }
+  
+  .breadcrumb-container {
+    font-size: 12px !important;
+    margin-top: -40px !important;
+    margin-left: -400px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .plane-banner-title {
+    font-size: 22px !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .plane-banner-main {
+    height: 110px !important;
+  }
+  
+  .breadcrumb-container {
+    margin-left: -600px !important;
+  }
+  
+  .plane-banner-title {
+    font-size: 26px !important;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .plane-banner-main {
+    height: 120px !important;
+  }
+  
+  .breadcrumb-container {
+    margin-left: -800px !important;
+  }
+  
+  .plane-banner-title {
+    font-size: 28px !important;
+  }
+}

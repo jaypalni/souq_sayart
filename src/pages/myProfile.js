@@ -68,6 +68,22 @@ const MyProfile = () => {
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const { customerDetails } = useSelector((state) => state.customerDetails);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  
+  // Debug Redux state
+  console.log('MyProfile Redux state:', {
+    customerDetails,
+    user,
+    isAuthenticated
+  });
+  
+  // Helper function to get user data from either source
+  const getUserData = () => {
+    return customerDetails || user || {};
+  };
+  
+  const userData = getUserData();
+  console.log('MyProfile userData:', userData);
    const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
    const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
    const [selectedManageKey, setSelectedManageKey] = useState(null);
@@ -585,7 +601,9 @@ const MyProfile = () => {
   >
     RD
   </Avatar>
-  {!collapsed && <div style={{ fontWeight: 600 }}>{customerDetails.first_name + ' ' + customerDetails.last_name}</div>}
+  {!collapsed && <div style={{ fontWeight: 600 }}>
+    {(userData?.first_name || '') + ' ' + (userData?.last_name || '')}
+  </div>}
 </div>
 
           <Menu mode="inline" selectedKeys={[selectedKey]} style={{ borderRight: 0 }} items={menuItems} />

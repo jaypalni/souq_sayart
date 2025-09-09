@@ -13,6 +13,8 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { initializePhoneNumber, initializeToken } from './redux/actions/authActions';
 import LoginScreen from './pages/LoginScreen';
 import SignupOtp from './pages/signupOtp';
 import AllCars from './pages/allcars';
@@ -46,6 +48,13 @@ const ScrollToTop = () => {
 
 const AppRouterContent = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  // Initialize token and phone number from localStorage on app startup
+  useEffect(() => {
+    dispatch(initializeToken());
+    dispatch(initializePhoneNumber());
+  }, [dispatch]);
   const hidebannerList = [
     '/carDetails',
     '/newsell',

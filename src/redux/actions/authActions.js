@@ -22,9 +22,9 @@ export const loginRequest = () => ({
   type: AUTH_LOGIN_REQUEST,
 });
 
-export const loginSuccess = (user, token) => ({
+export const loginSuccess = (user, token, phoneNumber) => ({
   type: AUTH_LOGIN_SUCCESS,
-  payload: { user, token },
+  payload: { user, token, phoneNumber },
 });
 
 export const loginFailure = (error) => ({
@@ -44,6 +44,31 @@ export const customerDetailsSuccess = (customerDetails) => ({
   type: CUSTOMER_DETAILS_SUCCESS,
   payload: customerDetails,
 });
+
+export const setPhoneNumber = (phoneNumber) => ({
+  type: 'SET_PHONE_NUMBER',
+  payload: phoneNumber,
+});
+
+export const initializePhoneNumber = () => ({
+  type: 'INITIALIZE_PHONE_NUMBER',
+  payload: localStorage.getItem('phone_number') || localStorage.getItem('phonenumber'),
+});
+
+export const initializeToken = () => {
+  const token = localStorage.getItem('token');
+  return {
+    type: 'INITIALIZE_TOKEN',
+    payload: token,
+  };
+};
+
+export const setToken = (token) => {
+  return {
+    type: 'SET_TOKEN',
+    payload: token,
+  };
+};
 
 export const customerDetailsFailure = (error) => ({
   type: CUSTOMER_DETAILS_FAILURE,
@@ -80,12 +105,14 @@ export const logoutUser = () => async (dispatch) => {
     try {
       await authAPI.logout();
     } catch (apiError) {
-     
+      
     }
     
+    // Clear localStorage
     localStorage.clear();
+    
+    // Clear Redux state
     dispatch(logout());
-
     dispatch({ type: CUSTOMER_DETAILS_CLEAR });
     
     return { success: true };
@@ -97,10 +124,35 @@ export const registerUser = (userData) => async (dispatch) => {
   try {
     dispatch(customerDetailsRequest());
     const response = await authAPI.register(userData);
-    const customerDetails = response.data.user || response.data;
+    const apiData = response.data;
     
-    dispatch(customerDetailsSuccess(customerDetails));
-    return { success: true, data: customerDetails };
+    console.log('Registration API Response:', response);
+    console.log('Registration API Data:', apiData);
+    
+    // Store the same data as login/OTP verification
+    if (apiData.access_token) {
+      dispatch(setToken(apiData.access_token));
+    }
+    
+    // Get user data from response
+    const user = apiData.user || apiData;
+    const phoneNumber = user.phone_number || userData.phone_number;
+    
+    console.log('Registration user data:', user);
+    console.log('Registration phone number:', phoneNumber);
+    
+    // Store user data in both customerDetails and auth
+    dispatch(customerDetailsSuccess(user));
+    dispatch(loginSuccess(user, apiData.access_token, phoneNumber));
+    
+    // Store phone number in Redux
+    if (phoneNumber) {
+      dispatch(setPhoneNumber(phoneNumber));
+    }
+    
+    console.log('Registration completed - user data stored in Redux');
+    
+    return { success: true, data: user };
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Registration failed';
     dispatch(customerDetailsFailure(errorMessage));
@@ -115,9 +167,41 @@ export const verifyOTP = (otpData) => async (dispatch) => {
     const response = await authAPI.verifyOtp(otpData);
     const apiData = response.data;
 
-    dispatch(customerDetailsSuccess(apiData.user));
+    // Check if the API response indicates success (status_code 200)
+    if (apiData.status_code === 200) {
+      // Store token and user data
+      dispatch(setToken(apiData.access_token));
+      
+      // If user data exists, store it; otherwise create a minimal user object
+      if (apiData.user) {
+        dispatch(customerDetailsSuccess(apiData.user));
+        dispatch(loginSuccess(apiData.user, apiData.access_token, apiData.user.phone_number));
+        // Store phone number in Redux for resend functionality
+        if (apiData.user.phone_number) {
+          dispatch(setPhoneNumber(apiData.user.phone_number));
+        }
+      } else {
+        // Create minimal user object for unregistered users
+        const phoneNumber = otpData.phone_number || 'unknown';
+        
+        const minimalUser = {
+          phone_number: phoneNumber,
+          is_registered: apiData.is_registered || false
+        };
+        
+        dispatch(customerDetailsSuccess(minimalUser));
+        dispatch(loginSuccess(minimalUser, apiData.access_token, phoneNumber));
+        // Store phone number in Redux for resend functionality
+        dispatch(setPhoneNumber(phoneNumber));
+      }
 
-    return { success: true, data: apiData };
+      return { success: true, data: apiData, message: apiData.message };
+    } else {
+      // Handle non-200 status codes
+      const errorMessage = apiData.message || 'OTP verification failed';
+      dispatch(customerDetailsFailure(errorMessage));
+      return { success: false, error: errorMessage };
+    }
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'OTP verification failed';
     dispatch(customerDetailsFailure(errorMessage));

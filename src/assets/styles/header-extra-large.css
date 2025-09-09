@@ -1,0 +1,212 @@
+/* Extra Large Screen Header Styles - 1400px and above */
+
+@media (min-width: 1400px) {
+  /* Ensure desktop menu is visible on extra large screens */
+  .col-5 {
+    display: flex !important;
+  }
+
+  .col-4 {
+    display: flex !important;
+  }
+
+  .hamburger-menu {
+    display: none !important;
+  }
+  .header {
+    padding: 15px;
+  }
+
+  .headerLogo {
+    height: 75px;
+    width: 130px;
+    margin-left: 20px;
+    margin-top: 6px;
+  }
+
+  .menuItem {
+    font-size: 17px;
+    margin: 0 12px;
+    white-space: nowrap;
+  }
+
+  .menuLeft {
+    font-size: 19px;
+    margin: 0 8px;
+  }
+
+  .contct_us_btn {
+    font-size: 15px;
+    padding: 10px 20px;
+    height: 32px;
+  }
+
+  /* Extra large screen-specific styles for new classes */
+  .menu-item-button {
+    margin: 0 6px;
+    font-size: 17px;
+  }
+
+  .message-icon,
+  .notification-icon {
+    width: 22px;
+    height: 22px;
+    margin-bottom: 9px;
+  }
+
+  .user-dropdown {
+    font-size: 15px;
+    gap: 8px;
+    color: #fafafa !important;
+  }
+  
+  .user-dropdown span,
+  .user-dropdown .user-dropdown-icon,
+  .user-dropdown .user-dropdown-arrow {
+    color: #fafafa !important;
+  }
+
+  .user-dropdown-icon {
+    font-size: 18px;
+  }
+
+  .user-dropdown-arrow {
+    font-size: 13px;
+  }
+
+  .login-button {
+    font-size: 15px;
+  }
+
+  .language-select-container {
+    gap: 12px;
+  }
+
+  .language-select {
+    font-size: 13px;
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-selector {
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-selection-item {
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-arrow {
+    color: #fafafa !important;
+  }
+
+  .modal-title-text {
+    margin: 18px 0px 0px 18px;
+    font-size: 20px;
+  }
+
+  .modal-button-container {
+    gap: 12px;
+    padding: 3px;
+    margin-top: 18px;
+  }
+
+  .modal-cancel-button,
+  .modal-confirm-button {
+    width: 130px;
+    font-size: 17px;
+    border-radius: 26px;
+  }
+
+  /* Extra large screen layout optimizations */
+  .col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+  .col-5 {
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+  }
+
+  .col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  /* Enhanced spacing for extra large screens */
+  .row.remove_gutter {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .row.remove_gutter > * {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Optimal alignment for extra large screens */
+  .d-flex.align-items-center.justify-content-center {
+    justify-content: space-between;
+  }
+
+  /* Enhanced hover effects for extra large screens */
+  .header-logo-button:hover {
+    opacity: 0.8;
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+  }
+
+  .menu-item-button:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+  }
+
+  .user-dropdown:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+  }
+
+  .login-button:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+  }
+
+  .contct_us_btn:hover {
+    background-color: #e68a00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  /* Enhanced focus states for accessibility */
+  .header-logo-button:focus,
+  .menu-item-button:focus,
+  .user-dropdown:focus,
+  .login-button:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  .header-logo-button,
+  .menu-item-button,
+  .user-dropdown,
+  .login-button,
+  .contct_us_btn {
+    transition: all 0.3s ease;
+  }
+
+  /* Enhanced modal styling for extra large screens */
+  .modal-title-text {
+    font-weight: 800;
+  }
+
+  .modal-cancel-button:hover,
+  .modal-confirm-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+}

@@ -7,6 +7,7 @@
 
 import axios from 'axios';
 import API_CONFIG from '../config/api.config';
+import { getValidTokenFromRedux } from '../utils/tokenSync';
 
 const HTTP_STATUS = {
   FORBIDDEN: 403,
@@ -38,7 +39,29 @@ const publicApi = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    let token = null;
+    let store = null;
+    let rawToken = null;
+    
+    try {
+      // Import store dynamically to avoid circular dependency
+      store = require('../redux/store').default;
+      const state = store.getState();
+      
+      // Only get token from Redux state - NO localStorage fallback
+      rawToken = state.auth?.token;
+      token = getValidTokenFromRedux(store);
+      
+      // Fallback: if getValidTokenFromRedux fails, try direct access
+      if (!token && rawToken && typeof rawToken === 'string' && rawToken.trim().length > 0) {
+        token = rawToken;
+      }
+      
+      
+    } catch (error) {
+      console.error('Failed to get Redux store:', error);
+    }
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -52,7 +75,23 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status } = error.response;
-      if (status === HTTP_STATUS.FORBIDDEN) {
+      
+      // Handle authentication errors
+      if (status === 401) {
+        console.warn(`Authentication error (${status}): Token may be invalid or expired`);
+        console.warn('No token sync attempted - using Redux only');
+      } else if (status === 422) {
+        console.warn(`Unprocessable Entity (${status}): Request data may be invalid or missing required fields`);
+        console.warn('Request URL:', error.config?.url);
+        console.warn('Request data:', error.config?.data);
+        
+        // Special handling for saved-searches endpoint
+        if (error.config?.url?.includes('/saved-searches')) {
+          console.warn('Saved-searches API 422 error - this may be due to token issues');
+        }
+        
+        console.warn('No token sync attempted - using Redux only');
+      } else if (status === HTTP_STATUS.FORBIDDEN) {
         console.info('Access forbidden (403)');
       } else if (status === HTTP_STATUS.NOT_FOUND) {
         console.info('Resource not found (404)');
@@ -136,14 +175,40 @@ export const carAPI = {
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
   getLocationCars: () =>
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
-  getSearchCars: (params) =>
-    api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params),
-  searchCars: (params) =>
-    api.post('/api/search/search', params),
-  postsavesearches: (searchparams) =>
-    api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams),
-  getsavedsearches: (page, limit) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
+  getSearchCars: async (params) => {
+    console.log('GetSearchCars API called with params:', params);
+    try {
+      return await api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params);
+    } catch (error) {
+      // If 422 error, try with public API as fallback
+      if (error.response?.status === 422) {
+        console.warn('GetSearchCars API returned 422, trying public API as fallback');
+        return await publicApi.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params);
+      }
+      throw error;
+    }
+  },
+  searchCars: async (params) => {
+    console.log('Search API called with params:', params);
+    try {
+      return await api.post('/api/search/search', params);
+    } catch (error) {
+      // If 422 error, try with public API as fallback
+      if (error.response?.status === 422) {
+        console.warn('Search API returned 422, trying public API as fallback');
+        return await publicApi.post('/api/search/search', params);
+      }
+      throw error;
+    }
+  },
+  postsavesearches: async (searchparams) => {
+    console.log('PostSaveSearches API called with params:', searchparams);
+    return await api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams);
+  },
+  getsavedsearches: async (page, limit) => {
+    console.log('GetSavedSearches API called with page:', page, 'limit:', limit);
+    return await api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit));
+  },
   termsAndConditions: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
   totalcarscount: () => 
@@ -162,8 +227,10 @@ export const userAPI = {
   api.post(API_CONFIG.ENDPOINTS.USER.ADD_FAVORITE(carId)), 
   removeFavorite: (carId) =>
     api.delete(API_CONFIG.ENDPOINTS.USER.REMOVE_FAVORITE(carId)),
-  savedSearches: (page, limit) =>
-    api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit)),
+  savedSearches: async (page, limit) => {
+    console.log('UserAPI SavedSearches called with page:', page, 'limit:', limit);
+    return await api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit));
+  },
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
   getDelete: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DELETE),
   getDeleteOtp: (credentials) => api.post(API_CONFIG.ENDPOINTS.USER.POST_DEELETE_OTP, credentials),
@@ -171,10 +238,14 @@ export const userAPI = {
     api.post(API_CONFIG.ENDPOINTS.USER.POST_CHANGE_PHONENUMBER, credentials),
   chnagenumberverifyOtp: (otpData) =>
     api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
-  deleteSavedSearch: (id) =>
-    api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id)),
-  notifySavedSearch: (id, body) =>
-  api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body),
+  deleteSavedSearch: async (id) => {
+    console.log('DeleteSavedSearch API called with id:', id);
+    return await api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id));
+  },
+  notifySavedSearch: async (id, body) => {
+    console.log('NotifySavedSearch API called with id:', id, 'body:', body);
+    return await api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body);
+  },
 
 };
 

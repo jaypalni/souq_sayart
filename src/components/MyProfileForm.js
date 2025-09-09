@@ -20,7 +20,7 @@ import { PlusCircleFilled, UserOutlined } from '@ant-design/icons';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css'
 import { AiOutlineLeft } from 'react-icons/ai';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateCustomerDetails } from '../redux/actions/authActions';
 
@@ -139,11 +139,7 @@ const ProfileForm = ({
           <Form.Item
             label={
               <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
+                className="form-label-text"
               >
                 Company Name*
               </span>
@@ -162,11 +158,7 @@ const ProfileForm = ({
           >
             <Input
              disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
+              className="form-input-text"
             />
           </Form.Item>
         </Col>
@@ -213,11 +205,7 @@ const ProfileForm = ({
           <Form.Item
             label={
               <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
+                className="form-label-text"
               >
                 Company Address*
               </span>
@@ -236,11 +224,7 @@ const ProfileForm = ({
           >
             <Input
              disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
+              className="form-input-text"
             />
           </Form.Item>
         </Col>
@@ -248,11 +232,7 @@ const ProfileForm = ({
           <Form.Item
             label={
               <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
+                className="form-label-text"
               >
                 Company Phone Number*
               </span>
@@ -277,11 +257,7 @@ const ProfileForm = ({
           >
             <Input
             disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
+              className="form-input-text"
              
             />
           </Form.Item>
@@ -301,11 +277,7 @@ const ProfileForm = ({
           <Form.Item
             label={
               <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
+                className="form-label-text"
               >
                 Company Registration Number CR*
               </span>
@@ -317,11 +289,7 @@ const ProfileForm = ({
           >
             <Input
              disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
+              className="form-input-text"
             />
           </Form.Item>
         </Col>
@@ -329,11 +297,7 @@ const ProfileForm = ({
           <Form.Item
             label={
               <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
+                className="form-label-text"
               >
                 Facebook Page (Optional)
               </span>
@@ -342,11 +306,7 @@ const ProfileForm = ({
           >
             <Input
             disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
+              className="form-input-text"
             />
           </Form.Item>
         </Col>
@@ -354,11 +314,7 @@ const ProfileForm = ({
           <Form.Item
             label={
               <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: '#637D92',
-                }}
+                className="form-label-text"
               >
                 Instagram Company Profile (Optional)
               </span>
@@ -367,11 +323,7 @@ const ProfileForm = ({
           >
             <Input
             disabled={!editMode}
-              style={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: '#4A5E6D',
-              }}
+              className="form-input-text"
             />
           </Form.Item>
         </Col>
@@ -393,24 +345,16 @@ const ProfileForm = ({
                           >
                             <div>
                               {uploadedDocUrl && (
-                                <div style={{ marginBottom: 8 }}>
+                                <div className="document-upload-container">
                                   <div
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      padding: '8px 12px',
-                                      backgroundColor: '#f0f8ff',
-                                      border: '1px solid #d9d9d9',
-                                      borderRadius: '6px',
-                                      cursor: 'pointer'
-                                    }}
+                                    className="document-upload-content"
                                     onClick={() => handleDocumentDownload(uploadedDocUrl)}
                                   >
-                                    <span style={{ marginRight: 8 }}>📄</span>
-                                    <span style={{ flex: 1, fontSize: '14px', color: '#1890ff' }}>
+                                    <span className="document-icon">📄</span>
+                                    <span className="document-filename">
                                       {uploadedDocUrl.split('/').pop() || 'Download Document'}
                                     </span>
-                                    <span style={{ color: '#1890ff', fontSize: '12px' }}>
+                                    <span className="document-download-text">
                                       Click to download
                                     </span>
                                   </div>
@@ -438,11 +382,10 @@ const ProfileForm = ({
       return (
         <>
           <Button
-            className="btn-solid-blue"
+            className="btn-solid-blue btn-back"
             shape="round"
             type="primary"
             htmlType="submit"
-            style={{ marginRight: 8 }}
            
           >
             Save Changes
@@ -453,16 +396,11 @@ const ProfileForm = ({
 
     return (
       <Button
-        className="btn-solid-blue"
+        className="btn-solid-blue btn-edit-text"
         icon={<EditOutlined />}
         shape="round"
         type="primary"
         onClick={onEdit}
-        style={{
-          color: '#FAFAFA',
-          fontWeight: 600,
-          fontSize: '14px',
-        }}
       >
         Edit Profile
       </Button>
@@ -471,7 +409,7 @@ const ProfileForm = ({
 
   return (
     <div className="myprofile-card">
-      <Row gutter={24} align="middle" style={{ marginBottom: 0 }}>
+      <Row gutter={24} align="middle" className="profile-header-row">
         <Col span={24}>
           <div className="profile-header-row">
             <div className="profile-avatar-name">
@@ -482,12 +420,7 @@ const ProfileForm = ({
                 style={{ cursor: editMode ? 'pointer' : 'default' }}
               >
                <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginBottom: 24,
-        }}
+        className="avatar-container"
       >
         <Upload 
           showUploadList={false} 
@@ -682,12 +615,7 @@ required={false}
   <DatePicker
     disabled={!editMode}
     format='ddd, DD MMM YYYY' 
-    style={{
-      width: '100%',
-      fontSize: '12px',
-      fontWeight: 400,
-      color: '#4A5E6D',
-    }}
+      className="radio-group-container"
     onChange={() => {}}
   />
 </Form.Item>
@@ -790,6 +718,24 @@ const MyProfileForm = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadedDocUrl, setUploadedDocUrl] = useState('');
   const navigate = useNavigate();
+  
+  // Get user data from Redux
+  const { customerDetails } = useSelector((state) => state.customerDetails);
+  const { user } = useSelector((state) => state.auth);
+  
+  // Debug Redux state
+  console.log('MyProfileForm Redux state:', {
+    customerDetails,
+    user
+  });
+  
+  // Helper function to get user data from either source
+  const getUserData = () => {
+    return customerDetails || user || {};
+  };
+  
+  const userData = getUserData();
+  console.log('MyProfileForm userData:', userData);
 
   const handleConfirm = () => {
       setModalOpen(false);
@@ -857,12 +803,30 @@ const MyProfileForm = () => {
   useEffect(() => {
     Userdataapi();
   }, []);
+  
+  // Watch for changes in Redux user data
+  useEffect(() => {
+    if (userData && Object.keys(userData).length > 0) {
+      console.log('Redux user data changed, updating profile:', userData);
+      populateUserProfile(userData, 'Profile updated from Redux');
+    }
+  }, [userData]);
 
 
 
 const Userdataapi = async () => {
   try {
     setLoading(true);
+    
+    // First, try to use Redux data if available
+    if (userData && Object.keys(userData).length > 0) {
+      console.log('Using Redux data for profile:', userData);
+      populateUserProfile(userData, 'Profile loaded from Redux');
+      return;
+    }
+    
+    // If no Redux data, fetch from API
+    console.log('No Redux data, fetching from API');
     const response = await userAPI.getProfile({});
     const users_data = handleApiResponse(response);
 
@@ -1289,7 +1253,7 @@ const handleSubmitError = (error, onFinishFailed) => {
   return (
     <div className='myprofile-main'>
       {contextHolder}
-     <div className='myprofile-header' style={{ display: 'flex', alignItems: 'center' }}>
+     <div className='myprofile-header profile-header-container'>
   {renderHeaderContent()}
 </div>
       {renderMainContent()}

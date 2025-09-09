@@ -14,8 +14,9 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 
 let lastUserData;
 let lastCustomerDetails;
+let lastToken;
 
-const syncLocalStorageKey = (key, previousValue, nextValue) => {
+const syncLocalStorageKey = (key, previousValue, nextValue, isString = false) => {
   if (nextValue === previousValue) {
     return previousValue;
   }
@@ -26,7 +27,11 @@ const syncLocalStorageKey = (key, previousValue, nextValue) => {
   if (typeof nextValue === 'undefined') {
     return nextValue;
   }
-  localStorage.setItem(key, JSON.stringify(nextValue));
+  if (isString) {
+    localStorage.setItem(key, nextValue);
+  } else {
+    localStorage.setItem(key, JSON.stringify(nextValue));
+  }
   return nextValue;
 };
 
@@ -36,6 +41,7 @@ if (typeof window !== 'undefined') {
       const state = store.getState();
       const nextUserData = state.userData?.userData;
       const nextCustomerDetails = state.customerDetails?.customerDetails;
+      const nextToken = state.auth?.token;
 
       lastUserData = syncLocalStorageKey('userData', lastUserData, nextUserData);
       lastCustomerDetails = syncLocalStorageKey(
@@ -43,6 +49,7 @@ if (typeof window !== 'undefined') {
         lastCustomerDetails,
         nextCustomerDetails,
       );
+      lastToken = syncLocalStorageKey('token', lastToken, nextToken, true); // Token is a string
     }, 1000),
   );
 }

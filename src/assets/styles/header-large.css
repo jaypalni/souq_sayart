@@ -1,0 +1,177 @@
+/* Large Screen Header Styles - 1200px to 1399px */
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  /* Ensure desktop menu is visible on large screens */
+  .col-5 {
+    display: flex !important;
+  }
+
+  .col-4 {
+    display: flex !important;
+  }
+
+  .hamburger-menu {
+    display: none !important;
+  }
+  .header {
+    padding: 12px;
+  }
+
+  .headerLogo {
+    height: 70px;
+    width: 125px;
+    margin-left: 15px;
+    margin-top: 5px;
+  }
+
+  .menuItem {
+    font-size: 16px;
+    margin: 0 10px;
+    white-space: nowrap;
+  }
+
+  .menuLeft {
+    font-size: 18px;
+    margin: 0 6px;
+  }
+
+  .contct_us_btn {
+    font-size: 14px;
+    padding: 8px 16px;
+    height: 30px;
+  }
+
+  /* Large screen-specific styles for new classes */
+  .menu-item-button {
+    margin: 0 5px;
+    font-size: 16px;
+  }
+
+  .message-icon,
+  .notification-icon {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 8px;
+  }
+
+  .user-dropdown {
+    font-size: 14px;
+    gap: 6px;
+    color: #fafafa !important;
+  }
+  
+  .user-dropdown span,
+  .user-dropdown .user-dropdown-icon,
+  .user-dropdown .user-dropdown-arrow {
+    color: #fafafa !important;
+  }
+
+  .user-dropdown-icon {
+    font-size: 16px;
+  }
+
+  .user-dropdown-arrow {
+    font-size: 12px;
+  }
+
+  .login-button {
+    font-size: 14px;
+  }
+
+  .language-select-container {
+    gap: 10px;
+  }
+
+  .language-select {
+    font-size: 12px;
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-selector {
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-selection-item {
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-arrow {
+    color: #fafafa !important;
+  }
+
+  .modal-title-text {
+    margin: 15px 0px 0px 15px;
+    font-size: 18px;
+  }
+
+  .modal-button-container {
+    gap: 10px;
+    padding: 2px;
+    margin-top: 15px;
+  }
+
+  .modal-cancel-button,
+  .modal-confirm-button {
+    width: 120px;
+    font-size: 16px;
+    border-radius: 24px;
+  }
+
+  /* Large screen layout optimizations */
+  .col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+  .col-5 {
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+  }
+
+  .col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  /* Enhanced spacing for large screens */
+  .row.remove_gutter {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .row.remove_gutter > * {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Better alignment for large screens */
+  .d-flex.align-items-center.justify-content-center {
+    justify-content: space-between;
+  }
+
+  /* Enhanced hover effects for large screens */
+  .header-logo-button:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .menu-item-button:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .user-dropdown:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .login-button:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .contct_us_btn:hover {
+    background-color: #e68a00;
+    transition: background-color 0.3s ease;
+  }
+}

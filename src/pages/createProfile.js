@@ -27,6 +27,8 @@ import { registerUser } from '../redux/actions/authActions';
 import whatsappIcon from '../assets/images/Whatsup.svg';
 import TermsAndconditions from './termsAndconditions';
 import dayjs from 'dayjs';
+import { usePhoneNumber } from '../hooks/usePhoneNumber';
+import { useToken } from '../hooks/useToken';
 
 
 
@@ -46,16 +48,70 @@ const CreateProfile = () => {
   const closeModal = () => setShowModal(false);
   const [messageApi, contextHolder] = message.useMessage();
    const { customerDetails } = useSelector((state) => state.customerDetails);
+   const { phoneNumber: phoneFromRedux } = useSelector(state => state.auth);
+   const phoneNumber = usePhoneNumber();
+   const token = useToken();
   const isLoggedIn = customerDetails;
+  
+  // Get phone number from Redux sources (primary) with minimal localStorage fallback
+  const phoneFromUser = customerDetails?.phone_number;
+  
+  // Minimal localStorage fallback only if Redux is empty
+  const phoneFromLocalStorage = (!phoneFromRedux && !phoneFromUser) ? 
+    (localStorage.getItem('phone_number') || localStorage.getItem('phonenumber')) : null;
+  
+  // Use Redux sources first, then minimal fallback
+  const phoneToUse = phoneFromRedux || phoneFromUser || phoneFromLocalStorage;
+  
+  // Check if phone number is valid
+  const isPhoneNumberValid = phoneToUse && phoneToUse !== 'unknown' && phoneToUse !== 'undefined';
+  
+  console.log('CreateProfile phone number sources:', {
+    phoneFromRedux,
+    phoneNumber,
+    phoneFromUser,
+    phoneFromLocalStorage,
+    phoneToUse
+  });
+  
+  // Debug Redux state
+  console.log('CreateProfile Redux state:', {
+    auth: useSelector(state => state.auth),
+    customerDetails: useSelector(state => state.customerDetails)
+  });
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    if (isLoggedIn) {
+    // Only redirect if user is already registered (has complete profile)
+    // Don't redirect if coming from OTP verification for unregistered users
+    const fromOtpVerification = localStorage.getItem('fromOtpVerification');
+    const isUserRegistered = customerDetails?.is_registered === true;
+    
+    console.log('CreateProfile useEffect - isLoggedIn:', isLoggedIn);
+    console.log('CreateProfile useEffect - fromOtpVerification:', fromOtpVerification);
+    console.log('CreateProfile useEffect - isUserRegistered:', isUserRegistered);
+    console.log('CreateProfile useEffect - customerDetails:', customerDetails);
+    
+    if (isLoggedIn && isUserRegistered && !fromOtpVerification) {
+      console.log('User is already registered, redirecting to landing');
       navigate('/landing');
+    } else {
+      console.log('User needs to complete profile, staying on createProfile page');
     }
+    
+    // Cleanup function to clear flag when component unmounts
+    return () => {
+      // Only clear if user navigates away without completing registration
+      // (This will be overridden by successful registration)
+      const timeoutId = setTimeout(() => {
+        localStorage.removeItem('fromOtpVerification');
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    };
   }, []);
   useEffect(() => {
-    const accesstoken = localStorage.getItem('token');
+    const accesstoken = token;
     if (
       accesstoken === 'undefined' ||
       accesstoken === '' ||
@@ -278,6 +334,11 @@ const CreateProfile = () => {
 
   const handleRegistrationOutcome = (result) => {
     if (result.success) {
+      console.log('Registration successful, result:', result);
+      console.log('User data after registration:', result.data);
+      
+      // Clear the fromOtpVerification flag after successful registration
+      localStorage.removeItem('fromOtpVerification');
       messageApi.open({ type: 'success', content: MSG_REG_SUCCESS });
       navigate('/landing');
       return;
@@ -293,10 +354,19 @@ const CreateProfile = () => {
 
   const onClickContinue = async () => {
     try {
+      // Check if phone number is valid before proceeding
+      if (!isPhoneNumberValid) {
+        messageApi.error('Phone number is required. Please go back and verify your phone number.');
+        return;
+      }
+      
       setLoading(true);
       const values = await form.validateFields();
-      const phoneNumber = localStorage.getItem('phone_number');
-      const payload = buildRegistrationPayload(values, imageUrl, phoneNumber);
+      const payload = buildRegistrationPayload(values, imageUrl, phoneToUse);
+      
+      console.log('Registration payload:', payload);
+      console.log('Phone number being sent:', phoneToUse);
+      
       const result = await dispatch(registerUser(payload));
       handleRegistrationOutcome(result);
     } catch (error) {

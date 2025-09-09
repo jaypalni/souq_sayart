@@ -321,9 +321,159 @@
 .modal-image {
   max-width: 40%;
   height: auto;
-  background: white;
-  padding: 8px;
-  border-radius: 8px;
+}
+
+/* Additional styles for converted inline styles */
+
+/* Title styles */
+.user-saved-searches-title {
+  font-weight: 700;
+  font-size: 32px;
+  margin-bottom: 24px;
+  margin-top: 24px;
+}
+
+/* Signup box text styles */
+.signup-description-text {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Modal text styles */
+.modal-title-text {
+  font-size: 16px;
+  color: #0A0A0B;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.modal-subtitle-text {
+  font-size: 12px;
+  color: #898384;
+  font-weight: 400;
+  margin-top: 0;
+}
+
+/* Action button styles */
+.action-button {
+  font-size: 14px;
+  color: #0A0A0B;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .user-saved-searches-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+    margin-top: 16px;
+  }
+
+  .user-saved-searches-wrapper {
+    padding: 15px;
+  }
+
+  .user-saved-searches-top {
+    gap: 15px;
+  }
+
+  .user-saved-searches-outer-card {
+    border-radius: 10px;
+  }
+
+  .user-saved-search-section {
+    padding: 15px;
+  }
+
+  .user-saved-search-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .user-saved-search-action-box {
+    min-width: auto;
+    padding: 12px;
+  }
+
+  .action-button {
+    font-size: 13px;
+  }
+
+  .signup-description-text {
+    font-size: 14px;
+  }
+
+  .modal-title-text {
+    font-size: 14px;
+  }
+
+  .modal-subtitle-text {
+    font-size: 11px;
+  }
+
+  .modal-content {
+    padding: 20px;
+    max-width: 350px;
+  }
+
+  .modal-image {
+    max-width: 35%;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-saved-searches-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+    margin-top: 12px;
+  }
+
+  .user-saved-searches-wrapper {
+    padding: 10px;
+  }
+
+  .user-saved-searches-top {
+    gap: 10px;
+  }
+
+  .user-saved-search-section {
+    padding: 12px;
+  }
+
+  .user-saved-search-actions {
+    gap: 10px;
+  }
+
+  .user-saved-search-action-box {
+    padding: 10px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .action-icon {
+    margin-bottom: 8px;
+  }
+
+  .action-button {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .signup-description-text {
+    font-size: 13px;
+  }
+
+  .modal-content {
+    padding: 15px;
+    max-width: 300px;
+  }
+
+  .modal-image {
+    max-width: 30%;
+  }
 }
 
 .modal-your-close-btn {

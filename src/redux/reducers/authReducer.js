@@ -14,10 +14,11 @@ import {
 
 const initialState = {
   user: null,
-  token: localStorage.getItem('token'),
+  token: null,
+  phoneNumber: null,
   loading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: false,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -34,6 +35,7 @@ const authReducer = (state = initialState, action) => {
         loading: false,
         user: action.payload.user,
         token: action.payload.token,
+        phoneNumber: action.payload.phoneNumber,
         isAuthenticated: true,
         error: null,
       };
@@ -49,8 +51,31 @@ const authReducer = (state = initialState, action) => {
         ...state,
         user: null,
         token: null,
+        phoneNumber: null,
         isAuthenticated: false,
         error: null,
+      };
+    case 'SET_PHONE_NUMBER':
+      return {
+        ...state,
+        phoneNumber: action.payload,
+      };
+    case 'INITIALIZE_PHONE_NUMBER':
+      return {
+        ...state,
+        phoneNumber: action.payload,
+      };
+    case 'INITIALIZE_TOKEN':
+      return {
+        ...state,
+        token: action.payload,
+        isAuthenticated: !!action.payload,
+      };
+    case 'SET_TOKEN':
+      return {
+        ...state,
+        token: action.payload,
+        isAuthenticated: !!action.payload,
       };
 
     default:

@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import diamondGif from '../assets/images/diamondGif.gif';
 import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
+import { useToken } from '../hooks/useToken';
 
 const MAX_SAVED_SEARCHES = 3;
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -133,7 +134,7 @@ const SignupBox = ({ onClick, title, buttonText }) => (
     </div>
     <div>
       <h1>{title}</h1>
-      <p style={{ fontSize: '16px', fontWeight: '400' }}>
+      <p className="signup-description-text">
         Find your saved searches right here. Get alerts for new listings.
       </p>
       <button className="signup-btn" onClick={onClick}>
@@ -154,22 +155,12 @@ const ModalComingSoon = ({ onClose }) => (
     <div className="modal-content">
       <img src={diamondGif} alt="Diamond" className="modal-image" />
       <p
-        style={{
-          fontSize: '16px',
-          color: '#0A0A0B',
-          fontWeight: 700,
-          marginBottom: '4px',
-        }}
+        className="modal-title-text"
       >
         This Feature is coming soon
       </p>
       <p
-        style={{
-          fontSize: '12px',
-          color: '#898384',
-          fontWeight: 400,
-          marginTop: '0',
-        }}
+        className="modal-subtitle-text"
       >
         you could try to remove some filters:
       </p>
@@ -189,9 +180,9 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = useToken();
 
-  const tokendata = localStorage.getItem('token');
-  const isLoggedIn = !!tokendata;
+  const isLoggedIn = !!token;
 console.log('savesearchesreload',JSON.stringify(savesearchesreload))
   useEffect(() => {
     if (isLoggedIn) {
@@ -274,12 +265,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
     <div className="user-saved-searches-wrapper">
       <div className="Search-header">
         <h1
-          style={{
-            fontWeight: '700',
-            fontSize: '32px',
-            marginBottom: '24px',
-            marginTop: '24px',
-          }}
+          className="user-saved-searches-title"
         >
           {title || 'Your Saved Searches'}
         </h1>
@@ -301,14 +287,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
               <img src={diamondLogo} alt="Diamond" className="action-icon" />
               <button
                 type="button"
-                style={{
-                  fontSize: '14px',
-                  color: '#0A0A0B',
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                }}
+                className="action-button"
                 onClick={() => setIsModalOpen(true)}
               >
                 Value your car with our free online valuation
@@ -319,14 +298,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
               <img src={dollarLogo} alt="Dollar" className="action-icon" />
               <button
                 type="button"
-                style={{
-                  fontSize: '14px',
-                  color: '#0A0A0B',
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                }}
+                className="action-button"
                 onClick={() => setIsModalOpen(true)}
               >
                 List your car or get a free Instant Offer

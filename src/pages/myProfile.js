@@ -556,8 +556,6 @@ const MyProfile = () => {
       },
     ];
 
-    console.log('customerDetails123',customerDetails)
-
     return (
     <>
     <div className="page-header">

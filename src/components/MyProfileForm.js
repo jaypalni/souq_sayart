@@ -1138,6 +1138,7 @@ const handleSubmitError = (error, onFinishFailed) => {
       dispatch(updateCustomerDetails({
           first_name: result?.user?.first_name,
           last_name: result?.user?.last_name,
+          profile_pic: result?.user?.profile_pic,
         }));
     if (result?.user) {
       
@@ -1146,8 +1147,6 @@ const handleSubmitError = (error, onFinishFailed) => {
         const profileResponse = await userAPI.getProfile({});
         
         const profileResult = handleApiResponse(profileResponse);
-        
-        
         if (profileResult?.data) {
           applyUpdatedUser({
             user: profileResult.data,

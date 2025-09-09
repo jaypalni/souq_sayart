@@ -27,6 +27,7 @@ import CreateProfile from './pages/createProfile';
 import Landing from './pages/landing';
 import CarDetails from './pages/carDetails';
 import NewSell from './pages/newsell';
+import Sell from './pages/sell';
 import UserProfile from './pages/userProfile';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
@@ -57,6 +58,7 @@ const AppRouterContent = () => {
   }, [dispatch]);
   const hidebannerList = [
     '/carDetails',
+    '/sell',
     '/newsell',
     '/allcars',
     '/myListings',
@@ -105,6 +107,15 @@ const AppRouterContent = () => {
           element={<TermsAndConditions />}
         />
         <Route path="/captchatoken" element={<Captcha />} />
+
+         <Route 
+          path="/sell" 
+          element={
+            <ProtectedRoute>
+              <Sell />
+            </ProtectedRoute>
+          } 
+        />
       
          <Route 
           path="/newsell" 

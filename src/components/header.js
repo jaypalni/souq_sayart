@@ -41,14 +41,14 @@ const Header = () => {
     {
       id: '',
       name: 'Sell',
-      path: '',
+      path: '/sell',
       displayName: '',
       requiresAuth: true,
     },
     {
       id: '',
       name: 'My Listings',
-      path: '',
+      path: '/myListings',
       displayName: '',
       requiresAuth: true,
     },

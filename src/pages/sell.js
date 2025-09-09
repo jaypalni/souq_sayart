@@ -38,40 +38,6 @@ import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 const { TextArea } = Input;
 const { Option } = Select;
 
-const bodyTypes = ['SUV', 'Sedan', 'Wagon'];
-const badges = [
-  'Urgent',
-  'Perfect Inside Out',
-  'No Accident history',
-  'Low Mileage',
-  'Full Service history available',
-  'Cash Only',
-  'New',
-  'Financing Available',
-  'Available For Rent',
-];
-const fuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'];
-const transmissionTypes = ['Automatic', 'Manual', 'Steptronic'];
-const driveTypes = ['Rear Wheel Drive', 'Front Wheel Drive', 'All Wheel Drive'];
-
-const cylinders = [
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9',
-  '10',
-  '11',
-  '12',
-  '16',
-  'N/A, Electric',
-  'Not Sure',
-];
-const seats = ['1/2', '2/3', '4/5', '5/6', '6/7'];
-const doors = ['2/3', '4/5'];
-
 const brandOptions = [
   { label: 'Toyota', value: 'Toyota', img: toyotaImg },
   { label: 'Mercedes', value: 'Mercedes', img: mercedesImg },
@@ -81,21 +47,18 @@ const brandOptions = [
   { label: 'Lamborghini', value: 'Lamborghini', img: lamborghiniImg },
 ];
 
-const conditionOptions = [
-  { label: 'New', value: 'New' },
-  { label: 'Used', value: 'Used' },
-];
 
 const Sell = () => {
-  const [,setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [make, setMake] = useState('');
   const [yearData, setYearData] = useState([]);
   const [trimData, setTrimData] = useState([]);
   const [updateData, setUpdateData] = useState();
-  const [setAddData] = useState();
-  const [setDraftData] = useState();
+  const [,setAddData] = useState();
+  const [,setDraftData] = useState();
+  const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorSearch, setColorSearch] = useState('');
@@ -107,7 +70,8 @@ const Sell = () => {
   const [brandNameOpen, setBrandNameOpen] = useState(false);
   const [brandSearch, setBrandSearch] = useState('');
   const [selectedBrand, setSelectedBrand] = useState();
-  const [selectedBrandName, setSelectedBrandName] = useState();
+  const [selectedBrandImage, setSelectedBrandImage] = useState();
+  const [selectedModel, setSelectedModel] = useState();
   const [modalName, setModalName] = useState();
   const [yearModalOpen, setYearModalOpen] = useState(false);
   const [yearSearch, setYearSearch] = useState('');
@@ -117,6 +81,7 @@ const Sell = () => {
   const [selectedBadges, setSelectedBadges] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
+  const [selectedBrandName, setselectedBrandName] = useState('');
   const [selectedRegion, setSelectedRegion] = useState();
   const [regionalSpecsModalOpen, setRegionalSpecsModalOpen] = useState(false);
   const [regionalSpecsSearch, setRegionalSpecsSearch] = useState('');
@@ -130,6 +95,7 @@ const Sell = () => {
   const [mediaPreviewOpen, setMediaPreviewOpen] = useState(false);
   const [mediaPreviewImage, setMediaPreviewImage] = useState('');
   const [mediaFileList, setMediaFileList] = useState([]);
+  const BASE_URL = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -212,12 +178,11 @@ const Sell = () => {
     }
   };
 
-  const handleCreateData = async () => {
-    handlePostData();
-    navigate('/landing');
+  const handleCreateData = async (text) => {
+    handlePostData(text);
   };
 
-  const handlePostData = async () => {
+  const handlePostData = async (text) => {
     const values = await form.validateFields();
     const formData = new FormData();
     formData.append('make', make);
@@ -248,10 +213,17 @@ const Sell = () => {
     formData.append('no_of_cylinders', values?.cylinders);
     formData.append('payment_option', '');
     formData.append('draft', '');
+    
+    console.log('1234t67876543',values.media.map(f => f.originFileObj));
 
-    values.media?.forEach((file) => {
-      formData.append('car_image', file.originFileObj);
-    });
+  if (values.media && values.media.length > 0) {
+  values.media.forEach((file) => {
+    const fileObj = file?.originFileObj || file;
+    if (fileObj instanceof File) {
+      formData.append('car_image[]', fileObj.name);
+    }
+  });
+}
     try {
       setLoading(true);
 
@@ -261,10 +233,22 @@ const Sell = () => {
       if (data1) {
         setAddData(data1?.data);
       }
-      message.success(data1.message || 'Fetched successfully');
+      if(text === '1'){
+        navigate('/landing');
+      }else {
+        form.resetFields();
+      }
+      messageApi.open({
+                  type: 'success',
+                  content: data1.message,
+                });
+
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Make car data');
+      messageApi.open({
+                  type: 'error',
+                  content: errorData,
+                });
       setAddData([]);
     } finally {
       setLoading(false);
@@ -305,6 +289,7 @@ const Sell = () => {
   );
 
   const TrimInput = () => (
+
     <div
       className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
       onClick={() => setTrimModalOpen(true)}
@@ -320,28 +305,55 @@ const Sell = () => {
     </div>
   );
 
-  const BrandInput = () => (
+const BrandInput = () => {
+  const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
+
+  const imageSrc =
+    selectedBrandObj?.image
+      ? `${BASE_URL}${selectedBrandObj.image}`
+      : selectedBrandImage
+      ? `${BASE_URL}${selectedBrandImage}`
+      : null;
+
+  return (
     <div
       className={`brand-input${!selectedBrand ? ' placeholder' : ''}`}
       onClick={() => setBrandModalOpen(true)}
+      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
     >
-      {selectedBrand && (
+      {imageSrc && (
         <img
-          src={brandOptions.find((b) => b.value === selectedBrand)?.img}
-          alt="brand"
+          src={imageSrc}
+          alt={selectedBrand || 'brand'}
           className="brand-input-img"
+          style={{
+            width: 32,
+            height: 32,
+            objectFit: 'contain',
+          }}
         />
       )}
+
       <span
         style={{
           fontSize: 14,
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         }}
       >
-        {selectedBrand || 'brand and model of your car'}
+        {selectedBrand
+          ? `${selectedBrand}${selectedModel ? ' - ' + selectedModel : ''}`
+          : 'brand and model of your car'}
       </span>
-      <RightOutlined className="brand-arrow" />
+
+      <RightOutlined className="brand-arrow" style={{ marginLeft: 'auto' }} />
     </div>
   );
+};
+
+
 
   const YearInput = () => (
     <div
@@ -450,9 +462,8 @@ const Sell = () => {
       setLoading(false);
     }
   };
-  const handlePostAndNew = () => {
-    handlePostData();
-    form.resetFields();
+  const handlePostAndNew = (text) => {
+    handlePostData(text);
   };
 
   const getBase64 = (file) =>
@@ -505,6 +516,7 @@ const Sell = () => {
   return (
     <>
       <div className="page-header">
+        {contextHolder}
         <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>
           Sell Your Car In IRAQ
         </div>
@@ -716,14 +728,15 @@ const Sell = () => {
                             }`}
                             onClick={() => {
                               setSelectedBrand(opt.name);
-                              setMake(opt.name);
+                              setMake(opt.name);  
                               setBrandModalOpen(false);
-                              form.setFieldsValue({ brand: opt.name });
+                              form.setFieldsValue({ brand: opt.name,brandImage: opt.image, });
+                              setSelectedBrandImage(opt.image);
                               setBrandNameOpen(true);
                             }}
                           >
                             <img
-                              src={opt.img}
+                              src={`${BASE_URL}${opt.image}`}
                               alt={opt.value}
                               className="brand-option-img"
                             />
@@ -764,12 +777,12 @@ const Sell = () => {
                           <div
                             key={opt.model_name}
                             className={`trim-modal-option${
-                              selectedBrandName === opt.model_name
+                              selectedModel === opt.model_name
                                 ? ' selected'
                                 : ''
                             }`}
                             onClick={() => {
-                              setSelectedBrandName(opt.model_name);
+                              setSelectedModel(opt.model_name);
                               setModalName(opt.model_name);
                               form.setFieldsValue({ trim: opt.model_name });
                               setBrandNameOpen(false);
@@ -972,18 +985,18 @@ const Sell = () => {
                     name="bodyType"
                   >
                     <div className="option-box-group">
-                      {bodyTypes?.map((opt) => (
+                      {updateData?.body_types.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.body_type}
                           className={`option-box${
-                            selectedBodyType === opt ? ' selected' : ''
+                            selectedBodyType === opt.body_type ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedBodyType(opt);
-                            form.setFieldsValue({ bodyType: opt });
+                            setSelectedBodyType(opt.body_type);
+                            form.setFieldsValue({ bodyType: opt.body_type });
                           }}
                         >
-                          {opt}
+                          {opt.body_type}
                         </div>
                       ))}
                     </div>
@@ -1000,18 +1013,18 @@ const Sell = () => {
                     name="condition"
                   >
                     <div className="option-box-group">
-                      {conditionOptions?.map((opt) => (
+                      {updateData?.car_conditions?.map((opt) => (
                         <div
-                          key={opt.value}
+                          key={opt.car_condition}
                           className={`option-box${
-                            selectedCondition === opt.value ? ' selected' : ''
+                            selectedCondition === opt.car_condition ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedCondition(opt.value);
-                            form.setFieldsValue({ condition: opt.value });
+                            setSelectedCondition(opt.car_condition);
+                            form.setFieldsValue({ condition: opt.car_condition });
                           }}
                         >
-                          {opt.label}
+                          {opt.car_condition}
                         </div>
                       ))}
                     </div>
@@ -1030,26 +1043,26 @@ const Sell = () => {
                     name="badges"
                   >
                     <div className="option-box-group">
-                      {badges?.map((opt) => (
+                      {updateData?.badges?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.badge}
                           className={`option-box${
-                            selectedBadges.includes(opt) ? ' selected' : ''
+                            selectedBadges.includes(opt.badge) ? ' selected' : ''
                           }`}
                           onClick={() => {
                             let newBadges;
-                            if (selectedBadges.includes(opt)) {
+                            if (selectedBadges.includes(opt.badge)) {
                               newBadges = selectedBadges?.filter(
-                                (b) => b !== opt
+                                (b) => b !== opt.badge
                               );
                             } else {
-                              newBadges = [...selectedBadges, opt];
+                              newBadges = [...selectedBadges, opt.badge];
                             }
                             setSelectedBadges(newBadges);
                             form.setFieldsValue({ badges: newBadges });
                           }}
                         >
-                          {opt}
+                          {opt.badge}
                         </div>
                       ))}
                     </div>
@@ -1258,18 +1271,18 @@ const Sell = () => {
                     name="seats"
                   >
                     <div className="option-box-group">
-                      {seats?.map((opt) => (
+                      {updateData?.number_of_seats?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.no_of_seats}
                           className={`option-box${
-                            selectedSeats === opt ? ' selected' : ''
+                            selectedSeats === opt.no_of_seats ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedSeats(opt);
-                            form.setFieldsValue({ seats: opt });
+                            setSelectedSeats(opt.no_of_seats);
+                            form.setFieldsValue({ seats: opt.no_of_seats });
                           }}
                         >
-                          {opt}
+                          {opt.no_of_seats}
                         </div>
                       ))}
                     </div>
@@ -1286,18 +1299,18 @@ const Sell = () => {
                     name="doors"
                   >
                     <div className="option-box-group">
-                      {doors?.map((opt) => (
+                      {updateData?.number_of_doors?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.no_of_doors}
                           className={`option-box${
-                            selectedDoors === opt ? ' selected' : ''
+                            selectedDoors === opt.no_of_doors ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedDoors(opt);
-                            form.setFieldsValue({ doors: opt });
+                            setSelectedDoors(opt.no_of_doors);
+                            form.setFieldsValue({ doors: opt.no_of_doors });
                           }}
                         >
-                          {opt}
+                          {opt.no_of_doors}
                         </div>
                       ))}
                     </div>
@@ -1314,18 +1327,18 @@ const Sell = () => {
                     name="fuelType"
                   >
                     <div className="option-box-group">
-                      {fuelTypes?.map((opt) => (
+                      {updateData?.fuel_types?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.fuel_type}
                           className={`option-box${
-                            selectedFuelType === opt ? ' selected' : ''
+                            selectedFuelType === opt.fuel_type ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedFuelType(opt);
-                            form.setFieldsValue({ fuelType: opt });
+                            setSelectedFuelType(opt.fuel_type);
+                            form.setFieldsValue({ fuelType: opt.fuel_type });
                           }}
                         >
-                          {opt}
+                          {opt.fuel_type}
                         </div>
                       ))}
                     </div>
@@ -1342,18 +1355,18 @@ const Sell = () => {
                     name="transmissionType"
                   >
                     <div className="option-box-group">
-                      {transmissionTypes?.map((opt) => (
+                      {updateData?.transmission_types?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.transmission_type}
                           className={`option-box${
-                            selectedTransmissionType === opt ? ' selected' : ''
+                            selectedTransmissionType === opt.transmission_type ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedTransmissionType(opt);
-                            form.setFieldsValue({ transmissionType: opt });
+                            setSelectedTransmissionType(opt.transmission_type);
+                            form.setFieldsValue({ transmissionType: opt.transmission_type });
                           }}
                         >
-                          {opt}
+                          {opt.transmission_type}
                         </div>
                       ))}
                     </div>
@@ -1370,18 +1383,18 @@ const Sell = () => {
                     name="driveType"
                   >
                     <div className="option-box-group">
-                      {driveTypes?.map((opt) => (
+                      {updateData?.drive_types?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.drive_type}
                           className={`option-box${
-                            selectedDriveType === opt ? ' selected' : ''
+                            selectedDriveType === opt.drive_type ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedDriveType(opt);
-                            form.setFieldsValue({ driveType: opt });
+                            setSelectedDriveType(opt.drive_type);
+                            form.setFieldsValue({ driveType: opt.drive_type });
                           }}
                         >
-                          {opt}
+                          {opt.drive_type}
                         </div>
                       ))}
                     </div>
@@ -1480,18 +1493,18 @@ const Sell = () => {
                     name="cylinders"
                   >
                     <div className="option-box-group">
-                      {cylinders?.map((opt) => (
+                      {updateData?.number_of_cylinders?.map((opt) => (
                         <div
-                          key={opt}
+                          key={opt.no_of_cylinders}
                           className={`option-box${
-                            selectedCylinders === opt ? ' selected' : ''
+                            selectedCylinders === opt.no_of_cylinders ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedCylinders(opt);
-                            form.setFieldsValue({ cylinders: opt });
+                            setSelectedCylinders(opt.no_of_cylinders);
+                            form.setFieldsValue({ cylinders: opt.no_of_cylinders });
                           }}
                         >
-                          {opt}
+                          {opt.no_of_cylinders}
                         </div>
                       ))}
                     </div>
@@ -1518,18 +1531,31 @@ const Sell = () => {
                   Save as draft
                 </Button>
                 <Button
+                style={{
+                background: loading ? '#ccc' : '#0090d4',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 20,
+                padding: '2px 52px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontFamily: 'Roboto',
+                fontWeight: 700,
+                fontSize: 14,
+                opacity: loading ? 0.7 : 1,
+              }}
                   size="small"
                   className="btn-solid-blue"
                   type="primary"
                   htmlType="submit"
-                  onClick={() => handleCreateData}
+                  onClick={() => handleCreateData('1')}
+                  disabled={loading}
                 >
                   Create
                 </Button>
                 <Button
                   size="small"
                   className="btn-solid-blue"
-                  onClick={() => handlePostAndNew}
+                  onClick={() => handlePostAndNew('2')}
                   type="primary"
                 >
                   Create & New

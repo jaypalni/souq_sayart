@@ -182,78 +182,190 @@ const Sell = () => {
     handlePostData(text);
   };
 
-  const handlePostData = async (text) => {
+//   const handlePostData = async (text) => {
+//     console.log('Api Hitted')
+//     const values = await form.validateFields();
+//     const formData = new FormData();
+//     formData.append('make', make);
+//     formData.append('model', modalName);
+//     formData.append('year', selectedYear);
+//     formData.append('price', '');
+//     formData.append('description', values?.description);
+//     formData.append('ad_title', values?.adTitle);
+//     formData.append('color', selectedColor);
+//     formData.append('mileage', values?.kilometers);
+//     formData.append('fuel_type', values?.fuelType);
+//     formData.append('transmission_type', values?.transmissionType);
+//     formData.append('body_type', values?.bodyType);
+//     formData.append('condition', values?.condition);
+//     formData.append('location', selectedRegion);
+//     formData.append('interior', values?.interior);
+//     formData.append('trim', selectedBrandName);
+//     formData.append('regional_specs', selectedRegionalSpecs);
+//     formData.append('badges', values?.badges);
+//     formData.append('warranty_date', values?.warrantyDate);
+//     formData.append('accident_history', values?.accidentHistory);
+//     formData.append('number_of_seats', values?.seats);
+//     formData.append('number_of_doors', values?.doors);
+//     formData.append('drive_type', values?.driveType);
+//     formData.append('engine_cc', values?.engineCC);
+//     formData.append('extra_features', values?.extraFeatures);
+//     formData.append('consumption', values?.consumption);
+//     formData.append('no_of_cylinders', values?.cylinders);
+//     formData.append('payment_option', '');
+//     formData.append('draft', '');
+    
+//     console.log('1234t67876543',values.media.map(f => f.originFileObj));
+
+//   if (values.media && values.media.length > 0) {
+//   values.media.forEach((file) => {
+//     const fileObj = file?.originFileObj || file;
+//     if (fileObj instanceof File) {
+//       formData.append('car_image[]', fileObj.name);
+//     }
+//   });
+// }
+//     try {
+//       setLoading(true);
+
+//       const response = await carAPI.createCar(formData);
+//       const data1 = handleApiResponse(response);
+//       console.log('API Response:', data1);
+
+
+//       if (data1) {
+//         setAddData(data1?.data);
+//       }
+//       if(text === '1'){
+//         navigate('/landing');
+//       }else {
+//         form.resetFields();
+//       }
+//       messageApi.open({
+//                   type: 'success',
+//                   content: data1.message,
+//                 });
+
+//     } catch (error) {
+//       const errorData = handleApiError(error);
+//       messageApi.open({
+//                   type: 'error',
+//                   content: errorData,
+//                 });
+//       setAddData([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+const handlePostData = async (text) => {
+  try {
     const values = await form.validateFields();
     const formData = new FormData();
-    formData.append('make', make);
-    formData.append('model', modalName);
-    formData.append('year', selectedYear);
+
+    // Append text fields safely
+    formData.append('make', make || '');
+    formData.append('model', modalName || '');
+    formData.append('year', selectedYear || '');
     formData.append('price', '');
-    formData.append('description', values?.description);
-    formData.append('ad_title', values?.adTitle);
-    formData.append('color', selectedColor);
-    formData.append('mileage', values?.kilometers);
-    formData.append('fuel_type', values?.fuelType);
-    formData.append('transmission_type', values?.transmissionType);
-    formData.append('body_type', values?.bodyType);
-    formData.append('condition', values?.condition);
-    formData.append('location', selectedRegion);
-    formData.append('interior', values?.interior);
-    formData.append('trim', selectedBrandName);
-    formData.append('regional_specs', selectedRegionalSpecs);
-    formData.append('badges', values?.badges);
-    formData.append('warranty_date', values?.warrantyDate);
-    formData.append('accident_history', values?.accidentHistory);
-    formData.append('number_of_seats', values?.seats);
-    formData.append('number_of_doors', values?.doors);
-    formData.append('drive_type', values?.driveType);
-    formData.append('engine_cc', values?.engineCC);
-    formData.append('extra_features', values?.extraFeatures);
-    formData.append('consumption', values?.consumption);
-    formData.append('no_of_cylinders', values?.cylinders);
+    formData.append('description', values?.description || '');
+    formData.append('ad_title', values?.adTitle || '');
+    formData.append('color', selectedColor || '');
+    formData.append('mileage', values?.kilometers || '');
+    formData.append('fuel_type', values?.fuelType || '');
+    formData.append('transmission_type', values?.transmissionType || '');
+    formData.append('body_type', values?.bodyType || '');
+    formData.append('condition', values?.condition || '');
+    formData.append('location', selectedRegion || '');
+    formData.append('interior', values?.interior || '');
+    formData.append('trim', selectedBrandName || '');
+    formData.append('regional_specs', selectedRegionalSpecs || '');
+    formData.append('badges', values?.badges || '');
+    formData.append('warranty_date', values?.warrantyDate || '');
+    formData.append('accident_history', values?.accidentHistory || '');
+    formData.append('number_of_seats', values?.seats || '');
+    formData.append('number_of_doors', values?.doors || '');
+    formData.append('drive_type', values?.driveType || '');
+    formData.append('engine_cc', values?.engineCC || '');
+    formData.append('extra_features', values?.extraFeatures || '');
+    formData.append('consumption', values?.consumption || '');
+    formData.append('no_of_cylinders', values?.cylinders || '');
     formData.append('payment_option', '');
     formData.append('draft', '');
-    
-    console.log('1234t67876543',values.media.map(f => f.originFileObj));
 
-  if (values.media && values.media.length > 0) {
-  values.media.forEach((file) => {
-    const fileObj = file?.originFileObj || file;
-    if (fileObj instanceof File) {
-      formData.append('car_image[]', fileObj.name);
+    // ✅ Append actual files
+    // if (values.media && values.media.length > 0) {
+    //   values.media.forEach((file) => {
+    //     const fileObj = file.originFileObj || file;
+    //     console.log('Uploading file:', fileObj);
+
+    //     if (fileObj instanceof File) {
+    //       formData.append('car_image[]', fileObj); // or 'car_image' depending on API
+    //     } else {
+    //       console.error('Invalid file detected:', fileObj);
+    //     }
+    //   });
+    // } else {
+    //   console.error('No files found in values.media');
+    // }
+
+    // // Debugging
+    // console.log('Final FormData:');
+    // for (let [key, value] of formData.entries()) {
+    //   console.log(key, value);
+    // }
+
+    const imageUrls = [
+      '/api/search/upload-attachment/bmw_logo_20250905_122011_ce396f74.png',
+    ];
+    imageUrls.forEach((url) => {
+      formData.append('car_images[]', url); // keep [] if backend expects array
+    });
+
+    // Debugging - log the FormData
+    console.log('Final FormData contents:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
-  });
-}
-    try {
-      setLoading(true);
 
-      const response = await carAPI.createCar(formData);
-      const data1 = handleApiResponse(response);
+    setLoading(true);
 
-      if (data1) {
-        setAddData(data1?.data);
-      }
-      if(text === '1'){
-        navigate('/landing');
-      }else {
-        form.resetFields();
-      }
-      messageApi.open({
-                  type: 'success',
-                  content: data1.message,
-                });
+    const response = await carAPI.createCar(formData);
+    const data1 = handleApiResponse(response);
 
-    } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-                  type: 'error',
-                  content: errorData,
-                });
-      setAddData([]);
-    } finally {
-      setLoading(false);
+    console.log('API Response:', data1);
+
+    if (data1) {
+      setAddData(data1?.data);
     }
-  };
+
+    if (text === '1') {
+      navigate('/landing');
+    } else {
+      form.resetFields();
+    }
+
+    messageApi.open({
+      type: 'success',
+      content: typeof data1.message === 'object'
+        ? JSON.stringify(data1.message)
+        : data1.message,
+    });
+
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: typeof errorData === 'object'
+        ? JSON.stringify(errorData)
+        : errorData,
+    });
+    setAddData([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const normFile = (e) => {
     if (Array.isArray(e)) {
@@ -441,7 +553,8 @@ const BrandInput = () => {
     formData.append('draft', '');
 
     values.media?.forEach((file) => {
-      formData.append('car_image', file.originFileObj);
+      // formData.append('car_image', file.originFileObj);
+      formData.append('car_images', ['/api/search/upload-attachment/Screenshot_3_20250909_093054_ea3e7016.png'])
     });
     try {
       setLoading(true);

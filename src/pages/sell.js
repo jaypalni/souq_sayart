@@ -19,6 +19,7 @@ import {
   DatePicker,
   Modal,
   Image,
+  InputNumber
 } from 'antd';
 import { PlusOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -54,6 +55,7 @@ const Sell = () => {
   const [carModels, setCarModels] = useState([]);
   const [make, setMake] = useState('');
   const [yearData, setYearData] = useState([]);
+  const [horsePower, setHorsePower] = useState([]);
   const [trimData, setTrimData] = useState([]);
   const [updateData, setUpdateData] = useState();
   const [,setAddData] = useState();
@@ -61,8 +63,10 @@ const Sell = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [colorModalOpen, setColorModalOpen] = useState(false);
+  const [colorModalOpenInterior, setColorModalOpenInterior] = useState(false);
   const [colorSearch, setColorSearch] = useState('');
   const [selectedColor, setSelectedColor] = useState();
+  const [selectedInteriorColor, setSelectedInteriorColor] = useState();
   const [trimModalOpen, setTrimModalOpen] = useState(false);
   const [trimSearch, setTrimSearch] = useState('');
   const [selectedTrim, setSelectedTrim] = useState();
@@ -79,9 +83,12 @@ const Sell = () => {
   const [selectedCondition, setSelectedCondition] = useState('');
   const [selectedBodyType, setSelectedBodyType] = useState();
   const [selectedBadges, setSelectedBadges] = useState([]);
+  const [selectedVehicleType, setSelectedVehicleType] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
-  const [selectedBrandName, setselectedBrandName] = useState('');
+  const [createSelecetd, setCreateSelecetd] = useState('');
+  const [selectedPrice, setSelectedPrice] = useState('');
+  const [selectedHorsepower, setSelectedHorsepower] = useState('');
   const [selectedRegion, setSelectedRegion] = useState();
   const [regionalSpecsModalOpen, setRegionalSpecsModalOpen] = useState(false);
   const [regionalSpecsSearch, setRegionalSpecsSearch] = useState('');
@@ -118,6 +125,10 @@ const Sell = () => {
   useEffect(() => {
     modalName && make && fetchYearData();
   }, [make, modalName]);
+
+  useEffect(() => {
+    fetchHorsePower();
+  }, []);
 
   const fetchUpdateOptionsData = async () => {
     try {
@@ -178,103 +189,43 @@ const Sell = () => {
     }
   };
 
-  const handleCreateData = async (text) => {
-    handlePostData(text);
+    const fetchHorsePower = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.gethorsepower();
+      const data1 = handleApiResponse(response);
+
+      if (data1) {
+        setHorsePower(data1?.data);
+      }
+
+      message.success(data1.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to Year car data');
+      setHorsePower([]);
+    } finally {
+      setLoading(false);
+    }
   };
-
-//   const handlePostData = async (text) => {
-//     console.log('Api Hitted')
-//     const values = await form.validateFields();
-//     const formData = new FormData();
-//     formData.append('make', make);
-//     formData.append('model', modalName);
-//     formData.append('year', selectedYear);
-//     formData.append('price', '');
-//     formData.append('description', values?.description);
-//     formData.append('ad_title', values?.adTitle);
-//     formData.append('color', selectedColor);
-//     formData.append('mileage', values?.kilometers);
-//     formData.append('fuel_type', values?.fuelType);
-//     formData.append('transmission_type', values?.transmissionType);
-//     formData.append('body_type', values?.bodyType);
-//     formData.append('condition', values?.condition);
-//     formData.append('location', selectedRegion);
-//     formData.append('interior', values?.interior);
-//     formData.append('trim', selectedBrandName);
-//     formData.append('regional_specs', selectedRegionalSpecs);
-//     formData.append('badges', values?.badges);
-//     formData.append('warranty_date', values?.warrantyDate);
-//     formData.append('accident_history', values?.accidentHistory);
-//     formData.append('number_of_seats', values?.seats);
-//     formData.append('number_of_doors', values?.doors);
-//     formData.append('drive_type', values?.driveType);
-//     formData.append('engine_cc', values?.engineCC);
-//     formData.append('extra_features', values?.extraFeatures);
-//     formData.append('consumption', values?.consumption);
-//     formData.append('no_of_cylinders', values?.cylinders);
-//     formData.append('payment_option', '');
-//     formData.append('draft', '');
-    
-//     console.log('1234t67876543',values.media.map(f => f.originFileObj));
-
-//   if (values.media && values.media.length > 0) {
-//   values.media.forEach((file) => {
-//     const fileObj = file?.originFileObj || file;
-//     if (fileObj instanceof File) {
-//       formData.append('car_image[]', fileObj.name);
-//     }
-//   });
-// }
-//     try {
-//       setLoading(true);
-
-//       const response = await carAPI.createCar(formData);
-//       const data1 = handleApiResponse(response);
-//       console.log('API Response:', data1);
-
-
-//       if (data1) {
-//         setAddData(data1?.data);
-//       }
-//       if(text === '1'){
-//         navigate('/landing');
-//       }else {
-//         form.resetFields();
-//       }
-//       messageApi.open({
-//                   type: 'success',
-//                   content: data1.message,
-//                 });
-
-//     } catch (error) {
-//       const errorData = handleApiError(error);
-//       messageApi.open({
-//                   type: 'error',
-//                   content: errorData,
-//                 });
-//       setAddData([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
 const handlePostData = async (text) => {
   try {
     const values = await form.validateFields();
     const formData = new FormData();
-
-    // Append text fields safely
     formData.append('make', make || '');
     formData.append('model', modalName || '');
     formData.append('year', selectedYear || '');
-    formData.append('price', '');
+    formData.append('price', values.price || '');
     formData.append('description', values?.description || '');
     formData.append('ad_title', values?.adTitle || '');
     formData.append('exterior_color', selectedColor || '');
+    formData.append('interior_color', selectedInteriorColor || '');
     formData.append('mileage', values?.kilometers || '');
     formData.append('fuel_type', values?.fuelType || '');
     formData.append('transmission_type', values?.transmissionType || '');
     formData.append('body_type', values?.bodyType || '');
+    formData.append('vechile_type', values?.vehicletype || '');
     formData.append('condition', values?.condition || '');
     formData.append('location', selectedRegion || '');
     formData.append('interior', values?.interior || '');
@@ -287,9 +238,10 @@ const handlePostData = async (text) => {
     formData.append('number_of_doors', values?.doors || '');
     formData.append('drive_type', values?.driveType || '');
     formData.append('engine_cc', values?.engineCC || '');
-    formData.append('extra_features', values?.extraFeatures || '');
+   formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
     formData.append('consumption', values?.consumption || '');
     formData.append('no_of_cylinders', values?.cylinders || '');
+    formData.append('horse_power', values?.horsepower || '');
     formData.append('payment_option', '');
     formData.append('draft', '');
 
@@ -319,11 +271,9 @@ const handlePostData = async (text) => {
       '/api/search/upload-attachment/bmw_logo_20250905_122011_ce396f74.png',
     ];
     imageUrls.forEach((url) => {
-      formData.append('car_images[]', url); // keep [] if backend expects array
+      formData.append('car_images[]', url); 
     });
 
-    // Debugging - log the FormData
-    console.log('Final FormData contents:');
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
@@ -376,6 +326,7 @@ const handlePostData = async (text) => {
 
   const handleFinish = (values) => {
     const images = values.media?.map((file) => file.originFileObj);
+     handlePostData(createSelecetd)
 
     message.success('Form submitted! Check console for output.');
   };
@@ -396,8 +347,28 @@ const handlePostData = async (text) => {
     </div>
   );
 
+  const InteriorColorInput = () => (
+    <div
+      className={`exterior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
+      onClick={() => setColorModalOpenInterior(true)}
+    >
+      <span
+        style={{
+          fontSize: 14,
+        }}
+      >
+        {selectedInteriorColor || 'Beige'}
+      </span>
+      <RightOutlined className="color-arrow" />
+    </div>
+  );
+
   const filteredColors = updateData?.colours?.filter((opt) =>
     opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
+  );
+
+  const filteredColors1 = updateData?.interior_colours?.filter((opt) =>
+    opt.interior_colour?.toLowerCase().includes(colorSearch?.toLowerCase())
   );
 
   const TrimInput = () => (
@@ -520,6 +491,7 @@ const BrandInput = () => {
   const handleEvaluateCar = () => {
     message.info('Evaluate Car clicked');
   };
+  
   const handleSaveDraft = async () => {
     const values = await form.validateFields();
     const formData = new FormData();
@@ -574,9 +546,6 @@ const BrandInput = () => {
     } finally {
       setLoading(false);
     }
-  };
-  const handlePostAndNew = (text) => {
-    handlePostData(text);
   };
 
   const getBase64 = (file) =>
@@ -916,6 +885,8 @@ const BrandInput = () => {
                     }}
                     label="Exterior Color"
                     name="exteriorColor"
+                    required={false}
+                    rules={[{ required: true, message: 'Please select the Exterior Color' }]}
                   >
                     <ExteriorColorInput />
                   </Form.Item>
@@ -931,7 +902,7 @@ const BrandInput = () => {
                           alignItems: 'center',
                         }}
                       >
-                        <span>What is the brand of your car?</span>
+                        <span>What is the exterior color of your car?</span>
                       </div>
                     }
                     width={500}
@@ -968,6 +939,59 @@ const BrandInput = () => {
                           </span>
                         </div>
                       ))}
+                    </div>
+                  </Modal>
+                </Col>
+                 <Col xs={24} md={6}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: '#0A0A0B',
+                    }}
+                    label="Year"
+                    name="year"
+                     required={false}
+                     rules={[{ required: true, message: 'Please select the Year' }]}
+                  >
+                    <YearInput />
+                  </Form.Item>
+                  <Modal
+                    open={yearModalOpen}
+                    onCancel={() => setYearModalOpen(false)}
+                    footer={null}
+                    title={
+                      <div className="year-modal-title-row">
+                        <span>What is the Year of your car?</span>
+                      </div>
+                    }
+                    width={500}
+                  >
+                    <Input
+                      prefix={<SearchOutlined />}
+                      placeholder="Search By Typing"
+                      value={yearSearch}
+                      onChange={(e) => setYearSearch(e.target.value)}
+                      className="year-modal-search"
+                    />
+                    <div className="year-modal-list">
+                      {yearData
+                        ?.filter((opt) => opt.year.includes(yearSearch))
+                        ?.map((opt) => (
+                          <div
+                            key={opt.year}
+                            className={`year-modal-option${
+                              selectedYear === opt.year ? ' selected' : ''
+                            }`}
+                            onClick={() => {
+                              setSelectedYear(opt.year);
+                              setYearModalOpen(false);
+                              form.setFieldsValue({ year: opt.year });
+                            }}
+                          >
+                            {opt.year}
+                          </div>
+                        ))}
                     </div>
                   </Modal>
                 </Col>
@@ -1026,6 +1050,247 @@ const BrandInput = () => {
                     </div>
                   </Modal>
                 </Col>
+                
+              </Row>
+             <Row gutter={16}>
+  <Col xs={24} md={6}>
+    <Form.Item
+      style={{
+        fontWeight: 500,
+        fontSize: 12,
+        color: '#0A0A0B',
+      }}
+      label="Body Type"
+      name="bodyType"
+      required={false}
+      rules={[{ required: true, message: 'Please select the Body Type' }]}
+    >
+      <div className="option-box-group">
+        {updateData?.body_types.map((opt) => (
+          <div
+            key={opt.body_type}
+            className={`option-box${selectedBodyType === opt.body_type ? ' selected' : ''}`}
+            onClick={() => {
+              setSelectedBodyType(opt.body_type);
+              form.setFieldsValue({ bodyType: opt.body_type });
+            }}
+          >
+            {opt.body_type}
+          </div>
+        ))}
+      </div>
+    </Form.Item>
+  </Col>
+
+  <Col xs={24} md={6}>
+    <Form.Item
+      style={{
+        fontWeight: 500,
+        fontSize: 12,
+        color: '#0A0A0B',
+      }}
+      label="Condition"
+      name="condition"
+      required={false}
+      rules={[{ required: true, message: 'Please select the car condition' }]}
+    >
+      <div className="option-box-group">
+        {updateData?.car_conditions?.map((opt) => (
+          <div
+            key={opt.car_condition}
+            className={`option-box${selectedCondition === opt.car_condition ? ' selected' : ''}`}
+            onClick={() => {
+              setSelectedCondition(opt.car_condition);
+              form.setFieldsValue({ condition: opt.car_condition });
+            }}
+          >
+            {opt.car_condition}
+          </div>
+        ))}
+      </div>
+    </Form.Item>
+  </Col>
+
+  {/* Price input */}
+  <Col xs={24} md={6}>
+    <Form.Item
+      style={{
+        fontWeight: 500,
+        fontSize: 12,
+        color: '#0A0A0B',
+      }}
+      label="Price"
+      name="price"
+      required={false}
+      rules={[{ required: true, message: 'Please select the Price' }]}
+    >
+     <Input
+  style={{ width: '100%' }}
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  value={selectedPrice ? selectedPrice.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
+  placeholder="Enter price"
+  onChange={(e) => {
+    const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+    // optionally enforce a max length: digitsOnly.slice(0, 10)
+    setSelectedPrice(digitsOnly);
+    form.setFieldsValue({ price: digitsOnly });
+  }}
+/>
+
+    </Form.Item>
+  </Col>
+
+  <Col xs={24} md={6}>
+    <Form.Item
+      style={{
+        fontWeight: 500,
+        fontSize: 12,
+        color: '#0A0A0B',
+      }}
+      label="Horsepower (HP)"
+      name="horsepower"
+     required={false}
+     rules={[{ required: true, message: 'Please select the Horse Power' }]}
+    >
+      <Select
+        showSearch
+        placeholder="Select horsepower"
+        optionFilterProp="children"
+        value={selectedHorsepower || undefined}
+        onChange={(val) => {
+          setSelectedHorsepower(val);
+          form.setFieldsValue({ horsepower: val });
+        }}
+      >
+        {horsePower.map((hp) => (
+              <Select.Option key={hp.id} value={hp.label}>
+                {hp.label}
+              </Select.Option>
+            ))
+          }
+      </Select>
+    </Form.Item>
+  </Col>
+</Row>
+
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: '#0A0A0B',
+                    }}
+                    label="Badges"
+                    name="badges"
+                  >
+                    <div className="option-box-group">
+                      {updateData?.badges?.map((opt) => (
+                        <div
+                          key={opt.badge}
+                          className={`option-box${
+                            selectedBadges.includes(opt.badge) ? ' selected' : ''
+                          }`}
+                          onClick={() => {
+                            let newBadges;
+                            if (selectedBadges.includes(opt.badge)) {
+                              newBadges = selectedBadges?.filter(
+                                (b) => b !== opt.badge
+                              );
+                            } else {
+                              newBadges = [...selectedBadges, opt.badge];
+                            }
+                            setSelectedBadges(newBadges);
+                            form.setFieldsValue({ badges: newBadges });
+                          }}
+                        >
+                          {opt.badge}
+                        </div>
+                      ))}
+                    </div>
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: '#0A0A0B',
+                    }}
+                    label="Vehicle Type"
+                    name="vehicletype"
+                    required={false}
+                    rules={[{ required: true, message: 'Please select the Vehicle Type' }]}
+                  >
+                    <Select
+        placeholder="Select vehicle type"
+        value={selectedVehicleType || undefined}
+        onChange={(val) => {
+          setSelectedVehicleType(val);
+          form.setFieldsValue({ vehicletype: val });
+        }}
+      >
+        {updateData?.vehicle_types?.map((hp1) => (
+              <Option key={hp1.id} value={hp1.id}>
+                {hp1.vechile_type}
+              </Option>
+            ))
+          }
+      </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col xs={24} md={6}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: '#0A0A0B',
+                    }}
+                    label="Kilometers"
+                    name="kilometers"
+                    rules={[
+                      { required: true, message: 'Please enter kilometers!' },
+                    ]}
+                    required={false}
+                    validateTrigger="onBlur"
+                  >
+                     <Input
+    style={{ fontSize: 14 }}
+    placeholder="20"
+    type="tel"
+    inputMode="numeric"
+    pattern="[0-9]*"
+    onChange={(e) => {
+      // strip any non-digit characters
+      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+      form.setFieldsValue({ consumption: digitsOnly });
+    }}
+    onPaste={(e) => {
+      const pasted = (e.clipboardData?.getData('Text') || '');
+      const digitsOnly = pasted.replace(/\D/g, '');
+      if (digitsOnly !== pasted) {
+        // prevent messy paste and insert cleaned digits
+        e.preventDefault();
+        const current = form.getFieldValue('consumption') || '';
+        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
+      }
+    }}
+    onKeyDown={(e) => {
+      // allow navigation / control keys
+      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+      if (allowed.includes(e.key)) return;
+      // block non-digit keys
+      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+    }}
+  />
+                  </Form.Item>
+                </Col>
+
                 <Col xs={24} md={6}>
                   <Form.Item
                     style={{
@@ -1035,6 +1300,8 @@ const BrandInput = () => {
                     }}
                     label="Regional Specs"
                     name="regionalSpecs"
+                     required={false}
+                     rules={[{ required: true, message: 'Please select the Regional Specs'}]}
                   >
                     <RegionalSpecsInput />
                   </Form.Item>
@@ -1085,180 +1352,7 @@ const BrandInput = () => {
                     </div>
                   </Modal>
                 </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
-                    label="Body Type"
-                    name="bodyType"
-                  >
-                    <div className="option-box-group">
-                      {updateData?.body_types.map((opt) => (
-                        <div
-                          key={opt.body_type}
-                          className={`option-box${
-                            selectedBodyType === opt.body_type ? ' selected' : ''
-                          }`}
-                          onClick={() => {
-                            setSelectedBodyType(opt.body_type);
-                            form.setFieldsValue({ bodyType: opt.body_type });
-                          }}
-                        >
-                          {opt.body_type}
-                        </div>
-                      ))}
-                    </div>
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
-                    label="Condition"
-                    name="condition"
-                  >
-                    <div className="option-box-group">
-                      {updateData?.car_conditions?.map((opt) => (
-                        <div
-                          key={opt.car_condition}
-                          className={`option-box${
-                            selectedCondition === opt.car_condition ? ' selected' : ''
-                          }`}
-                          onClick={() => {
-                            setSelectedCondition(opt.car_condition);
-                            form.setFieldsValue({ condition: opt.car_condition });
-                          }}
-                        >
-                          {opt.car_condition}
-                        </div>
-                      ))}
-                    </div>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col xs={24} md={24}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
-                    label="Badges"
-                    name="badges"
-                  >
-                    <div className="option-box-group">
-                      {updateData?.badges?.map((opt) => (
-                        <div
-                          key={opt.badge}
-                          className={`option-box${
-                            selectedBadges.includes(opt.badge) ? ' selected' : ''
-                          }`}
-                          onClick={() => {
-                            let newBadges;
-                            if (selectedBadges.includes(opt.badge)) {
-                              newBadges = selectedBadges?.filter(
-                                (b) => b !== opt.badge
-                              );
-                            } else {
-                              newBadges = [...selectedBadges, opt.badge];
-                            }
-                            setSelectedBadges(newBadges);
-                            form.setFieldsValue({ badges: newBadges });
-                          }}
-                        >
-                          {opt.badge}
-                        </div>
-                      ))}
-                    </div>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Kilometers*"
-                    name="kilometers"
-                    rules={[
-                      { required: false, message: 'Please enter kilometers!' },
-                    ]}
-                    required={false}
-                    validateTrigger="onBlur"
-                  >
-                    <Input
-                      style={{
-                        fontSize: 14,
-                      }}
-                      placeholder="Choose"
-                      type="number"
-                      min={0}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Year"
-                    name="year"
-                  >
-                    <YearInput />
-                  </Form.Item>
-                  <Modal
-                    open={yearModalOpen}
-                    onCancel={() => setYearModalOpen(false)}
-                    footer={null}
-                    title={
-                      <div className="year-modal-title-row">
-                        <span>What is the Year of your car?</span>
-                      </div>
-                    }
-                    width={500}
-                  >
-                    <Input
-                      prefix={<SearchOutlined />}
-                      placeholder="Search By Typing"
-                      value={yearSearch}
-                      onChange={(e) => setYearSearch(e.target.value)}
-                      className="year-modal-search"
-                    />
-                    <div className="year-modal-list">
-                      {yearData
-                        ?.filter((opt) => opt.year.includes(yearSearch))
-                        ?.map((opt) => (
-                          <div
-                            key={opt.year}
-                            className={`year-modal-option${
-                              selectedYear === opt.year ? ' selected' : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedYear(opt.year);
-                              setYearModalOpen(false);
-                              form.setFieldsValue({ year: opt.year });
-                            }}
-                          >
-                            {opt.year}
-                          </div>
-                        ))}
-                    </div>
-                  </Modal>
-                </Col>
+              
                 <Col xs={24} md={6}>
                   <Form.Item
                     style={{
@@ -1268,6 +1362,8 @@ const BrandInput = () => {
                     }}
                     label="Region"
                     name="region"
+                    required={false}
+                    rules={[{ required: true, message: 'Please select the Region' }]}
                   >
                     <RegionInput />
                   </Form.Item>
@@ -1359,6 +1455,8 @@ const BrandInput = () => {
                     }}
                     label="Regional Specs"
                     name="regionalSpecs2"
+                     required={false}
+                     rules={[{ required: true, message: 'Please select the Regional Specs' }]}
                   >
                     <Select placeholder="Select the specs of your car">
                       {updateData?.regional_specs?.map((spec) => (
@@ -1382,6 +1480,8 @@ const BrandInput = () => {
                     }}
                     label="Number of seats"
                     name="seats"
+                    required={false}
+                    rules={[{ required: true, message: 'Please select the Seats' }]}
                   >
                     <div className="option-box-group">
                       {updateData?.number_of_seats?.map((opt) => (
@@ -1438,6 +1538,8 @@ const BrandInput = () => {
                     }}
                     label="Fuel Type"
                     name="fuelType"
+                    required={false}
+                    rules={[{ required: true, message: 'Please select the Fuel Type' }]}
                   >
                     <div className="option-box-group">
                       {updateData?.fuel_types?.map((opt) => (
@@ -1466,6 +1568,8 @@ const BrandInput = () => {
                     }}
                     label="Transmission Type"
                     name="transmissionType"
+                    required={false}
+                    rules={[{ required: true, message: 'Please select the Transmission Type' }]}
                   >
                     <div className="option-box-group">
                       {updateData?.transmission_types?.map((opt) => (
@@ -1523,35 +1627,78 @@ const BrandInput = () => {
                     label="Engine CC"
                     name="engineCC"
                   >
-                    <Input
-                      style={{
-                        fontSize: 14,
-                      }}
-                      placeholder="1600"
-                      type="number"
-                      min={0}
-                    />
+                     <Input
+    style={{ fontSize: 14 }}
+    placeholder="20"
+    type="tel"
+    inputMode="numeric"
+    pattern="[0-9]*"
+    onChange={(e) => {
+      // strip any non-digit characters
+      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+      form.setFieldsValue({ consumption: digitsOnly });
+    }}
+    onPaste={(e) => {
+      const pasted = (e.clipboardData?.getData('Text') || '');
+      const digitsOnly = pasted.replace(/\D/g, '');
+      if (digitsOnly !== pasted) {
+        // prevent messy paste and insert cleaned digits
+        e.preventDefault();
+        const current = form.getFieldValue('consumption') || '';
+        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
+      }
+    }}
+    onKeyDown={(e) => {
+      // allow navigation / control keys
+      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+      if (allowed.includes(e.key)) return;
+      // block non-digit keys
+      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+    }}
+  />
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Consumption (1/100 km)"
-                    name="consumption"
-                  >
-                    <Input
-                      style={{
-                        fontSize: 14,
-                      }}
-                      placeholder="20"
-                      type="number"
-                      min={0}
-                    />
+  style={{
+    fontWeight: 500,
+    fontSize: 10,
+    color: '#0A0A0B',
+  }}
+  label="Consumption (1/100 km)"
+  name="consumption"
+>
+  <Input
+    style={{ fontSize: 14 }}
+    placeholder="20"
+    type="tel"
+    inputMode="numeric"
+    pattern="[0-9]*"
+    onChange={(e) => {
+      // strip any non-digit characters
+      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+      form.setFieldsValue({ consumption: digitsOnly });
+    }}
+    onPaste={(e) => {
+      const pasted = (e.clipboardData?.getData('Text') || '');
+      const digitsOnly = pasted.replace(/\D/g, '');
+      if (digitsOnly !== pasted) {
+        // prevent messy paste and insert cleaned digits
+        e.preventDefault();
+        const current = form.getFieldValue('consumption') || '';
+        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
+      }
+    }}
+    onKeyDown={(e) => {
+      // allow navigation / control keys
+      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+      if (allowed.includes(e.key)) return;
+      // block non-digit keys
+      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+    }}
+  />
                   </Form.Item>
+ 
                 </Col>
               </Row>
               <Row gutter={16}>
@@ -1565,7 +1712,11 @@ const BrandInput = () => {
                     label="Extra Features"
                     name="extraFeatures"
                   >
-                    <Select placeholder="Choose">
+                    <Select mode="multiple" 
+                      placeholder="Choose"
+                      allowClear 
+                       optionFilterProp="children"
+                      showSearch   >
                       {updateData?.extra_features?.map((int1) => (
                         <Option key={int1.id} value={int1.id}>
                           {int1.extra_feature}
@@ -1592,6 +1743,71 @@ const BrandInput = () => {
                       ))}
                     </Select>
                   </Form.Item>
+                </Col>
+
+                 <Col xs={24} md={6}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: '#0A0A0B',
+                    }}
+                    label="Interior Color"
+                    name="interiorColor"
+                  >
+                    <InteriorColorInput />
+                  </Form.Item>
+                  <Modal
+                    open={colorModalOpenInterior}
+                    onCancel={() => setColorModalOpenInterior(false)}
+                    footer={null}
+                    title={
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <span>What is the interior color of your car?</span>
+                      </div>
+                    }
+                    width={500}
+                  >
+                    <Input
+                      prefix={<SearchOutlined />}
+                      placeholder="Search By Typing"
+                      value={colorSearch}
+                      onChange={(e) => setColorSearch(e.target.value)}
+                      style={{ marginBottom: 16, borderRadius: 8 }}
+                    />
+                    <div className="color-modal-grid">
+                      {filteredColors1?.map((opt) => (
+                        <div
+                          key={opt.interior_colour}
+                          className={`color-option${
+                            selectedInteriorColor === opt.interior_colour ? ' selected' : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedInteriorColor(opt.interior_colour);
+                            setColorModalOpenInterior(false);
+                            form.setFieldsValue({ exteriorColor: opt.interior_colour });
+                          }}
+                        >
+                          <span
+                            className="color-swatch-modal"
+                            style={{
+                              background: opt.color,
+                              border: opt.border || '1px solid #d9d9d9',
+                            }}
+                          />
+                          <span className="color-option-label">
+                            {opt.interior_colour}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </Modal>
                 </Col>
               </Row>
               <Row gutter={16}>
@@ -1660,7 +1876,7 @@ const BrandInput = () => {
                   className="btn-solid-blue"
                   type="primary"
                   htmlType="submit"
-                  onClick={() => handleCreateData('1')}
+                  onClick={() => setCreateSelecetd('1')}
                   disabled={loading}
                 >
                   Create
@@ -1668,8 +1884,8 @@ const BrandInput = () => {
                 <Button
                   size="small"
                   className="btn-solid-blue"
-                  onClick={() => handlePostAndNew('2')}
-                  type="primary"
+                  onClick={() => setCreateSelecetd('2')}
+                  type="submit"
                 >
                   Create & New
                 </Button>

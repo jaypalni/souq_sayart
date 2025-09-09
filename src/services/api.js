@@ -148,6 +148,8 @@ export const carAPI = {
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
   totalcarscount: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
+  gethorsepower: () => 
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_HORSE_POWER),
 };
 
 export const userAPI = {

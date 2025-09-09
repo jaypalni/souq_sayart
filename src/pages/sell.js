@@ -183,6 +183,11 @@ const Sell = () => {
   };
 
   const handlePostData = async (text) => {
+    const staticImages = [
+    '/api/search/upload-attachment/bmw_logo_20250905_122011_ce396f74.png',
+    '/api/search/upload-attachment/audi_logo_20250905.png',
+    '/api/search/upload-attachment/benz_logo_20250905.png',
+   ];
     const values = await form.validateFields();
     const formData = new FormData();
     formData.append('make', make);
@@ -214,16 +219,18 @@ const Sell = () => {
     formData.append('payment_option', '');
     formData.append('draft', '');
     
-    console.log('1234t67876543',values.media.map(f => f.originFileObj));
-
-  if (values.media && values.media.length > 0) {
-  values.media.forEach((file) => {
-    const fileObj = file?.originFileObj || file;
-    if (fileObj instanceof File) {
-      formData.append('car_image[]', fileObj.name);
-    }
-  });
-}
+    staticImages.forEach((imgPath) => {
+    formData.append('car_image', imgPath);
+   });
+  
+//   if (values.media && values.media.length > 0) {
+//   values.media.forEach((file) => {
+//     const fileObj = file?.originFileObj || file;
+//     if (fileObj instanceof File) {
+      
+//     }
+//   });
+// }
     try {
       setLoading(true);
 

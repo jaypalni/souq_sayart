@@ -66,6 +66,7 @@ const Sell = () => {
   const [colorModalOpenInterior, setColorModalOpenInterior] = useState(false);
   const [colorSearch, setColorSearch] = useState('');
   const [selectedColor, setSelectedColor] = useState();
+  const [selectedColorImage, setSelectedColorImage] = useState();
   const [selectedInteriorColor, setSelectedInteriorColor] = useState();
   const [trimModalOpen, setTrimModalOpen] = useState(false);
   const [trimSearch, setTrimSearch] = useState('');
@@ -513,21 +514,57 @@ const handleFinish = async (values) => {
 
 
 
-  const ExteriorColorInput = () => (
+const ExteriorColorInput = ({
+  selectedColor,
+  selectedColorImage,
+  placeholder = 'Beige',
+  onOpen,
+}) => {
+  const hasImage = !!selectedColorImage;
+
+  const imageSrc =
+    selectedColorImage
+      ? selectedColorImage
+      : selectedColorImage
+      ? `${BASE_URL}${selectedColorImage}`
+      : null;
+
+  return (
     <div
       className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
-      onClick={() => setColorModalOpen(true)}
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpen();
+      }}
     >
+      <div className="exterior-color-left">
+        {hasImage && imageSrc ? (
+          <img
+            src={imageSrc}
+            alt={selectedColor || 'color swatch'}
+            className="color-swatch-input"
+          />
+        ) : (
+          <span className="color-swatch-placeholder" aria-hidden="true" />
+        )}
+      </div>
+
       <span
         style={{
           fontSize: 14,
+          marginLeft: 8,
+          flex: 1,
         }}
       >
-        {selectedColor || 'Beige'}
+        {selectedColor || placeholder}
       </span>
+
       <RightOutlined className="color-arrow" />
     </div>
   );
+};
 
   const InteriorColorInput = () => (
     <div
@@ -618,8 +655,6 @@ const BrandInput = () => {
   );
 };
 
-
-
   const YearInput = () => (
     <div
       className={`year-input${!selectedYear ? ' placeholder' : ''}`}
@@ -677,32 +712,35 @@ const BrandInput = () => {
   const handleSaveDraft = async () => {
     const values = await form.validateFields();
     const formData = new FormData();
-    formData.append('make', make);
-    formData.append('model', modalName);
-    formData.append('year', selectedYear);
-    formData.append('price', '');
-    formData.append('description', values?.description);
-    formData.append('ad_title', values?.adTitle);
-    formData.append('exterior_color', selectedColor);
-    formData.append('mileage', values?.kilometers);
-    formData.append('fuel_type', values?.fuelType);
-    formData.append('transmission_type', values?.transmissionType);
-    formData.append('body_type', values?.bodyType);
-    formData.append('condition', values?.condition);
-    formData.append('location', selectedRegion);
-    formData.append('interior', values?.interior);
-    formData.append('trim', selectedTrim);
-    formData.append('regional_specs', selectedRegionalSpecs);
-    formData.append('badges', values?.badges);
-    formData.append('warranty_date', values?.warrantyDate);
-    formData.append('accident_history', values?.accidentHistory);
-    formData.append('number_of_seats', values?.seats);
-    formData.append('number_of_doors', values?.doors);
-    formData.append('drive_type', values?.driveType);
-    formData.append('engine_cc', values?.engineCC);
-    formData.append('extra_features', values?.extraFeatures);
-    formData.append('consumption', values?.consumption);
-    formData.append('no_of_cylinders', values?.cylinders);
+    formData.append('make', make || '');
+    formData.append('model', modalName || '');
+    formData.append('year', selectedYear || '');
+    formData.append('price', values.price || '');
+    formData.append('description', values?.description || '');
+    formData.append('ad_title', values?.adTitle || '');
+    formData.append('exterior_color', selectedColor || '');
+    formData.append('interior_color', selectedInteriorColor || '');
+    formData.append('mileage', values?.kilometers || '');
+    formData.append('fuel_type', values?.fuelType || '');
+    formData.append('transmission_type', values?.transmissionType || '');
+    formData.append('body_type', values?.bodyType || '');
+    formData.append('vechile_type', values?.vehicletype || '');
+    formData.append('condition', values?.condition || '');
+    formData.append('location', selectedRegion || '');
+    formData.append('interior', values?.interior || '');
+    formData.append('trim', selectedTrim || '');
+    formData.append('regional_specs', selectedRegionalSpecs || '');
+    formData.append('badges', values?.badges || '');
+    formData.append('warranty_date', values?.warrantyDate || '');
+    formData.append('accident_history', values?.accidentHistory || '');
+    formData.append('number_of_seats', values?.seats || '');
+    formData.append('number_of_doors', values?.doors || '');
+    formData.append('drive_type', values?.driveType || '');
+    formData.append('engine_cc', values?.engineCC || '');
+    formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
+    formData.append('consumption', values?.consumption || '');
+    formData.append('no_of_cylinders', values?.cylinders || '');
+    formData.append('horse_power', values?.horsepower || '');
     formData.append('payment_option', '');
     formData.append('draft', '');
 
@@ -1070,7 +1108,12 @@ const BrandInput = () => {
                     required={false}
                     rules={[{ required: true, message: 'Please select the Exterior Color' }]}
                   >
-                    <ExteriorColorInput />
+                    <ExteriorColorInput
+                    selectedColor={selectedColor}
+                    selectedColorImage={selectedColorImage}
+                    onOpen={() => setColorModalOpen(true)}
+                    placeholder="Beige"
+                  />
                   </Form.Item>
                   <Modal
                     open={colorModalOpen}
@@ -1107,15 +1150,15 @@ const BrandInput = () => {
                             setSelectedColor(opt.colour);
                             setColorModalOpen(false);
                             form.setFieldsValue({ exteriorColor: opt.colour });
+                            form.setFieldsValue({ exteriorColor: opt.colour,brandImage: opt.colour_image, });
+                            setSelectedColorImage(opt.image);
                           }}
                         >
-                          <span
-                            className="color-swatch-modal"
-                            style={{
-                              background: opt.color,
-                              border: opt.border || '1px solid #d9d9d9',
-                            }}
-                          />
+                           <img
+                              src={`${BASE_URL}${opt.colour_image}`}
+                              alt={opt.value}
+                              className="color-swatch-modal"
+                            />
                           <span className="color-option-label">
                             {opt.colour}
                           </span>
@@ -1799,6 +1842,7 @@ const BrandInput = () => {
                     </div>
                   </Form.Item>
                 </Col>
+<<<<<<< HEAD
               <Col xs={24} md={6}>
   <Form.Item
     style={{
@@ -1843,6 +1887,38 @@ const BrandInput = () => {
       fontWeight: 500,
       fontSize: 10,
       color: '#0A0A0B',
+=======
+                <Col xs={24} md={6}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 10,
+                      color: '#0A0A0B',
+                    }}
+                    label="Engine CC"
+                    name="engineCC"
+                  >
+                     <Input
+    style={{ fontSize: 14 }}
+    placeholder="20"
+    type="tel"
+    inputMode="numeric"
+    pattern="[0-9]*"
+    onChange={(e) => {
+      // strip any non-digit characters
+      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+      form.setFieldsValue({ engineCC: digitsOnly });
+    }}
+    onPaste={(e) => {
+      const pasted = (e.clipboardData?.getData('Text') || '');
+      const digitsOnly = pasted.replace(/\D/g, '');
+      if (digitsOnly !== pasted) {
+        // prevent messy paste and insert cleaned digits
+        e.preventDefault();
+        const current = form.getFieldValue('engineCC') || '';
+        form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
+      }
+>>>>>>> 711e1ec826cbc4301d1942532a5dbea1811a7862
     }}
     label="Consumption (1/100 km)"
     name="consumption"

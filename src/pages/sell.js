@@ -1679,7 +1679,7 @@ const BrandInput = () => {
     onChange={(e) => {
       // strip any non-digit characters
       const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-      form.setFieldsValue({ consumption: digitsOnly });
+      form.setFieldsValue({ engineCC: digitsOnly });
     }}
     onPaste={(e) => {
       const pasted = (e.clipboardData?.getData('Text') || '');
@@ -1687,8 +1687,8 @@ const BrandInput = () => {
       if (digitsOnly !== pasted) {
         // prevent messy paste and insert cleaned digits
         e.preventDefault();
-        const current = form.getFieldValue('consumption') || '';
-        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
+        const current = form.getFieldValue('engineCC') || '';
+        form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
       }
     }}
     onKeyDown={(e) => {

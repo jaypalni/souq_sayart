@@ -1842,7 +1842,6 @@ const BrandInput = () => {
                     </div>
                   </Form.Item>
                 </Col>
-<<<<<<< HEAD
               <Col xs={24} md={6}>
   <Form.Item
     style={{
@@ -1881,46 +1880,14 @@ const BrandInput = () => {
   </Form.Item>
 </Col>
 
-<Col xs={24} md={6}>
+ <Col xs={24} md={6}>
   <Form.Item
     style={{
       fontWeight: 500,
       fontSize: 10,
       color: '#0A0A0B',
-=======
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Engine CC"
-                    name="engineCC"
-                  >
-                     <Input
-    style={{ fontSize: 14 }}
-    placeholder="20"
-    type="tel"
-    inputMode="numeric"
-    pattern="[0-9]*"
-    onChange={(e) => {
-      // strip any non-digit characters
-      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-      form.setFieldsValue({ engineCC: digitsOnly });
     }}
-    onPaste={(e) => {
-      const pasted = (e.clipboardData?.getData('Text') || '');
-      const digitsOnly = pasted.replace(/\D/g, '');
-      if (digitsOnly !== pasted) {
-        // prevent messy paste and insert cleaned digits
-        e.preventDefault();
-        const current = form.getFieldValue('engineCC') || '';
-        form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
-      }
->>>>>>> 711e1ec826cbc4301d1942532a5dbea1811a7862
-    }}
-    label="Consumption (1/100 km)"
+    label="Consumption"
     name="consumption"
   >
     <Input
@@ -1950,6 +1917,7 @@ const BrandInput = () => {
     />
   </Form.Item>
 </Col>
+
 
               </Row>
               <Row gutter={16}>

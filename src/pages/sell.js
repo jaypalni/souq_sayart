@@ -1937,7 +1937,7 @@ const BrandInput = () => {
                        optionFilterProp="children"
                       showSearch   >
                       {updateData?.extra_features?.map((int1) => (
-                        <Option key={int1.id} value={int1.id}>
+                        <Option key={int1.id} value={int1.extra_feature}>
                           {int1.extra_feature}
                         </Option>
                       ))}

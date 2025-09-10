@@ -16,8 +16,8 @@ const API_CONFIG = {
         `/api/cars/trims?make_name=${make}&model_name=${modalName}`,
       GET_ALL: '/api/cars/list',
       GET_BY_ID: (id) => `/api/cars/details/${id}`,
-      GET_CAR_MYLISTINGS: (page, limit, status) =>
-        `/api/cars/my-listings?page=${page}&limit=${limit}&status=${status}`,
+     GET_CAR_MYLISTINGS: (filter, page) =>
+  `/api/cars/my-listings?filter=${filter}&page=${page}`,
       CREATE: '/api/cars/add',
       SAVE_DRAFT: '/api/cars/draft',
       UPDATE: (id) => `/cars/${id}`,

@@ -47,7 +47,7 @@ const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
       borderRadius: '4px',
     }}
   >
-    <Pagination
+    {/* <Pagination
       className="custom-pagination"
       current={currentPage}
       total={totalItems || 50}
@@ -55,7 +55,7 @@ const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
       onChange={onChangePage}
       showSizeChanger={false}
       itemRender={renderPaginationItem}
-    />
+    /> */}
   </div>
 );
 
@@ -71,8 +71,9 @@ const Mycarslisting = () => {
   const [carDetails, setCarDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [limit] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
+  const [limit, setLimit] = useState(15);
+
 
   const navigate = useNavigate();
 
@@ -96,7 +97,7 @@ const Mycarslisting = () => {
       if (filterStatus === FILTER.SPORT) {
         return 'approved';
       }
-      return 'any';
+      return 'all';
     }
     if (value === STATUS.DRAFTS) {
       return 'drafts';
@@ -109,32 +110,50 @@ const Mycarslisting = () => {
 
 
   const fetchCars = async () => {
-    try {
-      setLoading(true);
-      const statusParam = getStatusParam();
-      const response = await carAPI.getMylistingCars({ page, limit, status: statusParam });
-      const cardetail = handleApiResponse(response);
+  try {
+    setLoading(true);
 
-      if (['pending', 'approved', 'any'].includes(statusParam)) {
-        setCarDetails(cardetail.data.approved_pending || []);
-      } else if (statusParam === 'drafts') {
-        setCarDetails(cardetail.data.draft || []);
-      } else if (statusParam === 'sold') {
-        setCarDetails(cardetail.data.sold || []);
-      } else {
-        setCarDetails([]);
-      }
-      setTotalCount(cardetail.data.total || 0);
+    const statusParam = getStatusParam() || '';
+    console.log('Calling API with:', { status: statusParam, page });
 
-      message.success(cardetail.message || 'Fetched successfully');
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to load car data');
-      setCarDetails([]);
-    } finally {
-      setLoading(false);
+    const response = await carAPI.getMylistingCars(statusParam, page || 1);
+    const cardetail = handleApiResponse(response);
+
+    // Safely extract data
+    const data = cardetail?.data || {};
+    const pagination = cardetail?.pagination || {};
+
+    let list = [];
+    if (['pending', 'approved', 'all'].includes(statusParam)) {
+      list = data.approved_pending || [];
+    } else if (statusParam === 'drafts') {
+      list = data.draft || [];
+    } else if (statusParam === 'sold') {
+      list = data.sold || [];
     }
-  };
+
+    setCarDetails(list);
+
+    // Use pagination total
+    setTotalCount(pagination.total || 0);
+
+    // Optional: update page limit dynamically
+    setLimit(pagination.limit || 15);
+
+    if (list.length === 0) {
+      message.info('No cars found for the selected filter');
+    } else {
+      message.success(cardetail.message || 'Fetched successfully');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to load car data');
+    setCarDetails([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchCars();
@@ -250,7 +269,8 @@ const Mycarslisting = () => {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
+                // gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
+                gridTemplateColumns: 'repeat(4, 1fr)',
                 gap: '20px',
                 justifyContent: 'center',
               }}
@@ -271,11 +291,17 @@ const Mycarslisting = () => {
       </div>
 
       {/* Pagination */}
-      <MyListingsPagination
-        currentPage={page}
-        totalItems={totalCount}
-        onChangePage={(newPage) => setPage(newPage)}
-      />
+      {/* Pagination */}
+<Pagination
+  className="custom-pagination"
+  current={page}
+  total={totalCount}
+  pageSize={limit}
+  onChange={(newPage) => setPage(newPage)}
+  showSizeChanger={false}
+  showQuickJumper      // enables the input box
+  itemRender={renderPaginationItem}
+/>
     </div>
   );
 };

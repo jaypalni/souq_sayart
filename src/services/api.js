@@ -126,8 +126,8 @@ export const carAPI = {
   getAllCars: (params) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_ALL, { params }),
   getCarById: (id) => api.get(API_CONFIG.ENDPOINTS.CARS.GET_BY_ID(id)),
-  getMylistingCars: (page, limit, status) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(page, limit, status)),
+  getMylistingCars: (filter, page) =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(filter, page)),
   createCar: (data) => api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, data),
   saveDraftCar: () => api.post(API_CONFIG.ENDPOINTS.CARS.SAVE_DRAFT),
   updateCar: (id, data) => api.put(API_CONFIG.ENDPOINTS.CARS.UPDATE(id), data),

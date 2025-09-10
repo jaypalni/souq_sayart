@@ -19,6 +19,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
     'Active-Base': { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: 'Pending Approval' },
     'Sold': { bg: COLORS.soldTagBg, color: COLORS.soldTagColor, label: 'Sold' },
   };
+  const json = encodeURIComponent(JSON.stringify(car));
 
   let key;
   if (value === STATUS_ACTIVE) {
@@ -135,9 +136,9 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
     style={{
       flex: 1,
       borderRadius: BORDER_RADIUS.button,
-      color: '#008AD5',          // Text color
-      borderColor: '#008AD5',    // Border color
-      backgroundColor: '#fff',   // Background color
+      color: '#008AD5',         
+      borderColor: '#008AD5',    
+      backgroundColor: '#fff',  
     }}
   >
     Delete
@@ -145,7 +146,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
 
   <Button
     type="primary"
-    onClick={() => navigate(`/carDetails/${car.id}`)}
+    onClick={() => navigate('/sell', { state: { extras: car } })}
     style={{
       flex: 1,
       borderRadius: BORDER_RADIUS.button,

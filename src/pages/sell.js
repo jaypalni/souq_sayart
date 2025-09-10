@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import {
   Form,
   Input,
@@ -25,7 +25,7 @@ import { PlusOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../assets/styles/sell.css';
 import toyotaImg from '../assets/images/toyota.png';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import mercedesImg from '../assets/images/mercedes.png';
 import miniImg from '../assets/images/mini.png';
 import bmwImg from '../assets/images/bmw.png';
@@ -35,6 +35,7 @@ import addMediaSvg from '../assets/images/addMedia.svg';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
+import moment from 'moment';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -105,8 +106,108 @@ const Sell = () => {
   const [mediaFileList, setMediaFileList] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
-  // const [imageUrl, setImageUrl] = useState(null);
+  const [selectedInterior, setSelectedInterior] = useState([]);
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+  const { state } = useLocation();
+  const extras = state?.extras ?? [];
+  const populatedRef = useRef(false);
+
+  console.log('1234567',extras.warranty_date)
+  
+  const toUploadFileList = (imagePath) => {
+  if (!imagePath) return [];
+  const url = imagePath.startsWith('http') ? imagePath : `${BASE_URL}${imagePath}`;
+  const name = url.split('/').pop() || `img-${Date.now()}`;
+  return [
+    {
+      uid: `server-${Date.now()}`,
+      name,
+      status: 'done',
+      url,
+    },
+  ];
+};
+
+  useEffect(() => {
+  if (!extras || (Array.isArray(extras) && extras.length === 0)) {
+    populatedRef.current = false; 
+    return;
+  }
+  if (populatedRef.current) return; 
+  const data = Array.isArray(extras) ? extras[0] : extras;
+  if (!data || typeof data !== 'object') return;
+
+  const imagePath = data.image_url || data.car_image || '';
+  const mediaFileList = toUploadFileList(imagePath);
+  if (typeof setMediaFileList === 'function') setMediaFileList(mediaFileList);
+  form.setFieldsValue({ media: mediaFileList });
+  form.setFieldsValue({
+    adTitle: data.ad_title ?? data.adTitle ?? '',
+    description: data.description ?? data.desc ?? '',
+    brand: data.make ?? data.brand ?? '',
+    trim: data.trim ?? data.model ?? '',
+    exteriorColor: data.exterior_color ?? data.exteriorColor ?? data.color ?? '',
+    year: data.year ?? data.manufacture_year ?? '',
+    price: (data.price ?? '').toString().replace(/,/g, ''),
+    horsepower: data.horse_power ?? data.horsepower ?? '',
+    vehicletype: data.vechile_type ?? data.vehicle_type ?? '',
+    bodyType: data.body_type ?? data.bodyType ?? '',
+    condition: data.condition ?? '',
+    consumption: data.consumption ?? '',
+    kilometers: data.kilometers ?? data.mileage ?? 0,
+    engineCC: data.engine_cc ?? data.engineCC ?? data.engine ?? '',
+    transmissionType: data.transmission_type ?? data.transmission ?? '',
+    driveType: data.drive_type ?? data.driveType ?? data.drive_type ?? '',
+    regionalSpecs: data.regional_specs ?? data.regionalSpecs ?? '',
+    region: data.location ?? data.region ?? '',
+    accidentHistory: data.accident_history ?? '',
+    interior: data.interior ?? '',
+    interiorColor: data.interior_color ?? data.interiorColor ?? '',
+    cylinders: data.no_of_cylinders ?? data.cylinders ?? '',
+    doors: data.number_of_doors ?? data.no_of_doors ?? '',
+    seats: data.number_of_seats ?? data.no_of_seats ?? '',
+    extraFeatures: Array.isArray(data.extra_features) ? data.extra_features : (data.extra_features ? [data.extra_features] : []),
+    badges: Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []),
+    warrantyDate: data.warranty_date ? moment(data.warranty_date) : undefined,
+  });
+
+
+  if (typeof setSelectedBrand === 'function') {
+    setSelectedBrand(data.make ?? data.brand ?? '');
+    if (typeof setSelectedBrandImage === 'function') {
+      setSelectedBrandImage(data.image_url ?? imagePath ?? '');
+    }
+    if (typeof setMake === 'function') setMake(data.make ?? data.brand ?? '');
+  }
+
+  if (typeof setSelectedModel === 'function') setSelectedModel(data.model ?? data.trim ?? '');
+  if (typeof setSelectedTrim === 'function') setSelectedTrim(data.trim ?? '');
+  if (typeof setSelectedColor === 'function') {
+    setSelectedColor(data.exterior_color ?? data.exteriorColor ?? data.color ?? '');
+    if (typeof setSelectedColorImage === 'function') {
+      setSelectedColorImage(data.colour_image ?? data.exterior_color_image ?? '');
+    }
+  }
+  if (typeof setSelectedYear === 'function') setSelectedYear(data.year ?? '');
+  if (typeof setSelectedPrice === 'function') setSelectedPrice((data.price ?? '').toString().replace(/,/g, ''));
+  if (typeof setSelectedHorsepower === 'function') setSelectedHorsepower(data.horse_power ?? data.horsepower ?? '');
+  if (typeof setSelectedVehicleType === 'function') setSelectedVehicleType(data.vechile_type ?? data.vehicle_type ?? '');
+  if (typeof setSelectedBodyType === 'function') setSelectedBodyType(data.body_type ?? '');
+  if (typeof setSelectedCondition === 'function') setSelectedCondition(data.condition ?? '');
+  if (typeof setSelectedRegionalSpecs === 'function') setSelectedRegionalSpecs(data.regional_specs ?? '');
+  if (typeof setSelectedRegion === 'function') setSelectedRegion(data.location ?? '');
+  if (typeof setSelectedBadges === 'function') setSelectedBadges(Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []));
+  if (typeof setSelectedSeats === 'function') setSelectedSeats(data.number_of_seats ?? data.no_of_seats ?? '');
+  if (typeof setSelectedDoors === 'function') setSelectedDoors(data.number_of_doors ?? data.no_of_doors ?? '');
+  if (typeof setSelectedFuelType === 'function') setSelectedFuelType(data.fuel_type ?? '');
+  if (typeof setSelectedTransmissionType === 'function') setSelectedTransmissionType(data.transmission_type ?? '');
+  if (typeof setSelectedDriveType === 'bigint') setSelectedDriveType(data.drive_type ?? '');
+  if (typeof setSelectedCylinders === 'function') setSelectedCylinders(data.no_of_cylinders ?? '');
+  if (typeof setSelectedInterior === 'function') setSelectedInterior(data.interior ?? '');
+  if (typeof setSelectedInteriorColor === 'function') setSelectedInteriorColor(data.interior_color ?? '');
+
+  populatedRef.current = true;
+}, [extras, form]);
 
 
   useEffect(() => {
@@ -220,13 +321,10 @@ const handleBeforeUpload = async (files) => {
   }
 
   const formData = new FormData();
-
-  // ✅ Append each image
   files.forEach((file) => {
-    formData.append('attachment', file); // <-- key must match backend exactly
+    formData.append('attachment', file);
   });
 
-  // 🔹 Debug: Print FormData keys and values
   for (let pair of formData.entries()) {
     console.log(pair[0] + ':', pair[1]);
   }
@@ -264,129 +362,11 @@ console.log('1or2', createSelecetd)
 };
 
 
-
-
-
-// const handlePostData = async (text) => {
-//   try {
-//     const values = await form.validateFields();
-//     const formData = new FormData();
-//     formData.append('make', make || '');
-//     formData.append('model', modalName || '');
-//     formData.append('year', selectedYear || '');
-//     formData.append('price', values.price || '');
-//     formData.append('description', values?.description || '');
-//     formData.append('ad_title', values?.adTitle || '');
-//     formData.append('exterior_color', selectedColor || '');
-//     formData.append('interior_color', selectedInteriorColor || '');
-//     formData.append('mileage', values?.kilometers || '');
-//     formData.append('fuel_type', values?.fuelType || '');
-//     formData.append('transmission_type', values?.transmissionType || '');
-//     formData.append('body_type', values?.bodyType || '');
-//     formData.append('vechile_type', values?.vehicletype || '');
-//     formData.append('condition', values?.condition || '');
-//     formData.append('location', selectedRegion || '');
-//     formData.append('interior', values?.interior || '');
-//     formData.append('trim', selectedTrim || '');
-//     formData.append('regional_specs', selectedRegionalSpecs || '');
-//     formData.append('badges', values?.badges || '');
-//     formData.append('warranty_date', values?.warrantyDate || '');
-//     formData.append('accident_history', values?.accidentHistory || '');
-//     formData.append('number_of_seats', values?.seats || '');
-//     formData.append('number_of_doors', values?.doors || '');
-//     formData.append('drive_type', values?.driveType || '');
-//     formData.append('engine_cc', values?.engineCC || '');
-//    formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
-//     formData.append('consumption', values?.consumption || '');
-//     formData.append('no_of_cylinders', values?.cylinders || '');
-//     formData.append('horse_power', values?.horsepower || '');
-//     formData.append('payment_option', '');
-//     formData.append('draft', '');
-
-//     // ✅ Append actual files
-//     // if (values.media && values.media.length > 0) {
-//     //   values.media.forEach((file) => {
-//     //     const fileObj = file.originFileObj || file;
-//     //     console.log('Uploading file:', fileObj);
-
-//     //     if (fileObj instanceof File) {
-//     //       formData.append('car_image[]', fileObj); // or 'car_image' depending on API
-//     //     } else {
-//     //       console.error('Invalid file detected:', fileObj);
-//     //     }
-//     //   });
-//     // } else {
-//     //   console.error('No files found in values.media');
-//     // }
-
-//     // // Debugging
-//     // console.log('Final FormData:');
-//     // for (let [key, value] of formData.entries()) {
-//     //   console.log(key, value);
-//     // }
-
-//     if (uploadedImageUrls.length > 0) {
-//       uploadedImageUrls.forEach((url) => {
-//         formData.append('car_images[]', url);
-//       });
-//     } else {
-//       messageApi.open({
-//         type: 'error',
-//         content: 'Please upload at least one image before submitting',
-//       });
-//       return; // Stop submission
-//     }
-
-//     // Debugging
-//     console.log('Final FormData:');
-//     for (let [key, value] of formData.entries()) {
-//       console.log(`${key}: ${value}`);
-//     }
-
-//     setLoading(true);
-
-//     const response = await carAPI.createCar(formData);
-//     const data1 = handleApiResponse(response);
-
-//     console.log('API Response:', data1);
-
-//     if (data1) {
-//       setAddData(data1?.data);
-//     }
-
-//     if (text === '1') {
-//       navigate('/landing');
-//     } else {
-//       form.resetFields();
-//     }
-
-//     messageApi.open({
-//       type: 'success',
-//       content: typeof data1.message === 'object'
-//         ? JSON.stringify(data1.message)
-//         : data1.message,
-//     });
-
-//   } catch (error) {
-//     const errorData = handleApiError(error);
-//     messageApi.open({
-//       type: 'error',
-//       content: typeof errorData === 'object'
-//         ? JSON.stringify(errorData)
-//         : errorData,
-//     });
-//     setAddData([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
 const handlePostData = async (uploadedImages = [], text = '') => {
   try {
     const values = await form.validateFields();
     const formData = new FormData();
 
-    // Append normal form fields
     formData.append('make', make || '');
     formData.append('model', modalName || '');
     formData.append('year', selectedYear || '');
@@ -473,29 +453,6 @@ const handlePostData = async (uploadedImages = [], text = '') => {
     return e && e.fileList;
   };
 
-  // const handleFinish = (values) => {
-  //   const images = values.media?.map((file) => file.originFileObj);
-  //    handleBeforeUpload()
-
-  //   message.success('Form submitted! Check console for output.');
-  // };
-
-//   const handleFinish = (values) => {
-//   const images = values.media?.map((file) => file.originFileObj).filter(Boolean);
-
-//   if (!images || images.length === 0) {
-//     message.error('Please upload at least one image.');
-//     return;
-//   }
-
-//   console.log('Images to upload:', images);
-
-//   // Upload each file
-//   images.forEach((file) => {
-//     handleBeforeUpload(file); // ✅ Correctly sending file
-//   });
-// };
-
 const handleFinish = async (values) => {
   const images = values.media?.map((file) => file.originFileObj);
 
@@ -510,8 +467,6 @@ const handleFinish = async (values) => {
 
   message.success('Form submitted! Images uploading...');
 };
-
-
 
 
 const ExteriorColorInput = ({
@@ -1459,7 +1414,7 @@ const BrandInput = () => {
         }}
       >
         {updateData?.vehicle_types?.map((hp1) => (
-              <Option key={hp1.id} value={hp1.id}>
+              <Option key={hp1.id} value={hp1.vechile_type}>
                 {hp1.vechile_type}
               </Option>
             ))
@@ -1514,68 +1469,6 @@ const BrandInput = () => {
     }}
   />
                   </Form.Item>
-                </Col>
-
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
-                    label="Regional Specs"
-                    name="regionalSpecs"
-                     required={false}
-                     rules={[{ required: true, message: 'Please select the Regional Specs'}]}
-                  >
-                    <RegionalSpecsInput />
-                  </Form.Item>
-                  <Modal
-                    open={regionalSpecsModalOpen}
-                    onCancel={() => setRegionalSpecsModalOpen(false)}
-                    footer={null}
-                    title={
-                      <div className="regionalspecs-modal-title-row">
-                        <span>What is the Regional Specs of your car?</span>
-                      </div>
-                    }
-                    width={500}
-                  >
-                    <Input
-                      prefix={<SearchOutlined />}
-                      placeholder="Search By Typing"
-                      value={regionalSpecsSearch}
-                      onChange={(e) => setRegionalSpecsSearch(e.target.value)}
-                      className="regionalspecs-modal-search"
-                    />
-                    <div className="regionalspecs-modal-list">
-                      {updateData?.regional_specs
-                        ?.filter((opt) =>
-                          opt?.regional_spec
-                            ?.toLowerCase()
-                            ?.includes(regionalSpecsSearch.toLowerCase())
-                        )
-                        ?.map((opt) => (
-                          <div
-                            key={opt.regional_spec}
-                            className={`regionalspecs-modal-option${
-                              selectedRegionalSpecs === opt.regional_spec
-                                ? ' selected'
-                                : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedRegionalSpecs(opt.regional_spec);
-                              setRegionalSpecsModalOpen(false);
-                              form.setFieldsValue({
-                                regionalSpecs: opt.regional_spec,
-                              });
-                            }}
-                          >
-                            {opt.regional_spec}
-                          </div>
-                        ))}
-                    </div>
-                  </Modal>
                 </Col>
               
                 <Col xs={24} md={6}>
@@ -1671,7 +1564,69 @@ const BrandInput = () => {
                     </Select>
                   </Form.Item>
                 </Col>
+
                 <Col xs={24} md={12}>
+                  <Form.Item
+                    style={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      color: '#0A0A0B',
+                    }}
+                    label="Regional Specs"
+                    name="regionalSpecs"
+                     required={false}
+                     rules={[{ required: true, message: 'Please select the Regional Specs'}]}
+                  >
+                    <RegionalSpecsInput />
+                  </Form.Item>
+                  <Modal
+                    open={regionalSpecsModalOpen}
+                    onCancel={() => setRegionalSpecsModalOpen(false)}
+                    footer={null}
+                    title={
+                      <div className="regionalspecs-modal-title-row">
+                        <span>What is the Regional Specs of your car?</span>
+                      </div>
+                    }
+                    width={500}
+                  >
+                    <Input
+                      prefix={<SearchOutlined />}
+                      placeholder="Search By Typing"
+                      value={regionalSpecsSearch}
+                      onChange={(e) => setRegionalSpecsSearch(e.target.value)}
+                      className="regionalspecs-modal-search"
+                    />
+                    <div className="regionalspecs-modal-list">
+                      {updateData?.regional_specs
+                        ?.filter((opt) =>
+                          opt?.regional_spec
+                            ?.toLowerCase()
+                            ?.includes(regionalSpecsSearch.toLowerCase())
+                        )
+                        ?.map((opt) => (
+                          <div
+                            key={opt.regional_spec}
+                            className={`regionalspecs-modal-option${
+                              selectedRegionalSpecs === opt.regional_spec
+                                ? ' selected'
+                                : ''
+                            }`}
+                            onClick={() => {
+                              setSelectedRegionalSpecs(opt.regional_spec);
+                              setRegionalSpecsModalOpen(false);
+                              form.setFieldsValue({
+                                regionalSpecs: opt.regional_spec,
+                              });
+                            }}
+                          >
+                            {opt.regional_spec}
+                          </div>
+                        ))}
+                    </div>
+                  </Modal>
+                </Col>
+                {/* <Col xs={24} md={12}>
                   <Form.Item
                     style={{
                       fontWeight: 500,
@@ -1685,13 +1640,13 @@ const BrandInput = () => {
                   >
                     <Select placeholder="Select the specs of your car">
                       {updateData?.regional_specs?.map((spec) => (
-                        <Option key={spec.id} value={spec.id}>
+                        <Option key={spec.id} value={spec.regional_spec}>
                           {spec.regional_spec}
                         </Option>
                       ))}
                     </Select>
                   </Form.Item>
-                </Col>
+                </Col> */}
               </Row>
             </Card>
             <Card title="Additional Details" style={{ padding: ' 0px 24px' }}>
@@ -1954,9 +1909,14 @@ const BrandInput = () => {
                     label="Interior"
                     name="interior"
                   >
-                    <Select placeholder="Choose">
+                    <Select placeholder="Choose"
+                     value={selectedInterior || undefined}
+                    onChange={(val) => {
+                   setSelectedInterior(val);
+                   form.setFieldsValue({ horsepower: val });
+                   }}>
                       {updateData?.interiors?.map((int) => (
-                        <Option key={int.id} value={int.id}>
+                        <Option key={int.id} value={int.interior}>
                           {int.interior}
                         </Option>
                       ))}

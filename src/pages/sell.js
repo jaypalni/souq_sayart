@@ -1842,52 +1842,6 @@ const BrandInput = () => {
                     </div>
                   </Form.Item>
                 </Col>
-<<<<<<< HEAD
-              <Col xs={24} md={6}>
-  <Form.Item
-    style={{
-      fontWeight: 500,
-      fontSize: 10,
-      color: '#0A0A0B',
-    }}
-    label="Engine CC"
-    name="engineCC"
-  >
-    <Input
-      style={{ fontSize: 14 }}
-      placeholder="20"
-      type="tel"
-      inputMode="numeric"
-      pattern="[0-9]*"
-      onChange={(e) => {
-        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-        form.setFieldsValue({ engineCC: digitsOnly }); // ✅ Correct field updated
-      }}
-      onPaste={(e) => {
-        const pasted = (e.clipboardData?.getData('Text') || '');
-        const digitsOnly = pasted.replace(/\D/g, '');
-        if (digitsOnly !== pasted) {
-          e.preventDefault();
-          const current = form.getFieldValue('engineCC') || ''; // ✅ Correct field
-          form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
-        }
-      }}
-      onKeyDown={(e) => {
-        const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-        if (allowed.includes(e.key)) return;
-        if (!/^[0-9]$/.test(e.key)) e.preventDefault();
-      }}
-    />
-  </Form.Item>
-</Col>
-
-<Col xs={24} md={6}>
-  <Form.Item
-    style={{
-      fontWeight: 500,
-      fontSize: 10,
-      color: '#0A0A0B',
-=======
                 <Col xs={24} md={6}>
                   <Form.Item
                     style={{
@@ -1918,36 +1872,8 @@ const BrandInput = () => {
         const current = form.getFieldValue('engineCC') || '';
         form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
       }
->>>>>>> 711e1ec826cbc4301d1942532a5dbea1811a7862
     }}
-    label="Consumption (1/100 km)"
-    name="consumption"
-  >
-    <Input
-      style={{ fontSize: 14 }}
-      placeholder="20"
-      type="tel"
-      inputMode="numeric"
-      pattern="[0-9]*"
-      onChange={(e) => {
-        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-        form.setFieldsValue({ consumption: digitsOnly }); // ✅ Correct field updated
-      }}
-      onPaste={(e) => {
-        const pasted = (e.clipboardData?.getData('Text') || '');
-        const digitsOnly = pasted.replace(/\D/g, '');
-        if (digitsOnly !== pasted) {
-          e.preventDefault();
-          const current = form.getFieldValue('consumption') || ''; // ✅ Correct field
-          form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
-        }
-      }}
-      onKeyDown={(e) => {
-        const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-        if (allowed.includes(e.key)) return;
-        if (!/^[0-9]$/.test(e.key)) e.preventDefault();
-      }}
-    />
+  />
   </Form.Item>
 </Col>
 

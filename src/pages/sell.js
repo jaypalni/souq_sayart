@@ -104,6 +104,9 @@ const Sell = () => {
   const [mediaFileList, setMediaFileList] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
+  // const [imageUrl, setImageUrl] = useState(null);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
@@ -209,10 +212,180 @@ const Sell = () => {
     }
   };
 
-const handlePostData = async (text) => {
+const handleBeforeUpload = async (files) => {
+  if (!files || files.length === 0) {
+    console.error('No files provided to handleBeforeUpload');
+    return Upload.LIST_IGNORE;
+  }
+
+  const formData = new FormData();
+
+  // ✅ Append each image
+  files.forEach((file) => {
+    formData.append('attachment', file); // <-- key must match backend exactly
+  });
+
+  // 🔹 Debug: Print FormData keys and values
+  for (let pair of formData.entries()) {
+    console.log(pair[0] + ':', pair[1]);
+  }
+
+  try {
+    const response = await carAPI.postuploadcarimages(formData, 'car');
+    console.log('Upload API Response:', response.data);
+
+    const userdoc = handleApiResponse(response);
+
+    if (userdoc?.attachment_url?.length > 0) {
+      setUploadedImageUrls((prev) => [...prev, ...userdoc.attachment_url]);
+
+      messageApi.open({
+        type: 'success',
+        content: userdoc.message || 'All images uploaded successfully',
+      });
+console.log('1or2', createSelecetd)
+      handlePostData(userdoc.attachment_url, createSelecetd);
+
+      return Upload.LIST_IGNORE;
+    } else {
+      message.error(userdoc.message || 'Upload failed');
+      return Upload.LIST_IGNORE;
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message || 'Upload failed',
+    });
+    return Upload.LIST_IGNORE;
+  }
+};
+
+
+
+
+
+// const handlePostData = async (text) => {
+//   try {
+//     const values = await form.validateFields();
+//     const formData = new FormData();
+//     formData.append('make', make || '');
+//     formData.append('model', modalName || '');
+//     formData.append('year', selectedYear || '');
+//     formData.append('price', values.price || '');
+//     formData.append('description', values?.description || '');
+//     formData.append('ad_title', values?.adTitle || '');
+//     formData.append('exterior_color', selectedColor || '');
+//     formData.append('interior_color', selectedInteriorColor || '');
+//     formData.append('mileage', values?.kilometers || '');
+//     formData.append('fuel_type', values?.fuelType || '');
+//     formData.append('transmission_type', values?.transmissionType || '');
+//     formData.append('body_type', values?.bodyType || '');
+//     formData.append('vechile_type', values?.vehicletype || '');
+//     formData.append('condition', values?.condition || '');
+//     formData.append('location', selectedRegion || '');
+//     formData.append('interior', values?.interior || '');
+//     formData.append('trim', selectedTrim || '');
+//     formData.append('regional_specs', selectedRegionalSpecs || '');
+//     formData.append('badges', values?.badges || '');
+//     formData.append('warranty_date', values?.warrantyDate || '');
+//     formData.append('accident_history', values?.accidentHistory || '');
+//     formData.append('number_of_seats', values?.seats || '');
+//     formData.append('number_of_doors', values?.doors || '');
+//     formData.append('drive_type', values?.driveType || '');
+//     formData.append('engine_cc', values?.engineCC || '');
+//    formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
+//     formData.append('consumption', values?.consumption || '');
+//     formData.append('no_of_cylinders', values?.cylinders || '');
+//     formData.append('horse_power', values?.horsepower || '');
+//     formData.append('payment_option', '');
+//     formData.append('draft', '');
+
+//     // ✅ Append actual files
+//     // if (values.media && values.media.length > 0) {
+//     //   values.media.forEach((file) => {
+//     //     const fileObj = file.originFileObj || file;
+//     //     console.log('Uploading file:', fileObj);
+
+//     //     if (fileObj instanceof File) {
+//     //       formData.append('car_image[]', fileObj); // or 'car_image' depending on API
+//     //     } else {
+//     //       console.error('Invalid file detected:', fileObj);
+//     //     }
+//     //   });
+//     // } else {
+//     //   console.error('No files found in values.media');
+//     // }
+
+//     // // Debugging
+//     // console.log('Final FormData:');
+//     // for (let [key, value] of formData.entries()) {
+//     //   console.log(key, value);
+//     // }
+
+//     if (uploadedImageUrls.length > 0) {
+//       uploadedImageUrls.forEach((url) => {
+//         formData.append('car_images[]', url);
+//       });
+//     } else {
+//       messageApi.open({
+//         type: 'error',
+//         content: 'Please upload at least one image before submitting',
+//       });
+//       return; // Stop submission
+//     }
+
+//     // Debugging
+//     console.log('Final FormData:');
+//     for (let [key, value] of formData.entries()) {
+//       console.log(`${key}: ${value}`);
+//     }
+
+//     setLoading(true);
+
+//     const response = await carAPI.createCar(formData);
+//     const data1 = handleApiResponse(response);
+
+//     console.log('API Response:', data1);
+
+//     if (data1) {
+//       setAddData(data1?.data);
+//     }
+
+//     if (text === '1') {
+//       navigate('/landing');
+//     } else {
+//       form.resetFields();
+//     }
+
+//     messageApi.open({
+//       type: 'success',
+//       content: typeof data1.message === 'object'
+//         ? JSON.stringify(data1.message)
+//         : data1.message,
+//     });
+
+//   } catch (error) {
+//     const errorData = handleApiError(error);
+//     messageApi.open({
+//       type: 'error',
+//       content: typeof errorData === 'object'
+//         ? JSON.stringify(errorData)
+//         : errorData,
+//     });
+//     setAddData([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+const handlePostData = async (uploadedImages = [], text = '') => {
   try {
     const values = await form.validateFields();
     const formData = new FormData();
+
+    // Append normal form fields
     formData.append('make', make || '');
     formData.append('model', modalName || '');
     formData.append('year', selectedYear || '');
@@ -238,42 +411,19 @@ const handlePostData = async (text) => {
     formData.append('number_of_doors', values?.doors || '');
     formData.append('drive_type', values?.driveType || '');
     formData.append('engine_cc', values?.engineCC || '');
-   formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
+    formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
     formData.append('consumption', values?.consumption || '');
     formData.append('no_of_cylinders', values?.cylinders || '');
     formData.append('horse_power', values?.horsepower || '');
     formData.append('payment_option', '');
     formData.append('draft', '');
 
-    // ✅ Append actual files
-    // if (values.media && values.media.length > 0) {
-    //   values.media.forEach((file) => {
-    //     const fileObj = file.originFileObj || file;
-    //     console.log('Uploading file:', fileObj);
-
-    //     if (fileObj instanceof File) {
-    //       formData.append('car_image[]', fileObj); // or 'car_image' depending on API
-    //     } else {
-    //       console.error('Invalid file detected:', fileObj);
-    //     }
-    //   });
-    // } else {
-    //   console.error('No files found in values.media');
-    // }
-
-    // // Debugging
-    // console.log('Final FormData:');
-    // for (let [key, value] of formData.entries()) {
-    //   console.log(key, value);
-    // }
-
-    const imageUrls = [
-      '/api/search/upload-attachment/bmw_logo_20250905_122011_ce396f74.png',
-    ];
-    imageUrls.forEach((url) => {
-      formData.append('car_images[]', url); 
+    // ✅ Append the uploaded images array dynamically
+    uploadedImages.forEach((url) => {
+      formData.append('car_images[]', url);
     });
 
+    console.log('Final FormData:');
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
@@ -289,33 +439,31 @@ const handlePostData = async (text) => {
       setAddData(data1?.data);
     }
 
+    messageApi.open({
+      type: 'success',
+      content:
+        typeof data1.message === 'object'
+          ? JSON.stringify(data1.message)
+          : data1.message,
+    });
+
     if (text === '1') {
       navigate('/landing');
     } else {
       form.resetFields();
     }
 
-    messageApi.open({
-      type: 'success',
-      content: typeof data1.message === 'object'
-        ? JSON.stringify(data1.message)
-        : data1.message,
-    });
-
   } catch (error) {
     const errorData = handleApiError(error);
     messageApi.open({
       type: 'error',
-      content: typeof errorData === 'object'
-        ? JSON.stringify(errorData)
-        : errorData,
+      content: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData,
     });
     setAddData([]);
   } finally {
     setLoading(false);
   }
 };
-
 
   const normFile = (e) => {
     if (Array.isArray(e)) {
@@ -324,12 +472,46 @@ const handlePostData = async (text) => {
     return e && e.fileList;
   };
 
-  const handleFinish = (values) => {
-    const images = values.media?.map((file) => file.originFileObj);
-     handlePostData(createSelecetd)
+  // const handleFinish = (values) => {
+  //   const images = values.media?.map((file) => file.originFileObj);
+  //    handleBeforeUpload()
 
-    message.success('Form submitted! Check console for output.');
-  };
+  //   message.success('Form submitted! Check console for output.');
+  // };
+
+//   const handleFinish = (values) => {
+//   const images = values.media?.map((file) => file.originFileObj).filter(Boolean);
+
+//   if (!images || images.length === 0) {
+//     message.error('Please upload at least one image.');
+//     return;
+//   }
+
+//   console.log('Images to upload:', images);
+
+//   // Upload each file
+//   images.forEach((file) => {
+//     handleBeforeUpload(file); // ✅ Correctly sending file
+//   });
+// };
+
+const handleFinish = async (values) => {
+  const images = values.media?.map((file) => file.originFileObj);
+
+  if (!images || images.length === 0) {
+    message.error('Please upload at least one image.');
+    return;
+  }
+
+  console.log('Selected Images:', images); // <-- Debug
+
+  await handleBeforeUpload(images);
+
+  message.success('Form submitted! Images uploading...');
+};
+
+
+
 
   const ExteriorColorInput = () => (
     <div
@@ -1617,89 +1799,82 @@ const BrandInput = () => {
                     </div>
                   </Form.Item>
                 </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Engine CC"
-                    name="engineCC"
-                  >
-                     <Input
-    style={{ fontSize: 14 }}
-    placeholder="20"
-    type="tel"
-    inputMode="numeric"
-    pattern="[0-9]*"
-    onChange={(e) => {
-      // strip any non-digit characters
-      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-      form.setFieldsValue({ consumption: digitsOnly });
+              <Col xs={24} md={6}>
+  <Form.Item
+    style={{
+      fontWeight: 500,
+      fontSize: 10,
+      color: '#0A0A0B',
     }}
-    onPaste={(e) => {
-      const pasted = (e.clipboardData?.getData('Text') || '');
-      const digitsOnly = pasted.replace(/\D/g, '');
-      if (digitsOnly !== pasted) {
-        // prevent messy paste and insert cleaned digits
-        e.preventDefault();
-        const current = form.getFieldValue('consumption') || '';
-        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
-      }
+    label="Engine CC"
+    name="engineCC"
+  >
+    <Input
+      style={{ fontSize: 14 }}
+      placeholder="20"
+      type="tel"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      onChange={(e) => {
+        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+        form.setFieldsValue({ engineCC: digitsOnly }); // ✅ Correct field updated
+      }}
+      onPaste={(e) => {
+        const pasted = (e.clipboardData?.getData('Text') || '');
+        const digitsOnly = pasted.replace(/\D/g, '');
+        if (digitsOnly !== pasted) {
+          e.preventDefault();
+          const current = form.getFieldValue('engineCC') || ''; // ✅ Correct field
+          form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
+        }
+      }}
+      onKeyDown={(e) => {
+        const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+        if (allowed.includes(e.key)) return;
+        if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+      }}
+    />
+  </Form.Item>
+</Col>
+
+<Col xs={24} md={6}>
+  <Form.Item
+    style={{
+      fontWeight: 500,
+      fontSize: 10,
+      color: '#0A0A0B',
     }}
-    onKeyDown={(e) => {
-      // allow navigation / control keys
-      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-      if (allowed.includes(e.key)) return;
-      // block non-digit keys
-      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
-    }}
-  />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item
-  style={{
-    fontWeight: 500,
-    fontSize: 10,
-    color: '#0A0A0B',
-  }}
-  label="Consumption (1/100 km)"
-  name="consumption"
->
-  <Input
-    style={{ fontSize: 14 }}
-    placeholder="20"
-    type="tel"
-    inputMode="numeric"
-    pattern="[0-9]*"
-    onChange={(e) => {
-      // strip any non-digit characters
-      const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-      form.setFieldsValue({ consumption: digitsOnly });
-    }}
-    onPaste={(e) => {
-      const pasted = (e.clipboardData?.getData('Text') || '');
-      const digitsOnly = pasted.replace(/\D/g, '');
-      if (digitsOnly !== pasted) {
-        // prevent messy paste and insert cleaned digits
-        e.preventDefault();
-        const current = form.getFieldValue('consumption') || '';
-        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
-      }
-    }}
-    onKeyDown={(e) => {
-      // allow navigation / control keys
-      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-      if (allowed.includes(e.key)) return;
-      // block non-digit keys
-      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
-    }}
-  />
-                  </Form.Item>
- 
-                </Col>
+    label="Consumption (1/100 km)"
+    name="consumption"
+  >
+    <Input
+      style={{ fontSize: 14 }}
+      placeholder="20"
+      type="tel"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      onChange={(e) => {
+        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
+        form.setFieldsValue({ consumption: digitsOnly }); // ✅ Correct field updated
+      }}
+      onPaste={(e) => {
+        const pasted = (e.clipboardData?.getData('Text') || '');
+        const digitsOnly = pasted.replace(/\D/g, '');
+        if (digitsOnly !== pasted) {
+          e.preventDefault();
+          const current = form.getFieldValue('consumption') || ''; // ✅ Correct field
+          form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
+        }
+      }}
+      onKeyDown={(e) => {
+        const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+        if (allowed.includes(e.key)) return;
+        if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+      }}
+    />
+  </Form.Item>
+</Col>
+
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={6}>

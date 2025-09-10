@@ -193,6 +193,17 @@ export const carAPI = {
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
   gethorsepower: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_HORSE_POWER),
+  postuploadcarimages: (formData, type = 'car') =>
+  api.post(
+    `${API_CONFIG.ENDPOINTS.CARS.GET_CAR_IMAGES_UPLOAD}?type=${type}`,
+    formData, // ✅ Sending form data
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data', // ✅ Required for file uploads
+      },
+    }
+  ),
+
 };
 
 export const userAPI = {

@@ -39,7 +39,8 @@ const API_CONFIG = {
         `/api/users/saved-searches?page=${page}&limit=${limit}`,
       GET_TERM_AND_CONDITIONS: '/api/users/content',
       GET_CARS_TOTALCOUNT: '/api/cars/total_count',
-      GET_HORSE_POWER:'/api/cars/horsepower_ranges'
+      GET_HORSE_POWER:'/api/cars/horsepower_ranges',
+      GET_CAR_IMAGES_UPLOAD: '/api/search/upload-attachment',
     },
     AUTH: {
       LOGIN: '/api/auth/login',

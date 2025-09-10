@@ -451,7 +451,7 @@
 }
 
 .option-box {
-  border: 1px solid E7EBEF;
+  border: 1px solid #E7EBEF;
   background: #E7EBEF;
   color: #0A0A0B;
   border-radius: 6px;
@@ -466,14 +466,17 @@
   justify-content: center;
   box-sizing: border-box;
   user-select: none;
+  transition: background 0.3s ease, border 0.3s ease;
 }
 
 .option-box.selected,
 .option-box:hover {
-  background-color: #ffedd5;
-  border-color: #d67900;
-  color: #000;
+  background-color: #FFEDD5 !important;
+  border-color: #D67900 !important;
+  color: #000 !important;
+  z-index: 2; 
 }
+
 
 /* Specific groups use the common class */
 .condition-box-group,

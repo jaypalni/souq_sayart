@@ -314,7 +314,53 @@ const Sell = () => {
     }
   };
 
-const handleBeforeUpload = async (files) => {
+// const handleBeforeUpload = async (files) => {
+//   if (!files || files.length === 0) {
+//     console.error('No files provided to handleBeforeUpload');
+//     return Upload.LIST_IGNORE;
+//   }
+
+//   const formData = new FormData();
+//   files.forEach((file) => {
+//     formData.append('attachment', file);
+//   });
+
+//   for (let pair of formData.entries()) {
+//     console.log(pair[0] + ':', pair[1]);
+//   }
+
+//   try {
+//     const response = await carAPI.postuploadcarimages(formData, 'car');
+//     console.log('Upload API Response:', response.data);
+
+//     const userdoc = handleApiResponse(response);
+
+//     if (userdoc?.attachment_url?.length > 0) {
+//       setUploadedImageUrls((prev) => [...prev, ...userdoc.attachment_url]);
+
+//       messageApi.open({
+//         type: 'success',
+//         content: userdoc.message || 'All images uploaded successfully',
+//       });
+// console.log('1or2', createSelecetd)
+//        handlePostData(userdoc.attachment_url, createSelecetd);
+//       return Upload.LIST_IGNORE;
+//     } else {
+//       message.error(userdoc.message || 'Upload failed');
+//       return Upload.LIST_IGNORE;
+//     }
+//   } catch (error) {
+//     console.error('Upload error:', error);
+//     const errorData = handleApiError(error);
+//     messageApi.open({
+//       type: 'error',
+//       content: errorData.message || 'Upload failed',
+//     });
+//     return Upload.LIST_IGNORE;
+//   }
+// };
+
+const handleBeforeUpload = async (files, mode) => {
   if (!files || files.length === 0) {
     console.error('No files provided to handleBeforeUpload');
     return Upload.LIST_IGNORE;
@@ -325,14 +371,8 @@ const handleBeforeUpload = async (files) => {
     formData.append('attachment', file);
   });
 
-  for (let pair of formData.entries()) {
-    console.log(pair[0] + ':', pair[1]);
-  }
-
   try {
     const response = await carAPI.postuploadcarimages(formData, 'car');
-    console.log('Upload API Response:', response.data);
-
     const userdoc = handleApiResponse(response);
 
     if (userdoc?.attachment_url?.length > 0) {
@@ -342,8 +382,9 @@ const handleBeforeUpload = async (files) => {
         type: 'success',
         content: userdoc.message || 'All images uploaded successfully',
       });
-console.log('1or2', createSelecetd)
-      handlePostData(userdoc.attachment_url, createSelecetd);
+
+      // ✅ Decide which API to call after upload
+      await handlePostData(userdoc.attachment_url, '1', mode === 'draft');
 
       return Upload.LIST_IGNORE;
     } else {
@@ -362,7 +403,99 @@ console.log('1or2', createSelecetd)
 };
 
 
-const handlePostData = async (uploadedImages = [], text = '') => {
+
+// const handlePostData = async (uploadedImages = [], text = '') => {
+//   try {
+//     const values = await form.validateFields();
+//     const formData = new FormData();
+
+//     formData.append('make', make || '');
+//     formData.append('model', modalName || '');
+//     formData.append('year', selectedYear || '');
+//     formData.append('price', values.price || '');
+//     formData.append('description', values?.description || '');
+//     formData.append('ad_title', values?.adTitle || '');
+//     formData.append('exterior_color', selectedColor || '');
+//     formData.append('interior_color', selectedInteriorColor || '');
+//     formData.append('mileage', values?.kilometers || '');
+//     formData.append('fuel_type', values?.fuelType || '');
+//     formData.append('transmission_type', values?.transmissionType || '');
+//     formData.append('body_type', values?.bodyType || '');
+//     formData.append('vechile_type', values?.vehicletype || '');
+//     formData.append('condition', values?.condition || '');
+//     formData.append('location', selectedRegion || '');
+//     formData.append('interior', values?.interior || '');
+//     formData.append('trim', selectedTrim || '');
+//     formData.append('regional_specs', selectedRegionalSpecs || '');
+//     formData.append('badges', values?.badges || '');
+//     formData.append('warranty_date', values?.warrantyDate || '');
+//     formData.append('accident_history', values?.accidentHistory || '');
+//     formData.append('number_of_seats', values?.seats || '');
+//     formData.append('number_of_doors', values?.doors || '');
+//     formData.append('drive_type', values?.driveType || '');
+//     formData.append('engine_cc', values?.engineCC || '');
+//     formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
+//     formData.append('consumption', values?.consumption || '');
+//     formData.append('no_of_cylinders', values?.cylinders || '');
+//     formData.append('horse_power', values?.horsepower || '');
+//     formData.append('payment_option', '');
+//     formData.append('draft', '');
+
+//     // ✅ Append the uploaded images array dynamically
+//     uploadedImages.forEach((url) => {
+//       formData.append('car_images[]', url);
+//     });
+
+//     console.log('Final FormData:');
+//     for (let [key, value] of formData.entries()) {
+//       console.log(`${key}: ${value}`);
+//     }
+
+//     setLoading(true);
+
+//     const response = await carAPI.createCar(formData);
+//     const data1 = handleApiResponse(response);
+
+//     console.log('API Response:', data1);
+
+//     if (data1) {
+//       setAddData(data1?.data);
+//     }
+
+//     messageApi.open({
+//       type: 'success',
+//       content:
+//         typeof data1.message === 'object'
+//           ? JSON.stringify(data1.message)
+//           : data1.message,
+//     });
+
+//     if (text === '1') {
+//       navigate('/landing');
+//     } else {
+//       form.resetFields();
+//     }
+
+//   } catch (error) {
+//     const errorData = handleApiError(error);
+//     messageApi.open({
+//       type: 'error',
+//       content: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData,
+//     });
+//     setAddData([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
+
+const handlePostData = async (uploadedImages = [], text = '', isDraft = false) => {
   try {
     const values = await form.validateFields();
     const formData = new FormData();
@@ -397,7 +530,9 @@ const handlePostData = async (uploadedImages = [], text = '') => {
     formData.append('no_of_cylinders', values?.cylinders || '');
     formData.append('horse_power', values?.horsepower || '');
     formData.append('payment_option', '');
-    formData.append('draft', '');
+
+    // ✅ Set draft flag based on mode
+    formData.append('draft', isDraft ? 'true' : 'false');
 
     // ✅ Append the uploaded images array dynamically
     uploadedImages.forEach((url) => {
@@ -433,7 +568,6 @@ const handlePostData = async (uploadedImages = [], text = '') => {
     } else {
       form.resetFields();
     }
-
   } catch (error) {
     const errorData = handleApiError(error);
     messageApi.open({
@@ -446,27 +580,50 @@ const handlePostData = async (uploadedImages = [], text = '') => {
   }
 };
 
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
+
+// const handleFinish = async (values) => {
+//   const images = values.media?.map((file) => file.originFileObj);
+
+//   if (!images || images.length === 0) {
+//     message.error('Please upload at least one image.');
+//     return;
+//   }
+
+//   console.log('Selected Images:', images); // <-- Debug
+
+//   await handleBeforeUpload(images);
+
+//   message.success('Form submitted! Images uploading...');
+// };
+
+const handleFinish = async (mode) => {
+  const values = await form.validateFields();
+  const images = values.media?.map((file) => file.originFileObj) || [];
+
+  console.log('Selected Images:', images);
+  console.log('Mode:', mode); // draft or final
+
+  if (mode === 'draft') {
+    // ✅ If it's a draft and there are NO images
+    if (images.length === 0) {
+      console.log('No images uploaded. Directly saving as draft...');
+      await handlePostData([], '1', true); // Pass empty array, redirect flag, and draft=true
+      return;
     }
-    return e && e.fileList;
-  };
 
-const handleFinish = async (values) => {
-  const images = values.media?.map((file) => file.originFileObj);
+    // ✅ If it's a draft and there ARE images
+    await handleBeforeUpload(images, 'draft');
+  } else {
+    // ✅ Final submit always needs images
+    if (images.length === 0) {
+      message.error('Please upload at least one image.');
+      return;
+    }
 
-  if (!images || images.length === 0) {
-    message.error('Please upload at least one image.');
-    return;
+    await handleBeforeUpload(images, 'final');
   }
-
-  console.log('Selected Images:', images); // <-- Debug
-
-  await handleBeforeUpload(images);
-
-  message.success('Form submitted! Images uploading...');
 };
+
 
 
 const ExteriorColorInput = ({
@@ -664,9 +821,69 @@ const BrandInput = () => {
     message.info('Evaluate Car clicked');
   };
   
-  const handleSaveDraft = async () => {
+  // const handleSaveDraft = async () => {
+  //   const values = await form.validateFields();
+  //   const formData = new FormData();
+  //   formData.append('make', make || '');
+  //   formData.append('model', modalName || '');
+  //   formData.append('year', selectedYear || '');
+  //   formData.append('price', values.price || '');
+  //   formData.append('description', values?.description || '');
+  //   formData.append('ad_title', values?.adTitle || '');
+  //   formData.append('exterior_color', selectedColor || '');
+  //   formData.append('interior_color', selectedInteriorColor || '');
+  //   formData.append('mileage', values?.kilometers || '');
+  //   formData.append('fuel_type', values?.fuelType || '');
+  //   formData.append('transmission_type', values?.transmissionType || '');
+  //   formData.append('body_type', values?.bodyType || '');
+  //   formData.append('vechile_type', values?.vehicletype || '');
+  //   formData.append('condition', values?.condition || '');
+  //   formData.append('location', selectedRegion || '');
+  //   formData.append('interior', values?.interior || '');
+  //   formData.append('trim', selectedTrim || '');
+  //   formData.append('regional_specs', selectedRegionalSpecs || '');
+  //   formData.append('badges', values?.badges || '');
+  //   formData.append('warranty_date', values?.warrantyDate || '');
+  //   formData.append('accident_history', values?.accidentHistory || '');
+  //   formData.append('number_of_seats', values?.seats || '');
+  //   formData.append('number_of_doors', values?.doors || '');
+  //   formData.append('drive_type', values?.driveType || '');
+  //   formData.append('engine_cc', values?.engineCC || '');
+  //   formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
+  //   formData.append('consumption', values?.consumption || '');
+  //   formData.append('no_of_cylinders', values?.cylinders || '');
+  //   formData.append('horse_power', values?.horsepower || '');
+  //   formData.append('payment_option', '');
+  //   formData.append('draft', '');
+
+  //   values.media?.forEach((file) => {
+  //     // formData.append('car_image', file.originFileObj);
+  //     formData.append('car_images', ['/api/search/upload-attachment/Screenshot_3_20250909_093054_ea3e7016.png'])
+  //   });
+  //   try {
+  //     setLoading(true);
+  //     const response = await carAPI.saveDraftCar(formData);
+  //     const data1 = handleApiResponse(response);
+
+  //     if (data1) {
+  //       setDraftData(data1);
+  //     }
+
+  //     message.success(data1.message || 'Saved Draft Data successfully');
+  //     navigate('/landing');
+  //   } catch (error) {
+  //     const errorData = handleApiError(error);
+  //     message.error(errorData.message || 'Failed to Save Draft car data');
+  //     setDraftData([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const handleSaveDraft = async (uploadedImages = [], text = '') => {
+  try {
     const values = await form.validateFields();
     const formData = new FormData();
+
     formData.append('make', make || '');
     formData.append('model', modalName || '');
     formData.append('year', selectedYear || '');
@@ -697,31 +914,54 @@ const BrandInput = () => {
     formData.append('no_of_cylinders', values?.cylinders || '');
     formData.append('horse_power', values?.horsepower || '');
     formData.append('payment_option', '');
-    formData.append('draft', '');
+    formData.append('draft', true);
 
-    values.media?.forEach((file) => {
-      // formData.append('car_image', file.originFileObj);
-      formData.append('car_images', ['/api/search/upload-attachment/Screenshot_3_20250909_093054_ea3e7016.png'])
+    // ✅ Append the uploaded images array dynamically
+    uploadedImages.forEach((url) => {
+      formData.append('car_images[]', url);
     });
-    try {
-      setLoading(true);
-      const response = await carAPI.saveDraftCar(formData);
-      const data1 = handleApiResponse(response);
 
-      if (data1) {
-        setDraftData(data1);
-      }
-
-      message.success(data1.message || 'Saved Draft Data successfully');
-      navigate('/landing');
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Save Draft car data');
-      setDraftData([]);
-    } finally {
-      setLoading(false);
+    console.log('Final FormData:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
-  };
+
+    setLoading(true);
+
+    const response = await carAPI.createCar(formData);
+    const data1 = handleApiResponse(response);
+
+    console.log('API Response:', data1);
+
+    if (data1) {
+      setAddData(data1?.data);
+    }
+
+    messageApi.open({
+      type: 'success',
+      content:
+        typeof data1.message === 'object'
+          ? JSON.stringify(data1.message)
+          : data1.message,
+    });
+
+    if (text === '1') {
+      navigate('/landing');
+    } else {
+      form.resetFields();
+    }
+
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData,
+    });
+    setAddData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -2033,7 +2273,8 @@ const BrandInput = () => {
                 <Button
                   size="small"
                   className="btn-outline-blue"
-                  onClick={() => handleSaveDraft}
+                  // onClick={() => handleSaveDraft}
+                   onClick={() => handleFinish('draft')}
                   type="default"
                 >
                   Save as draft

@@ -360,7 +360,7 @@ const Sell = () => {
 //   }
 // };
 
-const handleBeforeUpload = async (files, mode) => {
+const handleBeforeUpload = async (files, mode, valuesParam = null) => {
   if (!files || files.length === 0) {
     console.error('No files provided to handleBeforeUpload');
     return Upload.LIST_IGNORE;
@@ -383,8 +383,8 @@ const handleBeforeUpload = async (files, mode) => {
         content: userdoc.message || 'All images uploaded successfully',
       });
 
-      // ✅ Decide which API to call after upload
-      await handlePostData(userdoc.attachment_url, '1', mode === 'draft');
+      // Pass valuesParam to avoid re-validating in handlePostData if provided
+      await handlePostData(userdoc.attachment_url, '1', mode === 'draft', valuesParam);
 
       return Upload.LIST_IGNORE;
     } else {
@@ -495,9 +495,10 @@ const handleBeforeUpload = async (files, mode) => {
     return e && e.fileList;
   };
 
-const handlePostData = async (uploadedImages = [], text = '', isDraft = false) => {
+const handlePostData = async (uploadedImages = [], text = '', isDraft = false, valuesParam = null) => {
   try {
-    const values = await form.validateFields();
+    // Use provided valuesParam (no validation) or validate fields for final submits
+    const values = valuesParam ?? (await form.validateFields());
     const formData = new FormData();
 
     formData.append('make', make || '');
@@ -530,26 +531,16 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false) =
     formData.append('no_of_cylinders', values?.cylinders || '');
     formData.append('horse_power', values?.horsepower || '');
     formData.append('payment_option', '');
-
-    // ✅ Set draft flag based on mode
     formData.append('draft', isDraft ? 'true' : 'false');
 
-    // ✅ Append the uploaded images array dynamically
+    // Append uploaded images (server URLs)
     uploadedImages.forEach((url) => {
       formData.append('car_images[]', url);
     });
 
-    console.log('Final FormData:');
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
     setLoading(true);
-
     const response = await carAPI.createCar(formData);
     const data1 = handleApiResponse(response);
-
-    console.log('API Response:', data1);
 
     if (data1) {
       setAddData(data1?.data);
@@ -557,10 +548,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false) =
 
     messageApi.open({
       type: 'success',
-      content:
-        typeof data1.message === 'object'
-          ? JSON.stringify(data1.message)
-          : data1.message,
+      content: typeof data1.message === 'object' ? JSON.stringify(data1.message) : data1.message,
     });
 
     if (text === '1') {
@@ -569,11 +557,11 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false) =
       form.resetFields();
     }
   } catch (error) {
+    // Better error display
     const errorData = handleApiError(error);
-    messageApi.open({
-      type: 'error',
-      content: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData,
-    });
+    const messageText =
+      typeof errorData === 'object' ? JSON.stringify(errorData) : (errorData || 'An error occurred');
+    messageApi.open({ type: 'error', content: messageText });
     setAddData([]);
   } finally {
     setLoading(false);
@@ -597,30 +585,43 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false) =
 // };
 
 const handleFinish = async (mode) => {
-  const values = await form.validateFields();
-  const images = values.media?.map((file) => file.originFileObj) || [];
+  try {
+    if (mode === 'draft') {
+      // don't run full validation for draft; allow empty required fields
+      const values = form.getFieldsValue(); // returns current form values (no validation)
+      const images = values.media?.map((file) => file.originFileObj).filter(Boolean) || [];
 
-  console.log('Selected Images:', images);
-  console.log('Mode:', mode); // draft or final
+      if (images.length === 0) {
+        // no images: directly post draft with collected values (no validation)
+        await handlePostData([], '1', true, values);
+        return;
+      }
 
-  if (mode === 'draft') {
-    // ✅ If it's a draft and there are NO images
-    if (images.length === 0) {
-      console.log('No images uploaded. Directly saving as draft...');
-      await handlePostData([], '1', true); // Pass empty array, redirect flag, and draft=true
+      // images exist: upload them and pass the same values so handlePostData won't re-validate
+      await handleBeforeUpload(images, 'draft', values);
       return;
     }
 
-    // ✅ If it's a draft and there ARE images
-    await handleBeforeUpload(images, 'draft');
-  } else {
-    // ✅ Final submit always needs images
+    // final submit: validate required fields
+    const values = await form.validateFields();
+    const images = values.media?.map((file) => file.originFileObj) || [];
+
     if (images.length === 0) {
       message.error('Please upload at least one image.');
       return;
     }
 
+    // upload then post (pass null valuesParam so handlePostData validates server-side)
     await handleBeforeUpload(images, 'final');
+  } catch (err) {
+    // show friendly error (validation errors are thrown by validateFields)
+    if (err?.errorFields) {
+      // Ant validation error object -> show a concise message
+      messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
+    } else {
+      const errText = typeof err === 'object' ? JSON.stringify(err) : String(err);
+      messageApi.open({ type: 'error', content: errText });
+    }
   }
 };
 

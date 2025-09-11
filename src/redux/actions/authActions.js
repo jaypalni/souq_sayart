@@ -45,14 +45,14 @@ export const customerDetailsSuccess = (customerDetails) => ({
   payload: customerDetails,
 });
 
-export const setPhoneNumber = (phoneNumber) => ({
-  type: 'SET_PHONE_NUMBER',
-  payload: phoneNumber,
+export const setPhoneLogin = (phone_login) => ({
+  type: 'SET_PHONE_LOGIN',
+  payload: phone_login,
 });
 
-export const initializePhoneNumber = () => ({
-  type: 'INITIALIZE_PHONE_NUMBER',
-  payload: localStorage.getItem('phone_number') || localStorage.getItem('phonenumber'),
+export const initializePhoneLogin = () => ({
+  type: 'INITIALIZE_PHONE_LOGIN',
+  payload: localStorage.getItem('phone_login'),
 });
 
 export const initializeToken = () => {
@@ -89,9 +89,11 @@ export const login = (credentials) => async (dispatch) => {
     dispatch(loginRequest());
     const response = await authAPI.login(credentials);
     const { user, token } = response.data;
-    localStorage.setItem('token', token);
+    // localStorage.setItem('token', token);
 
-    dispatch(loginSuccess(user, token));
+    // Extract phone number from user data or credentials
+    const phoneNumber = user?.phone_number || credentials?.phone_number || null;
+    dispatch(loginSuccess(user, token, phoneNumber));
     return { success: true };
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Login failed';
@@ -126,7 +128,6 @@ export const registerUser = (userData) => async (dispatch) => {
     const response = await authAPI.register(userData);
     const apiData = response.data;
     
-    
     // Store the same data as login/OTP verification
     if (apiData.access_token) {
       dispatch(setToken(apiData.access_token));
@@ -136,16 +137,14 @@ export const registerUser = (userData) => async (dispatch) => {
     const user = apiData.user || apiData;
     const phoneNumber = user.phone_number || userData.phone_number;
     
-    
     // Store user data in both customerDetails and auth
     dispatch(customerDetailsSuccess(user));
     dispatch(loginSuccess(user, apiData.access_token, phoneNumber));
     
     // Store phone number in Redux
     if (phoneNumber) {
-      dispatch(setPhoneNumber(phoneNumber));
+      dispatch(setPhoneLogin(phoneNumber));
     }
-    
     
     return { success: true, data: user };
   } catch (error) {
@@ -173,7 +172,7 @@ export const verifyOTP = (otpData) => async (dispatch) => {
         dispatch(loginSuccess(apiData.user, apiData.access_token, apiData.user.phone_number));
         // Store phone number in Redux for resend functionality
         if (apiData.user.phone_number) {
-          dispatch(setPhoneNumber(apiData.user.phone_number));
+          dispatch(setPhoneLogin(apiData.user.phone_number));
         }
       } else {
         // Create minimal user object for unregistered users
@@ -187,7 +186,7 @@ export const verifyOTP = (otpData) => async (dispatch) => {
         dispatch(customerDetailsSuccess(minimalUser));
         dispatch(loginSuccess(minimalUser, apiData.access_token, phoneNumber));
         // Store phone number in Redux for resend functionality
-        dispatch(setPhoneNumber(phoneNumber));
+        dispatch(setPhoneLogin(phoneNumber));
       }
 
       return { success: true, data: apiData, message: apiData.message };

@@ -35,11 +35,10 @@ const LoginForm = () => {
         // Update Redux state
         dispatch(setToken(data.token));
         if (data?.user) {
-          dispatch(loginSuccess(data.user, data.token, data.user.phone_number || data.user.email));
+          dispatch(loginSuccess(data.user, data.token, data.user.phone_number));
         }
 
-        // Keep localStorage for compatibility
-        localStorage.setItem('token', data.token);
+        // localStorage.setItem('token', data.token);
         if (data?.user) {
           localStorage.setItem('userData', JSON.stringify(data.user));
         }

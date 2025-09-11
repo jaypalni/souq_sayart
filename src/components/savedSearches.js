@@ -65,7 +65,7 @@ const EmptyState = () => {
         }}
         onClick={() => navigate('/')}
       >
-        Start Searching
+        Start Searching 
       </Button>
     </div>
   );

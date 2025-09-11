@@ -634,7 +634,7 @@ const MyProfile = () => {
             type="text"
             className="sidebar-toggle-btn"
             onClick={() => setCollapsed(!collapsed)}
-            style={{ position: 'absolute', top: 10, right: -18, zIndex: 1000 }}
+            style={{ position: 'absolute', top: 10, right: -18, zIndex: 999 }}
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           />
         </Sider>

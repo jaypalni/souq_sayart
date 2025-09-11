@@ -12,6 +12,7 @@ import { Modal, message } from 'antd';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import PropTypes from 'prop-types';
+import '../assets/styles/searchemptymodal.css';
 
 const DEFAULT_ALL_MAKE = 'All';
 const DEFAULT_ALL_MODELS = 'All Models';

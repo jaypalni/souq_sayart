@@ -14,7 +14,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { initializePhoneNumber, initializeToken } from './redux/actions/authActions';
+import { initializePhoneLogin } from './redux/actions/authActions';
 import LoginScreen from './pages/LoginScreen';
 import SignupOtp from './pages/signupOtp';
 import AllCars from './pages/allcars';
@@ -51,10 +51,9 @@ const AppRouterContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // Initialize token and phone number from localStorage on app startup
+  // Initialize phone login from localStorage on app startup (token now Redux-only)
   useEffect(() => {
-    dispatch(initializeToken());
-    dispatch(initializePhoneNumber());
+    dispatch(initializePhoneLogin());
   }, [dispatch]);
   const hidebannerList = [
     '/carDetails',

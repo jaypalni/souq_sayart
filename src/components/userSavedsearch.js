@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import '../assets/styles/usersavedsearches.css';
 import carImage from '../assets/images/subscribecar_icon.png';
@@ -17,6 +18,7 @@ import diamondGif from '../assets/images/diamondGif.gif';
 import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
 import { useToken } from '../hooks/useToken';
+import { useTokenWithInitialization } from '../hooks/useTokenWithInitialization';
 
 const MAX_SAVED_SEARCHES = 3;
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -177,19 +179,31 @@ ModalComingSoon.propTypes = {
 
 const UserSavedsearch = ({title,savesearchesreload}) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = useToken();
-
-  const isLoggedIn = !!token;
-console.log('savesearchesreload',JSON.stringify(savesearchesreload))
+  const [tokenReady, setTokenReady] = useState(false);
+  const { token, isReady, isAuthenticated } = useTokenWithInitialization();
+  const authState = useSelector(state => state.auth);
+  
+  const isLoggedIn = isAuthenticated;
+  // Effect to handle token readiness
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchSavedSearches();
-
+    // If user is authenticated, consider them ready even if token is undefined
+    // This handles cases where authentication state is managed differently
+    if (isReady && (isAuthenticated || (token && token !== 'undefined' && token !== 'null'))) {
+      setTokenReady(true);
+    } else {
+      setTokenReady(false);
     }
-  }, [isLoggedIn, savesearchesreload]);
+  }, [isReady, token, isAuthenticated]);
+
+  useEffect(() => {
+    if (isLoggedIn && tokenReady) {
+      fetchSavedSearches();
+    }
+  }, [isLoggedIn, tokenReady, savesearchesreload]);
 
   const fetchSavedSearches = async () => {
     try {
@@ -207,13 +221,14 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
   };
 
   const getSavedSearchView = () => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !tokenReady) {
       return 'notLoggedIn';
     }
+   
     if (loading) {
       return 'loading';
     }
-    if (savedSearches.length === 0) {
+    if (authState?.isAuthenticated  && savedSearches.length === 0) {
       return 'empty';
     }
     return 'list';
@@ -239,7 +254,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
           <SignupBox
             onClick={() => window.scrollTo({ top: 260, behavior: 'smooth' })}
             title="You have no Saved searches"
-            buttonText="Start Searching"
+            buttonText="Start Searching "
           />
         );
       }

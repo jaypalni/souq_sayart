@@ -6,7 +6,6 @@ import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { verifyOTP } from '../redux/actions/authActions';
 import { message } from 'antd';
-import { usePhoneNumber } from '../hooks/usePhoneNumber';
 import { useToken } from '../hooks/useToken';
 
 const SignupOtp = () => {
@@ -20,50 +19,16 @@ const SignupOtp = () => {
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { user, phoneNumber: phoneFromRedux } = useSelector(state => state.auth);
+  const { user, phone_login } = useSelector(state => state.auth);
   const { customerDetails } = useSelector(state => state.customerDetails);
-  const phoneNumber = usePhoneNumber();
   const token = useToken();
   
-  // Get phone number from multiple sources with fallback
-  const phoneFromUser = user?.phone_number;
-  const phoneFromCustomerDetails = customerDetails?.phone_number;
-  const phoneFromLocalStorage = localStorage.getItem('phone_number') || localStorage.getItem('phonenumber');
+  const phoneToUse = phone_login;
   
-  // Also check userData from localStorage (stored during login)
-  let phoneFromUserData = null;
-  try {
-    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-    phoneFromUserData = userData.phone_number;
-  } catch (e) {
-    console.log('Error parsing userData:', e);
-  }
-  
-  // Use the first available phone number
-  const phoneToUse = phoneFromRedux || phoneNumber || phoneFromUser || phoneFromCustomerDetails || phoneFromUserData || phoneFromLocalStorage;
-  
-  // More specific check - only consider logged in if we have both user and customerDetails
-  // AND we're not coming from the login flow
+ 
   const fromLogin = localStorage.getItem('fromLogin');
   const isLoggedIn = customerDetails && user && !fromLogin;
   
-  console.log('OTP Screen render - Redux state:', {
-    user,
-    customerDetails,
-    phoneFromRedux,
-    token,
-    isLoggedIn
-  });
-  
-  console.log('OTP Screen phone number sources:', {
-    phoneFromRedux,
-    phoneNumber,
-    phoneFromUser,
-    phoneFromCustomerDetails,
-    phoneFromUserData,
-    phoneFromLocalStorage,
-    phoneToUse
-  });
 
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
@@ -289,31 +254,8 @@ const SignupOtp = () => {
     try {
       setLoading(true);
       
-      // Get phone number from multiple sources with fallback
-      const phoneFromUser = user?.phone_number;
-      const phoneFromCustomerDetails = customerDetails?.phone_number;
-      const phoneFromLocalStorage = localStorage.getItem('phone_number') || localStorage.getItem('phonenumber');
-      
-      // Also check userData from localStorage (stored during login)
-      let phoneFromUserData = null;
-      try {
-        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-        phoneFromUserData = userData.phone_number;
-      } catch (e) {
-        console.log('Error parsing userData:', e);
-      }
-      
-      // Use the first available phone number
-      const phoneToUse = phoneFromRedux || phoneFromUser || phoneFromCustomerDetails || phoneFromUserData || phoneFromLocalStorage;
-      
-      console.log('Phone number sources:', {
-        phoneFromRedux,
-        phoneFromUser,
-        phoneFromCustomerDetails,
-        phoneFromUserData,
-        phoneFromLocalStorage,
-        phoneToUse
-      });
+      // Use only phone_login from Redux - no other sources
+      const phoneToUse = phone_login;
       
       if (!phoneToUse) {
         messageApi.error('Phone number not found. Please start over.');

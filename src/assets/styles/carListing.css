@@ -5,6 +5,20 @@
   margin: 0 auto 32px auto;
   max-width: 1200px;
 }
+
+/* Mobile screen width adjustment */
+@media (max-width: 767px) {
+  .car-listing-container {
+    width: 87%;
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 575px) {
+  .car-listing-container {
+    width: 87%;
+  }
+}
 .blue-bg{
   background-color: #008AD5;
 }
@@ -195,6 +209,61 @@
   }
   .car-listing-flex-row {
     gap: 16px;
+  }
+}
+
+/* Medium screens - show 3 cars */
+@media (min-width: 900px) and (max-width: 1200px) {
+  .car-listing-card {
+    flex: 0 0 calc((100% - 2 * 20px) / 3);
+    max-width: calc((100% - 2 * 20px) / 3);
+  }
+  .car-listing-flex-row {
+    gap: 20px;
+  }
+}
+
+/* Specific styles for 939x506 screen size */
+@media (min-width: 900px) and (max-width: 1000px) and (min-height: 500px) and (max-height: 600px) {
+  .car-listing-card {
+    flex: 0 0 calc((100% - 2 * 18px) / 3);
+    max-width: calc((100% - 2 * 18px) / 3);
+    min-width: 200px;
+  }
+  .car-listing-flex-row {
+    gap: 18px;
+  }
+  
+  .car-listing-image-wrapper {
+    height: 140px;
+  }
+  
+  .car-listing-content {
+    padding: 14px 12px 10px 12px;
+  }
+  
+  .car-listing-title {
+    font-size: 13px;
+  }
+  
+  .car-listing-price {
+    font-size: 13px;
+  }
+  
+  .car-listing-engine {
+    font-size: 13px;
+  }
+  
+  .car-listing-details {
+    font-size: 13px;
+  }
+  
+  .car-listing-details span {
+    font-size: 12px;
+  }
+  
+  .car-listing-location {
+    font-size: 9px;
   }
 }
 

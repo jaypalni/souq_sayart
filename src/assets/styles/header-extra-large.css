@@ -51,7 +51,7 @@
   .notification-icon {
     width: 22px;
     height: 22px;
-    margin-bottom: 9px;
+    /* margin-bottom: 9px; */
   }
 
   .user-dropdown {

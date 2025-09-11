@@ -307,6 +307,20 @@
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
+  /* Force right alignment for tablet header */
+  .header .row .col-3,
+  .header .row .col-3.d-flex {
+    justify-content: flex-end !important;
+    align-items: center !important;
+    display: flex !important;
+    gap: 15px !important;
+    width: 100% !important;
+  }
+
+  /* Ensure all elements in the header column are properly aligned */
+  .header .row .col-3 > * {
+    flex-shrink: 0;
+  }
   .header {
     padding: 8px;
   }
@@ -346,7 +360,7 @@
   .notification-icon {
     width: 19px;
     height: 19px;
-    margin-bottom: 6px;
+    /* margin-bottom: 6px; */
   }
 
   .user-dropdown {
@@ -440,6 +454,9 @@
   /* Show mobile icons on tablet */
   .mobile-icons-left {
     display: flex !important;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
   }
   
   /* Show mobile menu overlay and panel on tablet */
@@ -485,16 +502,20 @@
     display: none !important;
   }
 
-  /* Show only logo and hamburger menu */
-  .col-3 {
-    flex: 1;
-    justify-content: space-between;
-    align-items: center;
+  /* Show only logo and hamburger menu - align all to right */
+  .col-3,
+  .col-3.d-flex {
+    flex: 1 !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    display: flex !important;
+    gap: 15px;
   }
 
-  /* Ensure hamburger menu is visible */
+  /* Ensure hamburger menu is visible and properly aligned */
   .hamburger-menu {
     display: flex !important;
+    align-items: center;
   }
 
   /* Footer styles for tablet */

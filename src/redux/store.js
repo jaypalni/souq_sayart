@@ -12,16 +12,22 @@ import throttle from 'lodash/throttle';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
+// Token initialization removed - token is now stored only in Redux state
+// No localStorage initialization needed
+
 let lastUserData;
 let lastCustomerDetails;
-let lastToken;
+// Removed lastToken and lastPhoneLogin - no longer syncing to localStorage
 
 const syncLocalStorageKey = (key, previousValue, nextValue, isString = false) => {
   if (nextValue === previousValue) {
     return previousValue;
   }
   if (nextValue === null) {
-    localStorage.removeItem(key);
+    // Only remove from localStorage if it was explicitly set to null (not on initialization)
+    if (previousValue !== undefined) {
+      localStorage.removeItem(key);
+    }
     return nextValue;
   }
   if (typeof nextValue === 'undefined') {
@@ -41,7 +47,7 @@ if (typeof window !== 'undefined') {
       const state = store.getState();
       const nextUserData = state.userData?.userData;
       const nextCustomerDetails = state.customerDetails?.customerDetails;
-      const nextToken = state.auth?.token;
+      // Removed token and phone_login from localStorage sync - keeping only in Redux
 
       lastUserData = syncLocalStorageKey('userData', lastUserData, nextUserData);
       lastCustomerDetails = syncLocalStorageKey(
@@ -49,7 +55,7 @@ if (typeof window !== 'undefined') {
         lastCustomerDetails,
         nextCustomerDetails,
       );
-      lastToken = syncLocalStorageKey('token', lastToken, nextToken, true); // Token is a string
+      // Token and phone_login are now stored only in Redux state
     }, 1000),
   );
 }

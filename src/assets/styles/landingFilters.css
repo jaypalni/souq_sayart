@@ -22,6 +22,7 @@
   align-items: flex-end;
   gap: 16px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .landing-filters-col {
@@ -80,6 +81,7 @@
   margin-top: 0;
   margin-bottom: 0;
   padding-left: 2px;
+  flex-wrap: wrap;
 }
 
 .landing-filters-text {
@@ -145,4 +147,234 @@
   width: 100%;
   position: relative;
   min-width: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .landing-filters-bar {
+    max-width: 95%;
+  }
+  
+  .landing-filters-col {
+    flex: 0 0 calc(50% - 8px);
+    margin-bottom: 16px;
+  }
+  
+  .landing-filters-btn-col {
+    flex: 0 0 100%;
+    justify-content: center;
+  }
+  
+  .landing-filters-btn {
+    width: 100%;
+  }
+}
+
+/* Medium screens - 4 filters on single line */
+@media (min-width: 900px) and (max-width: 1200px) {
+  .landing-filters-row {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  
+  .landing-filters-col {
+    flex: 0 0 calc(20% - 9px);
+    margin-bottom: 0;
+  }
+  
+  .landing-filters-btn-col {
+    flex: 0 0 calc(20% - 9px);
+    justify-content: center;
+  }
+  
+  .landing-filters-btn {
+    width: 100%;
+    min-width: 160px;
+  }
+}
+
+/* Specific styles for 939x506 screen size */
+@media (min-width: 900px) and (max-width: 1000px) and (min-height: 500px) and (max-height: 600px) {
+  .landing-filters-bar {
+    padding: 20px 14px;
+  }
+  
+  .landing-filters-row {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  
+  .landing-filters-col {
+    flex: 0 0 calc(20% - 7.5px);
+  }
+  
+  .landing-filters-btn-col {
+    flex: 0 0 calc(20% - 7.5px);
+  }
+  
+  .landing-filters-label {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  
+  .landing-filters-select {
+    height: 40px !important;
+  }
+  
+  .landing-filters-btn {
+    height: 40px !important;
+    font-size: 14px !important;
+    min-width: 140px;
+  }
+  
+  .landing-filters-row-text {
+    gap: 16px;
+  }
+  
+  .landing-filters-text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .landing-filters-outer {
+    top: -40px;
+  }
+  
+  .landing-filters-bar {
+    padding: 16px;
+  }
+  
+  .landing-filters-row {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .landing-filters-col {
+    flex: 0 0 calc(50% - 6px);
+    margin-bottom: 12px;
+  }
+  
+  .landing-filters-btn-col {
+    flex: 0 0 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  
+  .landing-filters-row-text {
+    gap: 16px;
+  }
+  
+  .landing-filters-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 600px) {
+  .landing-filters-outer {
+    top: -20px;
+  }
+  
+  .landing-filters-bar {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  .landing-filters-row {
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .landing-filters-col {
+    flex: 0 0 calc(50% - 4px);
+    margin-bottom: 10px;
+  }
+  
+  .landing-filters-btn-col {
+    flex: 0 0 100%;
+    justify-content: center;
+    margin-top: 6px;
+  }
+  
+  .landing-filters-label {
+    font-size: 12px;
+  }
+  
+  .landing-filters-select {
+    height: 40px !important;
+  }
+  
+  .landing-filters-btn {
+    height: 40px !important;
+    font-size: 14px !important;
+  }
+  
+  .landing-filters-row-text {
+    gap: 12px;
+  }
+  
+  .landing-filters-text {
+    font-size: 12px;
+    min-width: 70px;
+  }
+  
+  .landing-filters-text-arrow {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-filters-outer {
+    top: -10px;
+  }
+  
+  .landing-filters-bar {
+    padding: 8px;
+    border-radius: 6px;
+  }
+  
+  .landing-filters-row {
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .landing-filters-col {
+    flex: 0 0 calc(50% - 3px);
+    margin-bottom: 8px;
+  }
+  
+  .landing-filters-btn-col {
+    flex: 0 0 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  
+  .landing-filters-label {
+    font-size: 11px;
+  }
+  
+  .landing-filters-select {
+    height: 36px !important;
+  }
+  
+  .landing-filters-btn {
+    height: 36px !important;
+    font-size: 13px !important;
+    min-width: 120px;
+  }
+  
+  .landing-filters-row-text {
+    gap: 8px;
+  }
+  
+  .landing-filters-text {
+    font-size: 11px;
+    min-width: 60px;
+  }
+  
+  .landing-filters-text-arrow {
+    font-size: 16px;
+  }
 }

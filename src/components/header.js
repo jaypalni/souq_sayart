@@ -245,7 +245,9 @@ const Header = () => {
                 </div>
                 <div className="menuLeft mx-2">
                   <img
-                    className="headerLogo notification-icon"
+                  height={200}
+                  width={30}
+                    className=" notification-icon"
                     src={NotifiyImg}
                   />
                 </div>

@@ -15,7 +15,7 @@ import {
 const initialState = {
   user: null,
   token: null,
-  phoneNumber: null,
+  phone_login: null,
   loading: false,
   error: null,
   isAuthenticated: false,
@@ -35,7 +35,7 @@ const authReducer = (state = initialState, action) => {
         loading: false,
         user: action.payload.user,
         token: action.payload.token,
-        phoneNumber: action.payload.phoneNumber,
+        phone_login: action.payload.phoneNumber,
         isAuthenticated: true,
         error: null,
       };
@@ -51,19 +51,19 @@ const authReducer = (state = initialState, action) => {
         ...state,
         user: null,
         token: null,
-        phoneNumber: null,
+        phone_login: null,
         isAuthenticated: false,
         error: null,
       };
-    case 'SET_PHONE_NUMBER':
+    case 'SET_PHONE_LOGIN':
       return {
         ...state,
-        phoneNumber: action.payload,
+        phone_login: action.payload,
       };
-    case 'INITIALIZE_PHONE_NUMBER':
+    case 'INITIALIZE_PHONE_LOGIN':
       return {
         ...state,
-        phoneNumber: action.payload,
+        phone_login: action.payload,
       };
     case 'INITIALIZE_TOKEN':
       return {

@@ -364,7 +364,7 @@
   .notification-icon {
     width: 18px;
     height: 18px;
-    margin-bottom: 4px;
+    /* margin-bottom: 4px; */
   }
 
   .user-dropdown {

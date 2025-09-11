@@ -1,0 +1,60 @@
+/* Search Empty Modal Responsive Styles */
+.search-empty-modal .ant-modal {
+  max-width: 90vw !important;
+  margin: 0 auto !important;
+}
+
+.search-empty-modal .ant-modal-content {
+  border-radius: 12px !important;
+}
+
+.search-empty-modal .ant-modal-body {
+  padding: 20px !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .search-empty-modal .ant-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+  
+  .search-empty-modal .ant-modal-body {
+    padding: 16px !important;
+  }
+  
+  .search-empty-modal .ant-modal-close {
+    top: 8px !important;
+    right: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-empty-modal .ant-modal {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    margin: 10px auto !important;
+  }
+  
+  .search-empty-modal .ant-modal-body {
+    padding: 12px !important;
+  }
+  
+  .search-empty-modal .ant-modal-close {
+    top: 4px !important;
+    right: 4px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .search-empty-modal .ant-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    top: 0 !important;
+  }
+  
+  .search-empty-modal .ant-modal-body {
+    padding: 8px !important;
+  }
+}

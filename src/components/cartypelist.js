@@ -73,12 +73,45 @@ const CarTypeList = () => {
     infinite: false,
     speed: 500,
     slidesToShow: 6,
-    slidesToScroll: 6,
+    slidesToScroll: 3,
     nextArrow: <Arrow left={false} />,
     prevArrow: <Arrow left={true} />,
     responsive: [
-      { breakpoint: 900, settings: { slidesToShow: 3 } },
-      { breakpoint: 600, settings: { slidesToShow: 2 } },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 2,
+        }
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 2,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
+        }
+      }
     ],
   };
 
@@ -155,8 +188,7 @@ const CarTypeList = () => {
               <img
                 src={`${BASE_URL}${type.body_type_image}`}
                 alt={type.body_type}
-                width="96"
-                height="36"
+                className="car-type-image"
               />
             </div>
             <div className="car-type-name">{type.body_type}</div>

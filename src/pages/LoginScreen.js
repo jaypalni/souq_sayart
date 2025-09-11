@@ -6,7 +6,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import '../assets/styles/loginScreen.css';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { setPhoneNumber, loginSuccess, setToken, clearCustomerDetails } from '../redux/actions/authActions';
+import { setPhoneLogin, loginSuccess, setToken, clearCustomerDetails } from '../redux/actions/authActions';
 // import socket from '../socket';
 
 const LoginScreen = () => {
@@ -184,22 +184,14 @@ const LoginScreen = () => {
           
           // Update Redux state
           dispatch(setToken(data.access_token));
-          dispatch(setPhoneNumber(phoneNumber));
-          
-          // Don't set user data yet - wait for OTP verification
-          // dispatch(loginSuccess(data, data.access_token, phoneNumber));
-          
-          // Update localStorage for compatibility
-          localStorage.setItem('token', data.access_token);
-          localStorage.setItem('requestid', data.request_id);
-
+          dispatch(setPhoneLogin(phoneNumber));
+        
+         
           if (data) {
             localStorage.setItem('userData', JSON.stringify(data));
           }
           localStorage.setItem('fromLogin', 'true');
-          
-          console.log('Set fromLogin flag to true');
-          console.log('About to navigate to /verifyOtp');
+        
 
           messageApi.open({
             type: 'success',

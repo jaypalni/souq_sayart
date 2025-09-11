@@ -52,6 +52,7 @@ const brandOptions = [
 
 const Sell = () => {
   const [loading, setLoading] = useState(false);
+  const [adTitle, setAdTitle] = useState('');
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [make, setMake] = useState('');
@@ -253,6 +254,25 @@ const Sell = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  if (selectedYear || selectedBrand || selectedModel || selectedTrim) {
+    const autoTitle = `${selectedYear || ''} ${selectedBrand || ''} ${selectedModel || ''} ${selectedTrim || ''}`.trim();
+
+    // Update adTitle only if the user hasn't typed manually
+    setAdTitle((prev) => {
+      // If the previous title exactly matches the generated title OR it's empty, update it
+      if (prev === '' || prev === autoTitle) {
+        return autoTitle;
+      }
+      return prev;
+    });
+
+    // Also update the form field
+    form.setFieldsValue({ adTitle: autoTitle });
+  }
+}, [selectedYear, selectedBrand, selectedModel, selectedTrim, form]);
+
 
   const fetchTrimCars = async () => {
     try {
@@ -497,49 +517,46 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
 
 const handlePostData = async (uploadedImages = [], text = '', isDraft = false, valuesParam = null) => {
   try {
-    // Use provided valuesParam (no validation) or validate fields for final submits
     const values = valuesParam ?? (await form.validateFields());
-    const formData = new FormData();
 
-    formData.append('make', make || '');
-    formData.append('model', modalName || '');
-    formData.append('year', selectedYear || '');
-    formData.append('price', values.price || '');
-    formData.append('description', values?.description || '');
-    formData.append('ad_title', values?.adTitle || '');
-    formData.append('exterior_color', selectedColor || '');
-    formData.append('interior_color', selectedInteriorColor || '');
-    formData.append('mileage', values?.kilometers || '');
-    formData.append('fuel_type', values?.fuelType || '');
-    formData.append('transmission_type', values?.transmissionType || '');
-    formData.append('body_type', values?.bodyType || '');
-    formData.append('vechile_type', values?.vehicletype || '');
-    formData.append('condition', values?.condition || '');
-    formData.append('location', selectedRegion || '');
-    formData.append('interior', values?.interior || '');
-    formData.append('trim', selectedTrim || '');
-    formData.append('regional_specs', selectedRegionalSpecs || '');
-    formData.append('badges', values?.badges || '');
-    formData.append('warranty_date', values?.warrantyDate || '');
-    formData.append('accident_history', values?.accidentHistory || '');
-    formData.append('number_of_seats', values?.seats || '');
-    formData.append('number_of_doors', values?.doors || '');
-    formData.append('drive_type', values?.driveType || '');
-    formData.append('engine_cc', values?.engineCC || '');
-    formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
-    formData.append('consumption', values?.consumption || '');
-    formData.append('no_of_cylinders', values?.cylinders || '');
-    formData.append('horse_power', values?.horsepower || '');
-    formData.append('payment_option', '');
-    formData.append('draft', isDraft ? 'true' : 'false');
-
-    // Append uploaded images (server URLs)
-    uploadedImages.forEach((url) => {
-      formData.append('car_images[]', url);
-    });
+    const payload = {
+      make: make || '',
+      model: modalName || '',
+      year: selectedYear || '',
+      price: values.price || '',
+      description: values?.description || '',
+      ad_title: values?.adTitle || '',
+      exterior_color: selectedColor || '',
+      interior_color: selectedInteriorColor || '',
+      mileage: values?.kilometers || '',
+      fuel_type: values?.fuelType || '',
+      transmission_type: values?.transmissionType || '',
+      body_type: values?.bodyType || '',
+      vechile_type: values?.vehicletype || '',
+      condition: values?.condition || '',
+      location: selectedRegion || '',
+      interior: values?.interior || '',
+      trim: selectedTrim || '',
+      regional_specs: selectedRegionalSpecs || '',
+      badges: values?.badges || '',
+      warranty_date: values?.warrantyDate || '',
+      accident_history: values?.accidentHistory || '',
+      number_of_seats: values?.seats || '',
+      number_of_doors: values?.doors || '',
+      drive_type: values?.driveType || '',
+      engine_cc: values?.engineCC || '',
+      extra_features: values?.extraFeatures || [],
+      consumption: values?.consumption || '',
+      no_of_cylinders: values?.cylinders || '',
+      horse_power: values?.horsepower || '',
+      payment_option: '',
+      draft: isDraft, // ✅ Boolean stays boolean
+      car_images: uploadedImages,
+    };
 
     setLoading(true);
-    const response = await carAPI.createCar(formData);
+
+    const response = await carAPI.createCar(payload); // Make sure your API expects JSON here
     const data1 = handleApiResponse(response);
 
     if (data1) {
@@ -557,7 +574,6 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
       form.resetFields();
     }
   } catch (error) {
-    // Better error display
     const errorData = handleApiError(error);
     const messageText =
       typeof errorData === 'object' ? JSON.stringify(errorData) : (errorData || 'An error occurred');
@@ -567,6 +583,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     setLoading(false);
   }
 };
+
 
 
 // const handleFinish = async (values) => {
@@ -819,7 +836,10 @@ const BrandInput = () => {
   );
 
   const handleEvaluateCar = () => {
-    message.info('Evaluate Car clicked');
+     messageApi.open({
+        type: 'success',
+        content: 'Coming soon',
+      });
   };
   
   // const handleSaveDraft = async () => {
@@ -1156,7 +1176,14 @@ const BrandInput = () => {
                   label="Ad Title"
                   name="adTitle"
                 >
-                  <Input placeholder="Ad Title" />
+                   <Input
+    placeholder="Ad Title"
+    value={adTitle}
+    onChange={(e) => {
+      setAdTitle(e.target.value);
+      form.setFieldsValue({ adTitle: e.target.value });
+    }}
+  />
                 </Form.Item>
                 <Form.Item
                   style={{
@@ -2263,14 +2290,15 @@ const BrandInput = () => {
             </Card>
             <Form.Item style={{ marginTop: 16 }}>
               <div className="submit-btn-group">
-                <Button
-                  size="small"
-                  className="btn-outline-blue"
-                  onClick={() => handleEvaluateCar}
-                  type="default"
-                >
-                  Evaluate Car
-                </Button>
+               <Button
+  size="small"
+  className="btn-outline-blue"
+  onClick={handleEvaluateCar} // ✅ Correct way
+  type="default"
+>
+  Evaluate Car
+</Button>
+
                 <Button
                   size="small"
                   className="btn-outline-blue"

@@ -183,10 +183,11 @@ ImageGallery.propTypes = {
 
 const FeaturesSection = ({ adTitle, featuresCsv }) => {
   const [open, setOpen] = useState(false);
-  const features = (featuresCsv || '')
-    .split(',')
-    .map((f) => f.trim())
-    .filter(Boolean);
+
+  // Normalize features to always be an array of individual features
+  const features = Array.isArray(featuresCsv)
+    ? featuresCsv.flatMap(item => item.split(',').map(f => f.trim())) // split and trim each string
+    : (featuresCsv || '').split(',').map(f => f.trim()); // fallback if it's just a string
 
   const toggleFeatures = () => setOpen(!open);
   const chevron = open ? <FaChevronUp /> : <FaChevronDown />;
@@ -204,7 +205,12 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
             onClick={toggleFeatures}
             aria-expanded={open}
             aria-controls="extra-features"
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+            }}
           >
             {chevron}
           </button>
@@ -214,6 +220,7 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
     </div>
   );
 };
+
 
 const FeaturesList = ({ features }) => (
   <div id="extra-features" className="row mb-2 mt-2">

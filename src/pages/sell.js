@@ -1108,13 +1108,13 @@ const BrandInput = () => {
                           showPreviewIcon: true,
                         }}
                         multiple
-                        maxCount={8}
+                        maxCount={15}
                         accept=".jpg,.jpeg,.png,.gif,.mp4"
                         customRequest={({ file, onSuccess }) =>
                           setTimeout(() => onSuccess('ok'), 0)
                         }
                       >
-                        {mediaFileList.length < 8 && mediaUploadButton}
+                        {mediaFileList.length < 15 && mediaUploadButton}
                       </Upload>
                       {mediaFileList.length > 0 && (
                         <div

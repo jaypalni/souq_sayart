@@ -189,6 +189,8 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
   
   const isLoggedIn = isAuthenticated;
   // Effect to handle token readiness
+
+
   useEffect(() => {
     // If user is authenticated, consider them ready even if token is undefined
     // This handles cases where authentication state is managed differently
@@ -198,7 +200,7 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
       setTokenReady(false);
     }
   }, [isReady, token, isAuthenticated]);
-
+console.log('2222',token)
   useEffect(() => {
     if (isLoggedIn && tokenReady) {
       fetchSavedSearches();

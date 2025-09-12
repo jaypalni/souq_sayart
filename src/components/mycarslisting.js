@@ -13,6 +13,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
 import CarCard from './CarCard';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 const { Option } = Select;
 
@@ -73,10 +74,21 @@ const Mycarslisting = () => {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [limit, setLimit] = useState(15);
-
+  const [tokenReady, setTokenReady] = useState(false);
 
   const navigate = useNavigate();
+  const authState = useSelector(state => state.auth);
 
+  // Check if token is available (Redux only - persisted by Redux Persist)
+  useEffect(() => {
+    const token = authState?.token;
+    
+    if (token && token !== 'undefined' && token !== 'null' && token.trim().length > 0) {
+      setTokenReady(true);
+    } else {
+      setTokenReady(false);
+    }
+  }, [authState?.token]);
 
   const handleChange = (e) => {
     setValue(e.target.value);
@@ -114,7 +126,6 @@ const Mycarslisting = () => {
     setLoading(true);
 
     const statusParam = getStatusParam() || '';
-    console.log('Calling API with:', { status: statusParam, page });
 
     const response = await carAPI.getMylistingCars(statusParam, page || 1);
     const cardetail = handleApiResponse(response);
@@ -137,8 +148,6 @@ const Mycarslisting = () => {
     // Use pagination total
     setTotalCount(pagination.total || 0);
 
-    console.log('Pagination Data:', pagination);
-console.log('Total Count Set To:', pagination.total);
 
 
     // Optional: update page limit dynamically
@@ -160,8 +169,10 @@ console.log('Total Count Set To:', pagination.total);
 
 
   useEffect(() => {
-    fetchCars();
-  }, [page, limit, value, filterStatus]);
+    if (tokenReady) {
+      fetchCars();
+    }
+  }, [page, limit, value, filterStatus, tokenReady]);
 
 
   const handleDeleteMethod = async (carId) => {
@@ -263,6 +274,9 @@ console.log('Total Count Set To:', pagination.total);
       {/* Car List */}
       <div style={{ padding: '20px' }}>
         {(() => {
+          if (!tokenReady) {
+            return <p>Initializing...</p>;
+          }
           if (loading) {
             return <p>Loading cars...</p>;
           }

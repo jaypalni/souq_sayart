@@ -17,6 +17,16 @@
   width: 100%;
   margin: 0 auto;
   padding: 0 20px;
+  position: relative;
+}
+
+.slider-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
+  color: #666;
+  font-size: 16px;
 }
 
 .car-type-item {
@@ -34,10 +44,10 @@
   margin: 0 4px;
 }
 
-.car-type-item:hover {
+/* .car-type-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .car-type-icon {
   margin-bottom: 8px;
@@ -94,8 +104,37 @@
 }
 
 .slick-slide {
-  display: flex;
+  display: flex !important;
   justify-content: center;
+  align-items: center;
+  height: auto;
+}
+
+.slick-track {
+  display: flex !important;
+  align-items: center;
+}
+
+.slick-list {
+  overflow: hidden;
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure proper display of slider items */
+.slick-initialized .slick-slide {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ensure proper display of slider items */
+.slick-initialized .slick-slide {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Responsive Design */

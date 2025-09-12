@@ -6,18 +6,27 @@
  */
 
 import { createStore, applyMiddleware } from 'redux';
-import { thunk } from 'redux-thunk'; 
-import rootReducer from './reducers';
+import { thunk } from 'redux-thunk';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import throttle from 'lodash/throttle';
+import rootReducer from './reducers';
 
-const store = createStore(rootReducer, applyMiddleware(thunk));
+// Redux Persist configuration
+const persistConfig = {
+  key: 'root',
+  storage: storage,
+  whitelist: ['auth'], // Only persist auth state (token, phone_login, etc.)
+};
 
-// Token initialization removed - token is now stored only in Redux state
-// No localStorage initialization needed
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const store = createStore(persistedReducer, applyMiddleware(thunk));
+const persistor = persistStore(store);
+
 
 let lastUserData;
 let lastCustomerDetails;
-// Removed lastToken and lastPhoneLogin - no longer syncing to localStorage
 
 const syncLocalStorageKey = (key, previousValue, nextValue, isString = false) => {
   if (nextValue === previousValue) {
@@ -47,7 +56,7 @@ if (typeof window !== 'undefined') {
       const state = store.getState();
       const nextUserData = state.userData?.userData;
       const nextCustomerDetails = state.customerDetails?.customerDetails;
-      // Removed token and phone_login from localStorage sync - keeping only in Redux
+      // Token and phone_login are now persisted by Redux Persist
 
       lastUserData = syncLocalStorageKey('userData', lastUserData, nextUserData);
       lastCustomerDetails = syncLocalStorageKey(
@@ -55,9 +64,10 @@ if (typeof window !== 'undefined') {
         lastCustomerDetails,
         nextCustomerDetails,
       );
-      // Token and phone_login are now stored only in Redux state
+      // Token and phone_login are persisted by Redux Persist
     }, 1000),
   );
 }
 
 export default store;
+export { persistor };

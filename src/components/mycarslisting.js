@@ -27,15 +27,16 @@ const FILTER = {
   SPORT: 'Sport',
 };
 
-const renderPaginationItem = (type, originalElement) => {
+const renderPaginationItem = (page, type, originalElement) => {
   if (type === 'prev') {
-    return <span>&lt;</span>;
+    return <span>« Prev</span>;  // Optional custom text for previous button
   }
   if (type === 'next') {
-    return <span>&gt;</span>;
+    return <span>Next »</span>;  // Optional custom text for next button
   }
-  return originalElement;
+  return originalElement;        // Default: page numbers like 1, 2, 3
 };
+
 
 const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
   <div
@@ -72,7 +73,7 @@ const Mycarslisting = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [limit, setLimit] = useState(15);
+  const [limit, setLimit] = useState(1);
 
 
   const navigate = useNavigate();
@@ -296,18 +297,22 @@ console.log('Total Count Set To:', pagination.total);
 
       {/* Pagination */}
       {/* Pagination */}
-<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
   <Pagination
     className="custom-pagination"
-    current={page}           // Current page state
-    total={totalCount}       // Total number of items
-    pageSize={limit}         // Items per page
-    onChange={(newPage) => setPage(newPage)}
-    showSizeChanger={false}  // Hide size changer
-    showQuickJumper           // Show quick jump input
-    itemRender={renderPaginationItem} // Custom render for next/prev
+    current={page}            // Controlled by state
+    total={totalCount}        // Comes from API
+    pageSize={limit}          // API provided limit
+    onChange={(newPage) => {
+      console.log('Page Changed To:', newPage);
+      setPage(newPage);
+    }}
+    showSizeChanger={false}   // Hides page size dropdown
+    showQuickJumper            // Show input for quick jump
+    itemRender={renderPaginationItem} // Custom render for < and >
   />
 </div>
+
 
     </div>
   );

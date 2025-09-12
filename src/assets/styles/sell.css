@@ -68,6 +68,11 @@
   vertical-align: middle;
 }
 
+.ant-form-item-label > label::before {
+  display: none !important;
+}
+
+
 .exterior-color-input {
   display: flex;
   align-items: center;

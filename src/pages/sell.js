@@ -584,42 +584,20 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
   }
 };
 
-
-
-// const handleFinish = async (values) => {
-//   const images = values.media?.map((file) => file.originFileObj);
-
-//   if (!images || images.length === 0) {
-//     message.error('Please upload at least one image.');
-//     return;
-//   }
-
-//   console.log('Selected Images:', images); // <-- Debug
-
-//   await handleBeforeUpload(images);
-
-//   message.success('Form submitted! Images uploading...');
-// };
-
 const handleFinish = async (mode) => {
   try {
     if (mode === 'draft') {
-      // don't run full validation for draft; allow empty required fields
-      const values = form.getFieldsValue(); // returns current form values (no validation)
+      const values = form.getFieldsValue(); 
       const images = values.media?.map((file) => file.originFileObj).filter(Boolean) || [];
 
       if (images.length === 0) {
-        // no images: directly post draft with collected values (no validation)
         await handlePostData([], '1', true, values);
         return;
       }
-
-      // images exist: upload them and pass the same values so handlePostData won't re-validate
       await handleBeforeUpload(images, 'draft', values);
       return;
     }
 
-    // final submit: validate required fields
     const values = await form.validateFields();
     const images = values.media?.map((file) => file.originFileObj) || [];
 
@@ -628,10 +606,8 @@ const handleFinish = async (mode) => {
       return;
     }
 
-    // upload then post (pass null valuesParam so handlePostData validates server-side)
     await handleBeforeUpload(images, 'final');
   } catch (err) {
-    // show friendly error (validation errors are thrown by validateFields)
     if (err?.errorFields) {
       // Ant validation error object -> show a concise message
       messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
@@ -795,7 +771,7 @@ const BrandInput = () => {
           fontSize: 14,
         }}
       >
-        {selectedYear || '2023'}
+        {selectedYear || 'Select Year'}
       </span>
       <RightOutlined className="year-arrow" />
     </div>
@@ -1056,7 +1032,7 @@ const BrandInput = () => {
             layout="vertical"
             onFinish={handleFinish}
             scrollToFirstError
-            initialValues={{ condition: '', year: new Date().getFullYear() }}
+            initialValues={{ condition: '', year: undefined }}
           >
             <Row gutter={24}>
               <Col xs={24} md={10}>
@@ -1179,6 +1155,7 @@ const BrandInput = () => {
                    <Input
     placeholder="Ad Title"
     value={adTitle}
+    disabled
     onChange={(e) => {
       setAdTitle(e.target.value);
       form.setFieldsValue({ adTitle: e.target.value });
@@ -1210,6 +1187,7 @@ const BrandInput = () => {
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
+                  className="no-asterisk"
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
@@ -1217,6 +1195,7 @@ const BrandInput = () => {
                     }}
                     label="Car Information"
                     name="brand"
+                    rules={[{ required: true, message: 'Please select the car make and modal' }]}
                   >
                     <BrandInput />
                   </Form.Item>
@@ -1894,27 +1873,6 @@ const BrandInput = () => {
                     </div>
                   </Modal>
                 </Col>
-                {/* <Col xs={24} md={12}>
-                  <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Regional Specs"
-                    name="regionalSpecs2"
-                     required={false}
-                     rules={[{ required: true, message: 'Please select the Regional Specs' }]}
-                  >
-                    <Select placeholder="Select the specs of your car">
-                      {updateData?.regional_specs?.map((spec) => (
-                        <Option key={spec.id} value={spec.regional_spec}>
-                          {spec.regional_spec}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col> */}
               </Row>
             </Card>
             <Card title="Additional Details" style={{ padding: ' 0px 24px' }}>

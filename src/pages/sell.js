@@ -771,7 +771,7 @@ const BrandInput = () => {
           fontSize: 14,
         }}
       >
-        {selectedYear || '2023'}
+        {selectedYear || 'Select Year'}
       </span>
       <RightOutlined className="year-arrow" />
     </div>
@@ -1032,7 +1032,7 @@ const BrandInput = () => {
             layout="vertical"
             onFinish={handleFinish}
             scrollToFirstError
-            initialValues={{ condition: '', year: new Date().getFullYear() }}
+            initialValues={{ condition: '', year: undefined }}
           >
             <Row gutter={24}>
               <Col xs={24} md={10}>
@@ -1187,6 +1187,7 @@ const BrandInput = () => {
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
+                  className="no-asterisk"
                     style={{
                       fontWeight: 500,
                       fontSize: 10,
@@ -1194,6 +1195,7 @@ const BrandInput = () => {
                     }}
                     label="Car Information"
                     name="brand"
+                    rules={[{ required: true, message: 'Please select the car make and modal' }]}
                   >
                     <BrandInput />
                   </Form.Item>

@@ -110,14 +110,86 @@ const Mycarslisting = () => {
   };
 
 
-  const fetchCars = async () => {
+//   const fetchCars = async () => {
+//   try {
+//     setLoading(true);
+
+//     const statusParam = getStatusParam() || '';
+//     console.log('Calling API with:', { status: statusParam, page });
+
+//     const response = await carAPI.getMylistingCars(statusParam, page || 1);
+//     const cardetail = handleApiResponse(response);
+
+//     // Safely extract data
+//     const data = cardetail?.data || {};
+//     const pagination = cardetail?.pagination || {};
+
+//     let list = [];
+//     if (['pending', 'approved', 'all'].includes(statusParam)) {
+//       list = data.approved_pending || [];
+//     } else if (statusParam === 'drafts') {
+//       list = data.draft || [];
+//     } else if (statusParam === 'sold') {
+//       list = data.sold || [];
+//     }
+
+//     setCarDetails(list);
+
+//     // Use pagination total
+//     setTotalCount(pagination.total || 0);
+
+//     console.log('Pagination Data:', pagination);
+// console.log('Total Count Set To:', pagination.total);
+
+
+//     // Optional: update page limit dynamically
+//     setLimit(pagination.limit || 15);
+
+//     if (list.length === 0) {
+//       message.info('No cars found for the selected filter');
+//     } else {
+//       message.success(cardetail.message || 'Fetched successfully');
+//     }
+//   } catch (error) {
+//     const errorData = handleApiError(error);
+//     message.error(errorData.message || 'Failed to load car data');
+//     setCarDetails([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+const fetchCars = async () => {
   try {
     setLoading(true);
 
-    const statusParam = getStatusParam() || '';
-    console.log('Calling API with:', { status: statusParam, page });
+    // Determine type based on selected tab
+    let typeParam = '';
+    if (value === STATUS.ACTIVE) {
+      typeParam = 'active';
+    } else if (value === STATUS.DRAFTS) {
+      typeParam = 'draft';
+    } else if (value === STATUS.SOLD) {
+      typeParam = 'sold';
+    }
 
-    const response = await carAPI.getMylistingCars(statusParam, page || 1);
+    // Determine filter param only for active
+    let filterParam = '';
+    if (typeParam === 'active') {
+      if (filterStatus === FILTER.BASE) {
+        filterParam = 'pending';
+      } else if (filterStatus === FILTER.SPORT) {
+        filterParam = 'approved';
+      } else {
+        filterParam = 'all'; // Default to 'all'
+      }
+    }
+
+    console.log('Calling API with:', { type: typeParam, filter: filterParam, page });
+
+    // Call API dynamically
+    const response = await carAPI.getMylistingCars(typeParam, filterParam, page || 1);
+
     const cardetail = handleApiResponse(response);
 
     // Safely extract data
@@ -125,25 +197,24 @@ const Mycarslisting = () => {
     const pagination = cardetail?.pagination || {};
 
     let list = [];
-    if (['pending', 'approved', 'all'].includes(statusParam)) {
+    if (typeParam === 'active') {
       list = data.approved_pending || [];
-    } else if (statusParam === 'drafts') {
+    } else if (typeParam === 'draft') {
       list = data.draft || [];
-    } else if (statusParam === 'sold') {
+    } else if (typeParam === 'sold') {
       list = data.sold || [];
     }
 
     setCarDetails(list);
 
-    // Use pagination total
+    // Set total count from pagination
     setTotalCount(pagination.total || 0);
 
+    // Optional: Update limit if API provides dynamic value
+    setLimit(pagination.limit || 10);
+
     console.log('Pagination Data:', pagination);
-console.log('Total Count Set To:', pagination.total);
-
-
-    // Optional: update page limit dynamically
-    setLimit(pagination.limit || 15);
+    console.log('Total Count Set To:', pagination.total);
 
     if (list.length === 0) {
       message.info('No cars found for the selected filter');
@@ -158,6 +229,7 @@ console.log('Total Count Set To:', pagination.total);
     setLoading(false);
   }
 };
+
 
 
   useEffect(() => {

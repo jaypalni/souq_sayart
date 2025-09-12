@@ -716,8 +716,8 @@ const ExteriorColorInput = ({
     opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
   );
 
-  const filteredColors1 = updateData?.interior_colours?.filter((opt) =>
-    opt.interior_colour?.toLowerCase().includes(colorSearch?.toLowerCase())
+  const filteredColors1 = updateData?.colours?.filter((opt) =>
+    opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
   );
 
   const TrimInput = () => (
@@ -2231,25 +2231,23 @@ const BrandInput = () => {
                     <div className="color-modal-grid">
                       {filteredColors1?.map((opt) => (
                         <div
-                          key={opt.interior_colour}
+                          key={opt.colour}
                           className={`color-option${
-                            selectedInteriorColor === opt.interior_colour ? ' selected' : ''
+                            selectedInteriorColor === opt.colour ? ' selected' : ''
                           }`}
                           onClick={() => {
-                            setSelectedInteriorColor(opt.interior_colour);
+                            setSelectedInteriorColor(opt.colour);
                             setColorModalOpenInterior(false);
-                            form.setFieldsValue({ exteriorColor: opt.interior_colour });
+                            form.setFieldsValue({ exteriorColor: opt.colour });
                           }}
-                        >
-                          <span
-                            className="color-swatch-modal"
-                            style={{
-                              background: opt.color,
-                              border: opt.border || '1px solid #d9d9d9',
-                            }}
-                          />
+                        > 
+                          <img
+                              src={`${BASE_URL}${opt.colour_image}`}
+                              alt={opt.value}
+                              className="color-swatch-modal"
+                            />
                           <span className="color-option-label">
-                            {opt.interior_colour}
+                            {opt.colour}
                           </span>
                         </div>
                       ))}

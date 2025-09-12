@@ -127,7 +127,15 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
 
       <div>
         <div style={{ marginTop: '10px', color: COLORS.primary, fontSize: FONT_SIZES.small, fontWeight: 400 }}>
-          {car.updated_at}
+          {car.updated_at
+  ? new Date(car.updated_at).toLocaleDateString('en-US', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+  : ''}
+
         </div>
         <div style={{ marginTop: '10px', display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, gap: '10px' }}>
         <Button

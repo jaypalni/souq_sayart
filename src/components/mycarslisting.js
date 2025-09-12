@@ -137,6 +137,10 @@ const Mycarslisting = () => {
     // Use pagination total
     setTotalCount(pagination.total || 0);
 
+    console.log('Pagination Data:', pagination);
+console.log('Total Count Set To:', pagination.total);
+
+
     // Optional: update page limit dynamically
     setLimit(pagination.limit || 15);
 
@@ -292,16 +296,19 @@ const Mycarslisting = () => {
 
       {/* Pagination */}
       {/* Pagination */}
-<Pagination
-  className="custom-pagination"
-  current={page}
-  total={totalCount}
-  pageSize={limit}
-  onChange={(newPage) => setPage(newPage)}
-  showSizeChanger={false}
-  showQuickJumper      // enables the input box
-  itemRender={renderPaginationItem}
-/>
+<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+  <Pagination
+    className="custom-pagination"
+    current={page}           // Current page state
+    total={totalCount}       // Total number of items
+    pageSize={limit}         // Items per page
+    onChange={(newPage) => setPage(newPage)}
+    showSizeChanger={false}  // Hide size changer
+    showQuickJumper           // Show quick jump input
+    itemRender={renderPaginationItem} // Custom render for next/prev
+  />
+</div>
+
     </div>
   );
 };

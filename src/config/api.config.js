@@ -19,7 +19,6 @@ const API_CONFIG = {
   //    GET_CAR_MYLISTINGS: (filter, page) =>
   // `/api/cars/my-listings?filter=${filter}&page=${page}`,
      GET_CAR_MYLISTINGS: (type, filter, page) => {
-  // Add filter only if it's provided and type is active
   let url = `/api/cars/my-listings?type=${type}&page=${page}`;
   if (type === 'active' && filter) {
     url += `&filter=${filter}`;

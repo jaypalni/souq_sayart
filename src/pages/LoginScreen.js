@@ -186,7 +186,7 @@ const LoginScreen = () => {
           dispatch(setToken(data.access_token));
           dispatch(setPhoneLogin(phoneNumber));
         
-         
+          // Redux Persist handles token persistence
           if (data) {
             localStorage.setItem('userData', JSON.stringify(data));
           }

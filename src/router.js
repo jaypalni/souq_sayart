@@ -51,7 +51,7 @@ const AppRouterContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // Initialize phone login from localStorage on app startup (token now Redux-only)
+  // Initialize phone login on app startup (Redux Persist handles token)
   useEffect(() => {
     dispatch(initializePhoneLogin());
   }, [dispatch]);

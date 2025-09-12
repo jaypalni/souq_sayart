@@ -15,6 +15,7 @@ import {
 const initialState = {
   user: null,
   token: null,
+  refresh_token: null,
   phone_login: null,
   loading: false,
   error: null,
@@ -51,6 +52,7 @@ const authReducer = (state = initialState, action) => {
         ...state,
         user: null,
         token: null,
+        refresh_token: null,
         phone_login: null,
         isAuthenticated: false,
         error: null,
@@ -77,6 +79,14 @@ const authReducer = (state = initialState, action) => {
         token: action.payload,
         isAuthenticated: !!action.payload,
       };
+    case 'SET_REFRESH_TOKEN':
+      return {
+        ...state,
+        refresh_token: action.payload,
+      };
+    case 'NO_OP':
+      // No operation - return current state unchanged
+      return state;
 
     default:
       return state;

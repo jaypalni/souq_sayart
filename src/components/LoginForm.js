@@ -38,7 +38,7 @@ const LoginForm = () => {
           dispatch(loginSuccess(data.user, data.token, data.user.phone_number));
         }
 
-        // localStorage.setItem('token', data.token);
+        // Redux Persist handles token persistence
         if (data?.user) {
           localStorage.setItem('userData', JSON.stringify(data.user));
         }

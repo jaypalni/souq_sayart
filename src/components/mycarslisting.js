@@ -13,6 +13,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
 import CarCard from './CarCard';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 const { Option } = Select;
 
@@ -73,11 +74,22 @@ const Mycarslisting = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [limit, setLimit] = useState(1);
-
+  const [limit, setLimit] = useState(15);
+  const [tokenReady, setTokenReady] = useState(false);
 
   const navigate = useNavigate();
+  const authState = useSelector(state => state.auth);
 
+  // Check if token is available (Redux only - persisted by Redux Persist)
+  useEffect(() => {
+    const token = authState?.token;
+    
+    if (token && token !== 'undefined' && token !== 'null' && token.trim().length > 0) {
+      setTokenReady(true);
+    } else {
+      setTokenReady(false);
+    }
+  }, [authState?.token]);
 
   const handleChange = (e) => {
     setValue(e.target.value);
@@ -233,8 +245,10 @@ const fetchCars = async () => {
 
 
   useEffect(() => {
-    fetchCars();
-  }, [page, limit, value, filterStatus]);
+    if (tokenReady) {
+      fetchCars();
+    }
+  }, [page, limit, value, filterStatus, tokenReady]);
 
 
   const handleDeleteMethod = async (carId) => {
@@ -336,6 +350,9 @@ const fetchCars = async () => {
       {/* Car List */}
       <div style={{ padding: '20px' }}>
         {(() => {
+          if (!tokenReady) {
+            return <p>Initializing...</p>;
+          }
           if (loading) {
             return <p>Loading cars...</p>;
           }

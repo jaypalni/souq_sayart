@@ -41,30 +41,24 @@ api.interceptors.request.use(
   (config) => {
     let token = null;
     let store = null;
-    let rawToken = null;
     
     try {
       // Import store dynamically to avoid circular dependency
       store = require('../redux/store').default;
       const state = store.getState();
       
-      // Only get token from Redux state - NO localStorage fallback
-      rawToken = state.auth?.token;
-      token = getValidTokenFromRedux(store);
+      // Get token directly from Redux state
+      token = state.auth?.token;
       
-      // Fallback: if getValidTokenFromRedux fails, try direct access
-      if (!token && rawToken && typeof rawToken === 'string' && rawToken.trim().length > 0) {
-        token = rawToken;
+      // Validate token
+      if (token && token !== 'undefined' && token !== 'null' && token !== '' && token.trim().length > 0) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-      
       
     } catch (error) {
       console.error('Failed to get Redux store:', error);
     }
     
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => Promise.reject(new Error(error.message || 'Request error')),

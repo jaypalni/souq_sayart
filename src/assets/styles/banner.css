@@ -56,13 +56,13 @@
 
 /* Default banner height for desktop */
 .banner-main {
-  height: 526px;
+  height: 130px;
 }
 
 /* Mobile Styles */
 @media (max-width: 767px) {
   .banner-main {
-    height: 200px !important;
+    height: 60px !important;
   }
   
   .banner-header {
@@ -90,7 +90,7 @@
 /* Tablet Styles */
 @media (min-width: 768px) and (max-width: 991px) {
   .banner-main {
-    height: 300px !important;
+    height: 130px !important;
   }
   
   .banner-header {
@@ -118,7 +118,7 @@
 /* Medium Desktop Styles */
 @media (min-width: 992px) and (max-width: 1199px) {
   .banner-main {
-    height: 400px !important;
+    height: 130px !important;
   }
   
   .banner-title {
@@ -129,7 +129,7 @@
 /* Large Desktop Styles */
 @media (min-width: 1200px) and (max-width: 1399px) {
   .banner-main {
-    height: 450px !important;
+    height: 130px !important;
   }
   
   .banner-title {
@@ -140,7 +140,7 @@
 /* Extra Large Desktop Styles */
 @media (min-width: 1400px) {
   .banner-main {
-    height: 526px !important;
+    height: 140px !important;
   }
   
   .banner-title {

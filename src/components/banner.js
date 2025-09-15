@@ -9,6 +9,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Car_icon from '../assets/images/Car_icon.png';
 import banner_icon from '../assets/images/homecar_icon.png';
+import '../assets/styles/banner.css';
 
 const Banner = () => {
   const location = useLocation();
@@ -17,85 +18,39 @@ const Banner = () => {
     location.pathname === '/verifyOtp' ||
     location.pathname === '/createProfile';
 
-  let bannerHeight = 526;
   let bannerSrc = banner_icon;
   let bannerOpacity = 1;
   let bannerTitle = null;
 
   if (isLoginPage) {
-    bannerHeight = 200;
     bannerSrc = Car_icon;
     bannerOpacity = 0.7;
     bannerTitle = 'Welcome To Souq Sayarat';
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="banner-container">
       {isLoginPage && (
-        <div
-          style={{
-            background: '#008ad5',
-            color: '#fff',
-            padding: '32px 0 16px 0',
-          }}
-        >
-          <div style={{ maxWidth: 1200, margin: '0 35px' }}>
-            <h2
-              style={{
-                margin: 0,
-                fontWeight: 700,
-                fontSize: 25,
-                fontFamily: 'Roboto',
-              }}
-            >
+        <div className="banner-header">
+          <div className="banner-header-content">
+            <h2 className="banner-header-title">
               My Profile
             </h2>
-            <p
-              style={{
-                margin: 0,
-                marginTop: 5,
-                fontWeight: 400,
-                fontSize: 12,
-                fontFamily: 'Roboto',
-              }}
-            >
+            <p className="banner-header-subtitle">
               Post Your Listing in just 3 simple steps
             </p>
           </div>
         </div>
       )}
-      <div
-        style={{
-          width: '100%',
-          height: bannerHeight,
-          background: '#222',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-        }}
-      >
+      <div className="banner-main">
         <img
           src={bannerSrc}
           alt="Car"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center 70%',
-            opacity: bannerOpacity,
-          }}
+          className="banner-image"
+          style={{ opacity: bannerOpacity }}
         />
         {bannerTitle && (
-          <h1
-            style={{
-              position: 'absolute',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 32,
-              fontFamily: 'Roboto',
-            }}
-          >
+          <h1 className="banner-title">
             {bannerTitle}
           </h1>
         )}

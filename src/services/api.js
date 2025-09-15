@@ -7,6 +7,7 @@
 
 import axios from 'axios';
 import API_CONFIG from '../config/api.config';
+import { getValidTokenFromRedux } from '../utils/tokenSync';
 
 const HTTP_STATUS = {
   FORBIDDEN: 403,
@@ -38,10 +39,26 @@ const publicApi = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    let token = null;
+    let store = null;
+    
+    try {
+      // Import store dynamically to avoid circular dependency
+      store = require('../redux/store').default;
+      const state = store.getState();
+      
+      // Get token directly from Redux state
+      token = state.auth?.token;
+      
+      // Validate token
+      if (token && token !== 'undefined' && token !== 'null' && token !== '' && token.trim().length > 0) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      
+    } catch (error) {
+      console.error('Failed to get Redux store:', error);
     }
+    
     return config;
   },
   (error) => Promise.reject(new Error(error.message || 'Request error')),
@@ -52,19 +69,19 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status } = error.response;
-      if (status === HTTP_STATUS.FORBIDDEN) {
-        console.info('Access forbidden (403)');
+      
+      // Handle authentication errors
+      if (status === 401) {
+        // Token may be invalid or expired
+      } else if (status === 422) {
+        // Request data may be invalid or missing required fields
+      } else if (status === HTTP_STATUS.FORBIDDEN) {
+        // Access forbidden
       } else if (status === HTTP_STATUS.NOT_FOUND) {
-        console.info('Resource not found (404)');
+        // Resource not found
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
-        console.info('Internal server error (500)');
-      } else {
-        console.info(`HTTP error (${status})`);
+        // Internal server error
       }
-    } else if (error.request) {
-      console.info('No response received from server');
-    } else {
-      console.info('Request setup failed', error.message);
     }
 
     if (error instanceof Error) {
@@ -103,8 +120,10 @@ export const carAPI = {
   getAllCars: (params) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_ALL, { params }),
   getCarById: (id) => api.get(API_CONFIG.ENDPOINTS.CARS.GET_BY_ID(id)),
-  getMylistingCars: (page, limit, status) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(page, limit, status)),
+  // getMylistingCars: (filter, page) =>
+  //   api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(filter, page)),
+getMylistingCars: (type, filter, page) =>
+  api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(type, filter, page)),
   createCar: (data) => api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, data),
   saveDraftCar: () => api.post(API_CONFIG.ENDPOINTS.CARS.SAVE_DRAFT),
   updateCar: (id, data) => api.put(API_CONFIG.ENDPOINTS.CARS.UPDATE(id), data),
@@ -136,18 +155,51 @@ export const carAPI = {
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_BODY_TYPE_CARS),
   getLocationCars: () =>
     publicApi.get(API_CONFIG.ENDPOINTS.CARS.GET_LOCATION_CARS),
-  getSearchCars: (params) =>
-    api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params),
-  searchCars: (params) =>
-    api.post('/api/search/search', params),
-  postsavesearches: (searchparams) =>
-    api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams),
-  getsavedsearches: (page, limit) =>
-    api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit)),
+  getSearchCars: async (params) => {
+    try {
+      return await api.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params);
+    } catch (error) {
+      // If 422 error, try with public API as fallback
+      if (error.response?.status === 422) {
+        return await publicApi.post(API_CONFIG.ENDPOINTS.CARS.POST_SEARCH_CARS, params);
+      }
+      throw error;
+    }
+  },
+  searchCars: async (params) => {
+    try {
+      return await api.post('/api/search/search', params);
+    } catch (error) {
+      // If 422 error, try with public API as fallback
+      if (error.response?.status === 422) {
+        return await publicApi.post('/api/search/search', params);
+      }
+      throw error;
+    }
+  },
+  postsavesearches: async (searchparams) => {
+    return await api.post(API_CONFIG.ENDPOINTS.CARS.POST_SAVE_SEARCHES, searchparams);
+  },
+  getsavedsearches: async (page, limit) => {
+    return await api.get(API_CONFIG.ENDPOINTS.CARS.GET_SAVED_SEARCHES(page, limit));
+  },
   termsAndConditions: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
   totalcarscount: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
+  gethorsepower: () => 
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_HORSE_POWER),
+  postuploadcarimages: (formData, type = 'car') =>
+  api.post(
+    `${API_CONFIG.ENDPOINTS.CARS.GET_CAR_IMAGES_UPLOAD}?type=${type}`,
+    formData, // ✅ Sending form data
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data', // ✅ Required for file uploads
+      },
+    }
+  ),
+
 };
 
 export const userAPI = {
@@ -162,8 +214,9 @@ export const userAPI = {
   api.post(API_CONFIG.ENDPOINTS.USER.ADD_FAVORITE(carId)), 
   removeFavorite: (carId) =>
     api.delete(API_CONFIG.ENDPOINTS.USER.REMOVE_FAVORITE(carId)),
-  savedSearches: (page, limit) =>
-    api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit)),
+  savedSearches: async (page, limit) => {
+    return await api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit));
+  },
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
   getDelete: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DELETE),
   getDeleteOtp: (credentials) => api.post(API_CONFIG.ENDPOINTS.USER.POST_DEELETE_OTP, credentials),
@@ -171,10 +224,12 @@ export const userAPI = {
     api.post(API_CONFIG.ENDPOINTS.USER.POST_CHANGE_PHONENUMBER, credentials),
   chnagenumberverifyOtp: (otpData) =>
     api.post(API_CONFIG.ENDPOINTS.USER.POST_VERIFYOTP_CHANGENUMBER, otpData),
-  deleteSavedSearch: (id) =>
-    api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id)),
-  notifySavedSearch: (id, body) =>
-  api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body),
+  deleteSavedSearch: async (id) => {
+    return await api.delete(API_CONFIG.ENDPOINTS.USER.DELETE_SAVED_SEARCH(id));
+  },
+  notifySavedSearch: async (id, body) => {
+    return await api.put(API_CONFIG.ENDPOINTS.USER.NOTIFY_SAVED_SEARCH(id), body);
+  },
 
 };
 

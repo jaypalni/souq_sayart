@@ -564,9 +564,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
         }
         
         if (response?.data?.data?.cars.length === 0) {
-          // Store the complete filter data for the modal
           setEmptySearchData(filterData);
-          // Show empty state modal
           setIsEmptyModalOpen(true);
           message.info('No cars found with the current filters. Try adjusting your search criteria.');
         } else {

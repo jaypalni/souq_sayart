@@ -58,6 +58,7 @@ const DEFAULT_CAR_COUNT = 0;
 const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
+  const [carLocation,setCarLocation]=useState()
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
 
 // Initialize make from localStorage if available
@@ -229,7 +230,6 @@ const getInitialMaxPrice = () => {
         setCarCount(data.data.pagination.total);
       }
     } catch (error) {
-      // Silent error handling for auto-search
       console.warn('Auto-search for count failed:', error);
     }
   };
@@ -239,17 +239,13 @@ const getInitialMaxPrice = () => {
       // fetchtotalcarcount();
     }, []);
 
-// State is now initialized directly from localStorage in useState calls above
 
-// Ensure location is properly set from localStorage
 useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     
-    // If there's saved location data, use it; otherwise default to "All Locations"
     if (saved && saved.location && saved.location !== '') {
       setLocation(saved.location);
-      // Update breadcrumb if setSelectedLocation is available
       if (setSelectedLocation) {
         setSelectedLocation(saved.location);
       }
@@ -290,8 +286,7 @@ useEffect(() => {
 
 // Temporary: Add a function to manually clear localStorage (for debugging)
 useEffect(() => {
-  // Uncomment the next line to clear localStorage on component mount
-  // localStorage.removeItem('searchcardata');
+fetchRegionCars()
 }, []);
 
 
@@ -384,6 +379,77 @@ handleSearch()
       setModel(DEFAULTS.ALL_MODELS);
     }
   };
+  const getGeoData = async () => {
+  try {
+    const cacheKey = 'geoDataCache';
+    const cached = localStorage.getItem(cacheKey);
+
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      const maxAgeMs = 24 * 60 * 60 * 1000; 
+      if (parsed?.ts && Date.now() - parsed.ts < maxAgeMs && parsed?.data) {
+        return parsed.data;
+      }
+    }
+
+    const geoRes = await fetch('https://ipapi.co/json/');
+    if (!geoRes.ok) {
+      throw new Error(`Geo API error: ${geoRes.status}`);
+    }
+
+    const geoData = await geoRes.json();
+
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        ts: Date.now(),
+        data: geoData,
+      }),
+    );
+
+    return geoData;
+  } catch (error) {
+    return null;
+  }
+};
+  const resolveDefaultLocation = (locations, geoData) => {
+  // Always return null to use "All Locations" as default
+  return null;
+};
+
+  const fetchRegionCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getLocationCars({});
+      const data1 = handleApiResponse(response);
+  
+     if (!data1) {
+        message.error('No location data received');
+        setCarLocation([]);
+        return;
+      }
+      const locations = data1?.data || [];
+      setCarLocation(locations);
+  
+      const geoData = await getGeoData();
+      console.log('geoData',geoData)
+      const defaultLocation = resolveDefaultLocation(locations, geoData);
+  
+      if (defaultLocation) {
+        setLocation(defaultLocation.location);
+      }
+  
+  
+      message.success(data1?.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to fetch location data');
+      setCarLocation([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const fetchBodyTypeCars = async () => {
     try {
       setLoading(true);
@@ -542,24 +608,17 @@ handleSearch()
 
         if (results.length === 0) {
           setIsModalOpen(true);
-          // Clear data when no results
           setFilterCarsData({ cars: [], pagination: {} });
         } else {
-          // Set ONLY fresh API data - completely replace any old data
-          // Force clear any existing data first
           setFilterCarsData({ cars: [], pagination: {} });
-          // Then set ONLY the fresh API data
           setFilterCarsData({
             cars: data1.data.cars || [],
             pagination: data1.data.pagination || {}
           });
-          // Save search parameters to localStorage
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-          // Update breadcrumb directly via prop
           if (setSelectedLocation) {
             setSelectedLocation(location);
           }
-          // Dispatch custom event to update breadcrumb (fallback)
           window.dispatchEvent(new CustomEvent('searchDataUpdated'));
           // messageApi.open({
           //   type: 'success',
@@ -642,91 +701,122 @@ handleSearch()
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="make-select">Make</label>
             <Select
-              id="make-select"
-              value={make}
-              onChange={(value) => {
-                setMake(value);
-                setModel(DEFAULTS.ALL_MODELS);
-                handleChange('Make', value);
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-            >
-              {carMakes.map((m) => (
-                <Option key={m?.name} value={m?.name}>
-                  {m?.name}
-                </Option>
-              ))}
-            </Select>
-          </div>
-          <div className="allcars-filters-col">
-            <label className="allcars-filters-label" htmlFor="model-select">Model</label>
-            <Select
-  id="model-select"
-  value={model}
+  id="make-select"
+  value={make}
+  showSearch
+  allowClear
+  placeholder="Select Make"
   onChange={(value) => {
-    setModel(value);
-    handleChange('Model', value);
+    setMake(value || DEFAULTS.ALL_MAKE); // Reset to default if cleared
+    setModel(DEFAULTS.ALL_MODELS);
+    handleChange('Make', value || DEFAULTS.ALL_MAKE);
   }}
   className="allcars-filters-select"
   size="large"
   dropdownClassName="allcars-filters-dropdown"
-  disabled={make === DEFAULTS.ALL_MAKE}
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
 >
-  {carModels?.map((m) => (
-    <Option key={m} value={m.model_name}>
-      {m.model_name}
+  {carMakes.map((m) => (
+    <Option key={m?.name} value={m?.name}>
+      {m?.name}
     </Option>
   ))}
 </Select>
 
           </div>
           <div className="allcars-filters-col">
+            <label className="allcars-filters-label" htmlFor="model-select">Model</label>
+            <Select
+  id="model-select"
+  value={model}
+  showSearch
+  allowClear
+  placeholder="Select Model"
+  onChange={(value) => {
+    setModel(value || DEFAULTS.ALL_MODELS);
+    handleChange('Model', value || DEFAULTS.ALL_MODELS);
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  disabled={make === DEFAULTS.ALL_MAKE}
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  {carModels?.map((m) => (
+    <Option key={m.model_name} value={m.model_name}>
+      {m.model_name}
+    </Option>
+  ))}
+</Select>
+
+
+          </div>
+          <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="bodytype-select">Body Type</label>
             <Select
-              id="bodytype-select"
-              value={bodyType}
-              onChange={(value) => {
-                setBodyType(value);
-                handleChange('Body Type', value);
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-            >
-              {carBodyTypes.map((b) => (
-                <Option key={b} value={b?.body_type}>
-                  {b?.body_type}
-                </Option>
-              ))}
-            </Select>
+  id="bodytype-select"
+  value={bodyType}
+  showSearch
+  allowClear
+  placeholder="Select Body Type"
+  onChange={(value) => {
+    setBodyType(value || DEFAULTS.ALL_BODY_TYPES);
+    handleChange('Body Type', value || DEFAULTS.ALL_BODY_TYPES);
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  {carBodyTypes.map((b) => (
+    <Option key={b?.body_type} value={b?.body_type}>
+      {b?.body_type}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="location-select">Location</label>
             <Select
-              id="location-select"
-              value={location}
-              onChange={(value) => {
-                setLocation(value);
-                handleChange('Location', value);
-                // Update breadcrumb directly via prop
-                if (setSelectedLocation) {
-                  setSelectedLocation(value);
-                }
-                // Dispatch custom event to update breadcrumb (fallback)
-                window.dispatchEvent(new CustomEvent('searchDataUpdated'));
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-            >
-              {locations.map((l) => (
-                <Option key={l} value={l}>
-                  {l}
-                </Option>
-              ))}
-            </Select>
+  id="location-select"
+  value={location}
+  showSearch
+  allowClear
+  placeholder="Select Location"
+  onChange={(value) => {
+    const selectedValue = value || DEFAULTS.ALL_LOCATIONS;
+    setLocation(selectedValue);
+    handleChange('Location', selectedValue);
+
+    // Update breadcrumb directly via prop
+    if (setSelectedLocation) {
+      setSelectedLocation(selectedValue);
+    }
+
+    // Dispatch custom event to update breadcrumb (fallback)
+    window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  {carLocation?.map((l) => (
+    <Option key={l?.id} value={l?.location}>
+      {l?.location}
+    </Option>
+  ))}
+</Select>
+
           </div>
 
           <Cardetailsfilter
@@ -870,6 +960,11 @@ handleSearch()
         setBodyType={setBodyType}
         selectedLocation={location}
         setSelectedLocation={setLocation}
+         priceMin={minPrice}               
+        setPriceMin={setMinPrice}         
+        priceMax={maxPrice}              
+        setPriceMax={setMaxPrice}         
+        newUsed={newUsed}     
         onSave={handleSearch}
         setSaveSearchesReload={() => {}}
       />

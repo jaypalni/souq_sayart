@@ -91,9 +91,286 @@
   box-shadow: none;
 }
 .btn-outline-blue:hover, .btn-outline-blue:focus {
-  background: #e3f1ff !important;
-  color: #039be5 !important;
-  border-color: #039be5 !important;
+  background: #f0f8ff !important;
+  color: #027fc1 !important;
+  border-color: #027fc1 !important;
+}
+
+/* Additional styles for converted inline styles */
+
+/* Form Label Styles */
+.form-label-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: #637D92;
+}
+
+/* Input Field Styles */
+.form-input-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: #4A5E6D;
+}
+
+/* Button Styles */
+.btn-back {
+  margin-right: 8px;
+}
+
+.btn-edit-text {
+  color: #FAFAFA;
+  font-weight: 600;
+}
+
+.btn-edit-icon {
+  font-size: 18px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* Avatar and Upload Styles */
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.avatar-upload-wrapper {
+  cursor: pointer;
+}
+
+.avatar-image {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-edit-icon {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: #008AD5;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Document Upload Styles */
+.document-upload-container {
+  margin-bottom: 8px;
+}
+
+.document-upload-content {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.document-icon {
+  margin-right: 8px;
+}
+
+.document-filename {
+  flex: 1;
+  font-size: 14px;
+  color: #1890ff;
+}
+
+.document-download-text {
+  color: #1890ff;
+  font-size: 12px;
+}
+
+/* Layout Styles */
+.profile-header-container {
+  display: flex;
+  align-items: center;
+}
+
+.profile-header-row {
+  margin-bottom: 0;
+}
+
+.radio-group-container {
+  width: 100%;
+  font-size: 12px;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  /* Override Ant Design grid system for mobile */
+  .ant-row.ant-row-gutter-16 > .ant-col,
+  .ant-row.ant-row-gutter-24 > .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+  .myprofile-main {
+    padding: 10px;
+  }
+
+  .myprofile-card {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .profile-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .profile-avatar-name {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-username {
+    margin-left: 0;
+    margin-top: 8px;
+    font-size: 16px;
+  }
+
+  .profile-btns {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .btn-solid-blue,
+  .btn-outline-blue {
+    width: 100%;
+    justify-content: center;
+    font-size: 16px;
+    padding: 0 24px;
+    height: 40px;
+  }
+
+  .form-label-text {
+    font-size: 14px;
+  }
+
+  .form-input-text {
+    font-size: 14px;
+  }
+
+  .avatar-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .avatar-edit-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  /* Mobile form layout - Force single column */
+  .ant-row {
+    flex-direction: column !important;
+    margin: 0 !important;
+  }
+
+  .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    margin-bottom: 16px;
+    padding: 0 !important;
+  }
+
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  /* Ensure all form fields stack vertically on mobile */
+  .ant-row .ant-col {
+    display: block !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .myprofile-main {
+    padding: 5px;
+  }
+
+  .myprofile-card {
+    padding: 12px;
+  }
+
+  .profile-header-row {
+    gap: 12px;
+  }
+
+  .profile-username {
+    font-size: 14px;
+  }
+
+  .btn-solid-blue,
+  .btn-outline-blue {
+    font-size: 14px;
+    height: 36px;
+  }
+
+  .form-label-text {
+    font-size: 13px;
+  }
+
+  .form-input-text {
+    font-size: 13px;
+  }
+
+  .avatar-image {
+    width: 70px;
+    height: 70px;
+  }
+
+  .avatar-edit-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+
+  .document-upload-content {
+    padding: 6px;
+  }
+
+  .document-filename {
+    font-size: 12px;
+  }
+
+  .document-download-text {
+    font-size: 11px;
+  }
+
+  /* Extra small mobile - Ensure single column layout */
+  .ant-row {
+    flex-direction: column !important;
+    margin: 0 !important;
+  }
+
+  .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    margin-bottom: 12px;
+    padding: 0 !important;
+  }
+
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
 }
 
 .ant-menu-item a {

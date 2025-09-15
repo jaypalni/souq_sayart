@@ -13,7 +13,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { authAPI, userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearCustomerDetails } from '../redux/actions/authActions';
+import { clearCustomerDetails, setPhoneLogin } from '../redux/actions/authActions';
 import '../assets/styles/signupOtp.css';
 import '../assets/styles/myProfile.css';
 import profileIcon from '../assets/images/Profile_icon.svg';
@@ -443,7 +443,8 @@ const ChangePhoneNumberPage = () => {
       localStorage.removeItem('fromLogin');
       localStorage.removeItem('userData'); 
       const savePhone = `${selectedCountry.country_code}${phone}`;
-      localStorage.setItem('phonenumber', savePhone);
+      // Update Redux state instead of localStorage
+      dispatch(setPhoneLogin(savePhone));
 
       const response = await userAPI.changephonenumber({
         phone_number: savePhone,

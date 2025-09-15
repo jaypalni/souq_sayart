@@ -7,6 +7,11 @@
 
 import React, { useState } from 'react';
 import '../assets/styles/header.css';
+import '../assets/styles/header-mobile.css';
+import '../assets/styles/header-tablet.css';
+import '../assets/styles/header-medium.css';
+import '../assets/styles/header-large.css';
+import '../assets/styles/header-extra-large.css';
 import iconWhite from '../assets/images/souqLogo.svg';
 import NotifiyImg from '../assets/images/bell.svg';
 import MessagesImg from '../assets/images/messages.svg';
@@ -15,12 +20,15 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Select, message, Dropdown,  Modal, Button } from 'antd';
 import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
+import { useToken } from '../hooks/useToken';
 const Header = () => {
   const dispatch = useDispatch();
   const [messageApi, contextHolder] = message.useMessage();
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const token = useToken();
    const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuList = [
     {
@@ -33,14 +41,14 @@ const Header = () => {
     {
       id: '',
       name: 'Sell',
-      path: '',
+      path: '/sell',
       displayName: '',
       requiresAuth: true,
     },
     {
       id: '',
       name: 'My Listings',
-      path: '',
+      path: '/myListings',
       displayName: '',
       requiresAuth: true,
     },
@@ -104,7 +112,7 @@ const Header = () => {
 
   const comingsoonMessage = (value) => {
     if (value.requiresAuth) {
-      const token = localStorage.getItem('token');
+      // Token is now available from Redux state
       const isGuest = localStorage.getItem('isGuest');
       const isLoggedIn = isAuthenticated || getUserDisplayName() || token;
 
@@ -152,6 +160,19 @@ const Header = () => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleMobileMenuClick = (item) => {
+    closeMobileMenu();
+    comingsoonMessage(item);
+  };
+
   return (
     <>
       <div className="header">
@@ -160,23 +181,63 @@ const Header = () => {
           <div className="col-3 d-flex">
             <button 
               type="button" 
-              className="headerLogo" 
-              style={{cursor:'pointer', background: 'none', border: 'none', padding: 0}} 
+              className="headerLogo header-logo-button" 
               onClick={() => navigate('/')}
             >
               <img src={iconWhite} alt="Logo" />
+            </button>
+            
+            {/* Mobile Icons - Left side */}
+            {getUserDisplayName() && (
+              <div className="mobile-icons-left">
+                <div className="mobile-icon-container">
+                  <img
+                    className="mobile-message-icon"
+                    src={MessagesImg}
+                    alt="Messages"
+                    onClick={() => {
+                      // Add message functionality here
+                      console.log('Messages clicked');
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+                <div className="mobile-icon-container">
+                  <img
+                    className="mobile-notification-icon"
+                    src={NotifiyImg}
+                    alt="Notifications"
+                    onClick={() => {
+                      // Add notification functionality here
+                      console.log('Notifications clicked');
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* Hamburger Menu Button - Right side */}
+            <button 
+              type="button" 
+              className={`hamburger-menu ${isMobileMenuOpen ? 'active' : ''}`}
+              onClick={toggleMobileMenu}
+              aria-label="Toggle mobile menu"
+            >
+              <div className="hamburger-line"></div>
+              <div className="hamburger-line"></div>
+              <div className="hamburger-line"></div>
             </button>
           </div>
           <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (
               <button
                 type="button"
-                className="menuItem mx-3"
+                className="menuItem mx-3 menu-item-button"
                 key={item.name}
                 onClick={() => {
                   comingsoonMessage(item);
                 }}
-                style={{ cursor: 'pointer', background: 'transparent', border: 'none', padding: 0 }}
                 aria-label={`Navigate to ${item.name}`}
               >
                 {item.name}
@@ -188,28 +249,16 @@ const Header = () => {
               <>
                 <div className="menuLeft mx-1">
                   <img
-                    className="headerLogo"
+                    className="headerLogo message-icon"
                     src={MessagesImg}
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      objectFit: 'contain',
-                      marginBottom: '8px',
-                      marginLeft: '0px',
-                    }}
                   />
                 </div>
                 <div className="menuLeft mx-2">
                   <img
-                    className="headerLogo"
+                  height={200}
+                  width={30}
+                    className=" notification-icon"
                     src={NotifiyImg}
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      objectFit: 'contain',
-                      marginBottom: '8px',
-                      marginLeft: '0px',
-                    }}
                   />
                 </div>
               </>
@@ -221,39 +270,20 @@ const Header = () => {
                 trigger={['click']}
               >
                 <div
-                  className="menuLeft mx-2"
-                  style={{
-                    cursor: 'pointer',
-                    fontFamily: 'Roboto',
-                    fontSize: 14,
-                    fontWeight: '400',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
+                  className="menuLeft mx-2 user-dropdown"
                 >
-                  <UserOutlined style={{ fontSize: '16px' }} />
+                  <UserOutlined className="user-dropdown-icon" />
                   {getUserDisplayName()}
-                  <span style={{ fontSize: '12px' }}>▼</span>
+                  <span className="user-dropdown-arrow">▼</span>
                 </div>
               </Dropdown>
             ) : (
               <button
                 type="button"
-                className="menuLeft mx-2"
+                className="menuLeft mx-2 login-button"
                 onClick={() => {
                   localStorage.removeItem('isGuest');
                   navigate('/login');
-                }}
-                style={{
-                  cursor: 'pointer',
-                  fontFamily: 'Roboto',
-                  fontSize: 14,
-                  fontWeight: '400',
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                  color: 'inherit',
                 }}
                 aria-label="Sign up or Login"
               >
@@ -264,25 +294,12 @@ const Header = () => {
               <div className="contct_us_btn">Contact Us</div>
             </div>
             <div
-              className="menuLeft mx-1"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                color: '#fff',
-              }}
+              className="menuLeft mx-1 language-select-container"
             >
               <Select
                 defaultValue="En"
                 bordered={false}
-                style={{
-                  // width: 90,
-                  color: '#FAFAFA',
-                  backgroundColor: 'transparent',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                }}
-                className='laguageSelect'
+                className='laguageSelect language-select'
                 dropdownStyle={{
                   backgroundColor: 'white',
                   boxShadow: 'none',
@@ -304,11 +321,7 @@ const Header = () => {
         title={
           <div className="brand-modal-title-row">
             <span
-              style={{
-                textAlign: 'center',
-                margin: '15px 0px 0px 15px',
-                fontWeight: 700,
-              }}
+              className="modal-title-text"
             >
               Are you sure you want to log out?
             </span>
@@ -317,45 +330,117 @@ const Header = () => {
         width={350}
       >
         <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '10px',
-            padding: '2px',
-            marginTop: '15px',
-          }}
+          className="modal-button-container"
         >
           <Button
             onClick={() => setLogoutModalOpen(false)}
-            style={{
-              width: 120,
-              backgroundColor: '#ffffff',
-              color: '#008AD5',
-              borderColor: '#008AD5',
-              borderWidth: 1,
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
+            className="modal-cancel-button"
           >
             Cancel
           </Button>
           <Button
             type="primary"
             onClick={handleLogout}
-            style={{
-              width: 120,
-              backgroundColor: '#008AD5',
-              color: '#ffffff',
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
+            className="modal-confirm-button"
           >
             Confirm
           </Button>
         </div>
       </Modal>
+
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}
+        onClick={closeMobileMenu}
+      ></div>
+
+      {/* Mobile Menu Panel */}
+      <div className={`mobile-menu-panel ${isMobileMenuOpen ? 'active' : ''}`}>
+        <div className="mobile-menu-header">
+          <img src={iconWhite} alt="Logo" className="mobile-menu-logo" />
+          {/* <button 
+            type="button" 
+            className="mobile-menu-close"
+            onClick={closeMobileMenu}
+            aria-label="Close mobile menu"
+          >
+            ×
+          </button> */}
+        </div>
+
+        <div className="mobile-menu-items">
+          {menuList.map((item) => (
+            <button
+              key={item.name}
+              type="button"
+              className="mobile-menu-item"
+              onClick={() => handleMobileMenuClick(item)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Mobile Menu User Section */}
+        <div className="mobile-menu-user-section">
+          {getUserDisplayName() && getUserDisplayName() !== 'Guest' ? (
+            <Dropdown
+              menu={{ items: userMenuItems }}
+              placement="bottomRight"
+              trigger={['click']}
+            >
+              <div className="mobile-menu-user-dropdown">
+                <UserOutlined className="mobile-menu-user-icon" />
+                {getUserDisplayName()}
+                <span className="mobile-menu-dropdown-arrow">▼</span>
+              </div>
+            </Dropdown>
+          ) : (
+            <button
+              type="button"
+              className="mobile-menu-login"
+              onClick={() => {
+                closeMobileMenu();
+                localStorage.removeItem('isGuest');
+                navigate('/login');
+              }}
+            >
+              Sign up / Login
+            </button>
+          )}
+        </div>
+
+        {/* Mobile Menu Language Select */}
+        <div className="mobile-menu-language-section">
+          <Select
+            defaultValue="En"
+            bordered={false}
+            className="mobile-menu-language-select"
+            dropdownStyle={{
+              backgroundColor: 'white',
+              boxShadow: 'none',
+            }}
+            onChange={(value) => console.log('Selected:', value)}
+          >
+            <Option value="En">English</Option>
+            <Option value="Ar">أرابيك</Option>
+            <Option value="Ku">کوردی</Option>
+          </Select>
+        </div>
+
+        <div className="mobile-menu-actions">
+          <button 
+            type="button" 
+            className="mobile-menu-contact"
+            onClick={() => {
+              closeMobileMenu();
+              // Add contact us functionality here
+            }}
+          >
+            Contact Us
+          </button>
+        </div>
+      </div>
 
       </div>
     </>

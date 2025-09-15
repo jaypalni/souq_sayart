@@ -1,28 +1,36 @@
+/* Base Header Styles - Common styles for all screen sizes */
+
 .header {
   background-color: #008ad5;
   padding: 10px;
   color: #fff;
 }
+
 .headerLogo {
   height: 70px;
   width: 125px;
-  margin-left: 15px;
+  /* margin-left: 15px; */
   margin-top: 5px;
 }
+
 .menuItem {
   color: #fff;
   font-weight: 700;
   font-size: 16px;
   font-family: "Roboto", sans-serif;
+  white-space: nowrap;
 }
+
 .remove_gutter {
   --bs-gutter-x: 0rem !important;
 }
+
 .menuLeft {
   color: #fff;
   font-weight: 400;
   font-size: 18px;
 }
+
 .contct_us_btn {
   font-weight: 700;
   background-color: #d67900;
@@ -36,89 +44,251 @@
   font-family: "Roboto", sans-serif;
   font-size: 14px;
   color: #fff;
+  white-space: nowrap;
 }
 
-@media (max-width: 767px) {
-  .header {
-    padding: 6px 0 6px 0;
-  }
-  .headerLogo {
-    height: 38px;
-    width: 90px;
-    margin-left: 10px;
-    margin-top: 4px;
-  }
-  .row.remove_gutter {
-    flex-direction: column !important;
+/* Header Logo Button Styles */
+.header-logo-button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.header-logo-button >img {
+  height: 100%;
+  width: 100%;
+}
+/* Hide hamburger menu by default (desktop) */
+.hamburger-menu {
+  display: none;
+}
+
+/* Hide mobile menu overlay and panel on desktop */
+.mobile-menu-overlay,
+.mobile-menu-panel {
+  display: none;
+}
+
+/* Hide mobile icons on desktop */
+.mobile-icons-left {
+  display: none;
+}
+
+/* Show mobile icons on tablet and mobile - higher specificity */
+@media (max-width: 991px) {
+  .header .mobile-icons-left {
+    display: flex !important;
     align-items: center;
-  }
-  .col-3,
-  .col-6 {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 0 0 100% !important;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 8px;
-  }
-  .menuItem {
-    font-size: 16px;
-    margin: 0 8px !important;
-    padding: 6px 0;
-  }
-  .menuLeft {
-    font-size: 15px;
-    margin: 0 6px !important;
-    padding: 6px 0;
-  }
-  .contct_us_btn {
-    font-size: 14px;
-    padding: 7px 16px;
-    height: 32px;
-  }
-  .footer-main-row {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 0 10px !important;
-  }
-  .footer-logo-col,
-  .footer-columns-col,
-  .footer-app-col {
-    min-width: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 18px !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .footer-logo-col .footerLogoImg {
-    width: 100px !important;
-    margin-bottom: 10px !important;
-  }
-  .footer-columns-col {
-    flex-direction: column !important;
-    gap: 12px !important;
-    align-items: center !important;
-  }
-  .footer-app-col {
-    min-width: 0 !important;
-    width: 100% !important;
-    align-items: center !important;
-    margin-bottom: 10px !important;
-  }
-  .footer-app-col img {
-    width: 120px !important;
-    height: auto !important;
-    margin-bottom: 8px !important;
-  }
-  .footer-copyright {
-    padding: 12px 10px 8px 10px !important;
-    font-size: 12px !important;
-    text-align: center !important;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 10px;
   }
 }
 
+/* Menu Item Button Styles */
+.menu-item-button {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Message and Notification Icon Styles */
+.message-icon,
+.notification-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  /* margin-bottom: 8px; */
+  margin-left: 0px;
+}
+
+/* User Dropdown Styles */
+.user-dropdown {
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fafafa !important;
+}
+
+.user-dropdown-icon {
+  font-size: 16px;
+}
+
+.user-dropdown-arrow {
+  font-size: 12px;
+}
+
+/* High specificity overrides for user dropdown */
+.header .menuLeft.user-dropdown,
+.header .col-4 .menuLeft.user-dropdown,
+.header .row .col-4 .menuLeft.user-dropdown {
+  color: #fafafa !important;
+}
+
+/* Override for user dropdown text content */
+.header .menuLeft.user-dropdown span,
+.header .col-4 .menuLeft.user-dropdown span,
+.header .row .col-4 .menuLeft.user-dropdown span {
+  color: #fafafa !important;
+}
+
+/* Override for user dropdown icon */
+.header .menuLeft.user-dropdown .user-dropdown-icon,
+.header .col-4 .menuLeft.user-dropdown .user-dropdown-icon,
+.header .row .col-4 .menuLeft.user-dropdown .user-dropdown-icon {
+  color: #fafafa !important;
+}
+
+/* Override for user dropdown arrow */
+.header .menuLeft.user-dropdown .user-dropdown-arrow,
+.header .col-4 .menuLeft.user-dropdown .user-dropdown-arrow,
+.header .row .col-4 .menuLeft.user-dropdown .user-dropdown-arrow {
+  color: #fafafa !important;
+}
+
+/* Login Button Styles */
+.login-button {
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Language Select Container Styles */
+.language-select-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+
+.language-select {
+  color: #fafafa !important;
+  background-color: transparent;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.language-select .ant-select-selector {
+  color: #fafafa !important;
+  background-color: transparent !important;
+}
+
+.language-select .ant-select-selection-item {
+  color: #fafafa !important;
+}
+
+.language-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* More specific selectors to override any conflicting styles */
+.language-select-container .ant-select,
+.language-select-container .ant-select-single,
+.language-select-container .ant-select-single .ant-select-selector,
+.language-select-container .ant-select-single .ant-select-selector .ant-select-selection-item,
+.language-select-container .ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* Override any global ant-select styles */
+.header .language-select-container .ant-select-single .ant-select-selector .ant-select-selection-item,
+.header .language-select-container .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+  color: #fafafa !important;
+}
+
+.header .language-select-container .ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* Additional specificity for the language select class */
+.laguageSelect.ant-select-single .ant-select-selector .ant-select-selection-item,
+.laguageSelect.ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+  color: #fafafa !important;
+}
+
+.laguageSelect.ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* Highest specificity overrides - should override any conflicting styles */
+.header .menuLeft .language-select-container .ant-select-single .ant-select-selector .ant-select-selection-item,
+.header .menuLeft .language-select-container .ant-select-single .ant-select-selector .ant-select-selection-placeholder,
+.header .menuLeft .language-select-container .ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* Override for the specific class name used in the component */
+.header .menuLeft .laguageSelect.ant-select-single .ant-select-selector .ant-select-selection-item,
+.header .menuLeft .laguageSelect.ant-select-single .ant-select-selector .ant-select-selection-placeholder,
+.header .menuLeft .laguageSelect.ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* Most specific override for the exact class combination */
+.header .menuLeft .language-select-container .laguageSelect.language-select.ant-select-single .ant-select-selector .ant-select-selection-item,
+.header .menuLeft .language-select-container .laguageSelect.language-select.ant-select-single .ant-select-selector .ant-select-selection-placeholder,
+.header .menuLeft .language-select-container .laguageSelect.language-select.ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+/* Nuclear option - highest possible specificity */
+.header .row .col-4 .menuLeft.language-select-container .laguageSelect.language-select.ant-select-single .ant-select-selector .ant-select-selection-item,
+.header .row .col-4 .menuLeft.language-select-container .laguageSelect.language-select.ant-select-single .ant-select-selector .ant-select-selection-placeholder,
+.header .row .col-4 .menuLeft.language-select-container .laguageSelect.language-select.ant-select .ant-select-arrow {
+  color: #fafafa !important;
+}
+
+.language-select-dropdown {
+  background-color: white;
+  box-shadow: none;
+}
+
+/* Modal Styles */
+.modal-title-text {
+  text-align: center;
+  margin: 15px 0px 0px 15px;
+  font-weight: 700;
+}
+
+.modal-button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 2px;
+  margin-top: 15px;
+}
+
+.modal-cancel-button {
+  width: 120px;
+  background-color: #ffffff;
+  color: #008AD5;
+  border-color: #008AD5;
+  border-width: 1px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 24px;
+}
+
+.modal-confirm-button {
+  width: 120px;
+  background-color: #008AD5;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 24px;
+}
+
+/* Ant Design Select Overrides */
 .menuLeft
   > :where(.css-dev-only-do-not-override-1m2bkf9).ant-select-single
   .ant-select-selector
@@ -131,15 +301,14 @@
 
 :where(.css-dev-only-do-not-override-1m2bkf9).ant-select .ant-select-arrow {
   color: #fafafa !important;
-  top :54% !important;
-
+  top: 54% !important;
 }
+
 .laguageSelect :where(.css-1m2bkf9).ant-select-single .ant-select-selector {
   color: #fafafa !important;
 }
 
 :where(.css-1m2bkf9).ant-select .ant-select-arrow {
-    align-items: center;
-    color: #fafafa;}
-
-   
+  align-items: center;
+  color: #fafafa;
+}

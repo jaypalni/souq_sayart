@@ -12,32 +12,36 @@ const JUSTIFY_SPACE_BETWEEN = 'space-between';
 
 const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   const [activeDropdownId, setActiveDropdownId] = useState(null);
+  const BASE_URL = process.env.REACT_APP_API_URL;
   const getTagProps = () => {
-    const mapping = {
-      'Active-Sport': { bg: COLORS.activeTagBg, color: COLORS.activeTagColor, label: 'Active' },
-      'Active-Base': { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: 'Pending Approval' },
-      'Sold': { bg: COLORS.soldTagBg, color: COLORS.soldTagColor, label: 'Sold' },
-    };
-    let key;
-    if (value === STATUS_ACTIVE) {
-      key = `Active-${filterStatus}`;
-    } else if (value === STATUS_SOLD) {
-      key = STATUS_SOLD;
-    } else {
-      key = 'Default';
-    }
-    if (key === 'Default') {
-      return { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.status };
-    }
-    return mapping[key];
+  const mapping = {
+    'Active-Sport': { bg: COLORS.activeTagBg, color: COLORS.activeTagColor, label: 'Active' },
+    'Active-Base': { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: 'Pending Approval' },
+    'Sold': { bg: COLORS.soldTagBg, color: COLORS.soldTagColor, label: 'Sold' },
   };
+  const json = encodeURIComponent(JSON.stringify(car));
+
+  let key;
+  if (value === STATUS_ACTIVE) {
+    key = `Active-${filterStatus}`;
+  } else if (value === STATUS_SOLD) {
+    key = STATUS_SOLD;
+  } else {
+    key = 'Default';
+  }
+
+  // Use fallback if key is not in mapping
+  return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.status || 'Unknown' };
+};
+
 
   const tagProps = getTagProps();
 
-  const CARD_WIDTH = '308px';
+  const CARD_WIDTH = 'auto';
 
   // Precompute values to avoid ternaries in JSX
-  const imageSrc = car.image || '/default-car.png';
+  const imageSrc = car.car_image || '/default-car.png';
+  
   const imageHeight = value === STATUS_ACTIVE ? '144px' : '109px';
 
   const toggleDropdown = (nextId) => {
@@ -64,14 +68,15 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
     >
       <div style={{ display: 'flex', gap: '12px' }}>
         <img
-          src={imageSrc}
+          // src={imageSrc}
+          src={`${BASE_URL}${imageSrc}`}
           alt="car"
           style={{ width: 137, height: imageHeight, borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
         />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, alignItems: 'flex-start', marginTop: '10px', marginRight: '10px' }}>
             <h3 style={{ margin: 0, fontSize: FONT_SIZES.large, fontWeight: 700 }}>{car.ad_title}</h3>
-            {value === STATUS_ACTIVE && (
+            {value === STATUS_ACTIVE && car.status === 'approved' && (
               <button
                 onClick={() => toggleDropdown(car.id)}
                 style={{ height: '20px', width: '20px', background: 'transparent', border: 'none', cursor: 'pointer' }}
@@ -81,9 +86,17 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
             )}
           </div>
 
-          <div style={{ color: COLORS.boostBg, fontWeight: 700, fontSize: FONT_SIZES.medium, marginTop: '4px' }}>
-            {'$' + car.price}
-          </div>
+<div
+  style={{
+    color: COLORS.boostBg,
+    fontWeight: 700,
+    fontSize: FONT_SIZES.medium,
+    marginTop: '4px',
+  }}
+>
+  {'IQD ' + Number(car.price).toLocaleString()}
+</div>
+
 
           <Tag
             color={tagProps.bg}
@@ -114,15 +127,44 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
 
       <div>
         <div style={{ marginTop: '10px', color: COLORS.primary, fontSize: FONT_SIZES.small, fontWeight: 400 }}>
-          {car.updated_at}
+          {car.updated_at
+  ? new Date(car.updated_at).toLocaleDateString('en-US', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+  : ''}
+
         </div>
         <div style={{ marginTop: '10px', display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, gap: '10px' }}>
-          <Button type="default" danger onClick={() => handleDelete(car.id)} style={{ flex: 1, borderRadius: BORDER_RADIUS.button }}>
-            Delete
-          </Button>
-          <Button type="primary" onClick={() => navigate(`/carDetails/${car.id}`)} style={{ flex: 1, borderRadius: BORDER_RADIUS.button }}>
-            Edit
-          </Button>
+        <Button
+    type="default"
+    onClick={() => handleDelete(car.id)}
+    style={{
+      flex: 1,
+      borderRadius: BORDER_RADIUS.button,
+      color: '#008AD5',         
+      borderColor: '#008AD5',    
+      backgroundColor: '#fff',  
+    }}
+  >
+    Delete
+  </Button>
+
+  <Button
+    type="primary"
+    onClick={() => navigate('/sell', { state: { extras: car } })}
+    style={{
+      flex: 1,
+      borderRadius: BORDER_RADIUS.button,
+      backgroundColor: '#008AD5', 
+      color: '#fff',               
+      borderColor: '#008AD5',      
+    }}
+  >
+    Edit
+  </Button>
         </div>
       </div>
     </div>

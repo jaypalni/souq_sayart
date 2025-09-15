@@ -311,7 +311,7 @@ const Removefavcarapi = async (carId) => {
         {isLoading ? (
           // Show skeleton loaders while loading
           Array.from({ length: 8 }).map((_, index) => (
-            <div className="col-3 p-0" key={`skeleton-${index}`}>
+            <div className="col-3 col-md-4 col-sm-6 p-0" key={`skeleton-${index}`}>
               <div className="allcars-listing-card">
                 <Skeleton.Image 
                   // style={{ }} 
@@ -335,7 +335,7 @@ const Removefavcarapi = async (carId) => {
           carsToDisplay && carsToDisplay.length > 0 ? (() => {
             return carsToDisplay.map((car) => {
               return (
-      <div className="col-3 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
+      <div className="col-3 col-lg-3 col-xl-3  col-md-6 col-sm-6 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
         <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
           <div className="car-listing-image-wrapper">
             <img

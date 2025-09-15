@@ -6,6 +6,7 @@ import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { verifyOTP } from '../redux/actions/authActions';
 import { message } from 'antd';
+import { useToken } from '../hooks/useToken';
 
 const SignupOtp = () => {
   const dispatch = useDispatch();
@@ -18,16 +19,33 @@ const SignupOtp = () => {
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { user } = useSelector(state => state.auth);
+  const { user, phone_login } = useSelector(state => state.auth);
   const { customerDetails } = useSelector(state => state.customerDetails);
-  const isLoggedIn = customerDetails && user;
+  const token = useToken();
+  
+  const phoneToUse = phone_login;
+  
+ 
+  const fromLogin = localStorage.getItem('fromLogin');
+  const isLoggedIn = customerDetails && user && !fromLogin;
+  
 
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
 
   // Redirect if already logged in
   useEffect(() => {
-    if (isLoggedIn) navigate('/landing');
+    console.log('OTP Screen useEffect - isLoggedIn:', isLoggedIn);
+    console.log('OTP Screen useEffect - fromLogin:', fromLogin);
+    console.log('OTP Screen useEffect - user:', user);
+    console.log('OTP Screen useEffect - customerDetails:', customerDetails);
+    
+    if (isLoggedIn) {
+      console.log('Redirecting to landing because user is logged in');
+      navigate('/landing');
+    } else {
+      console.log('User not logged in or coming from login flow, staying on OTP screen');
+    }
   }, [isLoggedIn, navigate]);
 
   // Format timer display
@@ -128,18 +146,101 @@ const SignupOtp = () => {
   // Continue button handler
   const handleContinue = async () => {
     if (!validateOtp()) return;
+    
+    // Check if phone number is available
+    if (!phoneToUse || phoneToUse === 'unknown' || phoneToUse === 'undefined') {
+      messageApi.error('Phone number not found. Please go back and try again.');
+      return;
+    }
 
     try {
       setLoading(true);
       const userData = JSON.parse(localStorage.getItem('userData'));
-      const otpPayload = { otp: otp.join(''), request_id: userData.request_id };
+      const otpPayload = { 
+        otp: otp.join(''), 
+        request_id: userData.request_id,
+        phone_number: phoneToUse // Add phone number to the payload
+      };
+      
+      console.log('OTP Payload being sent:', otpPayload);
+      console.log('Phone number being sent:', phoneToUse);
+      
       const result = await dispatch(verifyOTP(otpPayload));
 
+      console.log('OTP Verification Result:', result);
+      console.log('Result data:', result.data);
+      console.log('is_registered value:', result.data?.is_registered);
+      console.log('Result success:', result.success);
+      console.log('Result error:', result.error);
+
       if (result.success) {
-        localStorage.setItem('token', result.data.access_token);
+        // Token is now managed by Redux, no need to set in localStorage
         messageApi.success(result.message);
-        navigate(result.data.is_registered ? '/landing' : '/createProfile');
+        
+        // Check for is_registered in different possible locations
+        let isRegistered = result.data?.is_registered;
+        
+        console.log('Direct is_registered from API:', isRegistered);
+        console.log('Type of is_registered:', typeof isRegistered);
+        
+        // If is_registered is explicitly false, use that
+        if (isRegistered === false) {
+          console.log('is_registered is explicitly false, user is not registered');
+        } else if (isRegistered === true) {
+          console.log('is_registered is explicitly true, user is registered');
+        } else {
+          // Only check other sources if is_registered is not explicitly set
+          isRegistered = result.data?.user?.is_registered || 
+                        result.data?.isRegistered ||
+                        result.data?.user?.isRegistered;
+          
+          console.log('is_registered from other sources:', isRegistered);
+          
+          // If still not found, check if user has profile data
+          if (isRegistered === undefined || isRegistered === null) {
+            const user = result.data?.user;
+            console.log('User object for profile check:', user);
+            console.log('User profile fields:', {
+              first_name: user?.first_name,
+              last_name: user?.last_name,
+              email: user?.email,
+              phone_number: user?.phone_number
+            });
+            
+            // If user has complete profile data, consider them registered
+            isRegistered = user && (
+              user.first_name && 
+              user.last_name && 
+              user.email && 
+              user.phone_number
+            );
+            console.log('is_registered not found, checking user profile completeness:', isRegistered);
+          }
+          
+          // Final fallback - if still undefined, default to false (not registered)
+          if (isRegistered === undefined || isRegistered === null) {
+            isRegistered = false;
+            console.log('is_registered still undefined, defaulting to false');
+          }
+        }
+        
+        console.log('Final is_registered value:', isRegistered);
+        
+        // Clear the fromLogin flag after successful OTP verification
+        localStorage.removeItem('fromLogin');
+        
+        // Navigate based on registration status
+        if (isRegistered) {
+          console.log('User is registered, navigating to landing');
+          navigate('/landing');
+        } else {
+          console.log('User is not registered, navigating to create profile');
+          // Set flag to indicate coming from OTP verification
+          localStorage.setItem('fromOtpVerification', 'true');
+          navigate('/createProfile');
+        }
       } else {
+        console.log('OTP verification failed, showing error:', result.error);
         messageApi.error(result.error);
       }
     } catch {
@@ -152,8 +253,16 @@ const SignupOtp = () => {
   const handleResend = async () => {
     try {
       setLoading(true);
-      const phone_number = localStorage.getItem('phone_number');
-      const response = await authAPI.resendotp({ phone_number });
+      
+      // Use only phone_login from Redux - no other sources
+      const phoneToUse = phone_login;
+      
+      if (!phoneToUse) {
+        messageApi.error('Phone number not found. Please start over.');
+        return;
+      }
+      
+      const response = await authAPI.resendotp({ phone_number: phoneToUse });
       const data = handleApiResponse(response);
 
       if (data) {

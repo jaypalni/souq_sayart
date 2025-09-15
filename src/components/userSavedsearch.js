@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import '../assets/styles/usersavedsearches.css';
 import carImage from '../assets/images/subscribecar_icon.png';
@@ -16,6 +17,8 @@ import { useNavigate } from 'react-router-dom';
 import diamondGif from '../assets/images/diamondGif.gif';
 import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
+import { useToken } from '../hooks/useToken';
+import { useTokenWithInitialization } from '../hooks/useTokenWithInitialization';
 
 const MAX_SAVED_SEARCHES = 3;
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -29,15 +32,15 @@ const buildMakeImageSrc = (item) => {
 const buildPriceText = (sp) => {
   const hasRange = Boolean(sp?.price_min) || Boolean(sp?.price_to);
   if (!hasRange) {
-    return '$0';
+    return 'IQD 0';
   }
   let left = '';
   if (sp?.price_min) {
-    left = `$${sp.price_min}`;
+    left = `IQD ${sp.price_min}`;
   }
   let right = '';
   if (sp?.price_to) {
-    right = ` - $${sp.price_to}`;
+    right = ` - IQD ${sp.price_to}`;
   }
   return `${left}${right}`;
 };
@@ -85,8 +88,9 @@ const SavedSearchCard = ({ item, idx, total }) => {
   const priceText = buildPriceText(sp);
   const yearText = buildYearText(sp);
   const imgSrc = buildMakeImageSrc(item);
-  const makeDisplay = sp?.make || 'Unknown Make';
-  const makeAlt = sp?.make || 'Car';
+  const makeDisplay =  item?.name || 'Unknown Make';
+  console.log('Make',  item?.name)
+  const makeAlt =  item?.name || 'Car';
 
   return (
     <div className={`user-saved-search-section${divider}`} key={item.id}>
@@ -133,7 +137,7 @@ const SignupBox = ({ onClick, title, buttonText }) => (
     </div>
     <div>
       <h1>{title}</h1>
-      <p style={{ fontSize: '16px', fontWeight: '400' }}>
+      <p className="signup-description-text">
         Find your saved searches right here. Get alerts for new listings.
       </p>
       <button className="signup-btn" onClick={onClick}>
@@ -154,22 +158,12 @@ const ModalComingSoon = ({ onClose }) => (
     <div className="modal-content">
       <img src={diamondGif} alt="Diamond" className="modal-image" />
       <p
-        style={{
-          fontSize: '16px',
-          color: '#0A0A0B',
-          fontWeight: 700,
-          marginBottom: '4px',
-        }}
+        className="modal-title-text"
       >
         This Feature is coming soon
       </p>
       <p
-        style={{
-          fontSize: '12px',
-          color: '#898384',
-          fontWeight: 400,
-          marginTop: '0',
-        }}
+        className="modal-subtitle-text"
       >
         you could try to remove some filters:
       </p>
@@ -186,19 +180,32 @@ ModalComingSoon.propTypes = {
 
 const UserSavedsearch = ({title,savesearchesreload}) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [tokenReady, setTokenReady] = useState(false);
+  const { token, isReady, isAuthenticated } = useTokenWithInitialization();
+  const authState = useSelector(state => state.auth);
+  
+  const isLoggedIn = isAuthenticated;
+  // Effect to handle token readiness
 
-  const tokendata = localStorage.getItem('token');
-  const isLoggedIn = !!tokendata;
-console.log('savesearchesreload',JSON.stringify(savesearchesreload))
+
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchSavedSearches();
-
+    // If user is authenticated, consider them ready even if token is undefined
+    // This handles cases where authentication state is managed differently
+    if (isReady && (isAuthenticated || (token && token !== 'undefined' && token !== 'null'))) {
+      setTokenReady(true);
+    } else {
+      setTokenReady(false);
     }
-  }, [isLoggedIn, savesearchesreload]);
+  }, [isReady, token, isAuthenticated]);
+  useEffect(() => {
+    if (isLoggedIn && tokenReady) {
+      fetchSavedSearches();
+    }
+  }, [isLoggedIn, tokenReady, savesearchesreload]);
 
   const fetchSavedSearches = async () => {
     try {
@@ -216,13 +223,14 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
   };
 
   const getSavedSearchView = () => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !tokenReady) {
       return 'notLoggedIn';
     }
+   
     if (loading) {
       return 'loading';
     }
-    if (savedSearches.length === 0) {
+    if (authState?.isAuthenticated  && savedSearches.length === 0) {
       return 'empty';
     }
     return 'list';
@@ -248,7 +256,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
           <SignupBox
             onClick={() => window.scrollTo({ top: 260, behavior: 'smooth' })}
             title="You have no Saved searches"
-            buttonText="Start Searching"
+            buttonText="Start Searching "
           />
         );
       }
@@ -274,12 +282,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
     <div className="user-saved-searches-wrapper">
       <div className="Search-header">
         <h1
-          style={{
-            fontWeight: '700',
-            fontSize: '32px',
-            marginBottom: '24px',
-            marginTop: '24px',
-          }}
+          className="user-saved-searches-title"
         >
           {title || 'Your Saved Searches'}
         </h1>
@@ -301,14 +304,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
               <img src={diamondLogo} alt="Diamond" className="action-icon" />
               <button
                 type="button"
-                style={{
-                  fontSize: '14px',
-                  color: '#0A0A0B',
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                }}
+                className="action-button"
                 onClick={() => setIsModalOpen(true)}
               >
                 Value your car with our free online valuation
@@ -319,14 +315,7 @@ console.log('savesearchesreload',JSON.stringify(savesearchesreload))
               <img src={dollarLogo} alt="Dollar" className="action-icon" />
               <button
                 type="button"
-                style={{
-                  fontSize: '14px',
-                  color: '#0A0A0B',
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                }}
+                className="action-button"
                 onClick={() => setIsModalOpen(true)}
               >
                 List your car or get a free Instant Offer

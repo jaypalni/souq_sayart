@@ -6,21 +6,17 @@
  */
 
 import React, { useState,useRef, useEffect} from 'react';
-import { Layout, Menu, Avatar, Button, Modal, message,Switch } from 'antd';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
+import { Layout, Button, Modal, message } from 'antd';
 import { AiOutlineLeft } from 'react-icons/ai';
 import {
   Routes,
   Route,
-  Link,
   useLocation,
   useNavigate,
 } from 'react-router-dom';
 import { userAPI } from '../services/api';
 import MyProfileForm from '../components/MyProfileForm';
+import MyProfileMenu from '../components/MyProfileMenu';
 import '../assets/styles/myProfile.css';
 import SavedSearches from '../components/savedSearches';
 import Favorites from '../components/favorites';
@@ -29,22 +25,8 @@ import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useSelector,useDispatch } from 'react-redux';
 import { clearCustomerDetails } from '../redux/actions/authActions';
-import profileIcon from '../assets/images/Profile_icon.svg';
-import subsriptionIcon from '../assets/images/Subscriptions_icon.png';
-import messageIcon from '../assets/images/Messages_icon.png';
-import notificationIcon from '../assets/images/Notification_icon.png';
-import searchesIcon from '../assets/images/Capa_1.png';
-import paymentIcon from '../assets/images/Payment_icon.png';
-import blockIcon from '../assets/images/Block_icon.png';
-import dealerIcon from '../assets/images/Dealer_icon.png';
-import favoriteIcon from '../assets/images/Favorites_icon.png';
-import whatsupIcon from '../assets/images/Whatsup.png';
-import logoutIcon from '../assets/images/Logout_icon.png';
-import deleteIcon from '../assets/images/Delete_icon.png';
 
-const { Sider, Content } = Layout;
-
-
+const { Content } = Layout;
 
 const MyProfile = () => {
   const location = useLocation();
@@ -52,9 +34,6 @@ const MyProfile = () => {
   const dispatch = useDispatch();
   const [, setLoading] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const selectedKey = location.pathname.split('/')[2] || 'profile';
   const [messageApi, contextHolder] = message.useMessage();
   const [, setDeleteData] = useState([]);
@@ -62,79 +41,37 @@ const MyProfile = () => {
   const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
-  const [whatsappNotification, setWhatsappNotification] = useState(false);
-  const [whatsappLoading, setWhatsappLoading] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const { customerDetails } = useSelector((state) => state.customerDetails);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  
+  // Debug Redux state
+  console.log('MyProfile Redux state:', {
+    customerDetails,
+    user,
+    isAuthenticated
+  });
+  
+  // Helper function to get user data from either source
+  const getUserData = () => {
+    return customerDetails || user || {};
+  };
+  
+  const userData = getUserData();
+  console.log('MyProfile userData:', userData);
    const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
    const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
    const [selectedManageKey, setSelectedManageKey] = useState(null);
 
-
-   const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
-   {
-      key: 'delete',
-      icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
-      label: 'Delete Account',
-      disabled: isDeleteDisabled, 
-    },
-];
-
  useEffect(() => {
-    
     const timer = setTimeout(() => {
       setIsDeleteDisabled(false);
     }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const response = await userAPI.getProfile({});
-        const profileData = handleApiResponse(response);
-
-        if (profileData) {
-          setWhatsappNotification(profileData?.data?.whatsapp);
-          
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile data:', error);
-      }
-    };
-
-    fetchProfileData();
-  }, []);
-
-  const handleWhatsappToggle = async (checked) => {
-    try {
-      setWhatsappLoading(true);
-            const whatsappValue = checked ? 1 : 0;
-            const response = await userAPI.updateProfile({ whatsapp: whatsappValue });
-      const result = handleApiResponse(response);
-      
-      if (result) {
-        setWhatsappNotification(checked);
-        messageApi.open({
-          type: 'success',
-          content: 'WhatsApp notification preference updated successfully!',
-        });
-      }
-    } catch (error) {
-      setWhatsappNotification(!checked);
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.message || 'Failed to update WhatsApp preference',
-      });
-    } finally {
-      setWhatsappLoading(false);
-    }
-  };
 
   useEffect(() => {
       const fromLogin = localStorage.getItem('fromLogin');
@@ -178,11 +115,19 @@ const MyProfile = () => {
       return () => clearInterval(interval);
     }, [isTimerRunning, timer]);
 
-  const handleLogout = () => {
-    setLogoutModalOpen(false);
-     
+  // Menu handlers
+  const handleMenuClick = ({ key }) => {
+    // Handle any additional menu logic if needed
+  };
+
+  const handleDeleteClick = () => {
+    // Delete modal is now handled by MyProfileMenu component
+  };
+
+  const handleLogoutClick = () => {
     userlogout();
   };
+
 
   const handleDelete = async () => {
       try {
@@ -377,183 +322,6 @@ const MyProfile = () => {
       }
     };
 
-    const menuItems = [
-      {
-        key: 'Personal Informations',
-        label: (
-          <Link
-            to="/myProfile"
-            style={{
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#0A0A0B',
-            }}
-          >
-            {' '}
-            Personal Informations
-          </Link>
-        ),
-      },
-      {
-        key: 'profile',
-        icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Profile
-          </Link>
-        ),
-      },
-      {
-        key: 'subscriptions',
-        icon: <img src={subsriptionIcon} alt="Profile" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/subscriptions"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Subscriptions
-          </Link>
-        ),
-      },
-      {
-        key: 'messages',
-        icon: <img src={messageIcon} alt="Message" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/messages"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Messages
-          </Link>
-        ),
-      },
-      {
-        key: 'notifications',
-        icon: <img src={notificationIcon} alt="Notification" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/notifications"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Manage Notifications
-          </Link>
-        ),
-      },
-      {
-        key: 'searches',
-        icon: <img src={searchesIcon} alt="Searches" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/searches"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Saved Searches
-          </Link>
-        ),
-      },
-      {
-        key: 'payments',
-        icon: <img src={paymentIcon} alt="Payment" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/payments"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Payments
-          </Link>
-        ),
-      },
-      {
-        key: 'blocked',
-        icon: <img src={blockIcon} alt="Block" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/blocked"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Blocked users
-          </Link>
-        ),
-      },
-      {
-        key: 'dashboard',
-        icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/dashboard"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Dealership Dashboard
-          </Link>
-        ),
-      },
-      {
-        key: 'favorites',
-        icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,
-        label: (
-          <Link
-            to="/myProfile/favorites"
-            style={{
-              fontSize: '12px',
-              fontWeight: 400,
-              color: '#0A0A0B',
-            }}
-          >
-            Favorites
-          </Link>
-        ),
-      },
-       {
-        key: 'whatsapp',
-        icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
-        label: (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>WhatsApp</span>
-            <Switch 
-              size="small" 
-              checked={whatsappNotification}
-              onChange={handleWhatsappToggle}
-              loading={whatsappLoading}
-            />
-          </div>
-        ),
-      },
-    ];
 
     return (
     <>
@@ -563,64 +331,14 @@ const MyProfile = () => {
                   <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
      </div>
       <Layout style={{ background: '#fff' }}>
-        <Sider
-          width={260}
-          collapsible
-          collapsed={collapsed}
-          trigger={null}
-          style={{
-            background: '#fff',
-            borderRight: '1px solid #f0f0f0',
-            padding: '32px 0 0 0',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 4,padding:'0 24px' }}>
-  <Avatar
-    size={48}
-    style={{
-      background: '#e3f1ff',
-      color: '#1890ff',
-      fontWeight: 700,
-    }}
-  >
-    RD
-  </Avatar>
-  {!collapsed && <div style={{ fontWeight: 600 }}>{customerDetails.first_name + ' ' + customerDetails.last_name}</div>}
-</div>
-
-          <Menu mode="inline" selectedKeys={[selectedKey]} style={{ borderRight: 0 }} items={menuItems} />
-
-          <div style={{ marginTop: 32 }}>
-            <div
-              style={{
-                padding: '0 24px',
-                color: '#0A0A0B',
-                fontWeight: 700,
-                fontSize: 15,
-                marginBottom: 8,
-              }}
-            >
-              Manage Account
-            </div>
-            <Menu
-              mode="inline"
-              style={{ borderRight: 0, fontWeight: 400, fontSize: '12px' }}
-              items={manageItems}
-             onClick={({ key }) => {
-                if (key === 'logout') setLogoutModalOpen(true);
-                if (key === 'delete' && !isDeleteDisabled) setDeleteModalOpen(true); // Only open modal if not disabled
-              }}
-            />
-          </div>
-
-          <Button
-            type="text"
-            className="sidebar-toggle-btn"
-            onClick={() => setCollapsed(!collapsed)}
-            style={{ position: 'absolute', top: 10, right: -18, zIndex: 1000 }}
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          />
-        </Sider>
+        <MyProfileMenu
+          selectedKey={selectedKey}
+          onMenuClick={handleMenuClick}
+          showManageAccount={true}
+          isDeleteDisabled={isDeleteDisabled}
+          onDeleteClick={handleDeleteClick}
+          onLogoutClick={handleLogoutClick}
+        />
         <Layout>
           <Content style={{ padding: '40px 40px 0 40px', background: '#fff' }}>
             {showOtpStep ? (
@@ -769,97 +487,6 @@ const MyProfile = () => {
         </Layout>
       </Layout>
 
-      <Modal
-        open={logoutModalOpen}
-        onCancel={() => setLogoutModalOpen(false)}
-        footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',margin:'15px 0px 0px 15px',fontWeight: 700}}>Are you sure you want to log out?</span></div>}
-        width={350}
-      >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px',marginTop:'15px' }}>
-          <Button
-            onClick={() => setLogoutModalOpen(false)}
-            style={{
-              width: 120,
-              backgroundColor: '#ffffff',
-              color: '#008AD5',
-              borderColor: '#008AD5',
-              borderWidth: 1,
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            onClick={handleLogout}
-            style={{
-              width: 120,
-              backgroundColor: '#008AD5',
-              color: '#ffffff',
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Confirm
-          </Button>
-        </div>
-      </Modal>
-
-      {/* Delete Modal */}
-      <Modal
-        open={deleteModalOpen}
-        onCancel={() => setDeleteModalOpen(false)}
-        footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
-        width={500}
-      >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
-          <Button
-             onClick={() => {
-              setDeleteModalOpen(false);
-              setIsDeleteDisabled(false);
-            }}
-            style={{
-              width: 120,
-              backgroundColor: '#ffffff',
-              color: '#008AD5',
-              borderColor: '#008AD5',
-              borderWidth: 1,
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              setDeleteModalOpen(false);
-              setIsDeleteDisabled(true);
-              // setShowOtpStep(true); 
-              setTimer(30);
-              setIsTimerRunning(true);
-              handleDelete();
-             
-            }}
-            style={{
-              width: 120,
-              backgroundColor: '#008AD5',
-              color: '#ffffff',
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Continue
-          </Button>
-        </div>
-      </Modal>
     </>
   );
 

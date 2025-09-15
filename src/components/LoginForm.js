@@ -11,10 +11,13 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import '../assets/styles/login.css';
+import { useDispatch } from 'react-redux';
+import { setToken, loginSuccess } from '../redux/actions/authActions';
 
 const LoginForm = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const onClickContinue = async () => {
     try {
@@ -29,8 +32,13 @@ const LoginForm = () => {
       const data = handleApiResponse(response);
 
       if (data?.token) {
-        localStorage.setItem('token', data.token);
+        // Update Redux state
+        dispatch(setToken(data.token));
+        if (data?.user) {
+          dispatch(loginSuccess(data.user, data.token, data.user.phone_number));
+        }
 
+        // Redux Persist handles token persistence
         if (data?.user) {
           localStorage.setItem('userData', JSON.stringify(data.user));
         }

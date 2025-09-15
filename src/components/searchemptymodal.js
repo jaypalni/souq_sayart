@@ -12,6 +12,7 @@ import { Modal, message } from 'antd';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import PropTypes from 'prop-types';
+import '../assets/styles/searchemptymodal.css';
 
 const DEFAULT_ALL_MAKE = 'All';
 const DEFAULT_ALL_MODELS = 'All Models';
@@ -29,6 +30,12 @@ const Searchemptymodal = ({
   setBodyType,
   selectedLocation,
   setSelectedLocation,
+   priceMin,
+  setPriceMin,
+  priceMax,
+  setPriceMax,
+  newUsed,
+  setNewUsed,
   toastmessage,
   setSaveSearchesReload,
   filterData
@@ -41,7 +48,13 @@ const Searchemptymodal = ({
 
   const handleSaveSearch = async () => {
     try {
-      
+     console.log('DEBUG VALUES =>', {
+  filterData_price_min: filterData?.price_min,
+  filterData_price_max: filterData?.price_max,
+  local_priceMin: priceMin,
+  local_priceMax: priceMax
+});
+
       // Use filterData if available, otherwise use individual props
       const searchparams = filterData ? {
         search_query: filterData.keyword || '',
@@ -49,8 +62,8 @@ const Searchemptymodal = ({
         model: filterData.model || '',
         year_min: filterData.year_min || '',
         year_max: filterData.year_max || '',
-        price_min: filterData.price_min || '',
-        price_max: filterData.price_max || '',
+         price_min: filterData?.price_min ?? priceMin ?? '',
+      price_max: filterData?.price_max ?? priceMax ?? '',
         location: filterData.location || '',
         body_type: filterData.body_type || '',
         fuel_type: filterData.fuel_type || '',
@@ -75,8 +88,8 @@ const Searchemptymodal = ({
         model: model || '',
         year_min: '',
         year_max: '',
-        price_min: '',
-        price_max: '',
+        price_min: priceMin || '',
+        price_max: priceMax || '',
         location: selectedLocation || '',
         body_type: bodyType || '',
         fuel_type: '',
@@ -188,13 +201,42 @@ const Searchemptymodal = ({
             </button>
           )}
           {/* Show price range from filterData */}
-          {filterData && filterData.price_min && filterData.price_max && (
+          {/* {filterData && filterData.price_min && filterData.price_max && (
             <button style={filterStyle}>
               {filterData.price_min === filterData.price_max 
-                ? `₹${filterData.price_min}` 
-                : `₹${filterData.price_min} - ₹${filterData.price_max}`}
+                ? `IQD ${filterData.price_min}` 
+                : `IQD ${filterData.price_min} - IQD ${filterData.price_max}`}
             </button>
-          )}
+          )} */}
+          {/* Show Price Range */}
+{(filterData ? filterData.price_min || filterData.price_max : priceMin || priceMax) && (
+  <button style={filterStyle}>
+    {filterData
+      ? filterData.price_min && filterData.price_max
+        ? filterData.price_min === filterData.price_max
+          ? `IQD ${filterData.price_min}`
+          : `IQD ${filterData.price_min} - IQD ${filterData.price_max}`
+        : filterData.price_min
+        ? `IQD ${filterData.price_min}`
+        : `IQD ${filterData.price_max}`
+      : priceMin && priceMax
+      ? priceMin === priceMax
+        ? `IQD ${priceMin}`
+        : `IQD ${priceMin} - IQD ${priceMax}`
+      : priceMin
+      ? `IQD ${priceMin}`
+      : `IQD ${priceMax}`}
+  </button>
+)}
+
+{/* Show New/Used */}
+{(filterData ? filterData.condition : newUsed) && (
+  <button style={filterStyle} onClick={() => setNewUsed('New & Used')}>
+    {filterData ? filterData.condition : newUsed}
+  </button>
+)}
+
+
           {/* Show kilometer range from filterData */}
           {filterData && filterData.min_kilometers && filterData.max_kilometers && (
             <button style={filterStyle}>
@@ -249,6 +291,12 @@ Searchemptymodal.propTypes = {
   setBodyType: PropTypes.func,
   selectedLocation: PropTypes.string,
   setSelectedLocation: PropTypes.func,
+  priceMin: PropTypes.number,      // ✅ Added
+  setPriceMin: PropTypes.func,     // ✅ Added
+  priceMax: PropTypes.number,      // ✅ Added
+  setPriceMax: PropTypes.func,     // ✅ Added
+  newUsed: PropTypes.string,       // ✅ Added
+  setNewUsed: PropTypes.func,      // ✅ Added
   toastmessage: PropTypes.func,
   setSaveSearchesReload: PropTypes.func,
   filterData: PropTypes.object,

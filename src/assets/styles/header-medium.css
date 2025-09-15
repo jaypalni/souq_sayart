@@ -1,0 +1,231 @@
+/* Medium Screen Header Styles - 992px to 1199px */
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  /* Ensure desktop menu is visible on medium screens */
+  .col-5 {
+    display: flex !important;
+  }
+
+  .col-4 {
+    display: flex !important;
+  }
+
+  .hamburger-menu {
+    display: none !important;
+  }
+  .header {
+    padding: 10px;
+  }
+
+  .headerLogo {
+    height: 65px;
+    width: 120px;
+    margin-left: 14px;
+    margin-top: 5px;
+  }
+
+  .menuItem {
+    font-size: 16px;
+    margin: 0 8px;
+    white-space: nowrap;
+  }
+
+  .menuLeft {
+    font-size: 17px;
+    margin: 0 5px;
+  }
+
+  .contct_us_btn {
+    font-size: 14px;
+    padding: 7px 14px;
+    height: 29px;
+  }
+
+  /* Medium screen-specific styles for new classes */
+  .menu-item-button {
+    margin: 0 4px;
+    font-size: 16px;
+  }
+
+  .message-icon,
+  .notification-icon {
+    width: 20px;
+    height: 20px;
+    /* margin-bottom: 7px; */
+  }
+
+  .user-dropdown {
+    font-size: 14px;
+    gap: 6px;
+    color: #fafafa !important;
+  }
+  
+  .user-dropdown span,
+  .user-dropdown .user-dropdown-icon,
+  .user-dropdown .user-dropdown-arrow {
+    color: #fafafa !important;
+  }
+
+  .user-dropdown-icon {
+    font-size: 16px;
+  }
+
+  .user-dropdown-arrow {
+    font-size: 12px;
+  }
+
+  .login-button {
+    font-size: 14px;
+  }
+
+  .language-select-container {
+    gap: 9px;
+  }
+
+  .language-select {
+    font-size: 12px;
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-selector {
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-selection-item {
+    color: #fafafa !important;
+  }
+  
+  .language-select .ant-select-arrow {
+    color: #fafafa !important;
+  }
+
+  .modal-title-text {
+    margin: 14px 0px 0px 14px;
+    font-size: 18px;
+  }
+
+  .modal-button-container {
+    gap: 10px;
+    padding: 2px;
+    margin-top: 14px;
+  }
+
+  .modal-cancel-button,
+  .modal-confirm-button {
+    width: 115px;
+    font-size: 16px;
+    border-radius: 23px;
+  }
+
+  /* Medium screen layout optimizations */
+  .col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+  .col-5 {
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+  }
+
+  .col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  /* Enhanced spacing for medium screens */
+  .row.remove_gutter {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .row.remove_gutter > * {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Better alignment for medium screens */
+  .d-flex.align-items-center.justify-content-center {
+    justify-content: space-around;
+  }
+
+  /* Right-align menu, message, and bell icons for medium screens */
+  .col-4 {
+    justify-content: flex-end !important;
+  }
+
+  .col-4 .menuLeft {
+    margin: 0 8px;
+  }
+
+  .col-4 .message-icon,
+  .col-4 .notification-icon {
+    /* margin: 0 8px; */
+  }
+
+  .col-4 .user-dropdown {
+    margin: 0 8px;
+  }
+
+  .col-4 .contct_us_btn {
+    margin: 0 8px;
+  }
+
+  .col-4 .language-select-container {
+    margin: 0 8px;
+  }
+}
+
+/* Specific styles for 939x506 screen size */
+@media (min-width: 900px) and (max-width: 1000px) and (min-height: 500px) and (max-height: 600px) {
+  /* Right-align menu, message, and bell icons for 939x506 screens */
+  .col-4 {
+    justify-content: flex-end !important;
+  }
+
+  .col-4 .menuLeft {
+    margin: 0 6px;
+  }
+
+  .col-4 .message-icon,
+  .col-4 .notification-icon {
+    /* margin: 0 6px; */
+  }
+
+  .col-4 .user-dropdown {
+    margin: 0 6px;
+  }
+
+  .col-4 .contct_us_btn {
+    margin: 0 6px;
+  }
+
+  .col-4 .language-select-container {
+    margin: 0 6px;
+  }
+
+  /* Adjust spacing for tighter layout */
+  .menuItem {
+    margin: 0 6px;
+    font-size: 15px;
+  }
+
+  .menuLeft {
+    font-size: 16px;
+    margin: 0 4px;
+  }
+
+  .contct_us_btn {
+    font-size: 13px;
+    padding: 6px 12px;
+    height: 28px;
+  }
+
+  .user-dropdown {
+    font-size: 13px;
+  }
+
+  .language-select {
+    font-size: 11px;
+  }
+}

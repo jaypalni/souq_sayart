@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import '../assets/styles/banner.css';
 
 const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   const location = useLocation();
@@ -144,84 +145,43 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   const breadcrumbItems = generateBreadcrumb();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="banner-container">
       {isLoginPage && (
-        <div
-          style={{
-            background: '#008ad5',
-            color: '#fff',
-            padding: '32px 0 16px 0',
-          }}
-        >
-          <div style={{ maxWidth: 1200, margin: '0 35px' }}>
-            <h2 style={{ margin: 0 }}>My Profile</h2>
-            <p style={{ margin: 0 }}>
+        <div className="banner-header">
+          <div className="banner-header-content">
+            <h2 className="banner-header-title">My Profile</h2>
+            <p className="banner-header-subtitle">
               Post Your Listing in just 3 simple steps
             </p>
           </div>
         </div>
       )}
-      <div
-        style={{
-          width: '100%',
-          height: 125,
-          background: '#008ad5',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          borderBottomLeftRadius: '12px',
-          borderBottomRightRadius: '12px',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '14px',
-            color: '#fff',
-            marginTop: '-52px',
-            marginLeft: '-980px',
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            marginBottom:'30px',
-          }}
-        >
+      <div className="plane-banner-main">
+        <div className="breadcrumb-container">
           {breadcrumbItems.map((item, index) => (
             <React.Fragment key={index}>
               {item.isClickable ? (
                 <Link 
                   to={item.path} 
-                  style={{ 
-                    color: '#fff', 
-                    textDecoration: 'none',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.2s'
-                  }}
+                  className="breadcrumb-link"
                   onMouseEnter={(e) => e.target.style.opacity = '0.8'}
                   onMouseLeave={(e) => e.target.style.opacity = '1'}
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span style={{ color: '#fff' }}>
+                <span className="breadcrumb-text">
                   {item.label}
                 </span>
               )}
               {index < breadcrumbItems.length - 1 && (
-                <span style={{ margin: '0 8px', color: '#fff' }}>&gt;</span>
+                <span className="breadcrumb-separator">&gt;</span>
               )}
             </React.Fragment>
           ))}
         </div>
 
-        <h1
-          style={{
-            position: 'absolute',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 32,
-          }}
-        >
+        <h1 className="plane-banner-title">
           {isLoginPage ? 'Welcome To Souq Siyarate' : undefined}
         </h1>
       </div>

@@ -65,6 +65,7 @@ const CarTypeList = () => {
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bodyType, setBodyType] = useState('All Body Types');
+  const [sliderReady, setSliderReady] = useState(false);
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -73,12 +74,47 @@ const CarTypeList = () => {
     infinite: false,
     speed: 500,
     slidesToShow: 6,
-    slidesToScroll: 6,
+    slidesToScroll: 1,
     nextArrow: <Arrow left={false} />,
     prevArrow: <Arrow left={true} />,
+    initialSlide: 0,
+    lazyLoad: 'ondemand',
     responsive: [
-      { breakpoint: 900, settings: { slidesToShow: 3 } },
-      { breakpoint: 600, settings: { slidesToShow: 2 } },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 4,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        }
+      }
     ],
   };
 
@@ -90,6 +126,10 @@ const CarTypeList = () => {
 
       if (data1?.data) {
         setCarBodyTypes(data1.data);
+        // Set slider as ready after data is loaded
+        setTimeout(() => {
+          setSliderReady(true);
+        }, 100);
       }
 
       message.success(data1.message || 'Fetched successfully');
@@ -142,27 +182,32 @@ const CarTypeList = () => {
   return (
     <div className="car-type-list-container">
       <h2 className="car-type-list-title">Body Types</h2>
-      <Slider {...settings} className="car-type-slider">
-        {carBodyTypes.map((type) => (
-          <button
-            type="button"
-            key={type.id}
-            className="car-type-item"
-            onClick={() => handleSearch(type.body_type)}
-            style={{ border: 'none', cursor: 'pointer' }}
-          >
-            <div className="car-type-icon">
-              <img
-                src={`${BASE_URL}${type.body_type_image}`}
-                alt={type.body_type}
-                width="96"
-                height="36"
-              />
-            </div>
-            <div className="car-type-name">{type.body_type}</div>
-          </button>
-        ))}
-      </Slider>
+      {!sliderReady ? (
+        <div className="slider-loading">
+          <p>Loading body types...</p>
+        </div>
+      ) : (
+        <Slider {...settings} className="car-type-slider">
+          {carBodyTypes.map((type) => (
+            <button
+              type="button"
+              key={type.id}
+              className="car-type-item"
+              onClick={() => handleSearch(type.body_type)}
+              style={{ border: 'none', cursor: 'pointer' }}
+            >
+              <div className="car-type-icon">
+                <img
+                  src={`${BASE_URL}${type.body_type_image}`}
+                  alt={type.body_type}
+                  className="car-type-image"
+                />
+              </div>
+              <div className="car-type-name">{type.body_type}</div>
+            </button>
+          ))}
+        </Slider>
+      )}
       <Searchemptymodal
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}

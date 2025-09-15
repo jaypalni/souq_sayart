@@ -13,6 +13,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
 import CarCard from './CarCard';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 const { Option } = Select;
 
@@ -27,15 +28,16 @@ const FILTER = {
   SPORT: 'Sport',
 };
 
-const renderPaginationItem = (type, originalElement) => {
+const renderPaginationItem = (page, type, originalElement) => {
   if (type === 'prev') {
-    return <span>&lt;</span>;
+    return <span>« Prev</span>;  // Optional custom text for previous button
   }
   if (type === 'next') {
-    return <span>&gt;</span>;
+    return <span>Next »</span>;  // Optional custom text for next button
   }
-  return originalElement;
+  return originalElement;        // Default: page numbers like 1, 2, 3
 };
+
 
 const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
   <div
@@ -47,7 +49,7 @@ const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
       borderRadius: '4px',
     }}
   >
-    <Pagination
+    {/* <Pagination
       className="custom-pagination"
       current={currentPage}
       total={totalItems || 50}
@@ -55,7 +57,7 @@ const MyListingsPagination = ({ currentPage, totalItems, onChangePage }) => (
       onChange={onChangePage}
       showSizeChanger={false}
       itemRender={renderPaginationItem}
-    />
+    /> */}
   </div>
 );
 
@@ -71,11 +73,23 @@ const Mycarslisting = () => {
   const [carDetails, setCarDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [limit] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
+  const [limit, setLimit] = useState(15);
+  const [tokenReady, setTokenReady] = useState(false);
 
   const navigate = useNavigate();
+  const authState = useSelector(state => state.auth);
 
+  // Check if token is available (Redux only - persisted by Redux Persist)
+  useEffect(() => {
+    const token = authState?.token;
+    
+    if (token && token !== 'undefined' && token !== 'null' && token.trim().length > 0) {
+      setTokenReady(true);
+    } else {
+      setTokenReady(false);
+    }
+  }, [authState?.token]);
 
   const handleChange = (e) => {
     setValue(e.target.value);
@@ -96,7 +110,7 @@ const Mycarslisting = () => {
       if (filterStatus === FILTER.SPORT) {
         return 'approved';
       }
-      return 'any';
+      return 'all';
     }
     if (value === STATUS.DRAFTS) {
       return 'drafts';
@@ -108,37 +122,133 @@ const Mycarslisting = () => {
   };
 
 
-  const fetchCars = async () => {
-    try {
-      setLoading(true);
-      const statusParam = getStatusParam();
-      const response = await carAPI.getMylistingCars({ page, limit, status: statusParam });
-      const cardetail = handleApiResponse(response);
+//   const fetchCars = async () => {
+//   try {
+//     setLoading(true);
 
-      if (['pending', 'approved', 'any'].includes(statusParam)) {
-        setCarDetails(cardetail.data.approved_pending || []);
-      } else if (statusParam === 'drafts') {
-        setCarDetails(cardetail.data.draft || []);
-      } else if (statusParam === 'sold') {
-        setCarDetails(cardetail.data.sold || []);
-      } else {
-        setCarDetails([]);
-      }
-      setTotalCount(cardetail.data.total || 0);
+//     const statusParam = getStatusParam() || '';
+//     console.log('Calling API with:', { status: statusParam, page });
 
-      message.success(cardetail.message || 'Fetched successfully');
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to load car data');
-      setCarDetails([]);
-    } finally {
-      setLoading(false);
+//     const response = await carAPI.getMylistingCars(statusParam, page || 1);
+//     const cardetail = handleApiResponse(response);
+
+//     // Safely extract data
+//     const data = cardetail?.data || {};
+//     const pagination = cardetail?.pagination || {};
+
+//     let list = [];
+//     if (['pending', 'approved', 'all'].includes(statusParam)) {
+//       list = data.approved_pending || [];
+//     } else if (statusParam === 'drafts') {
+//       list = data.draft || [];
+//     } else if (statusParam === 'sold') {
+//       list = data.sold || [];
+//     }
+
+//     setCarDetails(list);
+
+//     // Use pagination total
+//     setTotalCount(pagination.total || 0);
+
+//     console.log('Pagination Data:', pagination);
+// console.log('Total Count Set To:', pagination.total);
+
+
+//     // Optional: update page limit dynamically
+//     setLimit(pagination.limit || 15);
+
+//     if (list.length === 0) {
+//       message.info('No cars found for the selected filter');
+//     } else {
+//       message.success(cardetail.message || 'Fetched successfully');
+//     }
+//   } catch (error) {
+//     const errorData = handleApiError(error);
+//     message.error(errorData.message || 'Failed to load car data');
+//     setCarDetails([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+const fetchCars = async () => {
+  try {
+    setLoading(true);
+
+    // Determine type based on selected tab
+    let typeParam = '';
+    if (value === STATUS.ACTIVE) {
+      typeParam = 'active';
+    } else if (value === STATUS.DRAFTS) {
+      typeParam = 'draft';
+    } else if (value === STATUS.SOLD) {
+      typeParam = 'sold';
     }
-  };
+
+    // Determine filter param only for active
+    let filterParam = '';
+    if (typeParam === 'active') {
+      if (filterStatus === FILTER.BASE) {
+        filterParam = 'pending';
+      } else if (filterStatus === FILTER.SPORT) {
+        filterParam = 'approved';
+      } else {
+        filterParam = 'all'; // Default to 'all'
+      }
+    }
+
+    console.log('Calling API with:', { type: typeParam, filter: filterParam, page });
+
+    // Call API dynamically
+    const response = await carAPI.getMylistingCars(typeParam, filterParam, page || 1);
+
+    const cardetail = handleApiResponse(response);
+
+    // Safely extract data
+    const data = cardetail?.data || {};
+    const pagination = cardetail?.pagination || {};
+
+    let list = [];
+    if (typeParam === 'active') {
+      list = data.approved_pending || [];
+    } else if (typeParam === 'draft') {
+      list = data.draft || [];
+    } else if (typeParam === 'sold') {
+      list = data.sold || [];
+    }
+
+    setCarDetails(list);
+
+    // Set total count from pagination
+    setTotalCount(pagination.total || 0);
+
+    // Optional: Update limit if API provides dynamic value
+    setLimit(pagination.limit || 10);
+
+    console.log('Pagination Data:', pagination);
+    console.log('Total Count Set To:', pagination.total);
+
+    if (list.length === 0) {
+      message.info('No cars found for the selected filter');
+    } else {
+      message.success(cardetail.message || 'Fetched successfully');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to load car data');
+    setCarDetails([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   useEffect(() => {
-    fetchCars();
-  }, [page, limit, value, filterStatus]);
+    if (tokenReady) {
+      fetchCars();
+    }
+  }, [page, limit, value, filterStatus, tokenReady]);
 
 
   const handleDeleteMethod = async (carId) => {
@@ -240,6 +350,9 @@ const Mycarslisting = () => {
       {/* Car List */}
       <div style={{ padding: '20px' }}>
         {(() => {
+          if (!tokenReady) {
+            return <p>Initializing...</p>;
+          }
           if (loading) {
             return <p>Loading cars...</p>;
           }
@@ -250,7 +363,8 @@ const Mycarslisting = () => {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
+                // gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
+                gridTemplateColumns: 'repeat(4, 1fr)',
                 gap: '20px',
                 justifyContent: 'center',
               }}
@@ -271,11 +385,24 @@ const Mycarslisting = () => {
       </div>
 
       {/* Pagination */}
-      <MyListingsPagination
-        currentPage={page}
-        totalItems={totalCount}
-        onChangePage={(newPage) => setPage(newPage)}
-      />
+      {/* Pagination */}
+<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
+  <Pagination
+    className="custom-pagination"
+    current={page}            // Controlled by state
+    total={totalCount}        // Comes from API
+    pageSize={limit}          // API provided limit
+    onChange={(newPage) => {
+      console.log('Page Changed To:', newPage);
+      setPage(newPage);
+    }}
+    showSizeChanger={false}   // Hides page size dropdown
+    showQuickJumper            // Show input for quick jump
+    itemRender={renderPaginationItem} // Custom render for < and >
+  />
+</div>
+
+
     </div>
   );
 };

@@ -91,7 +91,7 @@ const ThumbnailButton = ({ img, idx, isActive, onClick }) => {
       type="button"
       onClick={onClick}
       aria-label={`Show image ${idx + 1}`}
-      style={{ background: 'none', border: 'none', padding: 0 }}
+      className="thumbnail-button"
     >
       <img
         src={img}
@@ -183,10 +183,11 @@ ImageGallery.propTypes = {
 
 const FeaturesSection = ({ adTitle, featuresCsv }) => {
   const [open, setOpen] = useState(false);
-  const features = (featuresCsv || '')
-    .split(',')
-    .map((f) => f.trim())
-    .filter(Boolean);
+
+  // Normalize features to always be an array of individual features
+  const features = Array.isArray(featuresCsv)
+    ? featuresCsv.flatMap(item => item.split(',').map(f => f.trim())) // split and trim each string
+    : (featuresCsv || '').split(',').map(f => f.trim()); // fallback if it's just a string
 
   const toggleFeatures = () => setOpen(!open);
   const chevron = open ? <FaChevronUp /> : <FaChevronDown />;
@@ -198,13 +199,13 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
       </div>
       <div className="border-bottom">
         <div className="car-details-features-header collapsed">
-          <span style={{ fontWeight: 500, fontSize: '14px' }}>Extra Features</span>
+          <span className="features-header-text">Extra Features</span>
           <button
             type="button"
             onClick={toggleFeatures}
             aria-expanded={open}
             aria-controls="extra-features"
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            className="features-toggle-button"
           >
             {chevron}
           </button>
@@ -215,12 +216,13 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
   );
 };
 
+
 const FeaturesList = ({ features }) => (
   <div id="extra-features" className="row mb-2 mt-2">
     {features.map((feature) => (
       <div className="col-md-3 col-6 mb-2" key={feature}>
         <span className="car-details-feature-item">
-          <FaCheckCircle color="#4fc3f7" style={{ marginRight: 6 }} />
+          <FaCheckCircle color="#4fc3f7" className="features-icon" />
           {feature}
         </span>
       </div>
@@ -287,10 +289,7 @@ CarHeader.propTypes = {
 // Extracted CarEngineSummary component
 const CarEngineSummary = ({ carDetails }) => {
   return (
-    <div
-      className="d-flex align-items-center gap-3 mb-2"
-      style={{ color: '#2B2829', fontWeight: 400, fontSize: '14px' }}
-    >
+    <div className="d-flex align-items-center gap-3 mb-2 car-engine-summary">
       {formatEngineSummary(carDetails)}
     </div>
   );
@@ -311,18 +310,9 @@ const CarLocation = ({ location }) => {
       <img
         src={pin_location}
         alt="Location pin"
-        style={{
-          width: '15px',
-          height: '15px',
-        }}
+        className="location-icon"
       />
-      <span
-        style={{
-          fontSize: '14px',
-          fontWeight: 400,
-          color: '#7991A4',
-        }}
-      >
+      <span className="location-text">
         {location}
       </span>
     </div>
@@ -360,7 +350,7 @@ const CarDetailsCards = ({ carDetails }) => {
 
   return (
     <div className="col-md-12">
-      <div className="car-details-info" style={{ marginBottom: '10px' }}>
+      <div className="car-details-info car-details-info-section">
         Car Details
       </div>
 
@@ -375,48 +365,18 @@ const CarDetailsCards = ({ carDetails }) => {
 
 const CarDetailCard = ({ item }) => (
   <div className="col-md-3">
-    <div
-      style={{
-        border: '1px solid #ccc',
-        borderRadius: 10,
-        padding: '8px',
-        height: 80,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-      }}
-    >
-      <div
-        style={{
-          alignItems: 'center',
-          gap: '6px',
-        }}
-      >
+    <div className="car-detail-card">
+      <div className="car-detail-card-content">
         <img
           src={item.icon}
           alt=""
-          style={{ width: 14, height: 14 }}
+          className="car-detail-icon"
         />
-        <p
-          style={{
-            color: '#726C6C',
-            fontWeight: 400,
-            fontSize: '12px',
-            margin: 0,
-          }}
-        >
+        <p className="car-detail-label">
           {item.label}
         </p>
       </div>
-      <p
-        style={{
-          color: '#0A0A0B',
-          fontWeight: 700,
-          fontSize: '14px',
-          margin: 0,
-        }}
-      >
+      <p className="car-detail-value">
         {item.value}
       </p>
     </div>
@@ -521,48 +481,25 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
     <Card className="seller-info-card">
       <div className="d-flex justify-content-between align-items-center">
         <div>
-         <div 
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-          }}>
-          <h5
-            className="mb-0 text-truncate"
-            style={{
-              fontSize: '20px',
-              fontWeight: 700,
-              color: '#0A0A0B',
-              margin:'0',
-            }}
-          >
+         <div className="seller-info-header">
+          <h5 className="mb-0 text-truncate seller-info-title">
             {carDetails.ad_title}
           </h5>
 
           <ShareAltOutlined
-            style={{
-              fontSize: '20px',
-              color: '#008ad5',
-              cursor: 'pointer',
-              flexShrink: 0,
-              marginLeft: '40px'
-            }}
+            className="share-icon"
             onClick={copyToClipboard}
           />
          </div>
           <div className="car-price">
             {'IQD ' + Number(carDetails.price).toLocaleString()}
           </div>
-          <div
-            className="d-flex align-items-center mt-2 mb-2"
-            style={{ marginLeft: '7px' }}
-          >
+          <div className="d-flex align-items-center mt-2 mb-2 seller-info-details">
             <div className="d-flex align-items-center gap-1">
               <img
                 src={car_type}
                 alt="Car Type"
-                style={{ width: '14px', height: '14px' }}
+                className="seller-info-icon"
               />
               <span>{carDetails.transmission_type}</span>
             </div>
@@ -572,7 +509,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
               <img
                 src={country_code}
                 alt="Country"
-                style={{ width: '16px', height: '16px' }}
+                className="seller-info-country-icon"
               />
               <span>{carDetails.country_code}</span>
             </div>
@@ -581,45 +518,27 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
               <img
                 src={speed_code}
                 alt="Kilometers"
-                style={{ width: '16px', height: '16px' }}
+                className="seller-info-speed-icon"
               />
               <span>{carDetails.kilometers}</span>
             </div>
           </div>
 
-          <div
-            className="mt-2 text-muted"
-            style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0B' }}
-          >
+          <div className="mt-2 text-muted seller-info-listed-text">
             Listed by Private User
           </div>
           <div className="d-flex align-items-center gap-2 mt-2">
             <Avatar icon={<UserOutlined />} alt="User Avatar" />
             <div>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: '#0A0A0B',
-                }}
-              >
+              <div className="seller-name">
                 {carDetails.seller.first_name}
               </div>
-              <div
-                className="text-muted"
-                style={{
-                  fontSize: 12,
-                  fontWeight: 400,
-                  color: '#0A0A0B',
-                }}
-              >
+              <div className="text-muted seller-member-since">
                 Member since {carDetails.seller.member_since}
               </div>
               <Link className="car-details-view-profile-link">
                 View Profile{' '}
-                <FaChevronRight
-                  style={{ fontSize: '9px', marginLeft: '2px' }}
-                />
+                <FaChevronRight className="view-profile-chevron" />
               </Link>
             </div>
           </div>
@@ -628,13 +547,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
       <div className="d-flex gap-2 mt-3">
         <Button
           icon={<MessageOutlined />}
-          className="w-100"
-          style={{
-            background: '#008AD5',
-            color: '#fff',
-            fontWeight: 500,
-            fontSize: '12px',
-          }}
+          className="w-100 message-button"
         >
           Message
         </Button>
@@ -643,31 +556,16 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
         <Button
           onClick={() => openWhatsApp(carDetails.seller.phone_number)}
           icon={<FaWhatsapp />}
-          className="w-100"
+          className={`w-100 whatsapp-button ${carDetails.seller.whatsapp === 'False' ? 'whatsapp-button-disabled' : 'whatsapp-button-enabled'}`}
           disabled={carDetails.seller.whatsapp === 'False'}
-          style={{
-            background: carDetails.seller.whatsapp === 'False' ? '#D3D3D3' : '#20B648',
-            border: 'none',
-            color: '#fff',
-            fontWeight: 500,
-            fontSize: '12px',
-          }}
         >
           Whatsapp
         </Button>
 
         {/* Call Button */}
         <Button
-          icon={<FaPhoneAlt style={{ color: '#fff' }} />}
-          className="w-100 no-hover-bg"
-          style={{
-            background: '#323F49',
-            color: '#fff',
-            fontWeight: 500,
-            fontSize: '12px',
-            border: 'none',
-            pointerEvents: 'none',
-          }}
+          icon={<FaPhoneAlt className="call-button-icon" />}
+          className="w-100 no-hover-bg call-button"
           onClick={() => {
             messageApi.open({
               type: 'success',
@@ -788,7 +686,7 @@ const ErrorState = () => <div>No data found</div>;
 
 // Similar cars section component
 const SimilarCarsSection = ({ carDetails }) => (
-  <div style={{ marginTop: 50 }}>
+  <div className="similar-cars-section">
     <CarListing
       title={'Used ' + carDetails.ad_title}
       cardata={carDetails.similar_cars}

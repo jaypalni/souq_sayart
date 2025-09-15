@@ -13,6 +13,8 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { initializePhoneLogin } from './redux/actions/authActions';
 import LoginScreen from './pages/LoginScreen';
 import SignupOtp from './pages/signupOtp';
 import AllCars from './pages/allcars';
@@ -25,6 +27,7 @@ import CreateProfile from './pages/createProfile';
 import Landing from './pages/landing';
 import CarDetails from './pages/carDetails';
 import NewSell from './pages/newsell';
+import Sell from './pages/sell';
 import UserProfile from './pages/userProfile';
 import TermsAndConditions from './pages/termsAndconditions';
 import Captcha from './pages/captcha';
@@ -46,8 +49,15 @@ const ScrollToTop = () => {
 
 const AppRouterContent = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  // Initialize phone login on app startup (Redux Persist handles token)
+  useEffect(() => {
+    dispatch(initializePhoneLogin());
+  }, [dispatch]);
   const hidebannerList = [
     '/carDetails',
+    '/sell',
     '/newsell',
     '/allcars',
     '/myListings',
@@ -96,6 +106,15 @@ const AppRouterContent = () => {
           element={<TermsAndConditions />}
         />
         <Route path="/captchatoken" element={<Captcha />} />
+
+         <Route 
+          path="/sell" 
+          element={
+            <ProtectedRoute>
+              <Sell />
+            </ProtectedRoute>
+          } 
+        />
       
          <Route 
           path="/newsell" 

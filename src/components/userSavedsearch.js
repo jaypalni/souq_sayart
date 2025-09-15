@@ -201,7 +201,6 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
       setTokenReady(false);
     }
   }, [isReady, token, isAuthenticated]);
-console.log('2222',token)
   useEffect(() => {
     if (isLoggedIn && tokenReady) {
       fetchSavedSearches();

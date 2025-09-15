@@ -360,7 +360,6 @@ const isIndiaLocale = () => {
     });
   }
 };
-console.log('carCount',carCount)
   const handleSearch = async () => {
     try {
       setLoading(true);

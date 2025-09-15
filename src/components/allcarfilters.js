@@ -231,7 +231,6 @@ const getInitialMaxPrice = () => {
         setCarCount(data.data.pagination.total);
       }
     } catch (error) {
-      // Silent error handling for auto-search
       console.warn('Auto-search for count failed:', error);
     }
   };
@@ -241,17 +240,13 @@ const getInitialMaxPrice = () => {
       // fetchtotalcarcount();
     }, []);
 
-// State is now initialized directly from localStorage in useState calls above
 
-// Ensure location is properly set from localStorage
 useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     
-    // If there's saved location data, use it; otherwise default to "All Locations"
     if (saved && saved.location && saved.location !== '') {
       setLocation(saved.location);
-      // Update breadcrumb if setSelectedLocation is available
       if (setSelectedLocation) {
         setSelectedLocation(saved.location);
       }

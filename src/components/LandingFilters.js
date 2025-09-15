@@ -530,90 +530,132 @@ const isIndiaLocale = () => {
           <div className="landing-filters-col">
             <label className="landing-filters-label" htmlFor="make-select">Make</label>
             <Select
-              id="make-select"
-              value={make}
-              onChange={(value) => {
-                console.log('LandingFilters - Make selection changed to:', value);
-                setMake(value);
-                setModel('All Models');
-                handleChange('Make', value);
-                console.log('LandingFilters - Make state should now be:', value);
-              }}
-              className="landing-filters-select"
-              size="large"
-              dropdownClassName="landing-filters-dropdown"
-              placeholder="All Models"
-            >
-              {carMakes.map((m) => (
-                <Option key={m.id} value={m.name}>
-                  {m.name}
-                </Option>
-              ))}
-            </Select>
+  id="make-select"
+  value={make}
+  onChange={(value) => {
+    console.log('LandingFilters - Make selection changed to:', value);
+    setMake(value);
+    setModel('All Models');
+    handleChange('Make', value);
+  }}
+  className="landing-filters-select"
+  size="large"
+  dropdownClassName="landing-filters-dropdown"
+  placeholder="All Make"
+  showSearch
+  allowClear
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+  onClear={() => {
+    setMake(CORRECT_DEFAULT_MAKE);
+    console.log('Make cleared');
+  }}
+>
+  {carMakes.map((m) => (
+    <Option key={m.id} value={m.name}>
+      {m.name}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="landing-filters-col">
             <label className="landing-filters-label" htmlFor="model-select">Model</label>
             <Select
-              id="model-select"
-              value={model}
-              onChange={(value) => {
-                setModel(value);
-                handleChange('Model', value);
-              }}
-              className="landing-filters-select"
-              size="large"
-              dropdownClassName="landing-filters-dropdown"
-              disabled={make === 'All Make'}
-            >
-              {carModels?.map((m) => (
-                <Option key={m.id} value={m.model_name}>
-                  {m.model_name}
-                </Option>
-              ))}
-            </Select>
+  id="model-select"
+  value={model}
+  onChange={(value) => {
+    setModel(value);
+    handleChange('Model', value);
+  }}
+  className="landing-filters-select"
+  size="large"
+  dropdownClassName="landing-filters-dropdown"
+  disabled={make === 'All Make'}
+  placeholder="All Models"
+  showSearch
+  allowClear
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+  onClear={() => {
+    setModel(CORRECT_DEFAULT_MODEL);
+    console.log('Model cleared');
+  }}
+>
+  {carModels?.map((m) => (
+    <Option key={m.id} value={m.model_name}>
+      {m.model_name}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="landing-filters-col">
             <label className="landing-filters-label" htmlFor="bodytype-select">Body Type</label>
-            <Select
-              id="bodytype-select"
-              value={bodyType}
-              onChange={(value) => {
-                setBodyType(value);
-                handleChange('Body Type', value);
-              }}
-              className="landing-filters-select"
-              size="large"
-              dropdownClassName="landing-filters-dropdown"
-            >
-              {carBodyTypes.map((b) => (
-                <Option key={b.id} value={b.body_type}>
-                  {b.body_type}
-                </Option>
-              ))}
-            </Select>
+           <Select
+  id="bodytype-select"
+  value={bodyType}
+  onChange={(value) => {
+    setBodyType(value);
+    handleChange('Body Type', value);
+  }}
+  className="landing-filters-select"
+  size="large"
+  dropdownClassName="landing-filters-dropdown"
+  placeholder="All Body Types"
+  showSearch
+  allowClear
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+  onClear={() => {
+    setBodyType(CORRECT_DEFAULT_BODY_TYPE);
+    console.log('Body Type cleared');
+  }}
+>
+  {carBodyTypes.map((b) => (
+    <Option key={b.id} value={b.body_type}>
+      {b.body_type}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="landing-filters-col">
             <label className="landing-filters-label" htmlFor="location-select">Location</label>
             <Select
-              id="location-select"
-              value={location}
-              onChange={(value) => {
-                setLocation(value);
-                handleChange('Location', value);
-              }}
-              className="landing-filters-select"
-              size="large"
-              dropdownClassName="landing-filters-dropdown"
-            >
-              <Option key="all-locations" value="All Locations">
-                All Locations
-              </Option>
-              {carLocation.map((l) => (
-                <Option key={l.id} value={l.location}>
-                  {l.location}
-                </Option>
-              ))}
-            </Select>
+  id="location-select"
+  value={location}
+  onChange={(value) => {
+    setLocation(value);
+    handleChange('Location', value);
+  }}
+  className="landing-filters-select"
+  size="large"
+  dropdownClassName="landing-filters-dropdown"
+  placeholder="All Locations"
+  showSearch
+  allowClear
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+  onClear={() => {
+    setLocation(CORRECT_DEFAULT_LOCATION);
+    console.log('Location cleared');
+  }}
+>
+  <Option key="all-locations" value="All Locations">
+    All Locations
+  </Option>
+  {carLocation.map((l) => (
+    <Option key={l.id} value={l.location}>
+      {l.location}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="landing-filters-col landing-filters-btn-col">
             <Button

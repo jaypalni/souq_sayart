@@ -378,3 +378,17 @@
     font-size: 16px;
   }
 }
+
+/* General placeholder styling for all inputs */
+.landing-filters-select .ant-select-selection-placeholder,
+.landing-filters-select input::placeholder,
+.ant-input::placeholder,
+.ant-input-number-input::placeholder {
+  color: #8f8f8f !important;
+  opacity: 1; /* Ensure color is fully visible */
+}
+
+/* Optional: When dropdown is opened, keep placeholder color same */
+.landing-filters-select .ant-select-open .ant-select-selection-placeholder {
+  color: #8f8f8f !important;
+}

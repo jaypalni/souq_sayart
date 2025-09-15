@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Avatar, Button, Switch, Modal } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, MenuOutlined, CloseOutlined, ProfileOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearCustomerDetails } from '../redux/actions/authActions';
 import { userAPI, authAPI } from '../services/api';
@@ -39,6 +39,7 @@ const MyProfileMenu = ({
   onLogoutClick 
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -46,6 +47,8 @@ const MyProfileMenu = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleteData, setDeleteData] = useState([]);
   
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -119,8 +122,33 @@ const MyProfileMenu = ({
 
   // Delete handler
   const handleDelete = async () => {
-    if (onDeleteClick) {
-      onDeleteClick();
+    try {
+      setLoading(true);
+      const response = await userAPI.getDelete();
+      const data1 = handleApiResponse(response);
+      localStorage.removeItem('otpEndTime'); 
+      localStorage.removeItem('fromLogin');
+      localStorage.removeItem('userData'); 
+
+      if (data1) {
+        setDeleteData(data1);
+        localStorage.setItem('requestId', data1.request_id);
+        localStorage.setItem('fromLogin', 'true');
+        messageApi.open({
+          type: 'success',
+          content: data1?.message,
+        });
+        navigate('/deleteaccount-otp');
+      }
+    } catch (error) {
+      setDeleteData([]);
+      const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData?.message,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -566,6 +594,8 @@ const MyProfileMenu = ({
           </Button>
           <Button
             type="primary"
+            loading={loading}
+            disabled={loading}
             onClick={() => {
               setDeleteModalOpen(false);
               handleDelete();

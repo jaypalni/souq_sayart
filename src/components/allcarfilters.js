@@ -58,6 +58,7 @@ const DEFAULT_CAR_COUNT = 0;
 const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
+  const [carLocation,setCarLocation]=useState()
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
 
 // Initialize make from localStorage if available
@@ -290,8 +291,7 @@ useEffect(() => {
 
 // Temporary: Add a function to manually clear localStorage (for debugging)
 useEffect(() => {
-  // Uncomment the next line to clear localStorage on component mount
-  // localStorage.removeItem('searchcardata');
+fetchRegionCars()
 }, []);
 
 
@@ -384,6 +384,77 @@ handleSearch()
       setModel(DEFAULTS.ALL_MODELS);
     }
   };
+  const getGeoData = async () => {
+  try {
+    const cacheKey = 'geoDataCache';
+    const cached = localStorage.getItem(cacheKey);
+
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      const maxAgeMs = 24 * 60 * 60 * 1000; 
+      if (parsed?.ts && Date.now() - parsed.ts < maxAgeMs && parsed?.data) {
+        return parsed.data;
+      }
+    }
+
+    const geoRes = await fetch('https://ipapi.co/json/');
+    if (!geoRes.ok) {
+      throw new Error(`Geo API error: ${geoRes.status}`);
+    }
+
+    const geoData = await geoRes.json();
+
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        ts: Date.now(),
+        data: geoData,
+      }),
+    );
+
+    return geoData;
+  } catch (error) {
+    return null;
+  }
+};
+  const resolveDefaultLocation = (locations, geoData) => {
+  // Always return null to use "All Locations" as default
+  return null;
+};
+
+  const fetchRegionCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getLocationCars({});
+      const data1 = handleApiResponse(response);
+  
+     if (!data1) {
+        message.error('No location data received');
+        setCarLocation([]);
+        return;
+      }
+      const locations = data1?.data || [];
+      setCarLocation(locations);
+  
+      const geoData = await getGeoData();
+      console.log('geoData',geoData)
+      const defaultLocation = resolveDefaultLocation(locations, geoData);
+  
+      if (defaultLocation) {
+        setLocation(defaultLocation.location);
+      }
+  
+  
+      message.success(data1?.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to fetch location data');
+      setCarLocation([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const fetchBodyTypeCars = async () => {
     try {
       setLoading(true);
@@ -542,24 +613,17 @@ handleSearch()
 
         if (results.length === 0) {
           setIsModalOpen(true);
-          // Clear data when no results
           setFilterCarsData({ cars: [], pagination: {} });
         } else {
-          // Set ONLY fresh API data - completely replace any old data
-          // Force clear any existing data first
           setFilterCarsData({ cars: [], pagination: {} });
-          // Then set ONLY the fresh API data
           setFilterCarsData({
             cars: data1.data.cars || [],
             pagination: data1.data.pagination || {}
           });
-          // Save search parameters to localStorage
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-          // Update breadcrumb directly via prop
           if (setSelectedLocation) {
             setSelectedLocation(location);
           }
-          // Dispatch custom event to update breadcrumb (fallback)
           window.dispatchEvent(new CustomEvent('searchDataUpdated'));
           // messageApi.open({
           //   type: 'success',
@@ -751,9 +815,9 @@ handleSearch()
     option?.children?.toLowerCase().includes(input.toLowerCase())
   }
 >
-  {locations.map((l) => (
-    <Option key={l} value={l}>
-      {l}
+  {carLocation?.map((l) => (
+    <Option key={l?.id} value={l?.location}>
+      {l?.location}
     </Option>
   ))}
 </Select>

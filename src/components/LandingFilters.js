@@ -126,7 +126,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       const data = handleApiResponse(response);
 
       if (data && data.data && data.data.pagination) {
-        setCarCount(data.data.pagination.total);
+        setCarCount(data?.data?.pagination?.total);
       }
     } catch (error) {
       // Silent error handling for auto-search
@@ -360,7 +360,7 @@ const isIndiaLocale = () => {
     });
   }
 };
-
+console.log('carCount',carCount)
   const handleSearch = async () => {
     try {
       setLoading(true);
@@ -389,7 +389,7 @@ const isIndiaLocale = () => {
 
         // Update car count from pagination
         if (data1.data.pagination && data1.data.pagination.total !== undefined) {
-          setCarCount(data1.data.pagination.total);
+          setCarCount(data1?.data?.pagination?.total);
         }
 
         if (results.length === 0) {

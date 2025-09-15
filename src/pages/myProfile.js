@@ -34,8 +34,6 @@ const MyProfile = () => {
   const dispatch = useDispatch();
   const [, setLoading] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
-  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const selectedKey = location.pathname.split('/')[2] || 'profile';
   const [messageApi, contextHolder] = message.useMessage();
   const [, setDeleteData] = useState([]);
@@ -123,17 +121,13 @@ const MyProfile = () => {
   };
 
   const handleDeleteClick = () => {
-    setDeleteModalOpen(true);
+    // Delete modal is now handled by MyProfileMenu component
   };
 
   const handleLogoutClick = () => {
     userlogout();
   };
 
-  const handleLogout = () => {
-    setLogoutModalOpen(false);
-    userlogout();
-  };
 
   const handleDelete = async () => {
       try {
@@ -493,57 +487,6 @@ const MyProfile = () => {
         </Layout>
       </Layout>
 
-      {/* Delete Modal - Only for OTP step */}
-      <Modal
-        open={deleteModalOpen}
-        onCancel={() => setDeleteModalOpen(false)}
-        footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
-        width={500}
-      >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
-          <Button
-             onClick={() => {
-              setDeleteModalOpen(false);
-              setIsDeleteDisabled(false);
-            }}
-            style={{
-              width: 120,
-              backgroundColor: '#ffffff',
-              color: '#008AD5',
-              borderColor: '#008AD5',
-              borderWidth: 1,
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              setDeleteModalOpen(false);
-              setIsDeleteDisabled(true);
-              // setShowOtpStep(true); 
-              setTimer(30);
-              setIsTimerRunning(true);
-              handleDelete();
-             
-            }}
-            style={{
-              width: 120,
-              backgroundColor: '#008AD5',
-              color: '#ffffff',
-              fontSize: '16px',
-              fontWeight: 700,
-              borderRadius: '24px',
-            }}
-          >
-            Continue
-          </Button>
-        </div>
-      </Modal>
     </>
   );
 

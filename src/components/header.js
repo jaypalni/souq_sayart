@@ -195,6 +195,11 @@ const Header = () => {
                     className="mobile-message-icon"
                     src={MessagesImg}
                     alt="Messages"
+                    onClick={() => {
+                      // Add message functionality here
+                      console.log('Messages clicked');
+                    }}
+                    style={{ cursor: 'pointer' }}
                   />
                 </div>
                 <div className="mobile-icon-container">
@@ -202,6 +207,11 @@ const Header = () => {
                     className="mobile-notification-icon"
                     src={NotifiyImg}
                     alt="Notifications"
+                    onClick={() => {
+                      // Add notification functionality here
+                      console.log('Notifications clicked');
+                    }}
+                    style={{ cursor: 'pointer' }}
                   />
                 </div>
               </div>

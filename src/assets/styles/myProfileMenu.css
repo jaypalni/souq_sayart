@@ -1,0 +1,326 @@
+/*
+ * Copyright (c) 2025 Palni. All rights reserved.
+ * This file is part of the ss-frontend project.
+ * Unauthorized copying, modification, or distribution of this file,
+ * via any medium is strictly prohibited unless explicitly authorized.
+ */
+
+/* Mobile Menu Button - Hidden on desktop */
+.mobile-menu-button {
+      display: none;
+    position: fixed;
+    top: 82px;
+    right: 3px;
+    /* z-index: 1001; */
+    /* background: #008AD5; */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 3px 6px;
+    font-size: 18px;
+    cursor: pointer;
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); */
+    transition: all 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+}
+
+.mobile-menu-button:hover {
+  /* background: #006bb3; */
+  transform: scale(1.05);
+}
+
+/* Mobile Menu Close Button */
+.mobile-menu-close-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0px;
+  right: 15px;
+  transition: all 0.3s ease;
+  z-index: 10;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.mobile-menu-close-btn:hover {
+  background: #f5f5f5 !important;
+  color: #333 !important;
+  transform: scale(1.1);
+}
+
+.mobile-menu-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+}
+
+/* Mobile Menu Drawer */
+.mobile-menu-drawer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background: #fff;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-menu-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-menu-content {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.mobile-menu-header {
+  padding: 20px 20px 20px;
+  /* border-bottom: 1px solid #f0f0f0; */
+  margin-bottom: 20px;
+  position: relative;
+  /* background: #fff; */
+  z-index: 5;
+}
+
+.mobile-menu-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-right: 50px;
+}
+
+.mobile-menu-avatar {
+  background: #e3f1ff !important;
+  color: #1890ff !important;
+  font-weight: 700 !important;
+}
+
+.mobile-menu-user-name {
+  color: #0A0A0B;
+  font-weight: 600;
+  font-size: 16px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* max-width: calc(100% - 60px); */
+  /* background: rgba(255, 0, 0, 0.1); */
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.mobile-menu-items {
+  padding: 0 10px;
+}
+
+.mobile-menu-main-menu {
+  border-right: 0 !important;
+  background: transparent !important;
+}
+
+.mobile-menu-manage-menu {
+  border-right: 0 !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
+  background: transparent !important;
+}
+
+.mobile-menu-manage-section {
+  margin-top: 32px;
+}
+
+.mobile-menu-manage-title {
+  padding: 0 16px;
+  color: #0A0A0B;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+/* Desktop Sider - Hidden on mobile */
+.desktop-sider {
+  display: block;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  /* Show mobile menu button */
+  .mobile-menu-button {
+    display: flex;
+  }
+
+  /* Show mobile menu overlay and drawer */
+  .mobile-menu-overlay,
+  .mobile-menu-drawer {
+    display: block;
+  }
+
+  /* Hide desktop sider on mobile */
+  .desktop-sider {
+    display: none !important;
+  }
+
+  /* Mobile menu item styling */
+  .mobile-menu-drawer .ant-menu {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .mobile-menu-drawer .ant-menu-item {
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    height: auto !important;
+    line-height: 1.4 !important;
+    border-radius: 8px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .mobile-menu-drawer .ant-menu-item:hover {
+    background: #f5f5f5 !important;
+  }
+
+  .mobile-menu-drawer .ant-menu-item-selected {
+    background: #e6f7ff !important;
+    color: #008AD5 !important;
+  }
+
+  .mobile-menu-drawer .ant-menu-item-icon {
+    margin-right: 12px !important;
+  }
+
+  /* Mobile menu link styling */
+  .mobile-menu-drawer .ant-menu-item a {
+    color: inherit !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .mobile-menu-drawer .ant-menu-item a:hover {
+    color: inherit !important;
+  }
+
+  /* Mobile menu switch styling */
+  .mobile-menu-drawer .ant-switch {
+    margin-left: auto !important;
+  }
+
+  /* Mobile menu manage account section */
+  .mobile-menu-drawer .ant-menu:last-child {
+    margin-top: 20px !important;
+  }
+
+  /* Mobile menu manage account title */
+  .mobile-menu-drawer .ant-menu:last-child::before {
+    content: "Manage Account";
+    display: block;
+    padding: 0 16px 8px;
+    color: #0A0A0B;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+}
+
+/* Tablet and larger screens - keep desktop behavior */
+@media (min-width: 769px) {
+  .mobile-menu-button,
+  .mobile-menu-overlay,
+  .mobile-menu-drawer {
+    display: none !important;
+  }
+
+  .desktop-sider {
+    display: block !important;
+  }
+}
+
+/* Ensure proper z-index stacking */
+.mobile-menu-button {
+  /* z-index: 1001; */
+}
+
+.mobile-menu-overlay {
+  z-index: 999;
+}
+
+.mobile-menu-drawer {
+  z-index: 1000;
+}
+
+/* Smooth transitions for all interactive elements */
+.mobile-menu-button,
+.mobile-menu-overlay,
+.mobile-menu-drawer,
+.mobile-menu-drawer .ant-menu-item {
+  transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.mobile-menu-button:focus {
+  outline: 2px solid #008AD5;
+  outline-offset: 2px;
+}
+
+.mobile-menu-drawer .ant-menu-item:focus {
+  outline: 2px solid #008AD5;
+  outline-offset: 2px;
+}
+
+/* Ensure proper scrolling on mobile */
+.mobile-menu-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar for mobile menu */
+.mobile-menu-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-menu-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.mobile-menu-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.mobile-menu-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

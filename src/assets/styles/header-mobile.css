@@ -351,9 +351,9 @@
   }
 
   /* Mobile-specific styles for new classes */
-  .header-logo-button {
+  /* .header-logo-button {
     margin: 0 auto;
-  }
+  } */
 
   .menu-item-button {
     margin: 0 4px;
@@ -424,8 +424,12 @@
   }
 
   /* Show mobile icons on mobile */
-  .mobile-icons-left {
+  .header .mobile-icons-left {
     display: flex !important;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 10px;
   }
   
   /* Show hamburger menu on mobile */

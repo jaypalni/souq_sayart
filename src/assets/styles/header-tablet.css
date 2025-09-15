@@ -310,7 +310,7 @@
   /* Force right alignment for tablet header */
   .header .row .col-3,
   .header .row .col-3.d-flex {
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
     align-items: center !important;
     display: flex !important;
     gap: 15px !important;
@@ -452,11 +452,12 @@
   }
 
   /* Show mobile icons on tablet */
-  .mobile-icons-left {
+  .header .mobile-icons-left {
     display: flex !important;
     align-items: center;
     gap: 8px;
     margin-left: auto;
+    margin-right: 10px;
   }
   
   /* Show mobile menu overlay and panel on tablet */

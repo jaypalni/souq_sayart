@@ -25,94 +25,105 @@ const LoginScreen = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await authAPI.countrycode();
-        const data = handleApiResponse(response);
-        if (data && data.length > 0) {
-          setCountryOptions(data);
-          const getGeoData = async () => {
-            try {
-              const cacheKey = 'geoDataCache';
-              const cached = localStorage.getItem(cacheKey);
-              if (cached) {
-                const parsed = JSON.parse(cached);
-                const maxAgeMs = 24 * 60 * 60 * 1000;
-                if (
-                  parsed?.ts &&
-                  Date.now() - parsed.ts < maxAgeMs &&
-                  parsed?.data
-                ) {
-                  return parsed.data;
-                }
-              }
+  const GEO_CACHE_KEY = 'geoDataCache';
+  const MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-              const geoRes = await fetch('https://ipapi.co/json/');
-              if (!geoRes.ok)
-                throw new Error(`Geo API error: ${geoRes.status}`);
-              const geoData = await geoRes.json();
-              localStorage.setItem(
-                cacheKey,
-                JSON.stringify({ ts: Date.now(), data: geoData })
-              );
-              return geoData;
-            } catch (err) {
-              return null;
-            }
-          };
+  const fetchGeoDataFromAPI = async () => {
+    const geoRes = await fetch('https://ipapi.co/json/');
+    if (!geoRes.ok) throw new Error(`Geo API error: ${geoRes.status}`);
+    return geoRes.json();
+  };
 
-          const geoData = await getGeoData();
-          let defaultCountry = null;
-          if (geoData) {
-            const userCountryCode = geoData.country_calling_code;
-            defaultCountry = data.find(
-              (country) =>
-                country.country_code === userCountryCode ||
-                country.country_name?.toLowerCase() ===
-                  geoData.country_name?.toLowerCase()
-            );
-          }
+  const getCachedGeoData = () => {
+    const cached = localStorage.getItem(GEO_CACHE_KEY);
+    if (!cached) return null;
 
-          if (!defaultCountry) {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const tzLower = tz ? tz.toLowerCase() : '';
-            const tzOffset = new Date().getTimezoneOffset();
-            const langs = [
-              navigator.language,
-              ...(navigator.languages || []),
-            ].filter(Boolean);
-            const isIndiaLocale =
-              tzLower === 'asia/kolkata' ||
-              tzLower === 'asia/calcutta' ||
-              tzOffset === -330 ||
-              langs.some((l) => {
-                const ll = String(l).toLowerCase();
-                return (
-                  ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in')
-                );
-              });
-            if (isIndiaLocale) {
-              defaultCountry =
-                data.find((c) => c.country_code === '+91') ||
-                data.find((c) => c.country_name?.toLowerCase() === 'india') ||
-                null;
-            }
-          }
+    const parsed = JSON.parse(cached);
+    const isCacheValid = parsed?.ts && Date.now() - parsed.ts < MAX_CACHE_AGE_MS;
+    return isCacheValid ? parsed.data : null;
+  };
 
-          if (!defaultCountry) {
-            defaultCountry = data[0];
-          }
+  const saveGeoDataToCache = (geoData) => {
+    localStorage.setItem(
+      GEO_CACHE_KEY,
+      JSON.stringify({ ts: Date.now(), data: geoData })
+    );
+  };
 
-          if (defaultCountry) {
-            setSelectedCountry(defaultCountry);
-          }
+  const getGeoData = async () => {
+    const cachedData = getCachedGeoData();
+    if (cachedData) return cachedData;
+
+    try {
+      const freshData = await fetchGeoDataFromAPI();
+      saveGeoDataToCache(freshData);
+      return freshData;
+    } catch (err) {
+      console.error('Geo data fetch error', err);
+      return null;
+    }
+  };
+
+  const findDefaultCountry = (countries, geoData) => {
+    if (geoData) {
+      const userCountryCode = geoData.country_calling_code;
+      const matchedCountry = countries.find(
+        (country) =>
+          country.country_code === userCountryCode ||
+          country.country_name?.toLowerCase() === geoData.country_name?.toLowerCase()
+      );
+      if (matchedCountry) return matchedCountry;
+    }
+
+    // Fallback: Detect India locale
+    const tzLower = Intl.DateTimeFormat().resolvedOptions().timeZone?.toLowerCase() || '';
+    const tzOffset = new Date().getTimezoneOffset();
+    const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+
+    const isIndiaLocale =
+      tzLower === 'asia/kolkata' ||
+      tzLower === 'asia/calcutta' ||
+      tzOffset === -330 ||
+      langs.some((l) => {
+        const ll = String(l).toLowerCase();
+        return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
+      });
+
+    if (isIndiaLocale) {
+      return (
+        countries.find((c) => c.country_code === '+91') ||
+        countries.find((c) => c.country_name?.toLowerCase() === 'india') ||
+        null
+      );
+    }
+
+    // Final fallback: first country in list
+    return countries[0];
+  };
+
+  const fetchCountries = async () => {
+    try {
+      const response = await authAPI.countrycode();
+      const data = handleApiResponse(response);
+
+      if (data?.length > 0) {
+        setCountryOptions(data);
+
+        const geoData = await getGeoData();
+        const defaultCountry = findDefaultCountry(data, geoData);
+
+        if (defaultCountry) {
+          setSelectedCountry(defaultCountry);
         }
-      } catch (error) {
-        console.error('Failed to fetch countries', error);
       }
-    };
-    fetchCountries();
-  }, []);
+    } catch (error) {
+      console.error('Failed to fetch countries', error);
+    }
+  };
+
+  fetchCountries();
+}, []);
+
 
   const handlePhoneChange = (e) => {
     const numb = e.target.value;

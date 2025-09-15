@@ -1,7 +1,7 @@
-/* Extra Large Screen Header Styles - 1400px and above */
+
 
 @media (min-width: 1400px) {
-  /* Ensure desktop menu is visible on extra large screens */
+  
   .col-5 {
     display: flex !important;
   }
@@ -41,7 +41,6 @@
     height: 32px;
   }
 
-  /* Extra large screen-specific styles for new classes */
   .menu-item-button {
     margin: 0 6px;
     font-size: 17px;
@@ -51,7 +50,6 @@
   .notification-icon {
     width: 22px;
     height: 22px;
-    /* margin-bottom: 9px; */
   }
 
   .user-dropdown {
@@ -117,7 +115,6 @@
     border-radius: 26px;
   }
 
-  /* Extra large screen layout optimizations */
   .col-3 {
     flex: 0 0 25%;
     max-width: 25%;
@@ -133,7 +130,6 @@
     max-width: 33.333333%;
   }
 
-  /* Enhanced spacing for extra large screens */
   .row.remove_gutter {
     margin-left: 0;
     margin-right: 0;
@@ -144,12 +140,10 @@
     padding-right: 0;
   }
 
-  /* Optimal alignment for extra large screens */
   .d-flex.align-items-center.justify-content-center {
     justify-content: space-between;
   }
 
-  /* Enhanced hover effects for extra large screens */
   .header-logo-button:hover {
     opacity: 0.8;
     transform: scale(1.02);
@@ -181,7 +175,6 @@
     transition: all 0.3s ease;
   }
 
-  /* Enhanced focus states for accessibility */
   .header-logo-button:focus,
   .menu-item-button:focus,
   .user-dropdown:focus,
@@ -190,7 +183,6 @@
     outline-offset: 2px;
   }
 
-  /* Smooth transitions for all interactive elements */
   .header-logo-button,
   .menu-item-button,
   .user-dropdown,
@@ -199,7 +191,7 @@
     transition: all 0.3s ease;
   }
 
-  /* Enhanced modal styling for extra large screens */
+
   .modal-title-text {
     font-weight: 800;
   }

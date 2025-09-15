@@ -9,8 +9,8 @@
 
 .car-listing-flex-row {
   display: grid;
-  grid-template-columns: repeat(3 , 1fr); /* Always 4 columns */
-  gap: 20px; /* Space between cards */
+  grid-template-columns: repeat(3 , 1fr); 
+  gap: 20px; 
   padding: 20px;
   justify-items: center;
   align-items: stretch;

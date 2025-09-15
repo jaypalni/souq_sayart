@@ -1,4 +1,4 @@
-/* Banner Base Styles */
+
 .banner-container {
   display: flex;
   flex-direction: column;
@@ -54,12 +54,10 @@
   font-family: 'Roboto';
 }
 
-/* Default banner height for desktop */
 .banner-main {
   height: 130px;
 }
 
-/* Mobile Styles */
 @media (max-width: 767px) {
   .banner-main {
     height: 60px !important;
@@ -87,7 +85,6 @@
   }
 }
 
-/* Tablet Styles */
 @media (min-width: 768px) and (max-width: 991px) {
   .banner-main {
     height: 130px !important;
@@ -115,7 +112,6 @@
   }
 }
 
-/* Medium Desktop Styles */
 @media (min-width: 992px) and (max-width: 1199px) {
   .banner-main {
     height: 130px !important;
@@ -126,7 +122,6 @@
   }
 }
 
-/* Large Desktop Styles */
 @media (min-width: 1200px) and (max-width: 1399px) {
   .banner-main {
     height: 300px !important;
@@ -137,7 +132,6 @@
   }
 }
 
-/* Extra Large Desktop Styles */
 @media (min-width: 1400px) {
   .banner-main {
     height: 300px !important;
@@ -148,7 +142,6 @@
   }
 }
 
-/* Plane Banner Specific Styles */
 .plane-banner-main {
   width: 100%;
   background: #008ad5;
@@ -199,7 +192,6 @@
   font-size: 32px;
 }
 
-/* Plane Banner Responsive Styles */
 @media (max-width: 767px) {
   .plane-banner-main {
     height: 80px !important;

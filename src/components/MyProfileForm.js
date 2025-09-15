@@ -342,6 +342,12 @@ const ProfileForm = ({
                             }
                             name="uploadDocuments"
                             required={false}
+                             rules={[
+                                {
+                                  required: true,
+                                  message: 'Please upload your company documents',
+                                },
+                              ]}
                           >
                             <div>
                               {uploadedDocUrl && (

@@ -184,6 +184,7 @@ const prepareFilterData = (filterParams) => {
     condition: getArrayFilterValue(filterState.condition),
     body_type: getFilterValue(bodyType, 'All Body Types'),
     number_of_doors: getArrayFilterValue(filterState.doorselectedValues),
+    number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
     fuel_type: getArrayFilterValue(filterState.selectedValues),
     owner_type: getArrayFilterValue(filterState.ownerType),
     keyword: keywords.length > 0 ? keywords.join(', ') : '',
@@ -502,6 +503,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   const [trimData, setTrimData] = useState(false);
   const [isEmptyModalOpen, setIsEmptyModalOpen] = useState(false);
   const [emptySearchData, setEmptySearchData] = useState(null);
+  const [regionalSpecsOptions, setRegionalSpecsOptions] = useState([]);
 
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
@@ -512,6 +514,10 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   useEffect(() => {
     fetchTrimData()
   },[make,model])
+
+  useEffect(() => {
+      fetchUpdateOptionsData();
+    }, []);
 
   const fetchTrimData = async () => {
   try {
@@ -533,13 +539,29 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
   }
 };
 
-  // const handleFuelTypeChange = (option) => {
-  //   if (filterState.selectedValues.includes(option)) {
-  //     filterState.setSelectedValues(filterState.selectedValues.filter((item) => item !== option));
-  //   } else {
-  //     filterState.setSelectedValues([...filterState.selectedValues, option]);
-  //   }
-  // };
+const fetchUpdateOptionsData = async () => {
+  try {
+    setLoading(true);
+    const response = await carAPI.uploadOptionDetails({});
+    const data1 = handleApiResponse(response);
+
+    if (data1?.data?.regional_specs) {
+      // Set the API response to state
+      setRegionalSpecsOptions(data1.data.regional_specs);
+    }
+
+    message.success(data1.message || 'Fetched successfully');
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to fetch Regional Specs');
+    setRegionalSpecsOptions([]); // reset on error
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  
   const handleFuelTypeChange = (option, selectedValues, setSelectedValues) => {
   if (selectedValues.includes(option)) {
     // If clicked again, clear the selection
@@ -766,50 +788,12 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
             onChange={handleCheckboxChange}
             setSelectedValues={filterState.setcylinderselectedValues}
           />
-
-          {/* <RangeInputGroup
-            label="Power (1hp)"
-            minValue={rangeInputs.powerMin}
-            maxValue={rangeInputs.powerMax}
-            onMinChange={(e) => rangeInputs.setPowerMin(e.target.value)}
-            onMaxChange={(e) => rangeInputs.setPowerMax(e.target.value)}
-          />
-
-          <RangeInputGroup
-            label="Consumption (l/100)"
-            minValue={rangeInputs.consumptionMin}
-            maxValue={rangeInputs.consumptionMax}
-            onMinChange={(e) => rangeInputs.setConsumptionMin(e.target.value)}
-            onMaxChange={(e) => rangeInputs.setConsumptionMax(e.target.value)}
-          /> */}
-
           <SelectInput
             title="Color"
             value={singleInputs.colorValue}
             onChange={singleInputs.setColorValue}
             options={['Any', 'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple']}
           />
-
-          {/* <RangeInputGroup
-            label="Number Of Seats"
-            minValue={rangeInputs.seatsMin}
-            maxValue={rangeInputs.seatsMax}
-            onMinChange={(e) => rangeInputs.setSeatsMin(e.target.value)}
-            onMaxChange={(e) => rangeInputs.setSeatsMax(e.target.value)}
-          /> */}
-
-          {/* <div style={{ marginBottom: 16 }}>
-            <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '3px' }}>
-              Extra Features
-            </div>
-            <Select
-              value="Any"
-              style={{ width: '100%', marginTop: '10px' }}
-              onClick={() => setextrafeaturesvisible(true)}
-            >
-              <Select.Option value="Any">Any</Select.Option>
-            </Select>
-          </div> */}
 
           <CheckboxGroup
             title="Number of Doors"
@@ -835,11 +819,18 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
           /> */}
 
           <SelectInput
-            title="Regional Specs"
-            value={singleInputs.regionalSpecs}
-            onChange={singleInputs.setRegionalSpecs}
-            options={['Any', 'GCC', 'US', 'European', 'Japanese', 'Korean', 'Chinese', 'Other']}
-          />
+  title="Regional Specs"
+  value={singleInputs.regionalSpecs}
+  onChange={singleInputs.setRegionalSpecs}
+  options={[
+    { value: 'Any', label: 'Any' }, // Default option
+    ...regionalSpecsOptions.map(spec => ({
+      value: spec.regional_spec, // or spec.regional_spec if you prefer
+      label: spec.regional_spec
+    }))
+  ]}
+/>
+
 
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>

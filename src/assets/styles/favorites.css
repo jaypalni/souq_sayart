@@ -6,3 +6,14 @@
 .car-listing-link:hover {
   text-decoration: none; 
 }
+
+.car-listing-flex-row {
+  display: grid;
+  grid-template-columns: repeat(3 , 1fr); /* Always 4 columns */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+  justify-items: center;
+  align-items: stretch;
+  min-width: 283px;
+}
+

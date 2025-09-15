@@ -219,6 +219,7 @@ const getInitialMaxPrice = () => {
         location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
+        condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
         page: 1,
         limit: 1, // We only need the count, so limit to 1 for efficiency
       };
@@ -583,6 +584,12 @@ handleSearch()
       } else {
         apiParams.location = '';
       }
+
+      // if (newUsed !== '') {
+      //   apiParams.condition = newUsed;
+      // } else {
+      //   apiParams.condition = '';
+      // }
 
       // Set loading state and clear previous data immediately
       if (setIsLoading) {

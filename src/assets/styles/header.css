@@ -74,6 +74,17 @@
   display: none;
 }
 
+/* Show mobile icons on tablet and mobile - higher specificity */
+@media (max-width: 991px) {
+  .header .mobile-icons-left {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 10px;
+  }
+}
+
 /* Menu Item Button Styles */
 .menu-item-button {
   cursor: pointer;

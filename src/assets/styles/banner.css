@@ -129,7 +129,7 @@
 /* Large Desktop Styles */
 @media (min-width: 1200px) and (max-width: 1399px) {
   .banner-main {
-    height: 130px !important;
+    height: 300px !important;
   }
   
   .banner-title {
@@ -140,7 +140,7 @@
 /* Extra Large Desktop Styles */
 @media (min-width: 1400px) {
   .banner-main {
-    height: 140px !important;
+    height: 300px !important;
   }
   
   .banner-title {

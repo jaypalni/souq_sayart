@@ -32,15 +32,15 @@ const buildMakeImageSrc = (item) => {
 const buildPriceText = (sp) => {
   const hasRange = Boolean(sp?.price_min) || Boolean(sp?.price_to);
   if (!hasRange) {
-    return '$0';
+    return 'IQD 0';
   }
   let left = '';
   if (sp?.price_min) {
-    left = `$${sp.price_min}`;
+    left = `IQD ${sp.price_min}`;
   }
   let right = '';
   if (sp?.price_to) {
-    right = ` - $${sp.price_to}`;
+    right = ` - IQD ${sp.price_to}`;
   }
   return `${left}${right}`;
 };
@@ -88,8 +88,9 @@ const SavedSearchCard = ({ item, idx, total }) => {
   const priceText = buildPriceText(sp);
   const yearText = buildYearText(sp);
   const imgSrc = buildMakeImageSrc(item);
-  const makeDisplay = sp?.make || 'Unknown Make';
-  const makeAlt = sp?.make || 'Car';
+  const makeDisplay =  item?.name || 'Unknown Make';
+  console.log('Make',  item?.name)
+  const makeAlt =  item?.name || 'Car';
 
   return (
     <div className={`user-saved-search-section${divider}`} key={item.id}>

@@ -171,7 +171,8 @@ if (loading) {
       <div className="saved-searches-header">Saved Searches</div>
       <div className="saved-searches-list">
         {searches.map((search) => {
-  const { make, model } = search.search_params;
+  const { make } = search?.name;
+  console.log('Make', make)
   const imageSrc = search.make_image?.trim() ? `${BASE_URL}${search.make_image}` : lamborgini;
 
   return (
@@ -183,9 +184,9 @@ if (loading) {
           className="saved-search-logo"
         />
         <div>
-          <div className="saved-search-title">
-            {make || 'N/A'} - {model || 'N/A'}
-          </div>
+         <div className="saved-search-title">
+  {search?.name || 'All Make - All Modal'}
+</div>
             <div
               className="saved-search-subtitle"
               style={{

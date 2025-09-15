@@ -79,6 +79,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [bodyType, setBodyType] = useState(CORRECT_DEFAULT_BODY_TYPE);
   const [location, setLocation] = useState(CORRECT_DEFAULT_LOCATION);
   
+  
   // Force location to "All Locations" on component mount
   useEffect(() => {
     setLocation('All Locations');
@@ -735,6 +736,12 @@ const isIndiaLocale = () => {
         setBodyType={setBodyType}
         selectedLocation={location}
         setSelectedLocation={setLocation}
+        priceMin={minPrice}               
+        setPriceMin={setMinPrice}         
+        priceMax={maxPrice}              
+        setPriceMax={setMaxPrice}         
+        newUsed={newUsed}                  
+        setNewUsed={setNewUsed}
         onSave={handleSearch}
         setSaveSearchesReload={setSaveSearchesReload}
         

@@ -870,6 +870,11 @@ handleSearch()
         setBodyType={setBodyType}
         selectedLocation={location}
         setSelectedLocation={setLocation}
+         priceMin={minPrice}               
+        setPriceMin={setMinPrice}         
+        priceMax={maxPrice}              
+        setPriceMax={setMaxPrice}         
+        newUsed={newUsed}     
         onSave={handleSearch}
         setSaveSearchesReload={() => {}}
       />

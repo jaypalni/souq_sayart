@@ -642,91 +642,122 @@ handleSearch()
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="make-select">Make</label>
             <Select
-              id="make-select"
-              value={make}
-              onChange={(value) => {
-                setMake(value);
-                setModel(DEFAULTS.ALL_MODELS);
-                handleChange('Make', value);
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-            >
-              {carMakes.map((m) => (
-                <Option key={m?.name} value={m?.name}>
-                  {m?.name}
-                </Option>
-              ))}
-            </Select>
-          </div>
-          <div className="allcars-filters-col">
-            <label className="allcars-filters-label" htmlFor="model-select">Model</label>
-            <Select
-  id="model-select"
-  value={model}
+  id="make-select"
+  value={make}
+  showSearch
+  allowClear
+  placeholder="Select Make"
   onChange={(value) => {
-    setModel(value);
-    handleChange('Model', value);
+    setMake(value || DEFAULTS.ALL_MAKE); // Reset to default if cleared
+    setModel(DEFAULTS.ALL_MODELS);
+    handleChange('Make', value || DEFAULTS.ALL_MAKE);
   }}
   className="allcars-filters-select"
   size="large"
   dropdownClassName="allcars-filters-dropdown"
-  disabled={make === DEFAULTS.ALL_MAKE}
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
 >
-  {carModels?.map((m) => (
-    <Option key={m} value={m.model_name}>
-      {m.model_name}
+  {carMakes.map((m) => (
+    <Option key={m?.name} value={m?.name}>
+      {m?.name}
     </Option>
   ))}
 </Select>
 
           </div>
           <div className="allcars-filters-col">
+            <label className="allcars-filters-label" htmlFor="model-select">Model</label>
+            <Select
+  id="model-select"
+  value={model}
+  showSearch
+  allowClear
+  placeholder="Select Model"
+  onChange={(value) => {
+    setModel(value || DEFAULTS.ALL_MODELS);
+    handleChange('Model', value || DEFAULTS.ALL_MODELS);
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  disabled={make === DEFAULTS.ALL_MAKE}
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  {carModels?.map((m) => (
+    <Option key={m.model_name} value={m.model_name}>
+      {m.model_name}
+    </Option>
+  ))}
+</Select>
+
+
+          </div>
+          <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="bodytype-select">Body Type</label>
             <Select
-              id="bodytype-select"
-              value={bodyType}
-              onChange={(value) => {
-                setBodyType(value);
-                handleChange('Body Type', value);
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-            >
-              {carBodyTypes.map((b) => (
-                <Option key={b} value={b?.body_type}>
-                  {b?.body_type}
-                </Option>
-              ))}
-            </Select>
+  id="bodytype-select"
+  value={bodyType}
+  showSearch
+  allowClear
+  placeholder="Select Body Type"
+  onChange={(value) => {
+    setBodyType(value || DEFAULTS.ALL_BODY_TYPES);
+    handleChange('Body Type', value || DEFAULTS.ALL_BODY_TYPES);
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  {carBodyTypes.map((b) => (
+    <Option key={b?.body_type} value={b?.body_type}>
+      {b?.body_type}
+    </Option>
+  ))}
+</Select>
+
           </div>
           <div className="allcars-filters-col">
             <label className="allcars-filters-label" htmlFor="location-select">Location</label>
             <Select
-              id="location-select"
-              value={location}
-              onChange={(value) => {
-                setLocation(value);
-                handleChange('Location', value);
-                // Update breadcrumb directly via prop
-                if (setSelectedLocation) {
-                  setSelectedLocation(value);
-                }
-                // Dispatch custom event to update breadcrumb (fallback)
-                window.dispatchEvent(new CustomEvent('searchDataUpdated'));
-              }}
-              className="allcars-filters-select"
-              size="large"
-              dropdownClassName="allcars-filters-dropdown"
-            >
-              {locations.map((l) => (
-                <Option key={l} value={l}>
-                  {l}
-                </Option>
-              ))}
-            </Select>
+  id="location-select"
+  value={location}
+  showSearch
+  allowClear
+  placeholder="Select Location"
+  onChange={(value) => {
+    const selectedValue = value || DEFAULTS.ALL_LOCATIONS;
+    setLocation(selectedValue);
+    handleChange('Location', selectedValue);
+
+    // Update breadcrumb directly via prop
+    if (setSelectedLocation) {
+      setSelectedLocation(selectedValue);
+    }
+
+    // Dispatch custom event to update breadcrumb (fallback)
+    window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+  }}
+  className="allcars-filters-select"
+  size="large"
+  dropdownClassName="allcars-filters-dropdown"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  {locations.map((l) => (
+    <Option key={l} value={l}>
+      {l}
+    </Option>
+  ))}
+</Select>
+
           </div>
 
           <Cardetailsfilter

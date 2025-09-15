@@ -37,14 +37,10 @@ const ChangePhoneOtpPage = () => {
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
   const { customerDetails } = useSelector((state) => state.customerDetails);
-
-  // Menu handlers
+ const handlestate = useSelector((state) => state.auth);
   const handleMenuClick = ({ key }) => {
-    // Handle any additional menu logic if needed
   };
-
   const handleDeleteClick = () => {
-    // Handle delete click
   };
 
   const handleLogoutClick = () => {
@@ -201,13 +197,13 @@ const ChangePhoneOtpPage = () => {
   const handleResend = async () => {
     try {
       setLoading(true);
-      if (!phoneNumber) {
+      if (!handlestate?.phone_login) {
         messageApi.open({ type: 'error', content: 'Phone number not found. Please start over.' });
         navigate('/myProfile/change-phone');
         return;
       }
 
-      const response = await userAPI.changephonenumber({ phone_number: phoneNumber, whatsapp: 0 });
+      const response = await userAPI.changephonenumber({ phone_number: handlestate.phone_login, whatsapp: 0 });
       const data = handleApiResponse(response);
 
       if (data) {

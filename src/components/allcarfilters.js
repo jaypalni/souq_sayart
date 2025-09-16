@@ -205,40 +205,59 @@ const getInitialMaxPrice = () => {
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
   // Auto-search function to update car count on filter changes
-  const autoSearchForCount = async (filterParams = {}) => {
-    try {
-      const currentMake = filterParams.make !== undefined ? filterParams.make : make;
-      const currentModel = filterParams.model !== undefined ? filterParams.model : model;
-      const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
-      const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
+  // Helper function to get current filter value
+const getCurrentFilterValue = (filterParams, paramName, defaultValue) => {
+  return filterParams[paramName] !== undefined ? filterParams[paramName] : defaultValue;
+};
 
-      const apiParams = {
-        make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
-        model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
-        body_type: currentBodyType === DEFAULTS.ALL_BODY_TYPES ? '' : currentBodyType,
-        location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
-        price_min: minPrice !== null ? minPrice : '',
-        price_max: maxPrice !== null ? maxPrice : '',
-        condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
-        page: 1,
-        limit: 1, // We only need the count, so limit to 1 for efficiency
-      };
+// Helper function to build API parameters
+const buildAutoSearchParams = (filterParams) => {
+  const currentMake = getCurrentFilterValue(filterParams, 'make', make);
+  const currentModel = getCurrentFilterValue(filterParams, 'model', model);
+  const currentLocation = getCurrentFilterValue(filterParams, 'location', location);
+  const currentBodyType = getCurrentFilterValue(filterParams, 'bodyType', bodyType);
 
-      const response = await carAPI.getSearchCars(apiParams);
-      const data = handleApiResponse(response);
-
-      if (data && data.data && data.data.pagination) {
-        setCarCount(data.data.pagination.total);
-      }
-    } catch (error) {
-      console.warn('Auto-search for count failed:', error);
-    if(error?.message==='Network Error' ){ messageApi.open({
-            type: 'error',
-            content:'You’re offline! Please check your network connection and try again.',
-          });
-        }
-    }
+  return {
+    make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
+    model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
+    body_type: currentBodyType === DEFAULTS.ALL_BODY_TYPES ? '' : currentBodyType,
+    location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
+    price_min: minPrice !== null ? minPrice : '',
+    price_max: maxPrice !== null ? maxPrice : '',
+    condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+    page: 1,
+    limit: 1, // We only need the count, so limit to 1 for efficiency
   };
+};
+
+// Helper function to handle API response
+const handleAutoSearchResponse = (data) => {
+  if (data?.data?.pagination) {
+    setCarCount(data.data.pagination.total);
+  }
+};
+
+// Helper function to handle auto search error
+const handleAutoSearchError = (error) => {
+  console.warn('Auto-search for count failed:', error);
+  if (error?.message === 'Network Error') {
+    messageApi.open({
+      type: 'error',
+      content: 'You\'re offline! Please check your network connection and try again.',
+    });
+  }
+};
+
+const autoSearchForCount = async (filterParams = {}) => {
+  try {
+    const apiParams = buildAutoSearchParams(filterParams);
+    const response = await carAPI.getSearchCars(apiParams);
+    const data = handleApiResponse(response);
+    handleAutoSearchResponse(data);
+  } catch (error) {
+    handleAutoSearchError(error);
+  }
+};
 
     useEffect(() => {
       fetchMakeCars({ setLoading, setCarMakes });

@@ -177,7 +177,7 @@ CarCard.propTypes = {
   car: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     status: PropTypes.string,
-    image: PropTypes.string,
+    car_image: PropTypes.string,
     ad_title: PropTypes.string.isRequired,
     price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     updated_at: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

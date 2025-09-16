@@ -75,8 +75,8 @@ const CarTypeList = () => {
     speed: 500,
     slidesToShow: 6,
     slidesToScroll: 1,
-    nextArrow: <Arrow left={false} />,
-    prevArrow: <Arrow left={true} />,
+    // nextArrow: <Arrow left={false} />,
+    // prevArrow: <Arrow left={true} />,
     initialSlide: 0,
     lazyLoad: 'ondemand',
     responsive: [

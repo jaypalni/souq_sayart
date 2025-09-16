@@ -49,12 +49,6 @@ const MyFavoritesCars = () => {
         setCarsData([]);
       }
 
-      // if (data?.message) {
-      //   messageApi.open({
-      //     type: 'success',
-      //     content: data.message,
-      //   });
-      // }
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.open({

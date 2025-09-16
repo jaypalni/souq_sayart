@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect,useRef } from 'react';
+import PropTypes from 'prop-types';
 import {
   Form,
   Input,
@@ -40,6 +41,259 @@ import moment from 'moment';
 const { TextArea } = Input;
 const { Option } = Select;
 
+const ExteriorColorInput = ({
+  selectedColor,
+  selectedColorImage,
+  placeholder = 'Beige',
+  onOpen,
+  BASE_URL,
+}) => {
+  const hasImage = !!selectedColorImage;
+
+  const imageSrc = selectedColorImage
+    ? selectedColorImage.startsWith('http') 
+      ? selectedColorImage 
+      : `${BASE_URL}${selectedColorImage}`
+    : null;
+
+  return (
+    <div
+      className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpen();
+      }}
+    >
+      <div className="exterior-color-left">
+        {hasImage && imageSrc ? (
+          <img
+            src={imageSrc}
+            alt={selectedColor || 'color swatch'}
+            className="color-swatch-input"
+          />
+        ) : (
+          <span className="color-swatch-placeholder" aria-hidden="true" />
+        )}
+      </div>
+
+      <span
+        style={{
+          fontSize: 14,
+          marginLeft: 8,
+          flex: 1,
+        }}
+      >
+        {selectedColor || placeholder}
+      </span>
+
+      <RightOutlined className="color-arrow" />
+    </div>
+  );
+};
+
+ExteriorColorInput.propTypes = {
+  selectedColor: PropTypes.string,
+  selectedColorImage: PropTypes.string,
+  placeholder: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+  BASE_URL: PropTypes.string.isRequired,
+};
+
+const InteriorColorInput = ({ selectedInteriorColor, onOpen }) => (
+  <div
+    className={`exterior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
+    onClick={onOpen}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    }}
+  >
+    <span
+      style={{
+        fontSize: 14,
+      }}
+    >
+      {selectedInteriorColor || 'Beige'}
+    </span>
+    <RightOutlined className="color-arrow" />
+  </div>
+);
+
+InteriorColorInput.propTypes = {
+  selectedInteriorColor: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+};
+
+const TrimInput = ({ selectedTrim, onOpen }) => (
+  <div
+    className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
+    onClick={onOpen}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    }}
+  >
+    <span
+      style={{
+        fontSize: 14,
+      }}
+    >
+      {selectedTrim || 'B200'}
+    </span>
+    <RightOutlined className="trim-arrow" />
+  </div>
+);
+
+TrimInput.propTypes = {
+  selectedTrim: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+};
+
+const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, BASE_URL, brandOptions }) => {
+  const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
+
+  const imageSrc = selectedBrandObj?.image
+    ? `${BASE_URL}${selectedBrandObj.image}`
+    : selectedBrandImage
+      ? `${BASE_URL}${selectedBrandImage}`
+      : null;
+
+  return (
+    <div
+      className={`brand-input${!selectedBrand ? ' placeholder' : ''}`}
+      onClick={onOpen}
+      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpen();
+      }}
+    >
+      {imageSrc && (
+        <img
+          src={imageSrc}
+          alt={selectedBrand || 'brand'}
+          className="brand-input-img"
+          style={{
+            width: 32,
+            height: 32,
+            objectFit: 'contain',
+          }}
+        />
+      )}
+
+      <span
+        style={{
+          fontSize: 14,
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {selectedBrand
+          ? `${selectedBrand}${selectedModel ? ' - ' + selectedModel : ''}`
+          : 'brand and model of your car'}
+      </span>
+
+      <RightOutlined className="brand-arrow" style={{ marginLeft: 'auto' }} />
+    </div>
+  );
+};
+
+BrandInput.propTypes = {
+  selectedBrand: PropTypes.string,
+  selectedModel: PropTypes.string,
+  selectedBrandImage: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+  BASE_URL: PropTypes.string.isRequired,
+  brandOptions: PropTypes.array.isRequired,
+};
+
+const YearInput = ({ selectedYear, onOpen }) => (
+  <div
+    className={`year-input${!selectedYear ? ' placeholder' : ''}`}
+    onClick={onOpen}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    }}
+  >
+    <span
+      style={{
+        fontSize: 14,
+      }}
+    >
+      {selectedYear || 'Select Year'}
+    </span>
+    <RightOutlined className="year-arrow" />
+  </div>
+);
+
+YearInput.propTypes = {
+  selectedYear: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+};
+
+const RegionInput = ({ selectedRegion, onOpen }) => (
+  <div
+    className={`region-input${!selectedRegion ? ' placeholder' : ''}`}
+    onClick={onOpen}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    }}
+  >
+    <span
+      style={{
+        fontSize: 14,
+      }}
+    >
+      {selectedRegion || 'Select Region'}
+    </span>
+    <RightOutlined className="region-arrow" />
+  </div>
+);
+
+RegionInput.propTypes = {
+  selectedRegion: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+};
+
+const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
+  <div
+    className={`regionalspecs-input${
+      !selectedRegionalSpecs ? ' placeholder' : ''
+    }`}
+    onClick={onOpen}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    }}
+  >
+    <span
+      style={{
+        fontSize: 14,
+      }}
+    >
+      {selectedRegionalSpecs || 'Select Specs'}
+    </span>
+    <RightOutlined className="regionalspecs-arrow" />
+  </div>
+);
+
+RegionalSpecsInput.propTypes = {
+  selectedRegionalSpecs: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+};
+
 const brandOptions = [
   { label: 'Toyota', value: 'Toyota', img: toyotaImg },
   { label: 'Mercedes', value: 'Mercedes', img: mercedesImg },
@@ -61,7 +315,6 @@ const Sell = () => {
   const [trimData, setTrimData] = useState([]);
   const [updateData, setUpdateData] = useState();
   const [,setAddData] = useState();
-  const [,setDraftData] = useState();
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [colorModalOpen, setColorModalOpen] = useState(false);
@@ -89,7 +342,6 @@ const Sell = () => {
   const [selectedVehicleType, setSelectedVehicleType] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
-  const [createSelecetd, setCreateSelecetd] = useState('');
   const [selectedPrice, setSelectedPrice] = useState('');
   const [selectedHorsepower, setSelectedHorsepower] = useState('');
   const [selectedRegion, setSelectedRegion] = useState();
@@ -108,7 +360,6 @@ const Sell = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const [selectedInterior, setSelectedInterior] = useState([]);
-  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
   const { state } = useLocation();
   const extras = state?.extras ?? [];
   const populatedRef = useRef(false);
@@ -165,8 +416,16 @@ const buildFormValues = (data) => ({
   cylinders: data.no_of_cylinders ?? data.cylinders ?? '',
   doors: data.number_of_doors ?? data.no_of_doors ?? '',
   seats: data.number_of_seats ?? data.no_of_seats ?? '',
-  extraFeatures: Array.isArray(data.extra_features) ? data.extra_features : (data.extra_features ? [data.extra_features] : []),
-  badges: Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []),
+  extraFeatures: Array.isArray(data.extra_features) 
+    ? data.extra_features 
+    : data.extra_features 
+      ? [data.extra_features] 
+      : [],
+  badges: Array.isArray(data.badges) 
+    ? data.badges 
+    : data.badges 
+      ? [data.badges] 
+      : [],
   warrantyDate: data.warranty_date ? moment(data.warranty_date) : undefined,
 });
 
@@ -240,12 +499,19 @@ const setDetailedVehicleState = (data, setters) => {
     setSelectedInteriorColor
   } = setters;
 
-  if (typeof setSelectedBadges === 'function') setSelectedBadges(Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []));
+  if (typeof setSelectedBadges === 'function') {
+    const badgesArray = Array.isArray(data.badges) 
+      ? data.badges 
+      : data.badges 
+        ? [data.badges] 
+        : [];
+    setSelectedBadges(badgesArray);
+  }
   if (typeof setSelectedSeats === 'function') setSelectedSeats(data.number_of_seats ?? data.no_of_seats ?? '');
   if (typeof setSelectedDoors === 'function') setSelectedDoors(data.number_of_doors ?? data.no_of_doors ?? '');
   if (typeof setSelectedFuelType === 'function') setSelectedFuelType(data.fuel_type ?? '');
   if (typeof setSelectedTransmissionType === 'function') setSelectedTransmissionType(data.transmission_type ?? '');
-  if (typeof setSelectedDriveType === 'bigint') setSelectedDriveType(data.drive_type ?? '');
+    if (typeof setSelectedDriveType === 'function') setSelectedDriveType(data.drive_type ?? '');
   if (typeof setSelectedCylinders === 'function') setSelectedCylinders(data.no_of_cylinders ?? '');
   if (typeof setSelectedInterior === 'function') setSelectedInterior(data.interior ?? '');
   if (typeof setSelectedInteriorColor === 'function') setSelectedInteriorColor(data.interior_color ?? '');
@@ -355,7 +621,11 @@ useEffect(() => {
 
   useEffect(() => {
   if (selectedYear || selectedBrand || selectedModel || selectedTrim) {
-    const autoTitle = `${selectedYear || ''} ${selectedBrand || ''} ${selectedModel || ''} ${selectedTrim || ''}`.trim();
+    const yearPart = selectedYear || '';
+    const brandPart = selectedBrand || '';
+    const modelPart = selectedModel || '';
+    const trimPart = selectedTrim || '';
+    const autoTitle = `${yearPart} ${brandPart} ${modelPart} ${trimPart}`.trim();
 
     // Update adTitle only if the user hasn't typed manually
     setAdTitle((prev) => {
@@ -432,52 +702,6 @@ useEffect(() => {
     }
   };
 
-// const handleBeforeUpload = async (files) => {
-//   if (!files || files.length === 0) {
-//     console.error('No files provided to handleBeforeUpload');
-//     return Upload.LIST_IGNORE;
-//   }
-
-//   const formData = new FormData();
-//   files.forEach((file) => {
-//     formData.append('attachment', file);
-//   });
-
-//   for (let pair of formData.entries()) {
-//     console.log(pair[0] + ':', pair[1]);
-//   }
-
-//   try {
-//     const response = await carAPI.postuploadcarimages(formData, 'car');
-//     console.log('Upload API Response:', response.data);
-
-//     const userdoc = handleApiResponse(response);
-
-//     if (userdoc?.attachment_url?.length > 0) {
-//       setUploadedImageUrls((prev) => [...prev, ...userdoc.attachment_url]);
-
-//       messageApi.open({
-//         type: 'success',
-//         content: userdoc.message || 'All images uploaded successfully',
-//       });
-// console.log('1or2', createSelecetd)
-//        handlePostData(userdoc.attachment_url, createSelecetd);
-//       return Upload.LIST_IGNORE;
-//     } else {
-//       message.error(userdoc.message || 'Upload failed');
-//       return Upload.LIST_IGNORE;
-//     }
-//   } catch (error) {
-//     console.error('Upload error:', error);
-//     const errorData = handleApiError(error);
-//     messageApi.open({
-//       type: 'error',
-//       content: errorData.message || 'Upload failed',
-//     });
-//     return Upload.LIST_IGNORE;
-//   }
-// };
-
 const handleBeforeUpload = async (files, mode, valuesParam = null) => {
   if (!files || files.length === 0) {
     console.error('No files provided to handleBeforeUpload');
@@ -494,7 +718,6 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     const userdoc = handleApiResponse(response);
 
     if (userdoc?.attachment_url?.length > 0) {
-      setUploadedImageUrls((prev) => [...prev, ...userdoc.attachment_url]);
 
       messageApi.open({
         type: 'success',
@@ -519,92 +742,6 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     return Upload.LIST_IGNORE;
   }
 };
-
-
-
-// const handlePostData = async (uploadedImages = [], text = '') => {
-//   try {
-//     const values = await form.validateFields();
-//     const formData = new FormData();
-
-//     formData.append('make', make || '');
-//     formData.append('model', modalName || '');
-//     formData.append('year', selectedYear || '');
-//     formData.append('price', values.price || '');
-//     formData.append('description', values?.description || '');
-//     formData.append('ad_title', values?.adTitle || '');
-//     formData.append('exterior_color', selectedColor || '');
-//     formData.append('interior_color', selectedInteriorColor || '');
-//     formData.append('mileage', values?.kilometers || '');
-//     formData.append('fuel_type', values?.fuelType || '');
-//     formData.append('transmission_type', values?.transmissionType || '');
-//     formData.append('body_type', values?.bodyType || '');
-//     formData.append('vechile_type', values?.vehicletype || '');
-//     formData.append('condition', values?.condition || '');
-//     formData.append('location', selectedRegion || '');
-//     formData.append('interior', values?.interior || '');
-//     formData.append('trim', selectedTrim || '');
-//     formData.append('regional_specs', selectedRegionalSpecs || '');
-//     formData.append('badges', values?.badges || '');
-//     formData.append('warranty_date', values?.warrantyDate || '');
-//     formData.append('accident_history', values?.accidentHistory || '');
-//     formData.append('number_of_seats', values?.seats || '');
-//     formData.append('number_of_doors', values?.doors || '');
-//     formData.append('drive_type', values?.driveType || '');
-//     formData.append('engine_cc', values?.engineCC || '');
-//     formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
-//     formData.append('consumption', values?.consumption || '');
-//     formData.append('no_of_cylinders', values?.cylinders || '');
-//     formData.append('horse_power', values?.horsepower || '');
-//     formData.append('payment_option', '');
-//     formData.append('draft', '');
-
-//     // ✅ Append the uploaded images array dynamically
-//     uploadedImages.forEach((url) => {
-//       formData.append('car_images[]', url);
-//     });
-
-//     console.log('Final FormData:');
-//     for (let [key, value] of formData.entries()) {
-//       console.log(`${key}: ${value}`);
-//     }
-
-//     setLoading(true);
-
-//     const response = await carAPI.createCar(formData);
-//     const data1 = handleApiResponse(response);
-
-//     console.log('API Response:', data1);
-
-//     if (data1) {
-//       setAddData(data1?.data);
-//     }
-
-//     messageApi.open({
-//       type: 'success',
-//       content:
-//         typeof data1.message === 'object'
-//           ? JSON.stringify(data1.message)
-//           : data1.message,
-//     });
-
-//     if (text === '1') {
-//       navigate('/landing');
-//     } else {
-//       form.resetFields();
-//     }
-
-//   } catch (error) {
-//     const errorData = handleApiError(error);
-//     messageApi.open({
-//       type: 'error',
-//       content: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData,
-//     });
-//     setAddData([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
 
   const normFile = (e) => {
     if (Array.isArray(e)) {
@@ -661,9 +798,12 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
       setAddData(data1?.data);
     }
 
+    const messageContent = typeof data1.message === 'object' 
+      ? JSON.stringify(data1.message) 
+      : data1.message;
     messageApi.open({
       type: 'success',
-      content: typeof data1.message === 'object' ? JSON.stringify(data1.message) : data1.message,
+      content: messageContent,
     });
 
     if (text === '1') {
@@ -673,8 +813,9 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     }
   } catch (error) {
     const errorData = handleApiError(error);
-    const messageText =
-      typeof errorData === 'object' ? JSON.stringify(errorData) : (errorData || 'An error occurred');
+    const messageText = typeof errorData === 'object' 
+      ? JSON.stringify(errorData) 
+      : (errorData || 'An error occurred');
     messageApi.open({ type: 'error', content: messageText });
     setAddData([]);
   } finally {
@@ -710,7 +851,9 @@ const handleFinish = async (mode) => {
       // Ant validation error object -> show a concise message
       messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
     } else {
-      const errText = typeof err === 'object' ? JSON.stringify(err) : String(err);
+      const errText = typeof err === 'object' 
+        ? JSON.stringify(err) 
+        : String(err);
       messageApi.open({ type: 'error', content: errText });
     }
   }
@@ -718,73 +861,7 @@ const handleFinish = async (mode) => {
 
 
 
-const ExteriorColorInput = ({
-  selectedColor,
-  selectedColorImage,
-  placeholder = 'Beige',
-  onOpen,
-}) => {
-  const hasImage = !!selectedColorImage;
 
-  const imageSrc =
-    selectedColorImage
-      ? selectedColorImage
-      : selectedColorImage
-      ? `${BASE_URL}${selectedColorImage}`
-      : null;
-
-  return (
-    <div
-      className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
-      onClick={onOpen}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onOpen();
-      }}
-    >
-      <div className="exterior-color-left">
-        {hasImage && imageSrc ? (
-          <img
-            src={imageSrc}
-            alt={selectedColor || 'color swatch'}
-            className="color-swatch-input"
-          />
-        ) : (
-          <span className="color-swatch-placeholder" aria-hidden="true" />
-        )}
-      </div>
-
-      <span
-        style={{
-          fontSize: 14,
-          marginLeft: 8,
-          flex: 1,
-        }}
-      >
-        {selectedColor || placeholder}
-      </span>
-
-      <RightOutlined className="color-arrow" />
-    </div>
-  );
-};
-
-  const InteriorColorInput = () => (
-    <div
-      className={`exterior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
-      onClick={() => setColorModalOpenInterior(true)}
-    >
-      <span
-        style={{
-          fontSize: 14,
-        }}
-      >
-        {selectedInteriorColor || 'Beige'}
-      </span>
-      <RightOutlined className="color-arrow" />
-    </div>
-  );
 
   const filteredColors = updateData?.colours?.filter((opt) =>
     opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
@@ -794,120 +871,8 @@ const ExteriorColorInput = ({
     opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
   );
 
-  const TrimInput = () => (
 
-    <div
-      className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
-      onClick={() => setTrimModalOpen(true)}
-    >
-      <span
-        style={{
-          fontSize: 14,
-        }}
-      >
-        {selectedTrim || 'B200'}
-      </span>
-      <RightOutlined className="trim-arrow" />
-    </div>
-  );
 
-const BrandInput = () => {
-  const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
-
-  const imageSrc =
-    selectedBrandObj?.image
-      ? `${BASE_URL}${selectedBrandObj.image}`
-      : selectedBrandImage
-      ? `${BASE_URL}${selectedBrandImage}`
-      : null;
-
-  return (
-    <div
-      className={`brand-input${!selectedBrand ? ' placeholder' : ''}`}
-      onClick={() => setBrandModalOpen(true)}
-      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-    >
-      {imageSrc && (
-        <img
-          src={imageSrc}
-          alt={selectedBrand || 'brand'}
-          className="brand-input-img"
-          style={{
-            width: 32,
-            height: 32,
-            objectFit: 'contain',
-          }}
-        />
-      )}
-
-      <span
-        style={{
-          fontSize: 14,
-          fontWeight: 500,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {selectedBrand
-          ? `${selectedBrand}${selectedModel ? ' - ' + selectedModel : ''}`
-          : 'brand and model of your car'}
-      </span>
-
-      <RightOutlined className="brand-arrow" style={{ marginLeft: 'auto' }} />
-    </div>
-  );
-};
-
-  const YearInput = () => (
-    <div
-      className={`year-input${!selectedYear ? ' placeholder' : ''}`}
-      onClick={() => setYearModalOpen(true)}
-    >
-      <span
-        style={{
-          fontSize: 14,
-        }}
-      >
-        {selectedYear || 'Select Year'}
-      </span>
-      <RightOutlined className="year-arrow" />
-    </div>
-  );
-
-  const RegionInput = () => (
-    <div
-      className={`region-input${!selectedRegion ? ' placeholder' : ''}`}
-      onClick={() => setRegionModalOpen(true)}
-    >
-      <span
-        style={{
-          fontSize: 14,
-        }}
-      >
-        {selectedRegion || 'Select Region'}
-      </span>
-      <RightOutlined className="region-arrow" />
-    </div>
-  );
-
-  const RegionalSpecsInput = () => (
-    <div
-      className={`regionalspecs-input${
-        !selectedRegionalSpecs ? ' placeholder' : ''
-      }`}
-      onClick={() => setRegionalSpecsModalOpen(true)}
-    >
-      <span
-        style={{
-          fontSize: 14,
-        }}
-      >
-        {selectedRegionalSpecs || 'Select Specs'}
-      </span>
-      <RightOutlined className="regionalspecs-arrow" />
-    </div>
-  );
 
   const handleEvaluateCar = () => {
      messageApi.open({
@@ -915,148 +880,6 @@ const BrandInput = () => {
         content: 'Coming soon',
       });
   };
-  
-  // const handleSaveDraft = async () => {
-  //   const values = await form.validateFields();
-  //   const formData = new FormData();
-  //   formData.append('make', make || '');
-  //   formData.append('model', modalName || '');
-  //   formData.append('year', selectedYear || '');
-  //   formData.append('price', values.price || '');
-  //   formData.append('description', values?.description || '');
-  //   formData.append('ad_title', values?.adTitle || '');
-  //   formData.append('exterior_color', selectedColor || '');
-  //   formData.append('interior_color', selectedInteriorColor || '');
-  //   formData.append('mileage', values?.kilometers || '');
-  //   formData.append('fuel_type', values?.fuelType || '');
-  //   formData.append('transmission_type', values?.transmissionType || '');
-  //   formData.append('body_type', values?.bodyType || '');
-  //   formData.append('vechile_type', values?.vehicletype || '');
-  //   formData.append('condition', values?.condition || '');
-  //   formData.append('location', selectedRegion || '');
-  //   formData.append('interior', values?.interior || '');
-  //   formData.append('trim', selectedTrim || '');
-  //   formData.append('regional_specs', selectedRegionalSpecs || '');
-  //   formData.append('badges', values?.badges || '');
-  //   formData.append('warranty_date', values?.warrantyDate || '');
-  //   formData.append('accident_history', values?.accidentHistory || '');
-  //   formData.append('number_of_seats', values?.seats || '');
-  //   formData.append('number_of_doors', values?.doors || '');
-  //   formData.append('drive_type', values?.driveType || '');
-  //   formData.append('engine_cc', values?.engineCC || '');
-  //   formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
-  //   formData.append('consumption', values?.consumption || '');
-  //   formData.append('no_of_cylinders', values?.cylinders || '');
-  //   formData.append('horse_power', values?.horsepower || '');
-  //   formData.append('payment_option', '');
-  //   formData.append('draft', '');
-
-  //   values.media?.forEach((file) => {
-  //     // formData.append('car_image', file.originFileObj);
-  //     formData.append('car_images', ['/api/search/upload-attachment/Screenshot_3_20250909_093054_ea3e7016.png'])
-  //   });
-  //   try {
-  //     setLoading(true);
-  //     const response = await carAPI.saveDraftCar(formData);
-  //     const data1 = handleApiResponse(response);
-
-  //     if (data1) {
-  //       setDraftData(data1);
-  //     }
-
-  //     message.success(data1.message || 'Saved Draft Data successfully');
-  //     navigate('/landing');
-  //   } catch (error) {
-  //     const errorData = handleApiError(error);
-  //     message.error(errorData.message || 'Failed to Save Draft car data');
-  //     setDraftData([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  const handleSaveDraft = async (uploadedImages = [], text = '') => {
-  try {
-    const values = await form.validateFields();
-    const formData = new FormData();
-
-    formData.append('make', make || '');
-    formData.append('model', modalName || '');
-    formData.append('year', selectedYear || '');
-    formData.append('price', values.price || '');
-    formData.append('description', values?.description || '');
-    formData.append('ad_title', values?.adTitle || '');
-    formData.append('exterior_color', selectedColor || '');
-    formData.append('interior_color', selectedInteriorColor || '');
-    formData.append('mileage', values?.kilometers || '');
-    formData.append('fuel_type', values?.fuelType || '');
-    formData.append('transmission_type', values?.transmissionType || '');
-    formData.append('body_type', values?.bodyType || '');
-    formData.append('vechile_type', values?.vehicletype || '');
-    formData.append('condition', values?.condition || '');
-    formData.append('location', selectedRegion || '');
-    formData.append('interior', values?.interior || '');
-    formData.append('trim', selectedTrim || '');
-    formData.append('regional_specs', selectedRegionalSpecs || '');
-    formData.append('badges', values?.badges || '');
-    formData.append('warranty_date', values?.warrantyDate || '');
-    formData.append('accident_history', values?.accidentHistory || '');
-    formData.append('number_of_seats', values?.seats || '');
-    formData.append('number_of_doors', values?.doors || '');
-    formData.append('drive_type', values?.driveType || '');
-    formData.append('engine_cc', values?.engineCC || '');
-    formData.append('extra_features', JSON.stringify(values?.extraFeatures || []));
-    formData.append('consumption', values?.consumption || '');
-    formData.append('no_of_cylinders', values?.cylinders || '');
-    formData.append('horse_power', values?.horsepower || '');
-    formData.append('payment_option', '');
-    formData.append('draft', true);
-
-    // ✅ Append the uploaded images array dynamically
-    uploadedImages.forEach((url) => {
-      formData.append('car_images[]', url);
-    });
-
-    console.log('Final FormData:');
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
-    setLoading(true);
-
-    const response = await carAPI.createCar(formData);
-    const data1 = handleApiResponse(response);
-
-    console.log('API Response:', data1);
-
-    if (data1) {
-      setAddData(data1?.data);
-    }
-
-    messageApi.open({
-      type: 'success',
-      content:
-        typeof data1.message === 'object'
-          ? JSON.stringify(data1.message)
-          : data1.message,
-    });
-
-    if (text === '1') {
-      navigate('/landing');
-    } else {
-      form.resetFields();
-    }
-
-  } catch (error) {
-    const errorData = handleApiError(error);
-    messageApi.open({
-      type: 'error',
-      content: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData,
-    });
-    setAddData([]);
-  } finally {
-    setLoading(false);
-  }
-};
 
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -1085,12 +908,16 @@ const BrandInput = () => {
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
       message.error('File must be smaller than 5MB!');
-      return Promise.reject();
+      return Promise.reject(new Error('File must be smaller than 5MB!'));
     }
     return true;
   };
   const mediaUploadButton = (
-    <button style={{ border: 0, background: 'none' }} type="button">
+    <button 
+      style={{ border: 0, background: 'none', cursor: 'pointer' }} 
+      type="button"
+      aria-label="Add media file"
+    >
       <PlusOutlined style={{ fontSize: 32, color: '#1890ff' }} />
       <div
         style={{
@@ -1295,7 +1122,14 @@ const BrandInput = () => {
                     name="brand"
                     rules={[{ required: true, message: 'Please select the car make and modal' }]}
                   >
-                    <BrandInput />
+                    <BrandInput 
+                      selectedBrand={selectedBrand}
+                      selectedModel={selectedModel}
+                      selectedBrandImage={selectedBrandImage}
+                      onOpen={() => setBrandModalOpen(true)}
+                      BASE_URL={BASE_URL}
+                      brandOptions={brandOptions}
+                    />
                   </Form.Item>
                   <Modal
                     open={brandModalOpen}
@@ -1413,6 +1247,7 @@ const BrandInput = () => {
                     selectedColorImage={selectedColorImage}
                     onOpen={() => setColorModalOpen(true)}
                     placeholder="Beige"
+                    BASE_URL={BASE_URL}
                   />
                   </Form.Item>
                   <Modal
@@ -1479,7 +1314,10 @@ const BrandInput = () => {
                      required={false}
                      rules={[{ required: true, message: 'Please select the Year' }]}
                   >
-                    <YearInput />
+                    <YearInput 
+                      selectedYear={selectedYear}
+                      onOpen={() => setYearModalOpen(true)}
+                    />
                   </Form.Item>
                   <Modal
                     open={yearModalOpen}
@@ -1530,7 +1368,10 @@ const BrandInput = () => {
                     label="Trim"
                     name="trim"
                   >
-                    <TrimInput />
+                    <TrimInput 
+                      selectedTrim={selectedTrim}
+                      onOpen={() => setTrimModalOpen(true)}
+                    />
                   </Form.Item>
                   <Modal
                     open={trimModalOpen}
@@ -1828,7 +1669,10 @@ const BrandInput = () => {
                     required={false}
                     rules={[{ required: true, message: 'Please select the Region' }]}
                   >
-                    <RegionInput />
+                    <RegionInput 
+                      selectedRegion={selectedRegion}
+                      onOpen={() => setRegionModalOpen(true)}
+                    />
                   </Form.Item>
                   <Modal
                     open={regionModalOpen}
@@ -1922,7 +1766,10 @@ const BrandInput = () => {
                      required={false}
                      rules={[{ required: true, message: 'Please select the Regional Specs'}]}
                   >
-                    <RegionalSpecsInput />
+                    <RegionalSpecsInput 
+                      selectedRegionalSpecs={selectedRegionalSpecs}
+                      onOpen={() => setRegionalSpecsModalOpen(true)}
+                    />
                   </Form.Item>
                   <Modal
                     open={regionalSpecsModalOpen}
@@ -2258,7 +2105,10 @@ const BrandInput = () => {
                     label="Interior Color"
                     name="interiorColor"
                   >
-                    <InteriorColorInput />
+                    <InteriorColorInput 
+                      selectedInteriorColor={selectedInteriorColor}
+                      onOpen={() => setColorModalOpenInterior(true)}
+                    />
                   </Form.Item>
                   <Modal
                     open={colorModalOpenInterior}
@@ -2379,7 +2229,6 @@ const BrandInput = () => {
                   className="btn-solid-blue"
                   type="primary"
                   htmlType="submit"
-                  onClick={() => setCreateSelecetd('1')}
                   disabled={loading}
                 >
                   Create
@@ -2387,7 +2236,6 @@ const BrandInput = () => {
                 <Button
                   size="small"
                   className="btn-solid-blue"
-                  onClick={() => setCreateSelecetd('2')}
                   type="submit"
                 >
                   Create & New

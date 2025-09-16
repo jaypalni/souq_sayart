@@ -191,28 +191,50 @@ const Header = () => {
             {getUserDisplayName() && (
               <div className="mobile-icons-left">
                 <div className="mobile-icon-container">
-                  <img
+                  <button
+                    type="button"
                     className="mobile-message-icon"
-                    src={MessagesImg}
-                    alt="Messages"
                     onClick={() => {
                       // Add message functionality here
                       console.log('Messages clicked');
                     }}
-                    style={{ cursor: 'pointer' }}
-                  />
+                    style={{ 
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer'
+                    }}
+                    aria-label="Open messages"
+                  >
+                    <img
+                      src={MessagesImg}
+                      alt="Messages"
+                      style={{ width: '100%', height: '100%' }}
+                    />
+                  </button>
                 </div>
                 <div className="mobile-icon-container">
-                  <img
+                  <button
+                    type="button"
                     className="mobile-notification-icon"
-                    src={NotifiyImg}
-                    alt="Notifications"
                     onClick={() => {
                       // Add notification functionality here
                       console.log('Notifications clicked');
                     }}
-                    style={{ cursor: 'pointer' }}
-                  />
+                    style={{ 
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer'
+                    }}
+                    aria-label="Open notifications"
+                  >
+                    <img
+                      src={NotifiyImg}
+                      alt="Notifications"
+                      style={{ width: '100%', height: '100%' }}
+                    />
+                  </button>
                 </div>
               </div>
             )}
@@ -349,10 +371,24 @@ const Header = () => {
       </Modal>
 
       {/* Mobile Menu Overlay */}
-      <div 
+      <button 
+        type="button"
         className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}
         onClick={closeMobileMenu}
-      ></div>
+        aria-label="Close mobile menu"
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 1000
+        }}
+      />
 
       {/* Mobile Menu Panel */}
       <div className={`mobile-menu-panel ${isMobileMenuOpen ? 'active' : ''}`}>

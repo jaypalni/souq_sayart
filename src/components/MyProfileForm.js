@@ -352,9 +352,17 @@ const ProfileForm = ({
                             <div>
                               {uploadedDocUrl && (
                                 <div className="document-upload-container">
-                                  <div
+                                  <button
+                                    type="button"
                                     className="document-upload-content"
                                     onClick={() => handleDocumentDownload(uploadedDocUrl)}
+                                    style={{ 
+                                      background: 'none', 
+                                      border: 'none', 
+                                      padding: 0, 
+                                      width: '100%',
+                                      cursor: 'pointer'
+                                    }}
                                   >
                                     <span className="document-icon">📄</span>
                                     <span className="document-filename">
@@ -363,7 +371,7 @@ const ProfileForm = ({
                                     <span className="document-download-text">
                                       Click to download
                                     </span>
-                                  </div>
+                                  </button>
                                 </div>
                               )}
                                                           <Input
@@ -584,7 +592,7 @@ const ProfileForm = ({
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value)
           ? Promise.resolve()
-          : Promise.reject('Please enter a valid email address');
+          : Promise.reject(new Error('Please enter a valid email address'));
       },
     },
   ]}
@@ -707,6 +715,8 @@ ProfileForm.propTypes = {
   setAvatarUrl: PropTypes.func.isRequired,
   imageUrl: PropTypes.string,
   avatarUrl: PropTypes.string,
+  uploadedDocUrl: PropTypes.string,
+  handleDocumentDownload: PropTypes.func.isRequired,
 };
 
 const MyProfileForm = () => {
@@ -717,7 +727,7 @@ const MyProfileForm = () => {
   const fileInputRef = useRef();
   const [, setDealerValue] = useState(YES);
   const [messageApi, contextHolder] = message.useMessage();
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [, setUsersData] = useState({});
   const [, setDobError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -894,8 +904,7 @@ const applyUpdatedUser = (updateParams) => {
     setProfile,
     setAvatarUrl,
     setDealerValue,
-    setEditMode,
-    setImageUrl
+    setEditMode
   } = updateParams;
   
   
@@ -1062,9 +1071,7 @@ const handleSubmitError = (error, onFinishFailed) => {
         
         // If the URL is relative, make it absolute
         if (finalImageUrl.startsWith('/')) {
-          finalImageUrl = finalImageUrl;
-          
-          
+          // URL is already relative, no need to modify
         }
         
         

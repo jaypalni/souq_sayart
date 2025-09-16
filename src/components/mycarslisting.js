@@ -102,74 +102,7 @@ const Mycarslisting = () => {
     setPage(1);
   };
 
-  const getStatusParam = () => {
-    if (value === STATUS.ACTIVE) {
-      if (filterStatus === FILTER.BASE) {
-        return 'pending';
-      }
-      if (filterStatus === FILTER.SPORT) {
-        return 'approved';
-      }
-      return 'all';
-    }
-    if (value === STATUS.DRAFTS) {
-      return 'drafts';
-    }
-    if (value === STATUS.SOLD) {
-      return 'sold';
-    }
-    return '';
-  };
 
-
-//   const fetchCars = async () => {
-//   try {
-//     setLoading(true);
-
-//     const statusParam = getStatusParam() || '';
-//     console.log('Calling API with:', { status: statusParam, page });
-
-//     const response = await carAPI.getMylistingCars(statusParam, page || 1);
-//     const cardetail = handleApiResponse(response);
-
-//     // Safely extract data
-//     const data = cardetail?.data || {};
-//     const pagination = cardetail?.pagination || {};
-
-//     let list = [];
-//     if (['pending', 'approved', 'all'].includes(statusParam)) {
-//       list = data.approved_pending || [];
-//     } else if (statusParam === 'drafts') {
-//       list = data.draft || [];
-//     } else if (statusParam === 'sold') {
-//       list = data.sold || [];
-//     }
-
-//     setCarDetails(list);
-
-//     // Use pagination total
-//     setTotalCount(pagination.total || 0);
-
-//     console.log('Pagination Data:', pagination);
-// console.log('Total Count Set To:', pagination.total);
-
-
-//     // Optional: update page limit dynamically
-//     setLimit(pagination.limit || 15);
-
-//     if (list.length === 0) {
-//       message.info('No cars found for the selected filter');
-//     } else {
-//       message.success(cardetail.message || 'Fetched successfully');
-//     }
-//   } catch (error) {
-//     const errorData = handleApiError(error);
-//     message.error(errorData.message || 'Failed to load car data');
-//     setCarDetails([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
 
 const fetchCars = async () => {
   try {
@@ -363,7 +296,7 @@ const fetchCars = async () => {
             <div
               style={{
                 display: 'grid',
-                // gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
+                
                 gridTemplateColumns: 'repeat(4, 1fr)',
                 gap: '20px',
                 justifyContent: 'center',

@@ -116,6 +116,7 @@ const SavedSearchCard = ({ item, idx, total }) => {
 SavedSearchCard.propTypes = {
   item: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name: PropTypes.string,
     make_image: PropTypes.string,
     search_params: PropTypes.shape({
       make: PropTypes.string,
@@ -180,7 +181,6 @@ ModalComingSoon.propTypes = {
 
 const UserSavedsearch = ({title,savesearchesreload}) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
   const [loading, setLoading] = useState(true);

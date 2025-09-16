@@ -171,7 +171,7 @@ if (loading) {
       <div className="saved-searches-header">Saved Searches</div>
       <div className="saved-searches-list">
         {searches.map((search) => {
-  const { make } = search?.name;
+  const { make } = search?.name || {};
   console.log('Make', make)
   const imageSrc = search.make_image?.trim() ? `${BASE_URL}${search.make_image}` : lamborgini;
 

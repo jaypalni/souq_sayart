@@ -258,7 +258,7 @@ const CreateProfile = () => {
   const onFinishFailed = ({ errorFields }) => {
     const dobErr = errorFields.find((f) => f.name[0] === 'dob');
     const errorMessage = dobErr ? dobErr.errors[0] : undefined;
-    // setDobError(errorMessage);
+   
     return errorMessage;
   };
 
@@ -539,7 +539,7 @@ const CreateProfile = () => {
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         return emailRegex.test(value)
                           ? Promise.resolve()
-                          : Promise.reject('Please enter a valid email address');
+                          : Promise.reject(new Error('Please enter a valid email address'));
                       },
                     },
                   ]}

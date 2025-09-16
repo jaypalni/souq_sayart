@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Layout, Menu, Avatar, Button, Switch, Modal } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, MenuOutlined, CloseOutlined, ProfileOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -48,7 +49,7 @@ const MyProfileMenu = ({
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [deleteData, setDeleteData] = useState([]);
+  const [, setDeleteData] = useState([]);
   
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -373,13 +374,41 @@ const MyProfileMenu = ({
       {contextHolder}
       
       {/* Mobile Menu Button */}
-      <div className="mobile-menu-button" onClick={handleMobileMenuToggle}>
+      <button 
+        type="button"
+        className="mobile-menu-button" 
+        onClick={handleMobileMenuToggle}
+        aria-label="Open profile menu"
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer'
+        }}
+      >
         <ProfileOutlined />
-      </div>
+      </button>
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-overlay" onClick={handleOverlayClick}></div>
+        <button 
+          type="button"
+          className="mobile-menu-overlay" 
+          onClick={handleOverlayClick}
+          aria-label="Close mobile menu"
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 1000
+          }}
+        />
       )}
 
       {/* Desktop Sider */}
@@ -615,6 +644,15 @@ const MyProfileMenu = ({
       </Modal>
     </>
   );
+};
+
+MyProfileMenu.propTypes = {
+  selectedKey: PropTypes.string,
+  onMenuClick: PropTypes.func,
+  showManageAccount: PropTypes.bool,
+  isDeleteDisabled: PropTypes.bool,
+  onDeleteClick: PropTypes.func,
+  onLogoutClick: PropTypes.func,
 };
 
 export default MyProfileMenu;

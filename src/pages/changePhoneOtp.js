@@ -35,7 +35,7 @@ const ChangePhoneOtpPage = () => {
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
-  const { customerDetails } = useSelector((state) => state.customerDetails);
+  
  const handlestate = useSelector((state) => state.auth);
   const handleMenuClick = ({ key }) => {
   };
@@ -88,30 +88,7 @@ const ChangePhoneOtpPage = () => {
 
     return () => clearInterval(intervalRef.current);
   }, [isTimerRunning]);
-  const handleDelete = async () => {
-      try {
-        setLoading(true);
-        const response = await userAPI.getDelete();
-        const data1 = handleApiResponse(response);
   
-        if (data1) {
-          setDeleteData(data1)
-          localStorage.setItem('requestId',data1.request_id)
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
-           navigate('/deleteaccount-otp')
-        }
-      } catch (error) {
-        setDeleteData([])
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData?.message,
-        });
-      }
-    }
   // Logout functions
 
   const userlogout = async () => {

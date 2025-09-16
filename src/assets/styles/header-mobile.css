@@ -9,6 +9,7 @@
   background: none;
   border: none;
   z-index: 1001;
+  display: flex !important;
 }
 
 .hamburger-line {
@@ -258,8 +259,8 @@
 .mobile-menu-language-section {
   margin: 20px 0;
   padding: 15px 0;
-  /* border-top: 1px solid rgba(255, 255, 255, 0.2); */
-  /* border-bottom: 1px solid rgba(255, 255, 255, 0.2); */
+ 
+
   display: flex;
   justify-content: center;
 }
@@ -350,11 +351,6 @@
     white-space: nowrap;
   }
 
-  /* Mobile-specific styles for new classes */
-  /* .header-logo-button {
-    margin: 0 auto;
-  } */
-
   .menu-item-button {
     margin: 0 4px;
     font-size: 14px;
@@ -364,7 +360,7 @@
   .notification-icon {
     width: 18px;
     height: 18px;
-    /* margin-bottom: 4px; */
+    display: none !important;
   }
 
   .user-dropdown {
@@ -452,11 +448,6 @@
     display: none !important;
   }
   
-  /* Hide desktop message and notification icons on mobile */
-  .message-icon,
-  .notification-icon {
-    display: none !important;
-  }
 
   /* Hide all desktop menu items */
   .menuItem,
@@ -488,9 +479,6 @@
   }
 
   /* Ensure hamburger menu is visible */
-  .hamburger-menu {
-    display: flex !important;
-  }
 
   /* Footer styles for mobile (if needed) */
   .footer-main-row {

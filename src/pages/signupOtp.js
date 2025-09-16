@@ -21,7 +21,6 @@ const SignupOtp = () => {
 
   const { user, phone_login } = useSelector(state => state.auth);
   const { customerDetails } = useSelector(state => state.customerDetails);
-  const token = useToken();
   
   const phoneToUse = phone_login;
   
@@ -161,12 +160,10 @@ const buildOtpPayload = (otp, phoneToUse) => {
 
 // Helper function to check user profile completeness
 const isUserProfileComplete = (user) => {
-  return user && (
-    user.first_name && 
-    user.last_name && 
-    user.email && 
-    user.phone_number
-  );
+  return user?.first_name && 
+         user?.last_name && 
+         user?.email && 
+         user?.phone_number;
 };
 
 // Helper function to determine registration status

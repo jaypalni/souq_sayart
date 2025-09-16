@@ -124,12 +124,6 @@
   align-items: center;
 }
 
-.slick-initialized .slick-slide {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-}
-
 @media (max-width: 1200px) {
   .car-type-slider {
     padding: 0 15px;

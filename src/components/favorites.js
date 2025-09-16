@@ -49,12 +49,12 @@ const MyFavoritesCars = () => {
         setCarsData([]);
       }
 
-      if (data?.message) {
-        messageApi.open({
-          type: 'success',
-          content: data.message,
-        });
-      }
+      // if (data?.message) {
+      //   messageApi.open({
+      //     type: 'success',
+      //     content: data.message,
+      //   });
+      // }
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.open({
@@ -136,7 +136,7 @@ const MyFavoritesCars = () => {
     }
 
     return (
-      <div className="car-listing-flex-row">
+      <div className="car-listing-flex-row-allfav">
         {carsData.map((car) => (
           <div className="car-listing-card" key={car.car_id}>
             <Link

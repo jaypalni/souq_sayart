@@ -70,16 +70,16 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   }, []);
 
   // Additional effect to check for location changes periodically (fallback)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLocation = getSelectedLocation();
-      if (currentLocation !== selectedLocation) {
-        setSelectedLocation(currentLocation);
-      }
-    }, 1000); // Check every second
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const currentLocation = getSelectedLocation();
+  //     if (currentLocation !== selectedLocation) {
+  //       setSelectedLocation(currentLocation);
+  //     }
+  //   }, 1000); // Check every second
 
-    return () => clearInterval(interval);
-  }, [selectedLocation]);
+  //   return () => clearInterval(interval);
+  // }, [selectedLocation]);
 
   // Function to generate breadcrumb from current path
   const generateBreadcrumb = () => {

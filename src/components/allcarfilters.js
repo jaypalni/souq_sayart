@@ -232,6 +232,11 @@ const getInitialMaxPrice = () => {
       }
     } catch (error) {
       console.warn('Auto-search for count failed:', error);
+    if(error?.message==='Network Error' ){ messageApi.open({
+            type: 'error',
+            content:'You’re offline! Please check your network connection and try again.',
+          });
+        }
     }
   };
 
@@ -592,7 +597,8 @@ handleSearch()
       }
       // Clear previous search results immediately when new search starts
       setFilterCarsData({ cars: [], pagination: {} });
-      // Also clear any cached search results
+      // Also clear any c
+      // ached search results
       setCarSearch([]);
       // Clear only non-essential cached data, preserve searchcardata and filter options
       localStorage.removeItem('cachedCarsData');
@@ -635,6 +641,11 @@ handleSearch()
       }
     } catch (error) {
       const errorData = handleApiError(error);
+    if(error?.message==='Network Error' ){ messageApi.open({
+            type: 'error',
+            content:'You’re offline! Please check your network connection and try again.',
+          });
+        }
       message.error(errorData.message || 'Failed to search car data');
       setCarSearch([]);
     } finally {

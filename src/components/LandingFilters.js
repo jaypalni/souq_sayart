@@ -66,8 +66,8 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [carLocation, setCarLocation] = useState([]);
   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
-  const [priceMin] = useState(DEFAULT_PRICE_MIN);
-  const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
+  
+  const [, setPriceMax] = useState(DEFAULT_PRICE_MAX);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,7 +101,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
-      if (data && data.data && data.data.pagination) {
+      if (data?.data?.pagination) {
         setCarCount(data?.data?.pagination?.total ?? 0);
       }
     } catch (error) {
@@ -626,7 +626,8 @@ const resolveDefaultLocation = (locations, geoData) => {
             {/* Price Min */}
 <div>
   {!showMinInput ? (
-    <div
+    <button
+      type="button"
       style={{
         borderRadius: '4px',
         padding: '6px 12px',
@@ -636,19 +637,14 @@ const resolveDefaultLocation = (locations, geoData) => {
         minWidth: '100px',
         textAlign: 'center',
         fontWeight: 700,
+        background: 'transparent',
+        border: 'none',
       }}
       onClick={() => setShowMinInput(true)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          setShowMinInput(true);
-        }
-      }}
       aria-label="Set minimum price"
     >
       {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
-    </div>
+    </button>
   ) : (
     <InputNumber
       style={{ width: '100px' }}
@@ -672,7 +668,8 @@ const resolveDefaultLocation = (locations, geoData) => {
 {/* Price Max */}
 <div>
   {!showMaxInput ? (
-    <div
+    <button
+      type="button"
       style={{
         borderRadius: '4px',
         padding: '6px 12px',
@@ -682,19 +679,14 @@ const resolveDefaultLocation = (locations, geoData) => {
         minWidth: '100px',
         textAlign: 'center',
         fontWeight: 700,
+        background: 'transparent',
+        border: 'none',
       }}
       onClick={() => setShowMaxInput(true)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          setShowMaxInput(true);
-        }
-      }}
       aria-label="Set maximum price"
     >
       {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
-    </div>
+    </button>
   ) : (
     <InputNumber
       style={{ width: '120px' }}

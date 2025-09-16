@@ -36,7 +36,7 @@ const MyProfile = () => {
   const [showOtpStep, setShowOtpStep] = useState(false);
   const selectedKey = location.pathname.split('/')[2] || 'profile';
   const [messageApi, contextHolder] = message.useMessage();
-  const [, setDeleteData] = useState([]);
+ 
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(true);

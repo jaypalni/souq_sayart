@@ -60,14 +60,10 @@ const ExteriorColorInput = ({
   }
 
   return (
-    <div
+    <button
+      type="button"
       className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
       onClick={onOpen}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onOpen();
-      }}
       style={{
         border: '1px solid #d9d9d9',
         borderRadius: '6px',
@@ -75,7 +71,10 @@ const ExteriorColorInput = ({
         minHeight: '32px',
         display: 'flex',
         alignItems: 'center',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        background: 'transparent',
+        width: '100%',
+        textAlign: 'left'
       }}
     >
       <div className="exterior-color-left">
@@ -101,7 +100,7 @@ const ExteriorColorInput = ({
       </span>
 
       <RightOutlined className="color-arrow" />
-    </div>
+    </button>
   );
 };
 
@@ -184,11 +183,12 @@ TrimInput.propTypes = {
 const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, BASE_URL, brandOptions }) => {
   const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
 
-  const imageSrc = selectedBrandObj?.image
-    ? `${BASE_URL}${selectedBrandObj.image}`
-    : selectedBrandImage
-      ? `${BASE_URL}${selectedBrandImage}`
-      : null;
+  let imageSrc = null;
+  if (selectedBrandObj?.image) {
+    imageSrc = `${BASE_URL}${selectedBrandObj.image}`;
+  } else if (selectedBrandImage) {
+    imageSrc = `${BASE_URL}${selectedBrandImage}`;
+  }
 
   return (
     <button
@@ -231,9 +231,12 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, 
           textOverflow: 'ellipsis',
         }}
       >
-        {selectedBrand
-          ? `${selectedBrand}${selectedModel ? ' - ' + selectedModel : ''}`
-          : 'brand and model of your car'}
+        {(() => {
+          if (selectedBrand) {
+            return selectedModel ? `${selectedBrand} - ${selectedModel}` : selectedBrand;
+          }
+          return 'brand and model of your car';
+        })()}
       </span>
 
       <RightOutlined className="brand-arrow" style={{ marginLeft: 'auto' }} />
@@ -574,7 +577,9 @@ const setDetailedVehicleState = (data, setters) => {
   if (typeof setSelectedDoors === 'function') setSelectedDoors(data.number_of_doors ?? data.no_of_doors ?? '');
   if (typeof setSelectedFuelType === 'function') setSelectedFuelType(data.fuel_type ?? '');
   if (typeof setSelectedTransmissionType === 'function') setSelectedTransmissionType(data.transmission_type ?? '');
-    if (typeof setSelectedDriveType === 'function') setSelectedDriveType(data.drive_type ?? '');
+    if (typeof setSelectedDriveType === 'function') {
+    setSelectedDriveType(data.drive_type ?? '');
+  }
   if (typeof setSelectedCylinders === 'function') setSelectedCylinders(data.no_of_cylinders ?? '');
   if (typeof setSelectedInterior === 'function') setSelectedInterior(data.interior ?? '');
   if (typeof setSelectedInteriorColor === 'function') setSelectedInteriorColor(data.interior_color ?? '');
@@ -810,7 +815,7 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     if (Array.isArray(e)) {
       return e;
     }
-    return e && e.fileList;
+    return e?.fileList;
   };
 
 const handlePostData = async (uploadedImages = [], text = '', isDraft = false, valuesParam = null) => {
@@ -949,7 +954,7 @@ const handleFinish = async (mode) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+      reader.onerror = (error) => reject(new Error(error));
     });
 
   const handleMediaPreview = async (file) => {
@@ -973,7 +978,7 @@ const handleFinish = async (mode) => {
       message.error('File must be smaller than 5MB!');
       return Promise.reject(new Error('File must be smaller than 5MB!'));
     }
-    return true;
+    return Promise.resolve(true);
   };
   const mediaUploadButton = (
     <button 

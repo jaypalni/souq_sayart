@@ -404,7 +404,7 @@ const Removefavcarapi = async (carId) => {
         {isLoading ? (
           // Show skeleton loaders while loading
           Array.from({ length: 8 }).map((_, index) => (
-            <div className="col-3 col-md-4 col-sm-6 p-0" key={`skeleton-loader-${Date.now()}-${index}`}>
+            <div className="col-3 col-md-4 col-sm-6 p-0" key={`skeleton-loader-${index}`}>
               <div className="allcars-listing-card">
                 <Skeleton.Image 
                   // style={{ }} 

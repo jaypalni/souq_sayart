@@ -30,7 +30,7 @@ const ChangePhoneOtpPage = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
   const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
-  const [, setDeleteData] = useState([]);
+  
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);

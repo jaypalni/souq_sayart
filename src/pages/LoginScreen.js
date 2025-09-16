@@ -266,6 +266,7 @@ const LoginScreen = () => {
           <div style={{ margin: '20px 0' }}>
             {/* Single label for both fields */}
             <label
+              htmlFor="phone-number-input"
               style={{
                 display: 'block',
                 marginBottom: 6,
@@ -359,6 +360,7 @@ const LoginScreen = () => {
               </div>
               {/* Phone number input */}
               <input
+                id="phone-number-input"
                 className='login-box'
                 type='tel'
                 placeholder='Enter phone number'

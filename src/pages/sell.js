@@ -129,50 +129,57 @@ const Sell = () => {
   ];
 };
 
-  useEffect(() => {
+ // Helper function to validate and extract data
+const validateAndExtractData = (extras) => {
   if (!extras || (Array.isArray(extras) && extras.length === 0)) {
-    populatedRef.current = false; 
-    return;
+    return null;
   }
-  if (populatedRef.current) return; 
   const data = Array.isArray(extras) ? extras[0] : extras;
-  if (!data || typeof data !== 'object') return;
+  if (!data || typeof data !== 'object') return null;
+  return data;
+};
 
+// Helper function to build form values
+const buildFormValues = (data) => ({
+  adTitle: data.ad_title ?? data.adTitle ?? '',
+  description: data.description ?? data.desc ?? '',
+  brand: data.make ?? data.brand ?? '',
+  trim: data.trim ?? data.model ?? '',
+  exteriorColor: data.exterior_color ?? data.exteriorColor ?? data.color ?? '',
+  year: data.year ?? data.manufacture_year ?? '',
+  price: (data.price ?? '').toString().replace(/,/g, ''),
+  horsepower: data.horse_power ?? data.horsepower ?? '',
+  vehicletype: data.vechile_type ?? data.vehicle_type ?? '',
+  bodyType: data.body_type ?? data.bodyType ?? '',
+  condition: data.condition ?? '',
+  consumption: data.consumption ?? '',
+  kilometers: data.kilometers ?? data.mileage ?? 0,
+  engineCC: data.engine_cc ?? data.engineCC ?? data.engine ?? '',
+  transmissionType: data.transmission_type ?? data.transmission ?? '',
+  driveType: data.drive_type ?? data.driveType ?? data.drive_type ?? '',
+  regionalSpecs: data.regional_specs ?? data.regionalSpecs ?? '',
+  region: data.location ?? data.region ?? '',
+  accidentHistory: data.accident_history ?? '',
+  interior: data.interior ?? '',
+  interiorColor: data.interior_color ?? data.interiorColor ?? '',
+  cylinders: data.no_of_cylinders ?? data.cylinders ?? '',
+  doors: data.number_of_doors ?? data.no_of_doors ?? '',
+  seats: data.number_of_seats ?? data.no_of_seats ?? '',
+  extraFeatures: Array.isArray(data.extra_features) ? data.extra_features : (data.extra_features ? [data.extra_features] : []),
+  badges: Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []),
+  warrantyDate: data.warranty_date ? moment(data.warranty_date) : undefined,
+});
+
+// Helper function to set media files
+const setMediaFiles = (data, setMediaFileList, form) => {
   const imagePath = data.image_url || data.car_image || '';
   const mediaFileList = toUploadFileList(imagePath);
   if (typeof setMediaFileList === 'function') setMediaFileList(mediaFileList);
   form.setFieldsValue({ media: mediaFileList });
-  form.setFieldsValue({
-    adTitle: data.ad_title ?? data.adTitle ?? '',
-    description: data.description ?? data.desc ?? '',
-    brand: data.make ?? data.brand ?? '',
-    trim: data.trim ?? data.model ?? '',
-    exteriorColor: data.exterior_color ?? data.exteriorColor ?? data.color ?? '',
-    year: data.year ?? data.manufacture_year ?? '',
-    price: (data.price ?? '').toString().replace(/,/g, ''),
-    horsepower: data.horse_power ?? data.horsepower ?? '',
-    vehicletype: data.vechile_type ?? data.vehicle_type ?? '',
-    bodyType: data.body_type ?? data.bodyType ?? '',
-    condition: data.condition ?? '',
-    consumption: data.consumption ?? '',
-    kilometers: data.kilometers ?? data.mileage ?? 0,
-    engineCC: data.engine_cc ?? data.engineCC ?? data.engine ?? '',
-    transmissionType: data.transmission_type ?? data.transmission ?? '',
-    driveType: data.drive_type ?? data.driveType ?? data.drive_type ?? '',
-    regionalSpecs: data.regional_specs ?? data.regionalSpecs ?? '',
-    region: data.location ?? data.region ?? '',
-    accidentHistory: data.accident_history ?? '',
-    interior: data.interior ?? '',
-    interiorColor: data.interior_color ?? data.interiorColor ?? '',
-    cylinders: data.no_of_cylinders ?? data.cylinders ?? '',
-    doors: data.number_of_doors ?? data.no_of_doors ?? '',
-    seats: data.number_of_seats ?? data.no_of_seats ?? '',
-    extraFeatures: Array.isArray(data.extra_features) ? data.extra_features : (data.extra_features ? [data.extra_features] : []),
-    badges: Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []),
-    warrantyDate: data.warranty_date ? moment(data.warranty_date) : undefined,
-  });
+};
 
-
+// Helper function to set brand-related state
+const setBrandState = (data, imagePath, setSelectedBrand, setSelectedBrandImage, setMake) => {
   if (typeof setSelectedBrand === 'function') {
     setSelectedBrand(data.make ?? data.brand ?? '');
     if (typeof setSelectedBrandImage === 'function') {
@@ -180,15 +187,35 @@ const Sell = () => {
     }
     if (typeof setMake === 'function') setMake(data.make ?? data.brand ?? '');
   }
+};
 
-  if (typeof setSelectedModel === 'function') setSelectedModel(data.model ?? data.trim ?? '');
-  if (typeof setSelectedTrim === 'function') setSelectedTrim(data.trim ?? '');
+// Helper function to set color-related state
+const setColorState = (data, setSelectedColor, setSelectedColorImage) => {
   if (typeof setSelectedColor === 'function') {
     setSelectedColor(data.exterior_color ?? data.exteriorColor ?? data.color ?? '');
     if (typeof setSelectedColorImage === 'function') {
       setSelectedColorImage(data.colour_image ?? data.exterior_color_image ?? '');
     }
   }
+};
+
+// Helper function to set basic vehicle state
+const setBasicVehicleState = (data, setters) => {
+  const {
+    setSelectedModel,
+    setSelectedTrim,
+    setSelectedYear,
+    setSelectedPrice,
+    setSelectedHorsepower,
+    setSelectedVehicleType,
+    setSelectedBodyType,
+    setSelectedCondition,
+    setSelectedRegionalSpecs,
+    setSelectedRegion
+  } = setters;
+
+  if (typeof setSelectedModel === 'function') setSelectedModel(data.model ?? data.trim ?? '');
+  if (typeof setSelectedTrim === 'function') setSelectedTrim(data.trim ?? '');
   if (typeof setSelectedYear === 'function') setSelectedYear(data.year ?? '');
   if (typeof setSelectedPrice === 'function') setSelectedPrice((data.price ?? '').toString().replace(/,/g, ''));
   if (typeof setSelectedHorsepower === 'function') setSelectedHorsepower(data.horse_power ?? data.horsepower ?? '');
@@ -197,6 +224,22 @@ const Sell = () => {
   if (typeof setSelectedCondition === 'function') setSelectedCondition(data.condition ?? '');
   if (typeof setSelectedRegionalSpecs === 'function') setSelectedRegionalSpecs(data.regional_specs ?? '');
   if (typeof setSelectedRegion === 'function') setSelectedRegion(data.location ?? '');
+};
+
+// Helper function to set detailed vehicle state
+const setDetailedVehicleState = (data, setters) => {
+  const {
+    setSelectedBadges,
+    setSelectedSeats,
+    setSelectedDoors,
+    setSelectedFuelType,
+    setSelectedTransmissionType,
+    setSelectedDriveType,
+    setSelectedCylinders,
+    setSelectedInterior,
+    setSelectedInteriorColor
+  } = setters;
+
   if (typeof setSelectedBadges === 'function') setSelectedBadges(Array.isArray(data.badges) ? data.badges : (data.badges ? [data.badges] : []));
   if (typeof setSelectedSeats === 'function') setSelectedSeats(data.number_of_seats ?? data.no_of_seats ?? '');
   if (typeof setSelectedDoors === 'function') setSelectedDoors(data.number_of_doors ?? data.no_of_doors ?? '');
@@ -206,6 +249,61 @@ const Sell = () => {
   if (typeof setSelectedCylinders === 'function') setSelectedCylinders(data.no_of_cylinders ?? '');
   if (typeof setSelectedInterior === 'function') setSelectedInterior(data.interior ?? '');
   if (typeof setSelectedInteriorColor === 'function') setSelectedInteriorColor(data.interior_color ?? '');
+};
+
+// Main effect function
+useEffect(() => {
+  const data = validateAndExtractData(extras);
+  if (!data) {
+    populatedRef.current = false;
+    return;
+  }
+  
+  if (populatedRef.current) return;
+
+  const imagePath = data.image_url || data.car_image || '';
+  
+  // Set media files
+  setMediaFiles(data, setMediaFileList, form);
+  
+  // Set form values
+  const formValues = buildFormValues(data);
+  form.setFieldsValue(formValues);
+
+  // Set brand state
+  setBrandState(data, imagePath, setSelectedBrand, setSelectedBrandImage, setMake);
+
+  // Set color state
+  setColorState(data, setSelectedColor, setSelectedColorImage);
+
+  // Set basic vehicle state
+  const basicSetters = {
+    setSelectedModel,
+    setSelectedTrim,
+    setSelectedYear,
+    setSelectedPrice,
+    setSelectedHorsepower,
+    setSelectedVehicleType,
+    setSelectedBodyType,
+    setSelectedCondition,
+    setSelectedRegionalSpecs,
+    setSelectedRegion
+  };
+  setBasicVehicleState(data, basicSetters);
+
+  // Set detailed vehicle state
+  const detailedSetters = {
+    setSelectedBadges,
+    setSelectedSeats,
+    setSelectedDoors,
+    setSelectedFuelType,
+    setSelectedTransmissionType,
+    setSelectedDriveType,
+    setSelectedCylinders,
+    setSelectedInterior,
+    setSelectedInteriorColor
+  };
+  setDetailedVehicleState(data, detailedSetters);
 
   populatedRef.current = true;
 }, [extras, form]);

@@ -19,6 +19,108 @@ const DEFAULT_ALL_MODELS = 'All Models';
 const DEFAULT_ALL_BODY_TYPES = 'All Body Types';
 const DEFAULT_LOCATION_BAGHDAD = '';
 
+// Helper function to build search parameters
+const buildSearchParams = (filterData, props) => {
+  const {
+    make,
+    model,
+    bodyType,
+    selectedLocation,
+    priceMin,
+    priceMax,
+    newUsed
+  } = props;
+
+  if (filterData) {
+    return {
+      search_query: filterData.keyword || '',
+      make: filterData.make || '',
+      model: filterData.model || '',
+      year_min: filterData.year_min || '',
+      year_max: filterData.year_max || '',
+      price_min: filterData?.price_min ?? priceMin ?? '',
+      price_max: filterData?.price_max ?? priceMax ?? '',
+      location: filterData.location || '',
+      body_type: filterData.body_type || '',
+      fuel_type: filterData.fuel_type || '',
+      transmission: filterData.transmission || '',
+      min_kilometers: filterData.min_kilometers || '',
+      max_kilometers: filterData.max_kilometers || '',
+      number_of_cylinders: filterData.number_of_cylinders || '',
+      min_consumption: filterData.min_consumption || '',
+      max_consumption: filterData.max_consumption || '',
+      colour: filterData.colour || '',
+      number_of_seats: filterData.number_of_seats || '',
+      extra_features: filterData.extra_features || [],
+      number_of_doors: filterData.number_of_doors || '',
+      interior: filterData.interior || '',
+      payment_options: filterData.payment_options || '',
+      page: 1,
+      limit: 10,
+      newest_listing: filterData.newest_listing || true,
+    };
+  }
+
+  return {
+    search_query: '',
+    make: make || '',
+    model: model || '',
+    year_min: '',
+    year_max: '',
+    price_min: priceMin || '',
+    price_max: priceMax || '',
+    location: selectedLocation || '',
+    body_type: bodyType || '',
+    fuel_type: '',
+    transmission: '',
+    min_kilometers: '',
+    max_kilometers: '',
+    number_of_cylinders: '',
+    min_consumption: '',
+    max_consumption: '',
+    colour: '',
+    number_of_seats: '',
+    extra_features: [],
+    number_of_doors: '',
+    interior: '',
+    payment_options: '',
+    page: 1,
+    limit: 10,
+    newest_listing: true,
+  };
+};
+
+// Helper function to handle successful save
+const handleSaveSuccess = (data, searchparams, messageApi, onClose, setSaveSearchesReload, toastmessage) => {
+  if (data?.message) {
+    messageApi.open({
+      type: 'success',
+      content: data?.message,
+      onClose: () => {
+        onClose();
+      },
+    });
+    setSaveSearchesReload(searchparams);
+  }
+
+  if (toastmessage && typeof toastmessage === 'function') {
+    toastmessage(data?.message);
+  }
+};
+
+// Helper function to handle save error
+const handleSaveError = (error, messageApi, onClose) => {
+  const errorData = handleApiError(error);
+  message.error(errorData.message || 'Failed to save search');
+  messageApi.error({
+    type: 'success',
+    content: errorData?.message,
+    onClose: () => {
+      onClose();
+    },
+  });
+};
+
 const Searchemptymodal = ({
   visible,
   onClose,
@@ -30,7 +132,7 @@ const Searchemptymodal = ({
   setBodyType,
   selectedLocation,
   setSelectedLocation,
-   priceMin,
+  priceMin,
   setPriceMin,
   priceMax,
   setPriceMax,
@@ -48,99 +150,34 @@ const Searchemptymodal = ({
 
   const handleSaveSearch = async () => {
     try {
-     console.log('DEBUG VALUES =>', {
-  filterData_price_min: filterData?.price_min,
-  filterData_price_max: filterData?.price_max,
-  local_priceMin: priceMin,
-  local_priceMax: priceMax
-});
+      console.log('DEBUG VALUES =>', {
+        filterData_price_min: filterData?.price_min,
+        filterData_price_max: filterData?.price_max,
+        local_priceMin: priceMin,
+        local_priceMax: priceMax
+      });
 
-      // Use filterData if available, otherwise use individual props
-      const searchparams = filterData ? {
-        search_query: filterData.keyword || '',
-        make: filterData.make || '',
-        model: filterData.model || '',
-        year_min: filterData.year_min || '',
-        year_max: filterData.year_max || '',
-         price_min: filterData?.price_min ?? priceMin ?? '',
-      price_max: filterData?.price_max ?? priceMax ?? '',
-        location: filterData.location || '',
-        body_type: filterData.body_type || '',
-        fuel_type: filterData.fuel_type || '',
-        transmission: filterData.transmission || '',
-        min_kilometers: filterData.min_kilometers || '',
-        max_kilometers: filterData.max_kilometers || '',
-        number_of_cylinders: filterData.number_of_cylinders || '',
-        min_consumption: filterData.min_consumption || '',
-        max_consumption: filterData.max_consumption || '',
-        colour: filterData.colour || '',
-        number_of_seats: filterData.number_of_seats || '',
-        extra_features: filterData.extra_features || [],
-        number_of_doors: filterData.number_of_doors || '',
-        interior: filterData.interior || '',
-        payment_options: filterData.payment_options || '',
-        page: 1,
-        limit: 10,
-        newest_listing: filterData.newest_listing || true,
-      } : {
-        search_query: '',
-        make: make || '',
-        model: model || '',
-        year_min: '',
-        year_max: '',
-        price_min: priceMin || '',
-        price_max: priceMax || '',
-        location: selectedLocation || '',
-        body_type: bodyType || '',
-        fuel_type: '',
-        transmission: '',
-        min_kilometers: '',
-        max_kilometers: '',
-        number_of_cylinders: '',
-        min_consumption: '',
-        max_consumption: '',
-        colour: '',
-        number_of_seats: '',
-        extra_features: [],
-        number_of_doors: '',
-        interior: '',
-        payment_options: '',
-        page: 1,
-        limit: 10,
-        newest_listing: true,
+      const props = {
+        make,
+        model,
+        bodyType,
+        selectedLocation,
+        priceMin,
+        priceMax,
+        newUsed
       };
 
+      const searchparams = buildSearchParams(filterData, props);
       const response = await carAPI.postsavesearches(searchparams);
       const data = handleApiResponse(response);
 
-      if (data?.message) {
-        messageApi.open({
-          type: 'success',
-          content: data?.message,
-          onClose: () => {
-            onClose();
-          },
-        });
-         setSaveSearchesReload(searchparams)
-      }
-
-      if (toastmessage && typeof toastmessage === 'function') {
-        toastmessage(data?.message);
-      }
+      handleSaveSuccess(data, searchparams, messageApi, onClose, setSaveSearchesReload, toastmessage);
     } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to save search');
-       messageApi.error({
-          type: 'success',
-          content: errorData?.message,
-          onClose: () => {
-            onClose();
-          },
-        });
+      handleSaveError(error, messageApi, onClose);
     }
   };
 
-   return (
+  return (
     <Modal
       open={visible}
       onCancel={onClose}
@@ -151,134 +188,187 @@ const Searchemptymodal = ({
       className='search-empty-modal'
     >
       {contextHolder}
-      <div style={{ textAlign: 'center', padding: '10px' }}>
-        <img
-          src={emptysearch}
-          alt='No Results'
-          style={{ maxWidth: '100px', marginBottom: '15px' }}
-        />
-
-        <p style={{ fontSize: '16px', fontWeight: 700, marginBottom: '10px' }}>
-          We didn’t find anything that matches this search
-        </p>
-
-        <p style={{ fontSize: '12px', color: '#898384', marginBottom: '15px' }}>
-          You could try to remove some filters:
-        </p>
-
-        {/* Filters */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {/* Use filterData values if available, otherwise fall back to props */}
-          {(filterData ? filterData.make : make) && (filterData ? filterData.make : make) !== DEFAULT_ALL_MAKE && (
-            <button style={filterStyle} onClick={() => setMake(DEFAULT_ALL_MAKE)}>
-              {filterData ? filterData.make : make}
-            </button>
-          )}
-          {(filterData ? filterData.model : model) && (filterData ? filterData.model : model) !== DEFAULT_ALL_MODELS && (
-            <button style={filterStyle} onClick={() => setModel(DEFAULT_ALL_MODELS)}>
-              {filterData ? filterData.model : model}
-            </button>
-          )}
-          {(filterData ? filterData.body_type : bodyType) && (filterData ? filterData.body_type : bodyType) !== DEFAULT_ALL_BODY_TYPES && (
-            <button style={filterStyle} onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}>
-              {filterData ? filterData.body_type : bodyType}
-            </button>
-          )}
-          {(filterData ? filterData.location : selectedLocation) && (filterData ? filterData.location : selectedLocation) !== DEFAULT_LOCATION_BAGHDAD && (
-            <button
-              style={filterStyle}
-              onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}
-            >
-              {filterData ? filterData.location : selectedLocation}
-            </button>
-          )}
-          {/* Show year range from filterData */}
-          {filterData && filterData.year_min && filterData.year_max && (
-            <button style={filterStyle}>
-              {filterData.year_min === filterData.year_max 
-                ? `${filterData.year_min}` 
-                : `${filterData.year_min} - ${filterData.year_max}`}
-            </button>
-          )}
-          {/* Show price range from filterData */}
-          {/* {filterData && filterData.price_min && filterData.price_max && (
-            <button style={filterStyle}>
-              {filterData.price_min === filterData.price_max 
-                ? `IQD ${filterData.price_min}` 
-                : `IQD ${filterData.price_min} - IQD ${filterData.price_max}`}
-            </button>
-          )} */}
-          {/* Show Price Range */}
-{(filterData ? filterData.price_min || filterData.price_max : priceMin || priceMax) && (
-  <button style={filterStyle}>
-    {filterData
-      ? filterData.price_min && filterData.price_max
-        ? filterData.price_min === filterData.price_max
-          ? `IQD ${filterData.price_min}`
-          : `IQD ${filterData.price_min} - IQD ${filterData.price_max}`
-        : filterData.price_min
-        ? `IQD ${filterData.price_min}`
-        : `IQD ${filterData.price_max}`
-      : priceMin && priceMax
-      ? priceMin === priceMax
-        ? `IQD ${priceMin}`
-        : `IQD ${priceMin} - IQD ${priceMax}`
-      : priceMin
-      ? `IQD ${priceMin}`
-      : `IQD ${priceMax}`}
-  </button>
-)}
-
-{/* Show New/Used */}
-{(filterData ? filterData.condition : newUsed) && (
-  <button style={filterStyle} onClick={() => setNewUsed('New & Used')}>
-    {filterData ? filterData.condition : newUsed}
-  </button>
-)}
-
-
-          {/* Show kilometer range from filterData */}
-          {filterData && filterData.min_kilometers && filterData.max_kilometers && (
-            <button style={filterStyle}>
-              {filterData.min_kilometers === filterData.max_kilometers 
-                ? `${filterData.min_kilometers} km` 
-                : `${filterData.min_kilometers} - ${filterData.max_kilometers} km`}
-            </button>
-          )}
-          {/* Show additional filters from filterData */}
-          {filterData && filterData.fuel_type && filterData.fuel_type !== 'Any' && (
-            <button style={filterStyle}>
-              {filterData.fuel_type}
-            </button>
-          )}
-          {filterData && filterData.transmission && filterData.transmission !== 'Any' && (
-            <button style={filterStyle}>
-              {filterData.transmission}
-            </button>
-          )}
-          {filterData && filterData.colour && filterData.colour !== 'Any' && (
-            <button style={filterStyle}>
-              {filterData.colour}
-            </button>
-          )}
-        </div>
-
-        <p style={{ fontSize: '12px', color: '#555', marginTop: '15px' }}>
-          Or save the search and be notified as soon as we have something for you.
-        </p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-          <button style={cancelBtnStyle} onClick={onClose}>
-            Cancel
-          </button>
-          <button style={saveBtnStyle} onClick={handleSaveSearch}>
-            <img src={searchicon} alt='Save Search' /> Save Search
-          </button>
-        </div>
-      </div>
+      <EmptySearchContent
+        filterData={filterData}
+        make={make}
+        setMake={setMake}
+        model={model}
+        setModel={setModel}
+        bodyType={bodyType}
+        setBodyType={setBodyType}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        priceMin={priceMin}
+        priceMax={priceMax}
+        newUsed={newUsed}
+        setNewUsed={setNewUsed}
+        onClose={onClose}
+        onSaveSearch={handleSaveSearch}
+      />
     </Modal>
   );
 };
+
+// Helper function to get filter value
+const getFilterValue = (filterData, propValue, defaultValue) => {
+  return filterData ? filterData[propValue] : propValue;
+};
+
+// Helper function to check if filter should be shown
+const shouldShowFilter = (filterData, propValue, propName, defaultValue) => {
+  const value = getFilterValue(filterData, propName, propValue);
+  return value && value !== defaultValue;
+};
+
+// Helper function to format price range
+const formatPriceRange = (filterData, priceMin, priceMax) => {
+  if (filterData) {
+    const { price_min, price_max } = filterData;
+    if (price_min && price_max) {
+      return price_min === price_max 
+        ? `IQD ${price_min}`
+        : `IQD ${price_min} - IQD ${price_max}`;
+    }
+    return price_min ? `IQD ${price_min}` : `IQD ${price_max}`;
+  }
+  
+  if (priceMin && priceMax) {
+    return priceMin === priceMax 
+      ? `IQD ${priceMin}`
+      : `IQD ${priceMin} - IQD ${priceMax}`;
+  }
+  return priceMin ? `IQD ${priceMin}` : `IQD ${priceMax}`;
+};
+
+// Helper function to format year range
+const formatYearRange = (yearMin, yearMax) => {
+  return yearMin === yearMax ? `${yearMin}` : `${yearMin} - ${yearMax}`;
+};
+
+// Helper function to format kilometer range
+const formatKilometerRange = (minKm, maxKm) => {
+  return minKm === maxKm ? `${minKm} km` : `${minKm} - ${maxKm} km`;
+};
+
+// Filter button component
+const FilterButton = ({ children, onClick, style = filterStyle }) => (
+  <button style={style} onClick={onClick}>
+    {children}
+  </button>
+);
+
+// Filter buttons section component
+const FilterButtons = ({ filterData, make, setMake, model, setModel, bodyType, setBodyType, selectedLocation, setSelectedLocation, priceMin, priceMax, newUsed, setNewUsed }) => (
+  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+    {shouldShowFilter(filterData, make, 'make', DEFAULT_ALL_MAKE) && (
+      <FilterButton onClick={() => setMake(DEFAULT_ALL_MAKE)}>
+        {getFilterValue(filterData, make, 'make')}
+      </FilterButton>
+    )}
+    
+    {shouldShowFilter(filterData, model, 'model', DEFAULT_ALL_MODELS) && (
+      <FilterButton onClick={() => setModel(DEFAULT_ALL_MODELS)}>
+        {getFilterValue(filterData, model, 'model')}
+      </FilterButton>
+    )}
+    
+    {shouldShowFilter(filterData, bodyType, 'body_type', DEFAULT_ALL_BODY_TYPES) && (
+      <FilterButton onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}>
+        {getFilterValue(filterData, bodyType, 'body_type')}
+      </FilterButton>
+    )}
+    
+    {shouldShowFilter(filterData, selectedLocation, 'location', DEFAULT_LOCATION_BAGHDAD) && (
+      <FilterButton onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}>
+        {getFilterValue(filterData, selectedLocation, 'location')}
+      </FilterButton>
+    )}
+    
+    {filterData && filterData.year_min && filterData.year_max && (
+      <FilterButton>
+        {formatYearRange(filterData.year_min, filterData.year_max)}
+      </FilterButton>
+    )}
+    
+    {(filterData ? filterData.price_min || filterData.price_max : priceMin || priceMax) && (
+      <FilterButton>
+        {formatPriceRange(filterData, priceMin, priceMax)}
+      </FilterButton>
+    )}
+    
+    {getFilterValue(filterData, newUsed, 'condition') && (
+      <FilterButton onClick={() => setNewUsed('New & Used')}>
+        {getFilterValue(filterData, newUsed, 'condition')}
+      </FilterButton>
+    )}
+    
+    {filterData && filterData.min_kilometers && filterData.max_kilometers && (
+      <FilterButton>
+        {formatKilometerRange(filterData.min_kilometers, filterData.max_kilometers)}
+      </FilterButton>
+    )}
+    
+    {filterData && filterData.fuel_type && filterData.fuel_type !== 'Any' && (
+      <FilterButton>{filterData.fuel_type}</FilterButton>
+    )}
+    
+    {filterData && filterData.transmission && filterData.transmission !== 'Any' && (
+      <FilterButton>{filterData.transmission}</FilterButton>
+    )}
+    
+    {filterData && filterData.colour && filterData.colour !== 'Any' && (
+      <FilterButton>{filterData.colour}</FilterButton>
+    )}
+  </div>
+);
+
+// Main content component
+const EmptySearchContent = ({ filterData, make, setMake, model, setModel, bodyType, setBodyType, selectedLocation, setSelectedLocation, priceMin, priceMax, newUsed, setNewUsed, onClose, onSaveSearch }) => (
+  <div style={{ textAlign: 'center', padding: '10px' }}>
+    <img
+      src={emptysearch}
+      alt='No Results'
+      style={{ maxWidth: '100px', marginBottom: '15px' }}
+    />
+
+    <p style={{ fontSize: '16px', fontWeight: 700, marginBottom: '10px' }}>
+      We didn't find anything that matches this search
+    </p>
+
+    <p style={{ fontSize: '12px', color: '#898384', marginBottom: '15px' }}>
+      You could try to remove some filters:
+    </p>
+
+    <FilterButtons
+      filterData={filterData}
+      make={make}
+      setMake={setMake}
+      model={model}
+      setModel={setModel}
+      bodyType={bodyType}
+      setBodyType={setBodyType}
+      selectedLocation={selectedLocation}
+      setSelectedLocation={setSelectedLocation}
+      priceMin={priceMin}
+      priceMax={priceMax}
+      newUsed={newUsed}
+      setNewUsed={setNewUsed}
+    />
+
+    <p style={{ fontSize: '12px', color: '#555', marginTop: '15px' }}>
+      Or save the search and be notified as soon as we have something for you.
+    </p>
+
+    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+      <button style={cancelBtnStyle} onClick={onClose}>
+        Cancel
+      </button>
+      <button style={saveBtnStyle} onClick={onSaveSearch}>
+        <img src={searchicon} alt='Save Search' /> Save Search
+      </button>
+    </div>
+  </div>
+);
 
 Searchemptymodal.propTypes = {
   visible: PropTypes.bool.isRequired,

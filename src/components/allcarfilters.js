@@ -477,161 +477,149 @@ handleSearch()
     }
   };
 
-  const handleSearch = async () => {
-    let sortbynewlist = false;
-  let sortbyold = false;
-  let sortbypriceormileage = '';
-  let sortorder = '';
+  // Helper function to determine sort parameters
+  const getSortParameters = (sortedbydata) => {
+    const sortConfig = {
+      sortbynewlist: false,
+      sortbyold: false,
+      sortbypriceormileage: '',
+      sortorder: ''
+    };
 
-  switch (sortedbydata) {
-    case 'Newest Listing':
-      sortbynewlist = true;
-      break;
+    switch (sortedbydata) {
+      case 'Newest Listing':
+        sortConfig.sortbynewlist = true;
+        break;
+      case 'Oldest Listing':
+        sortConfig.sortbyold = true;
+        break;
+      case 'Price : Low to High':
+        sortConfig.sortbypriceormileage = 'price';
+        sortConfig.sortorder = 'asc';
+        break;
+      case 'Price : High to Low':
+        sortConfig.sortbypriceormileage = 'price';
+        sortConfig.sortorder = 'desc';
+        break;
+      case 'Mileage: Low to High':
+        sortConfig.sortbypriceormileage = 'mileage';
+        sortConfig.sortorder = 'asc';
+        break;
+      case 'Mileage: High to Low':
+        sortConfig.sortbypriceormileage = 'mileage';
+        sortConfig.sortorder = 'desc';
+        break;
+      default:
+        break;
+    }
 
-    case 'Oldest Listing':
-      sortbyold = true;
-      break;
+    return sortConfig;
+  };
 
-    case 'Price : Low to High':
-      sortbypriceormileage = 'price';
-      sortorder = 'asc';
-      break;
+  // Helper function to build save parameters
+  const buildSaveParams = (sortConfig) => ({
+    make: make === DEFAULTS.ALL_MAKE ? '' : make,
+    model: model === DEFAULTS.ALL_MODELS ? '' : model,
+    body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+    location: location === 'All Locations' ? '' : (location || ''),
+    newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+    priceMin,
+    priceMax,
+    newest_listing: sortConfig.sortbynewlist,
+    oldest_listing: sortConfig.sortbyold,
+    sort_by: sortConfig.sortbypriceormileage,
+    sort_order: sortConfig.sortorder,
+  });
 
-    case 'Price : High to Low':
-      sortbypriceormileage = 'price';
-      sortorder = 'desc';
-      break;
-
-    case 'Mileage: Low to High':
-      sortbypriceormileage = 'mileage';
-      sortorder = 'asc';
-      break;
-
-    case 'Mileage: High to Low':
-      sortbypriceormileage = 'mileage';
-      sortorder = 'desc';
-      break;
-
-    default:
-      // No sort selected, keep defaults
-      break;
-  }
-    const saveParams = {
+  // Helper function to build API parameters
+  const buildApiParams = (sortConfig) => {
+    const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
+    
+    return {
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
       body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
-      location: location === 'All Locations' ? '' : (location || ''),
-      newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
-      priceMin,
-      priceMax,
-      newest_listing: sortbynewlist,
-      oldest_listing: sortbyold,
-      sort_by: sortbypriceormileage,
-      sort_order: sortorder,
+      location: (location && location !== '' && location !== 'All Locations') ? location : '',
+      price_min: cleanedMin,
+      price_max: cleanedMax,
+      newest_listing: sortConfig.sortbynewlist,
+      oldest_listing: sortConfig.sortbyold,
+      sort_by: sortConfig.sortbypriceormileage,
+      sort_order: sortConfig.sortorder,
     };
+  };
 
-
-
-    // Save filters to localStorage
+  // Helper function to save filters and update UI
+  const saveFiltersAndUpdateUI = (saveParams) => {
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
-    // Update breadcrumb directly via prop
+    
     if (setSelectedLocation) {
       setSelectedLocation(location);
     }
-    // Dispatch custom event to update breadcrumb (fallback)
+    
     window.dispatchEvent(new CustomEvent('searchDataUpdated'));
     message.success('Filters saved!');
+  };
+
+  // Helper function to clear cached data
+  const clearCachedData = () => {
+    setFilterCarsData({ cars: [], pagination: {} });
+    setCarSearch([]);
+    
+    const cacheKeys = ['cachedCarsData', 'carsData', 'filterData', 'carSearchData', 'savedCarsData'];
+    cacheKeys.forEach(key => localStorage.removeItem(key));
+  };
+
+  // Helper function to handle search results
+  const handleSearchResults = (data1, apiParams) => {
+    const results = data1?.data?.cars || [];
+    setCarSearch(results);
+
+    // Update car count from pagination
+    if (data1.data.pagination && data1.data.pagination.total !== undefined) {
+      setCarCount(data1.data.pagination.total);
+    }
+
+    if (results.length === 0) {
+      setIsModalOpen(true);
+      setFilterCarsData({ cars: [], pagination: {} });
+    } else {
+      setFilterCarsData({
+        cars: data1.data.cars || [],
+        pagination: data1.data.pagination || {}
+      });
+      localStorage.setItem('searchcardata', JSON.stringify(apiParams));
+      
+      if (setSelectedLocation) {
+        setSelectedLocation(location);
+      }
+      window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+    }
+  };
+
+  // Main search function
+  const handleSearch = async () => {
+    const sortConfig = getSortParameters(sortedbydata);
+    const saveParams = buildSaveParams(sortConfig);
+    const apiParams = buildApiParams(sortConfig);
+
+    saveFiltersAndUpdateUI(saveParams);
 
     try {
       setLoading(true);
-       const cleanedMin = minPrice !== null ? minPrice : '';
-    const cleanedMax = maxPrice !== null ? maxPrice : '';
-      const apiParams = {
-        make: '',
-        model: '',
-        body_type: '',
-        location: '',
-        price_min: cleanedMin,
-      price_max: cleanedMax,
-      newest_listing: sortbynewlist,
-      oldest_listing: sortbyold,
-      sort_by: sortbypriceormileage,
-      sort_order: sortorder,
-      };
-       // Handle make parameter
-       if (make === DEFAULTS.ALL_MAKE) {
-         apiParams.make = '';
-       } else {
-         apiParams.make = make;
-       }
-      if (model !== DEFAULTS.ALL_MODELS) {
-        apiParams.model = model;
-      } else {
-        apiParams.model = '';
-      }
-      if (bodyType !== DEFAULTS.ALL_BODY_TYPES) {
-        apiParams.body_type = bodyType;
-      } else {
-        apiParams.body_type = '';
-      }
-      if (location && location !== '' && location !== 'All Locations') {
-        apiParams.location = location;
-      } else {
-        apiParams.location = '';
-      }
-
-      // if (newUsed !== '') {
-      //   apiParams.condition = newUsed;
-      // } else {
-      //   apiParams.condition = '';
-      // }
-
-      // Set loading state and clear previous data immediately
+      
       if (setIsLoading) {
         setIsLoading(true);
       }
-      // Clear previous search results immediately when new search starts
-      setFilterCarsData({ cars: [], pagination: {} });
-      // Also clear any cached search results
-      setCarSearch([]);
-      // Clear only non-essential cached data, preserve searchcardata and filter options
-      localStorage.removeItem('cachedCarsData');
-      localStorage.removeItem('carsData');
-      localStorage.removeItem('filterData');
-      localStorage.removeItem('carSearchData');
-      localStorage.removeItem('savedCarsData');
+      
+      clearCachedData();
 
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
 
       if (data1) {
-        const results = data1?.data?.cars || [];
-        setCarSearch(results);
-
-        // Update car count from pagination
-        if (data1.data.pagination && data1.data.pagination.total !== undefined) {
-          setCarCount(data1.data.pagination.total);
-        }
-
-        if (results.length === 0) {
-          setIsModalOpen(true);
-          setFilterCarsData({ cars: [], pagination: {} });
-        } else {
-          setFilterCarsData({ cars: [], pagination: {} });
-          setFilterCarsData({
-            cars: data1.data.cars || [],
-            pagination: data1.data.pagination || {}
-          });
-          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-          if (setSelectedLocation) {
-            setSelectedLocation(location);
-          }
-          window.dispatchEvent(new CustomEvent('searchDataUpdated'));
-          // messageApi.open({
-          //   type: 'success',
-          //   content: data1?.message,
-          // });
-        }
+        handleSearchResults(data1, apiParams);
       }
     } catch (error) {
       const errorData = handleApiError(error);
@@ -639,7 +627,7 @@ handleSearch()
       setCarSearch([]);
     } finally {
       setLoading(false);
-      // Clear loading state
+      
       if (setIsLoading) {
         setIsLoading(false);
       }

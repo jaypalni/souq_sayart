@@ -28,7 +28,6 @@ const buildSearchParams = (filterData, props) => {
     selectedLocation,
     priceMin,
     priceMax,
-    newUsed
   } = props;
 
   if (filterData) {
@@ -257,8 +256,28 @@ const FilterButton = ({ children, onClick, style = filterStyle }) => (
   </button>
 );
 
+FilterButton.propTypes = {
+  children: PropTypes.node.isRequired,
+  onClick: PropTypes.func,
+  style: PropTypes.object,
+};
+
 // Filter buttons section component
-const FilterButtons = ({ filterData, make, setMake, model, setModel, bodyType, setBodyType, selectedLocation, setSelectedLocation, priceMin, priceMax, newUsed, setNewUsed }) => (
+const FilterButtons = ({ 
+  filterData, 
+  make, 
+  setMake, 
+  model, 
+  setModel, 
+  bodyType, 
+  setBodyType, 
+  selectedLocation, 
+  setSelectedLocation, 
+  priceMin, 
+  priceMax, 
+  newUsed, 
+  setNewUsed 
+}) => (
   <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
     {shouldShowFilter(filterData, make, 'make', DEFAULT_ALL_MAKE) && (
       <FilterButton onClick={() => setMake(DEFAULT_ALL_MAKE)}>
@@ -284,7 +303,7 @@ const FilterButtons = ({ filterData, make, setMake, model, setModel, bodyType, s
       </FilterButton>
     )}
     
-    {filterData && filterData.year_min && filterData.year_max && (
+    {filterData?.year_min && filterData?.year_max && (
       <FilterButton>
         {formatYearRange(filterData.year_min, filterData.year_max)}
       </FilterButton>
@@ -302,25 +321,57 @@ const FilterButtons = ({ filterData, make, setMake, model, setModel, bodyType, s
       </FilterButton>
     )}
     
-    {filterData && filterData.min_kilometers && filterData.max_kilometers && (
+    {filterData?.min_kilometers && filterData?.max_kilometers && (
       <FilterButton>
         {formatKilometerRange(filterData.min_kilometers, filterData.max_kilometers)}
       </FilterButton>
     )}
     
-    {filterData && filterData.fuel_type && filterData.fuel_type !== 'Any' && (
+    {filterData?.fuel_type && filterData.fuel_type !== 'Any' && (
       <FilterButton>{filterData.fuel_type}</FilterButton>
     )}
     
-    {filterData && filterData.transmission && filterData.transmission !== 'Any' && (
+    {filterData?.transmission && filterData.transmission !== 'Any' && (
       <FilterButton>{filterData.transmission}</FilterButton>
     )}
     
-    {filterData && filterData.colour && filterData.colour !== 'Any' && (
+    {filterData?.colour && filterData.colour !== 'Any' && (
       <FilterButton>{filterData.colour}</FilterButton>
     )}
   </div>
 );
+
+FilterButtons.propTypes = {
+  filterData: PropTypes.shape({
+    keyword: PropTypes.string,
+    make: PropTypes.string,
+    model: PropTypes.string,
+    year_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    year_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    price_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    location: PropTypes.string,
+    body_type: PropTypes.string,
+    fuel_type: PropTypes.string,
+    transmission: PropTypes.string,
+    min_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    max_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    colour: PropTypes.string,
+    condition: PropTypes.string,
+  }),
+  make: PropTypes.string,
+  setMake: PropTypes.func,
+  model: PropTypes.string,
+  setModel: PropTypes.func,
+  bodyType: PropTypes.string,
+  setBodyType: PropTypes.func,
+  selectedLocation: PropTypes.string,
+  setSelectedLocation: PropTypes.func,
+  priceMin: PropTypes.number,
+  priceMax: PropTypes.number,
+  newUsed: PropTypes.string,
+  setNewUsed: PropTypes.func,
+};
 
 // Main content component
 const EmptySearchContent = ({ filterData, make, setMake, model, setModel, bodyType, setBodyType, selectedLocation, setSelectedLocation, priceMin, priceMax, newUsed, setNewUsed, onClose, onSaveSearch }) => (
@@ -370,6 +421,40 @@ const EmptySearchContent = ({ filterData, make, setMake, model, setModel, bodyTy
   </div>
 );
 
+EmptySearchContent.propTypes = {
+  filterData: PropTypes.shape({
+    keyword: PropTypes.string,
+    make: PropTypes.string,
+    model: PropTypes.string,
+    year_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    year_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    price_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    location: PropTypes.string,
+    body_type: PropTypes.string,
+    fuel_type: PropTypes.string,
+    transmission: PropTypes.string,
+    min_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    max_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    colour: PropTypes.string,
+    condition: PropTypes.string,
+  }),
+  make: PropTypes.string,
+  setMake: PropTypes.func,
+  model: PropTypes.string,
+  setModel: PropTypes.func,
+  bodyType: PropTypes.string,
+  setBodyType: PropTypes.func,
+  selectedLocation: PropTypes.string,
+  setSelectedLocation: PropTypes.func,
+  priceMin: PropTypes.number,
+  priceMax: PropTypes.number,
+  newUsed: PropTypes.string,
+  setNewUsed: PropTypes.func,
+  onClose: PropTypes.func.isRequired,
+  onSaveSearch: PropTypes.func.isRequired,
+};
+
 Searchemptymodal.propTypes = {
   visible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
@@ -381,15 +466,31 @@ Searchemptymodal.propTypes = {
   setBodyType: PropTypes.func,
   selectedLocation: PropTypes.string,
   setSelectedLocation: PropTypes.func,
-  priceMin: PropTypes.number,      // ✅ Added
-  setPriceMin: PropTypes.func,     // ✅ Added
-  priceMax: PropTypes.number,      // ✅ Added
-  setPriceMax: PropTypes.func,     // ✅ Added
-  newUsed: PropTypes.string,       // ✅ Added
-  setNewUsed: PropTypes.func,      // ✅ Added
+  priceMin: PropTypes.number,
+  setPriceMin: PropTypes.func,
+  priceMax: PropTypes.number,
+  setPriceMax: PropTypes.func,
+  newUsed: PropTypes.string,
+  setNewUsed: PropTypes.func,
   toastmessage: PropTypes.func,
   setSaveSearchesReload: PropTypes.func,
-  filterData: PropTypes.object,
+  filterData: PropTypes.shape({
+    keyword: PropTypes.string,
+    make: PropTypes.string,
+    model: PropTypes.string,
+    year_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    year_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    price_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    location: PropTypes.string,
+    body_type: PropTypes.string,
+    fuel_type: PropTypes.string,
+    transmission: PropTypes.string,
+    min_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    max_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    colour: PropTypes.string,
+    condition: PropTypes.string,
+  }),
 };
 
 const filterStyle = {

@@ -19,7 +19,7 @@
   margin: 0;
   font-weight: 700;
   font-size: 25px;
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
 }
 
 .banner-header-subtitle {
@@ -27,7 +27,7 @@
   margin-top: 5px;
   font-weight: 400;
   font-size: 12px;
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
 }
 
 .banner-main {
@@ -37,6 +37,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  height: 130px;
 }
 
 .banner-image {
@@ -51,11 +52,7 @@
   color: #fff;
   font-weight: 700;
   font-size: 32px;
-  font-family: 'Roboto';
-}
-
-.banner-main {
-  height: 130px;
+  font-family: 'Roboto', sans-serif;
 }
 
 @media (max-width: 767px) {

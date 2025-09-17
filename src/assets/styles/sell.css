@@ -482,6 +482,11 @@
   z-index: 2; 
 }
 
+.custom-placeholder::placeholder {
+  color: #bbb; 
+  opacity: 1;  
+}
+
 
 /* Specific groups use the common class */
 .condition-box-group,

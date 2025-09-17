@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button, InputNumber } from 'antd';
+import { Select, Button, InputNumber, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import '../assets/styles/landingFilters.css';
 import { carAPI } from '../services/api';
@@ -649,22 +649,20 @@ const resolveDefaultLocation = (locations, geoData) => {
       {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
     </button>
   ) : (
-    <InputNumber
-      style={{ width: '100px' }}
-      min={0}
-      value={minPrice}
-      onChange={(value) => {
-        if (maxPrice !== null && value >= maxPrice) {
-          messageApi.error('Minimum price should be less than Maximum price');
-          return;
-        }
-        setMinPrice(value);
-      }}
-      onBlur={() => {
-        if (minPrice === null) setShowMinInput(false);
-      }}
-      placeholder="Min"
-    />
+   <Input
+  style={{ width: '100px' }}
+  type="tel"
+  value={minPrice}
+  placeholder="Min"
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, ''); // allow only digits
+    setMinPrice(value ? Number(value) : null);
+  }}
+  onBlur={() => {
+    if (minPrice === null) setShowMinInput(false);
+  }}
+/>
+
   )}
 </div>
 
@@ -691,26 +689,31 @@ const resolveDefaultLocation = (locations, geoData) => {
       {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
     </button>
   ) : (
-    <InputNumber
-      style={{ width: '120px' }}
-      min={0}
-      value={maxPrice}
-      onChange={(value) => {
-        if (value > 5000000000) {
-          messageApi.error('Maximum allowed price is ₹5,000,000,000');
-          return;
-        }
-        if (minPrice !== null && value <= minPrice) {
-          messageApi.error('Maximum price should be greater than Minimum price');
-          return;
-        }
-        setMaxPrice(value);
-      }}
-      onBlur={() => {
-        if (maxPrice === null) setShowMaxInput(false);
-      }}
-      placeholder="Max"
-    />
+   <Input
+  style={{ width: '120px' }}
+  type="tel" // use tel so numeric keypad shows on mobile
+  value={maxPrice}
+  placeholder="Max"
+  onChange={(e) => {
+    // Allow only digits
+    const digitsOnly = e.target.value.replace(/\D/g, '');
+    setMaxPrice(digitsOnly ? Number(digitsOnly) : null);
+  }}
+  onBlur={() => {
+    if (maxPrice === null) setShowMaxInput(false);
+
+    // Validation checks on blur
+    if (maxPrice > 5000000000) {
+      messageApi.error('Maximum allowed price is ₹5,000,000,000');
+      setMaxPrice(5000000000); // optional: reset to max limit
+    }
+
+    if (minPrice !== null && maxPrice <= minPrice) {
+      messageApi.error('Maximum price should be greater than Minimum price');
+    }
+  }}
+/>
+
   )}
 </div>
 

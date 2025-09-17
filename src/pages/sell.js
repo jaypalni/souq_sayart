@@ -227,7 +227,7 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, 
       <span
         style={{
           fontSize: 14,
-          fontWeight: 500,
+          fontWeight: 400,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -237,7 +237,7 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, 
           if (selectedBrand) {
             return selectedModel ? `${selectedBrand} - ${selectedModel}` : selectedBrand;
           }
-          return 'brand and model of your car';
+          return 'Brand and Model of your car';
         })()}
       </span>
 
@@ -1669,7 +1669,7 @@ const handleFinish = async (mode) => {
   <Form.Item
     style={{
       fontWeight: 500,
-      fontSize: 12,
+      fontSize: 14,
       color: '#0A0A0B',
     }}
     label="Price"
@@ -1687,6 +1687,7 @@ const handleFinish = async (mode) => {
     ]}
   >
     <Input
+      className="custom-placeholder"
       style={{ width: '100%' }}
       type="tel"
       inputMode="numeric"
@@ -1696,20 +1697,16 @@ const handleFinish = async (mode) => {
           ? selectedPrice.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
           : ''
       }
-      placeholder="Enter price"
+      placeholder="Enter price..."
       onChange={(e) => {
         const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-
-        // Don't allow 0 as the first digit
         const sanitizedValue = digitsOnly.replace(/^0+/, '');
-
         setSelectedPrice(sanitizedValue);
         form.setFieldsValue({ price: sanitizedValue });
       }}
     />
   </Form.Item>
 </Col>
-
 
   <Col xs={24} md={6}>
     <Form.Item

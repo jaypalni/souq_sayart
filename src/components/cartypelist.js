@@ -60,7 +60,7 @@ Arrow.propTypes = {
   left: PropTypes.bool,
 };
 
-const CarTypeList = () => {
+const CarTypeList = ({setSaveSearchesReload}) => {
   const [, setLoading] = useState(false);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -147,6 +147,7 @@ const CarTypeList = () => {
   }, []);
 
   const handleSearch = async (item) => {
+  setBodyType(item)
     try {
       setLoading(true);
 
@@ -214,7 +215,7 @@ const CarTypeList = () => {
         bodyType={bodyType}
         setBodyType={setBodyType}
         onSave={handleSearch}
-        setSaveSearchesReload={() => {}}
+        setSaveSearchesReload={setSaveSearchesReload}
       />
     </div>
   );

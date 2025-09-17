@@ -95,12 +95,10 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         location: valueOrEmpty(currentLocation, CORRECT_DEFAULT_LOCATION),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
-
         page: 1,
         limit: 1, // We only need the count, so limit to 1 for efficiency
-             
+        ...(currentNewUsed !== DEFAULT_NEW_USED && { condition: currentNewUsed })
       };
-apiParams= newUsed===DEFAULT_NEW_USED ?apiParams:{...apiParams,condition: newUsed,}
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 

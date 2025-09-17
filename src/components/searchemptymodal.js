@@ -17,8 +17,8 @@ import '../assets/styles/searchemptymodal.css';
 const DEFAULT_ALL_MAKE = 'All';
 const DEFAULT_ALL_MODELS = 'All Models';
 const DEFAULT_ALL_BODY_TYPES = 'All Body Types';
-const DEFAULT_LOCATION_BAGHDAD = '';
-
+const DEFAULT_LOCATION_BAGHDAD = 'All Locations';
+const DEFAULT_CONDITION='New & Used'
 // Helper function to build search parameters
 const buildSearchParams = (filterData, props) => {
   const {
@@ -216,7 +216,8 @@ const getFilterValue = (filterData, propValue, defaultValue) => {
 // Helper function to check if filter should be shown
 const shouldShowFilter = (filterData, propValue, propName, defaultValue) => {
   const value = getFilterValue(filterData, propName, propValue);
-  return value && value !== defaultValue;
+  console.log(filterData,propName,propValue,value,defaultValue)
+  return value && value !== defaultValue && propValue &&propValue!== defaultValue;
 };
 
 // Helper function to format price range
@@ -315,8 +316,8 @@ const FilterButtons = ({
       </FilterButton>
     )}
     
-    {getFilterValue(filterData, newUsed, 'condition') && (
-      <FilterButton onClick={() => setNewUsed('New & Used')}>
+       {shouldShowFilter(filterData, newUsed, 'condition', DEFAULT_CONDITION) &&  (
+      <FilterButton onClick={() => setNewUsed(DEFAULT_CONDITION)}>
         {getFilterValue(filterData, newUsed, 'condition')}
       </FilterButton>
     )}

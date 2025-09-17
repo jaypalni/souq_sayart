@@ -8,7 +8,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Input, Button, Radio, Row, Col, message, Upload, DatePicker } from 'antd';
-
+import { loginSuccess } from '../redux/actions/authActions';
 import {
   EditOutlined,
 } from '@ant-design/icons';
@@ -234,29 +234,14 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Company Phone Number*
+                Phone Number*
               </span>
             }
             name="phone"
             required={false}
-           rules={[
-                  { required: true, message: 'Company Phone Number is required' },
-                  {
-                    pattern: /^[0-9]+$/,
-                    message: 'Company Phone Number should contain only numbers',
-                  },
-                  {
-                    max: 13,
-                    message: 'Company Phone Number cannot exceed 13 numbers',
-                  },
-                    {
-                    min: 6,
-                    message: 'Company Phone Number minimum 6 numbers',
-                  },
-                ]}
           >
             <Input
-            disabled={!editMode}
+            disabled
               className="form-input-text"
              
             />
@@ -833,19 +818,11 @@ const MyProfileForm = () => {
 const Userdataapi = async () => {
   try {
     setLoading(true);
-    
-    // First, try to use Redux data if available
-    if (userData && Object.keys(userData).length > 0) {
-      console.log('Using Redux data for profile:', userData);
-      populateUserProfile(userData, 'Profile loaded from Redux');
-      return;
-    }
-    
     // If no Redux data, fetch from API
     console.log('No Redux data, fetching from API');
     const response = await userAPI.getProfile({});
     const users_data = handleApiResponse(response);
-
+console.log('s224',users_data)
     if (users_data?.data) {
       populateUserProfile(users_data.data, users_data.message);
     }
@@ -876,7 +853,7 @@ const mapUserToProfile = (user) => {
     profilePic && !profilePic.startsWith('http')
       ? `${BASE_URL}${profilePic}`
       : profilePic;
-
+console.log('Profile data', user)
   return {
     first_name: user.first_name || '',
     last_name: user.last_name || '',
@@ -886,7 +863,7 @@ const mapUserToProfile = (user) => {
     company: user.company_name || '',
     owner: user.owner_name || '',
     address: user.company_address || '',
-    phone: user.company_phone_number || '',
+    phone: user.phone_number || '',
     reg: user.company_registration_number || '',
     facebook: user.facebook_page || '',
     instagram: user.instagram_company_profile || '',
@@ -1136,7 +1113,7 @@ const handleSubmitError = (error, onFinishFailed) => {
       company_name: values.company || '',
       owner_name: values.owner || '',
       company_address: values.address || '',
-      company_phone_number: values.phone || '',
+      // company_phone_number: values.phone || '',
       company_registration_number: values.reg || '',
       facebook_page: values.facebook || '',
       instagram_company_profile: values.instagram || '',
@@ -1148,11 +1125,18 @@ const handleSubmitError = (error, onFinishFailed) => {
     const response = await userAPI.updateProfile(payload);
     
     const result = handleApiResponse(response);
+    console.log('s22',result)
       dispatch(updateCustomerDetails({
           first_name: result?.user?.first_name,
           last_name: result?.user?.last_name,
           profile_pic: result?.user?.profile_pic,
+          email:result?.user?.email,
+          company_name: result?.user?.company_name,
+          dealer: result?.user?.is_dealer,
+
         }));
+        
+         Userdataapi();
     if (result?.user) {
       
 
@@ -1160,6 +1144,7 @@ const handleSubmitError = (error, onFinishFailed) => {
         const profileResponse = await userAPI.getProfile({});
         
         const profileResult = handleApiResponse(profileResponse);
+        console.log('s223',profileResult)
         if (profileResult?.data) {
           applyUpdatedUser({
             user: profileResult.data,

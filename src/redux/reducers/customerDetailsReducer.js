@@ -60,6 +60,7 @@ const customerDetailsReducer = (state = initialState, action) => {
         customerDetailsError: action.payload,
       };
     case CUSTOMER_DETAILS_UPDATE:
+      console.log('sateupdate11',state.customerDetails,action.payload)
       return {
         ...state,
         customerDetails: {

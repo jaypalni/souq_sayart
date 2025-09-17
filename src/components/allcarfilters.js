@@ -55,7 +55,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -842,6 +842,8 @@ handleSearch()
                 setFilterVisible(false);
               }
             }}
+            limit={limit}
+            currentPage={currentPage}
           />
 
           <div className="allcars-filters-col allcars-filters-btn-col">

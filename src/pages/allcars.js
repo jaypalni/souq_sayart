@@ -27,7 +27,8 @@ const Allcars = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [isLoading, setIsLoading] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
-
+const [currentPage, setCurrentPage] = useState({});
+  const [limit, setLimit] = useState({});
 
   // Initialize selectedLocation from localStorage on component mount
   useEffect(() => {
@@ -84,6 +85,9 @@ const Allcars = () => {
         sortedbydata={sortedbydata}
         setSelectedLocation={setSelectedLocation}
         setIsLoading={debugSetIsLoading}
+        limit={limit}
+        currentPage={currentPage}
+
       />
       <CarListing
         key={`${renderKey}-${filtercarsData?.cars?.length || 0}`}
@@ -93,13 +97,15 @@ const Allcars = () => {
         sortedbydata={sortedbydata}
         setSortedbyData={setSortedbyData}
         isLoading={isLoading}
+        setCurrentPage={setCurrentPage}
+        setLimit={setLimit}
       />
       <Bestcarsalebytype />
     </div>
   );
 };
 
-const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading }) => {
+const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading ,setLimit,setCurrentPage}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -198,6 +204,9 @@ const Removefavcarapi = async (carId) => {
   const onShowSizeChange = (current, pageSize) => {
   };
   const onPageChange = (page, pageSize) => {
+
+    setCurrentPage(page)
+    setLimit(pageSize)
   };
   const handleSelect = (option) => {
     setSortOption(option); 

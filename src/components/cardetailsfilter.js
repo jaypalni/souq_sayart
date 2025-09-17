@@ -492,7 +492,7 @@ ExtraFeaturesDrawer.propTypes = {
   onFeatureToggle: PropTypes.func.isRequired,
 };
 
-const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) => {
+const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage }) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
@@ -511,9 +511,16 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults }) 
 
   const handleChange = (e) => setValue(e.target.value);
 
+  console.log('page123',currentPage)
+  console.log('limit123',limit)
+
   useEffect(() => {
     fetchTrimData()
   },[make,model])
+
+   useEffect(() => {
+    handleApplyFilters()
+  },[currentPage,limit])
 
   useEffect(() => {
       fetchUpdateOptionsData();
@@ -568,7 +575,7 @@ const fetchUpdateOptionsData = async () => {
     try {
       setLoading(true);
       const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords });
-      const response = await carAPI.searchCars(filterData);      
+      const response = await carAPI.searchCars(filterData,currentPage,limit);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
         

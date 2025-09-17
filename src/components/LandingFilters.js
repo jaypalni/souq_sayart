@@ -109,6 +109,8 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       const currentModel = filterParams.model !== undefined ? filterParams.model : model;
       const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
       const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
+      
+ const currentNewUsed = filterParams.newUsed !== undefined ? filterParams.newUsed : newUsed;
 
       const apiParams = {
         make: valueOrEmpty(currentMake, CORRECT_DEFAULT_MAKE),
@@ -117,11 +119,12 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         location: valueOrEmpty(currentLocation, CORRECT_DEFAULT_LOCATION),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
-        condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
+
         page: 1,
         limit: 1, // We only need the count, so limit to 1 for efficiency
+             
       };
-
+apiParams= newUsed===DEFAULT_NEW_USED ?apiParams:{...apiParams,condition: newUsed,}
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
@@ -193,7 +196,9 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     autoSearchForCount({ bodyType });
   }, [bodyType]);
 
-
+  useEffect(() => {
+    autoSearchForCount({ newUsed });
+  }, [newUsed]);
   const fetchBodyTypeCars = async () => {
     try {
       setLoading(true);

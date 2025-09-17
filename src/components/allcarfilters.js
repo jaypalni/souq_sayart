@@ -216,7 +216,7 @@ const buildAutoSearchParams = (filterParams) => {
   const currentModel = getCurrentFilterValue(filterParams, 'model', model);
   const currentLocation = getCurrentFilterValue(filterParams, 'location', location);
   const currentBodyType = getCurrentFilterValue(filterParams, 'bodyType', bodyType);
-
+ const currentNewUsed = getCurrentFilterValue(filterParams, 'condition', newUsed);
   return {
     make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
     model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
@@ -224,7 +224,7 @@ const buildAutoSearchParams = (filterParams) => {
     location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
     price_min: minPrice !== null ? minPrice : '',
     price_max: maxPrice !== null ? maxPrice : '',
-    condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+    condition: currentNewUsed === DEFAULTS.NEW_USED ? '' : newUsed,
     page: 1,
     limit: 1, // We only need the count, so limit to 1 for efficiency
   };
@@ -367,7 +367,9 @@ handleSearch()
   useEffect(() => {
     autoSearchForCount({ model });
   }, [model]);
-
+  useEffect(() => {
+    autoSearchForCount({ newUsed });
+  }, [newUsed]);
   // Auto-search for count when location changes
   useEffect(() => {
     autoSearchForCount({ location });
@@ -546,7 +548,7 @@ handleSearch()
     model: model === DEFAULTS.ALL_MODELS ? '' : model,
     body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
     location: location === 'All Locations' ? '' : (location || ''),
-    newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+    condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
     priceMin,
     priceMax,
     newest_listing: sortConfig.sortbynewlist,
@@ -567,6 +569,7 @@ handleSearch()
       location: (location && location !== '' && location !== 'All Locations') ? location : '',
       price_min: cleanedMin,
       price_max: cleanedMax,
+      condition:newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
       newest_listing: sortConfig.sortbynewlist,
       oldest_listing: sortConfig.sortbyold,
       sort_by: sortConfig.sortbypriceormileage,

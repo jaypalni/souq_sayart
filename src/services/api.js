@@ -81,7 +81,6 @@ api.interceptors.response.use(
         // Resource not found
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
        //network error
-       alert('urieooepp network error')
       }
     }
 

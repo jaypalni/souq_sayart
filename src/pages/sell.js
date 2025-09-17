@@ -641,7 +641,13 @@ useEffect(() => {
   }
 }, [selectedYear, selectedBrand, selectedModel, selectedTrim, form]);
 
-
+useEffect(()=>{
+setSelectedTrim(null)
+setSelectedModel(null)
+},[selectedBrand])
+useEffect(()=>{
+setSelectedTrim(null)
+},[selectedModel])
   const fetchTrimCars = async () => {
     try {
       setLoading(true);
@@ -1432,7 +1438,7 @@ const handleFinish = async (mode) => {
       rules={[{ required: true, message: 'Please select the Body Type' }]}
     >
       <div className="option-box-group">
-        {updateData?.body_types.map((opt) => (
+        {updateData?.body_types?.map((opt) => (
           <div
             key={opt.body_type}
             className={`option-box${selectedBodyType === opt.body_type ? ' selected' : ''}`}
@@ -1530,7 +1536,7 @@ const handleFinish = async (mode) => {
           form.setFieldsValue({ horsepower: val });
         }}
       >
-        {horsePower.map((hp) => (
+        {horsePower?.map((hp) => (
               <Select.Option key={hp.id} value={hp.label}>
                 {hp.label}
               </Select.Option>

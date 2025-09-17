@@ -30,10 +30,10 @@ const FILTER = {
 
 const renderPaginationItem = (page, type, originalElement) => {
   if (type === 'prev') {
-    return <span>« Prev</span>;  // Optional custom text for previous button
+    return <span>« </span>;  // Optional custom text for previous button
   }
   if (type === 'next') {
-    return <span>Next »</span>;  // Optional custom text for next button
+    return <span> »</span>;  // Optional custom text for next button
   }
   return originalElement;        // Default: page numbers like 1, 2, 3
 };
@@ -330,7 +330,7 @@ const fetchCars = async () => {
       setPage(newPage);
     }}
     showSizeChanger={false}   // Hides page size dropdown
-    showQuickJumper            // Show input for quick jump
+    // showQuickJumper            // Show input for quick jump
     itemRender={renderPaginationItem} // Custom render for < and >
   />
 </div>

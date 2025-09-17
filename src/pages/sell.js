@@ -37,9 +37,11 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 import moment from 'moment';
+import CarPostingModal from '../components/carpostingmodal';
 
-const { TextArea } = Input;
+// const { TextArea } = Input;
 const { Option } = Select;
+// const MAX_LEN = 1000;
 
 const ExteriorColorInput = ({
   selectedColor,
@@ -380,6 +382,9 @@ const Sell = () => {
   const [,setAddData] = useState();
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
+  // const [desc, setDesc] = useState(form.getFieldValue('description') || '');
+  const [description, setDescription] = useState(form.getFieldValue('description') || '');
+  const MAX_LEN = 1000;
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalOpenInterior, setColorModalOpenInterior] = useState(false);
   const [colorSearch, setColorSearch] = useState('');
@@ -426,6 +431,10 @@ const Sell = () => {
   const { state } = useLocation();
   const extras = state?.extras ?? [];
   const populatedRef = useRef(false);
+  const { TextArea } = Input;
+  const [showModal, setShowModal] = useState(true);
+
+
 
   console.log('1234567',extras.warranty_date)
   
@@ -642,6 +651,32 @@ useEffect(() => {
   populatedRef.current = true;
 }, [extras, form]);
 
+  const handleChange = (e) => {
+  let v = e.target.value || '';
+  if (v.length > MAX_LEN) {
+    v = v.slice(0, MAX_LEN);
+    message.warning(`Description truncated to ${MAX_LEN} characters.`);
+  }
+  setDescription(v);
+  form.setFieldsValue({ description: v });
+};
+
+
+const handlePaste = (e) => {
+  const pasted = (e.clipboardData || window.clipboardData).getData('text') || '';
+  const available = MAX_LEN - description.length;
+
+  if (pasted.length > available) {
+    e.preventDefault();
+    const toInsert = pasted.slice(0, Math.max(0, available));
+    const newVal = (description + toInsert).slice(0, MAX_LEN);
+
+    setDescription(newVal);
+    form.setFieldsValue({ description: newVal });
+    message.info(`Pasted content truncated to fit ${MAX_LEN} characters.`);
+  }
+};
+
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
@@ -689,11 +724,11 @@ useEffect(() => {
 
   useEffect(() => {
   if (selectedYear || selectedBrand || selectedModel || selectedTrim) {
-    const yearPart = selectedYear || '';
     const brandPart = selectedBrand || '';
     const modelPart = selectedModel || '';
     const trimPart = selectedTrim || '';
-    const autoTitle = `${yearPart} ${brandPart} ${modelPart} ${trimPart}`.trim();
+     const yearPart = selectedYear || '';
+    const autoTitle = `${brandPart} ${modelPart} ${trimPart} ${yearPart}`.trim();
 
     // Update adTitle only if the user hasn't typed manually
     setAdTitle((prev) => {
@@ -707,7 +742,7 @@ useEffect(() => {
     // Also update the form field
     form.setFieldsValue({ adTitle: autoTitle });
   }
-}, [selectedYear, selectedBrand, selectedModel, selectedTrim, form]);
+}, [selectedBrand, selectedModel, selectedTrim, selectedYear, form]);
 
 useEffect(()=>{
 setSelectedTrim(null)
@@ -881,7 +916,9 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     });
 
     if (text === '1') {
-      navigate('/landing');
+      // navigate('/landing');
+      setShowModal(true); // ✅ Show modal when text is "1"
+        console.log('Added Success');
     } else {
       form.resetFields();
     }
@@ -1094,50 +1131,59 @@ const handleFinish = async (mode) => {
                       />
                     </div>
                   ) : (
-                    <>
-                      <Upload
-                        action="#"
-                        listType="picture-card"
-                        fileList={mediaFileList}
-                        onPreview={handleMediaPreview}
-                        onChange={handleMediaChange}
-                        beforeUpload={beforeMediaUpload}
-                        showUploadList={{
-                          showRemoveIcon: true,
-                          showPreviewIcon: true,
-                        }}
-                        multiple
-                        maxCount={15}
-                        accept=".jpg,.jpeg,.png,.gif,.mp4"
-                        customRequest={({ file, onSuccess }) =>
-                          setTimeout(() => onSuccess('ok'), 0)
-                        }
-                      >
-                        {mediaFileList.length < 15 && mediaUploadButton}
-                      </Upload>
-                      {mediaFileList.length > 0 && (
-                        <div
-                          className="media-info-text"
-                          style={{ marginTop: '8px', color: '#666' }}
-                        >
-                          Tap on the images to edit them, or press, hold and
-                          move for reordering{' '}
-                        </div>
-                      )}
-                      {mediaPreviewImage && (
-                        <Image
-                          wrapperStyle={{ display: 'none' }}
-                          preview={{
-                            visible: mediaPreviewOpen,
-                            onVisibleChange: (visible) =>
-                              setMediaPreviewOpen(visible),
-                            afterOpenChange: (visible) =>
-                              !visible && setMediaPreviewImage(''),
-                          }}
-                          src={mediaPreviewImage}
-                        />
-                      )}
-                    </>
+                   <>
+  <Upload
+    action="#"
+    listType="picture-card"
+    fileList={mediaFileList}
+    onPreview={handleMediaPreview}
+    onChange={handleMediaChange}
+    beforeUpload={(file, fileList) => {
+      const totalFiles = mediaFileList.length + fileList.length;
+
+      if (totalFiles > 15) {
+        messageApi.error('We only accept up to 15 images.');
+        return Upload.LIST_IGNORE; // ❌ Prevents adding extra files
+      }
+
+      return true; // ✅ Allow upload
+    }}
+    showUploadList={{
+      showRemoveIcon: true,
+      showPreviewIcon: true,
+    }}
+    multiple
+    maxCount={15}
+    accept=".jpg,.jpeg,.png,.gif,.mp4"
+    customRequest={({ file, onSuccess }) => {
+      setTimeout(() => onSuccess('ok'), 0);
+    }}
+  >
+    {mediaFileList.length < 15 && mediaUploadButton}
+  </Upload>
+
+  {mediaFileList.length > 0 && (
+    <div
+      className="media-info-text"
+      style={{ marginTop: '8px', color: '#666' }}
+    >
+      Tap on the images to edit them, or press, hold and move for reordering
+    </div>
+  )}
+
+  {mediaPreviewImage && (
+    <Image
+      wrapperStyle={{ display: 'none' }}
+      preview={{
+        visible: mediaPreviewOpen,
+        onVisibleChange: (visible) => setMediaPreviewOpen(visible),
+        afterOpenChange: (visible) => !visible && setMediaPreviewImage(''),
+      }}
+      src={mediaPreviewImage}
+    />
+  )}
+</>
+
                   )}
                 </Form.Item>
               </Col>
@@ -1161,17 +1207,37 @@ const handleFinish = async (mode) => {
     }}
   />
                 </Form.Item>
-                <Form.Item
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: '#0A0A0B',
-                  }}
-                  label="Description"
-                  name="description"
-                >
-                  <TextArea rows={4} placeholder="Choose" />
-                </Form.Item>
+                  <Form.Item
+  style={{
+    fontSize: 12,
+    fontWeight: 500,
+    color: '#0A0A0B',
+  }}
+  label="Description"
+  name="description"
+>
+  <div style={{ position: 'relative' }}>
+    <TextArea
+      rows={4}
+      placeholder="Enter Description..."
+      value={description} // ✅ Controlled by single state
+      onChange={handleChange}
+      onPaste={handlePaste}
+    />
+    {/* Live Counter */}
+    <div
+      style={{
+        textAlign: 'right',
+        fontSize: 12,
+        color: description.length === MAX_LEN ? 'red' : '#888',
+        marginTop: 4,
+      }}
+    >
+      {description.length}/{MAX_LEN}
+    </div>
+  </div>
+</Form.Item>
+
               </Col>
             </Row>
 
@@ -1553,34 +1619,50 @@ const handleFinish = async (mode) => {
 
   {/* Price input */}
   <Col xs={24} md={6}>
-    <Form.Item
-      style={{
-        fontWeight: 500,
-        fontSize: 12,
-        color: '#0A0A0B',
-      }}
-      label="Price"
-      name="price"
-      required={false}
-      rules={[{ required: true, message: 'Please select the Price' }]}
-    >
-     <Input
-  style={{ width: '100%' }}
-  type="tel"
-  inputMode="numeric"
-  pattern="[0-9]*"
-  value={selectedPrice ? selectedPrice.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
-  placeholder="Enter price"
-  onChange={(e) => {
-    const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-    // optionally enforce a max length: digitsOnly.slice(0, 10)
-    setSelectedPrice(digitsOnly);
-    form.setFieldsValue({ price: digitsOnly });
-  }}
-/>
+  <Form.Item
+    style={{
+      fontWeight: 500,
+      fontSize: 12,
+      color: '#0A0A0B',
+    }}
+    label="Price"
+    name="price"
+    rules={[
+      { required: true, message: 'Please enter the price' },
+      {
+        validator: (_, value) => {
+          if (!value || Number(value) <= 0) {
+            return Promise.reject(new Error('Price must be greater than 0'));
+          }
+          return Promise.resolve();
+        },
+      },
+    ]}
+  >
+    <Input
+      style={{ width: '100%' }}
+      type="tel"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={
+        selectedPrice
+          ? selectedPrice.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+          : ''
+      }
+      placeholder="Enter price"
+      onChange={(e) => {
+        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
 
-    </Form.Item>
-  </Col>
+        // Don't allow 0 as the first digit
+        const sanitizedValue = digitsOnly.replace(/^0+/, '');
+
+        setSelectedPrice(sanitizedValue);
+        form.setFieldsValue({ price: sanitizedValue });
+      }}
+    />
+  </Form.Item>
+</Col>
+
 
   <Col xs={24} md={6}>
     <Form.Item
@@ -1694,38 +1776,32 @@ const handleFinish = async (mode) => {
                     label="Kilometers"
                     name="kilometers"
                     rules={[
-                      { required: true, message: 'Please enter kilometers!' },
-                    ]}
-                    required={false}
+    { required: true, message: 'Please enter kilometers!' },
+    {
+      validator: (_, value) => {
+        if (!value || Number(value) <= 0) {
+          return Promise.reject(new Error('Kilometers must be greater than 0'));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
+  required={false}
                     validateTrigger="onBlur"
                   >
-                     <Input
-    style={{ fontSize: 14 }}
-    placeholder="20"
+                      <Input
+    style={{ width: '100%' }}
     type="tel"
     inputMode="numeric"
     pattern="[0-9]*"
+    placeholder="Enter kilometers"
     onChange={(e) => {
-      // strip any non-digit characters
       const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-      form.setFieldsValue({ consumption: digitsOnly });
-    }}
-    onPaste={(e) => {
-      const pasted = (e.clipboardData?.getData('Text') || '');
-      const digitsOnly = pasted.replace(/\D/g, '');
-      if (digitsOnly !== pasted) {
-        // prevent messy paste and insert cleaned digits
-        e.preventDefault();
-        const current = form.getFieldValue('consumption') || '';
-        form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
-      }
-    }}
-    onKeyDown={(e) => {
-      // allow navigation / control keys
-      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-      if (allowed.includes(e.key)) return;
-      // block non-digit keys
-      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+
+      // Remove leading zeros to prevent entries like 0001
+      const sanitizedValue = digitsOnly.replace(/^0+/, '');
+
+      form.setFieldsValue({ kilometers: sanitizedValue });
     }}
   />
                   </Form.Item>
@@ -2054,7 +2130,7 @@ const handleFinish = async (mode) => {
   >
     <Input
       style={{ fontSize: 14 }}
-      placeholder="20"
+      placeholder="Enter Engine CC..."
       type="tel"
       inputMode="numeric"
       pattern="[0-9]*"
@@ -2092,20 +2168,20 @@ const handleFinish = async (mode) => {
   >
     <Input
       style={{ fontSize: 14 }}
-      placeholder="20"
+      placeholder="Enter Consumption..."
       type="tel"
       inputMode="numeric"
       pattern="[0-9]*"
       onChange={(e) => {
         const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-        form.setFieldsValue({ consumption: digitsOnly }); // ✅ Correct field updated
+        form.setFieldsValue({ consumption: digitsOnly }); 
       }}
       onPaste={(e) => {
         const pasted = (e.clipboardData?.getData('Text') || '');
         const digitsOnly = pasted.replace(/\D/g, '');
         if (digitsOnly !== pasted) {
           e.preventDefault();
-          const current = form.getFieldValue('consumption') || ''; // ✅ Correct field
+          const current = form.getFieldValue('consumption') || ''; 
           form.setFieldsValue({ consumption: `${current}${digitsOnly}` });
         }
       }}
@@ -2318,6 +2394,8 @@ const handleFinish = async (mode) => {
             </Form.Item>
           </Form>
         </Card>
+        {/* Conditionally render the modal */}
+      {showModal && <CarPostingModal onClose={() => setShowModal(false)} />}
       </div>
     </>
   );

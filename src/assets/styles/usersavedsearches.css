@@ -500,3 +500,16 @@
   font-weight: 400;
   color: #000;
 }
+
+.equal-button {
+  flex: 1; /* Makes both buttons take equal width */
+  text-align: center;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 500;
+}
+

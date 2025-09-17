@@ -31,7 +31,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   }
 
   // Use fallback if key is not in mapping
-  return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.status || 'Unknown' };
+  return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.approval || 'Unknown' };
 };
 
 

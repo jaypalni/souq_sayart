@@ -36,37 +36,13 @@ const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
 const DEFAULT_PRICE_MAX = 'Price Max';
 
-// Price constants to avoid magic numbers
-const PRICE_5K = 5000;
-const PRICE_10K = 10000;
-const PRICE_20K = 20000;
-const PRICE_30K = 30000;
-const PRICE_40K = 40000;
-const PRICE_50K = 50000;
-const PRICE_100K = 100000;
 
-const PRICE_MIN_VALUES = Object.freeze([
-  PRICE_5K,
-  PRICE_10K,
-  PRICE_20K,
-  PRICE_30K,
-  PRICE_40K,
-]);
-const PRICE_MAX_VALUES = Object.freeze([
-  PRICE_20K,
-  PRICE_30K,
-  PRICE_40K,
-  PRICE_50K,
-  PRICE_100K,
-]);
 const DEFAULT_CAR_COUNT = 0;
 const INDIA_TZ_OFFSET_MIN = -330;
 const HTTP_STATUS_UNAUTHORIZED = 401;
 const TOKEN_EXPIRY_REDIRECT_DELAY_MS = 2000;
 
 const newUsedOptions = [DEFAULT_NEW_USED, 'New', 'Used'];
-const priceMinOptions = [DEFAULT_PRICE_MIN, ...PRICE_MIN_VALUES];
-const priceMaxOptions = [DEFAULT_PRICE_MAX, ...PRICE_MAX_VALUES];
 
 
 
@@ -90,8 +66,8 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [carLocation, setCarLocation] = useState([]);
   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
-  const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
-  const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
+  
+  const [, setPriceMax] = useState(DEFAULT_PRICE_MAX);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,8 +104,8 @@ apiParams= newUsed===DEFAULT_NEW_USED ?apiParams:{...apiParams,condition: newUse
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
-      if (data && data.data && data.data.pagination) {
-        setCarCount(data?.data?.pagination?.total);
+      if (data?.data?.pagination) {
+        setCarCount(data?.data?.pagination?.total ?? 0);
       }
     } catch (error) {
       // Silent error handling for auto-search
@@ -169,9 +145,6 @@ apiParams= newUsed===DEFAULT_NEW_USED ?apiParams:{...apiParams,condition: newUse
     }
   }, []);
 
-  // useEffect(() => {
-  //   setBodyType(searchbodytype);
-  // }, [searchbodytype]);
 
   useEffect(() => {
   if (searchbodytype) {
@@ -291,37 +264,6 @@ const resolveDefaultLocation = (locations, geoData) => {
   return null;
 };
 
-const getLocationFromGeo = (locations, geoData) => {
-  if (!geoData) {
-    return null;
-  }
-
-  const userCountry = geoData?.country_name?.toLowerCase();
-  return (
-    locations.find((loc) => loc.location.toLowerCase() === userCountry) || null
-  );
-};
-
-const isIndiaLocale = () => {
-  const tz =
-    Intl.DateTimeFormat().resolvedOptions().timeZone?.toLowerCase() || '';
-  const tzOffset = new Date().getTimezoneOffset();
-  const langs = [navigator.language, ...(navigator.languages || [])].filter(
-    Boolean,
-  );
-
-  const hasIndiaLanguage = langs.some((l) => {
-    const ll = String(l).toLowerCase();
-    return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
-  });
-
-  return (
-    tz === 'asia/kolkata' ||
-    tz === 'asia/calcutta' ||
-    tzOffset === INDIA_TZ_OFFSET_MIN ||
-    hasIndiaLanguage
-  );
-};
 
   const handleToast = (msg) => {
     setToastMsg(msg);
@@ -474,10 +416,10 @@ const isIndiaLocale = () => {
           handleChange(label, opt);
           setOpenDropdown(null);
            if (type === 'priceMin') {
-          validatePriceRange(opt, priceMax);
+          validatePriceRange(opt, maxPrice);
         }
         if (type === 'priceMax') {
-          validatePriceRange(priceMin, opt);
+          validatePriceRange(minPrice, opt);
         }
         };
         return (
@@ -689,7 +631,8 @@ const isIndiaLocale = () => {
             {/* Price Min */}
 <div>
   {!showMinInput ? (
-    <div
+    <button
+      type="button"
       style={{
         borderRadius: '4px',
         padding: '6px 12px',
@@ -699,11 +642,14 @@ const isIndiaLocale = () => {
         minWidth: '100px',
         textAlign: 'center',
         fontWeight: 700,
+        background: 'transparent',
+        border: 'none',
       }}
       onClick={() => setShowMinInput(true)}
+      aria-label="Set minimum price"
     >
       {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
-    </div>
+    </button>
   ) : (
     <InputNumber
       style={{ width: '100px' }}
@@ -727,7 +673,8 @@ const isIndiaLocale = () => {
 {/* Price Max */}
 <div>
   {!showMaxInput ? (
-    <div
+    <button
+      type="button"
       style={{
         borderRadius: '4px',
         padding: '6px 12px',
@@ -737,11 +684,14 @@ const isIndiaLocale = () => {
         minWidth: '100px',
         textAlign: 'center',
         fontWeight: 700,
+        background: 'transparent',
+        border: 'none',
       }}
       onClick={() => setShowMaxInput(true)}
+      aria-label="Set maximum price"
     >
       {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
-    </div>
+    </button>
   ) : (
     <InputNumber
       style={{ width: '120px' }}

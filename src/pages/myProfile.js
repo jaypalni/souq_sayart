@@ -36,7 +36,7 @@ const MyProfile = () => {
   const [showOtpStep, setShowOtpStep] = useState(false);
   const selectedKey = location.pathname.split('/')[2] || 'profile';
   const [messageApi, contextHolder] = message.useMessage();
-  const [, setDeleteData] = useState([]);
+ 
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
@@ -63,7 +63,7 @@ const MyProfile = () => {
   console.log('MyProfile userData:', userData);
    const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
    const [isDeleteContinueDisabled, setIsDeleteContinueDisabled] = useState(false);
-   const [selectedManageKey, setSelectedManageKey] = useState(null);
+   
 
  useEffect(() => {
     const timer = setTimeout(() => {
@@ -129,34 +129,7 @@ const MyProfile = () => {
   };
 
 
-  const handleDelete = async () => {
-      try {
-        setLoading(true);
-        const response = await userAPI.getDelete();
-        const data1 = handleApiResponse(response);
-          localStorage.removeItem('otpEndTime'); 
-      localStorage.removeItem('fromLogin');
-      localStorage.removeItem('userData'); 
   
-        if (data1) {
-          setDeleteData(data1)
-          localStorage.setItem('requestId',data1.request_id)
-          localStorage.setItem('fromLogin', 'true');
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
-           navigate('/deleteaccount-otp')
-        }
-      } catch (error) {
-        setDeleteData([])
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData?.message,
-        });
-      }
-    }
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
@@ -464,7 +437,7 @@ const MyProfile = () => {
   disabled={isDeleteContinueDisabled}  // Button respects state
   style={{ height: 35 }}
 >
-  {isDeleteContinueDisabled ? 'Continue' : 'Continue'}
+  {isDeleteContinueDisabled ? 'Processing...' : 'Continue'}
 </button>
 
     </div>

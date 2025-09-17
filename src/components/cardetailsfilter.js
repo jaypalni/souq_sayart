@@ -127,10 +127,10 @@ const useSingleInputs = () => {
 // Helper functions
 const handleCheckboxChange = (option, selectedValues, setSelectedValues) => {
   if (selectedValues.includes(option)) {
-    // setSelectedValues(selectedValues.filter((val) => val !== option));
+    
      setSelectedValues([]);
   } else {
-    // setSelectedValues([...selectedValues, option]);
+    
     setSelectedValues([option]);
   }
 };
@@ -186,7 +186,7 @@ const prepareFilterData = (filterParams) => {
     number_of_doors: getArrayFilterValue(filterState.doorselectedValues),
     number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
     fuel_type: getArrayFilterValue(filterState.selectedValues),
-    owner_type: getArrayFilterValue(filterState.ownerType),
+    seller_type: getArrayFilterValue(filterState.ownerType),
     keyword: keywords.length > 0 ? keywords.join(', ') : '',
     page: 1,
     limit: 20
@@ -562,15 +562,6 @@ const fetchUpdateOptionsData = async () => {
 
 
   
-  const handleFuelTypeChange = (option, selectedValues, setSelectedValues) => {
-  if (selectedValues.includes(option)) {
-    // If clicked again, clear the selection
-    setSelectedValues([]);
-  } else {
-    // Allow only one selection
-    setSelectedValues([option]);
-  }
-};
 
 
   const handleApplyFilters = async () => {
@@ -761,7 +752,7 @@ const fetchUpdateOptionsData = async () => {
             title="Fuel Type"
             options={fuelOptions}
             selectedValues={filterState.selectedValues}
-            onChange={handleFuelTypeChange}
+            onChange={handleCheckboxChange}
             setSelectedValues={filterState.setSelectedValues}
           />
 

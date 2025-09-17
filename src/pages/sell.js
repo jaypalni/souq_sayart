@@ -50,20 +50,31 @@ const ExteriorColorInput = ({
 }) => {
   const hasImage = !!selectedColorImage;
 
-  const imageSrc = selectedColorImage
-    ? selectedColorImage.startsWith('http') 
-      ? selectedColorImage 
-      : `${BASE_URL}${selectedColorImage}`
-    : null;
+  let imageSrc = null;
+  if (selectedColorImage) {
+    if (selectedColorImage.startsWith('http')) {
+      imageSrc = selectedColorImage;
+    } else {
+      imageSrc = `${BASE_URL}${selectedColorImage}`;
+    }
+  }
 
   return (
-    <div
+    <button
+      type="button"
       className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
       onClick={onOpen}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onOpen();
+      style={{
+        border: '1px solid #d9d9d9',
+        borderRadius: '6px',
+        padding: '4px 11px',
+        minHeight: '32px',
+        display: 'flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+        background: 'transparent',
+        width: '100%',
+        textAlign: 'left'
       }}
     >
       <div className="exterior-color-left">
@@ -89,7 +100,7 @@ const ExteriorColorInput = ({
       </span>
 
       <RightOutlined className="color-arrow" />
-    </div>
+    </button>
   );
 };
 
@@ -102,13 +113,21 @@ ExteriorColorInput.propTypes = {
 };
 
 const InteriorColorInput = ({ selectedInteriorColor, onOpen }) => (
-  <div
+  <button
+    type="button"
     className={`exterior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
     onClick={onOpen}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    style={{ 
+      background: 'none', 
+      border: '1px solid #d9d9d9',
+      borderRadius: '6px',
+      padding: '4px 11px',
+      minHeight: '32px',
+      width: '100%', 
+      textAlign: 'left',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
     }}
   >
     <span
@@ -119,7 +138,7 @@ const InteriorColorInput = ({ selectedInteriorColor, onOpen }) => (
       {selectedInteriorColor || 'Beige'}
     </span>
     <RightOutlined className="color-arrow" />
-  </div>
+  </button>
 );
 
 InteriorColorInput.propTypes = {
@@ -128,13 +147,21 @@ InteriorColorInput.propTypes = {
 };
 
 const TrimInput = ({ selectedTrim, onOpen }) => (
-  <div
+  <button
+    type="button"
     className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
     onClick={onOpen}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    style={{ 
+      background: 'none', 
+      border: '1px solid #d9d9d9',
+      borderRadius: '6px',
+      padding: '4px 11px',
+      minHeight: '32px',
+      width: '100%', 
+      textAlign: 'left',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
     }}
   >
     <span
@@ -145,7 +172,7 @@ const TrimInput = ({ selectedTrim, onOpen }) => (
       {selectedTrim || 'B200'}
     </span>
     <RightOutlined className="trim-arrow" />
-  </div>
+  </button>
 );
 
 TrimInput.propTypes = {
@@ -156,21 +183,30 @@ TrimInput.propTypes = {
 const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, BASE_URL, brandOptions }) => {
   const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
 
-  const imageSrc = selectedBrandObj?.image
-    ? `${BASE_URL}${selectedBrandObj.image}`
-    : selectedBrandImage
-      ? `${BASE_URL}${selectedBrandImage}`
-      : null;
+  let imageSrc = null;
+  if (selectedBrandObj?.image) {
+    imageSrc = `${BASE_URL}${selectedBrandObj.image}`;
+  } else if (selectedBrandImage) {
+    imageSrc = `${BASE_URL}${selectedBrandImage}`;
+  }
 
   return (
-    <div
+    <button
+      type="button"
       className={`brand-input${!selectedBrand ? ' placeholder' : ''}`}
       onClick={onOpen}
-      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onOpen();
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 8,
+        background: 'none', 
+        border: '1px solid #d9d9d9',
+        borderRadius: '6px',
+        padding: '4px 11px',
+        minHeight: '32px',
+        width: '100%', 
+        textAlign: 'left',
+        cursor: 'pointer'
       }}
     >
       {imageSrc && (
@@ -195,13 +231,16 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, 
           textOverflow: 'ellipsis',
         }}
       >
-        {selectedBrand
-          ? `${selectedBrand}${selectedModel ? ' - ' + selectedModel : ''}`
-          : 'brand and model of your car'}
+        {(() => {
+          if (selectedBrand) {
+            return selectedModel ? `${selectedBrand} - ${selectedModel}` : selectedBrand;
+          }
+          return 'brand and model of your car';
+        })()}
       </span>
 
       <RightOutlined className="brand-arrow" style={{ marginLeft: 'auto' }} />
-    </div>
+    </button>
   );
 };
 
@@ -215,13 +254,21 @@ BrandInput.propTypes = {
 };
 
 const YearInput = ({ selectedYear, onOpen }) => (
-  <div
+  <button
+    type="button"
     className={`year-input${!selectedYear ? ' placeholder' : ''}`}
     onClick={onOpen}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    style={{ 
+      background: 'none', 
+      border: '1px solid #d9d9d9',
+      borderRadius: '6px',
+      padding: '4px 11px',
+      minHeight: '32px',
+      width: '100%', 
+      textAlign: 'left',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
     }}
   >
     <span
@@ -232,7 +279,7 @@ const YearInput = ({ selectedYear, onOpen }) => (
       {selectedYear || 'Select Year'}
     </span>
     <RightOutlined className="year-arrow" />
-  </div>
+  </button>
 );
 
 YearInput.propTypes = {
@@ -241,13 +288,21 @@ YearInput.propTypes = {
 };
 
 const RegionInput = ({ selectedRegion, onOpen }) => (
-  <div
+  <button
+    type="button"
     className={`region-input${!selectedRegion ? ' placeholder' : ''}`}
     onClick={onOpen}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    style={{ 
+      background: 'none', 
+      border: '1px solid #d9d9d9',
+      borderRadius: '6px',
+      padding: '4px 11px',
+      minHeight: '32px',
+      width: '100%', 
+      textAlign: 'left',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
     }}
   >
     <span
@@ -258,7 +313,7 @@ const RegionInput = ({ selectedRegion, onOpen }) => (
       {selectedRegion || 'Select Region'}
     </span>
     <RightOutlined className="region-arrow" />
-  </div>
+  </button>
 );
 
 RegionInput.propTypes = {
@@ -267,15 +322,23 @@ RegionInput.propTypes = {
 };
 
 const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
-  <div
+  <button
+    type="button"
     className={`regionalspecs-input${
       !selectedRegionalSpecs ? ' placeholder' : ''
     }`}
     onClick={onOpen}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') onOpen();
+    style={{ 
+      background: 'none', 
+      border: '1px solid #d9d9d9',
+      borderRadius: '6px',
+      padding: '4px 11px',
+      minHeight: '32px',
+      width: '100%', 
+      textAlign: 'left',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
     }}
   >
     <span
@@ -286,7 +349,7 @@ const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
       {selectedRegionalSpecs || 'Select Specs'}
     </span>
     <RightOutlined className="regionalspecs-arrow" />
-  </div>
+  </button>
 );
 
 RegionalSpecsInput.propTypes = {
@@ -416,16 +479,18 @@ const buildFormValues = (data) => ({
   cylinders: data.no_of_cylinders ?? data.cylinders ?? '',
   doors: data.number_of_doors ?? data.no_of_doors ?? '',
   seats: data.number_of_seats ?? data.no_of_seats ?? '',
-  extraFeatures: Array.isArray(data.extra_features) 
-    ? data.extra_features 
-    : data.extra_features 
-      ? [data.extra_features] 
-      : [],
-  badges: Array.isArray(data.badges) 
-    ? data.badges 
-    : data.badges 
-      ? [data.badges] 
-      : [],
+  extraFeatures: (() => {
+    if (Array.isArray(data.extra_features)) {
+      return data.extra_features;
+    }
+    return data.extra_features ? [data.extra_features] : [];
+  })(),
+  badges: (() => {
+    if (Array.isArray(data.badges)) {
+      return data.badges;
+    }
+    return data.badges ? [data.badges] : [];
+  })(),
   warrantyDate: data.warranty_date ? moment(data.warranty_date) : undefined,
 });
 
@@ -500,18 +565,21 @@ const setDetailedVehicleState = (data, setters) => {
   } = setters;
 
   if (typeof setSelectedBadges === 'function') {
-    const badgesArray = Array.isArray(data.badges) 
-      ? data.badges 
-      : data.badges 
-        ? [data.badges] 
-        : [];
+    let badgesArray = [];
+    if (Array.isArray(data.badges)) {
+      badgesArray = data.badges;
+    } else if (data.badges) {
+      badgesArray = [data.badges];
+    }
     setSelectedBadges(badgesArray);
   }
   if (typeof setSelectedSeats === 'function') setSelectedSeats(data.number_of_seats ?? data.no_of_seats ?? '');
   if (typeof setSelectedDoors === 'function') setSelectedDoors(data.number_of_doors ?? data.no_of_doors ?? '');
   if (typeof setSelectedFuelType === 'function') setSelectedFuelType(data.fuel_type ?? '');
   if (typeof setSelectedTransmissionType === 'function') setSelectedTransmissionType(data.transmission_type ?? '');
-    if (typeof setSelectedDriveType === 'function') setSelectedDriveType(data.drive_type ?? '');
+    if (typeof setSelectedDriveType === 'function') {
+    setSelectedDriveType(data.drive_type ?? '');
+  }
   if (typeof setSelectedCylinders === 'function') setSelectedCylinders(data.no_of_cylinders ?? '');
   if (typeof setSelectedInterior === 'function') setSelectedInterior(data.interior ?? '');
   if (typeof setSelectedInteriorColor === 'function') setSelectedInteriorColor(data.interior_color ?? '');
@@ -753,7 +821,7 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     if (Array.isArray(e)) {
       return e;
     }
-    return e && e.fileList;
+    return e?.fileList;
   };
 
 const handlePostData = async (uploadedImages = [], text = '', isDraft = false, valuesParam = null) => {
@@ -892,7 +960,7 @@ const handleFinish = async (mode) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+      reader.onerror = (error) => reject(new Error(error));
     });
 
   const handleMediaPreview = async (file) => {
@@ -916,7 +984,7 @@ const handleFinish = async (mode) => {
       message.error('File must be smaller than 5MB!');
       return Promise.reject(new Error('File must be smaller than 5MB!'));
     }
-    return true;
+    return Promise.resolve(true);
   };
   const mediaUploadButton = (
     <button 

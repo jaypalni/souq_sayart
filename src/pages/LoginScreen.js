@@ -11,7 +11,7 @@ import { setPhoneLogin, loginSuccess, setToken, clearCustomerDetails } from '../
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
-  const [phonevalidation, setPhoneValidation] = useState('');
+  const [, setPhoneValidation] = useState('');
   const [countryOptions, setCountryOptions] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -198,9 +198,7 @@ const LoginScreen = () => {
           dispatch(setPhoneLogin(phoneNumber));
         
           // Redux Persist handles token persistence
-          if (data) {
-            localStorage.setItem('userData', JSON.stringify(data));
-          }
+          localStorage.setItem('userData', JSON.stringify(data));
           localStorage.setItem('fromLogin', 'true');
         
 
@@ -268,6 +266,7 @@ const LoginScreen = () => {
           <div style={{ margin: '20px 0' }}>
             {/* Single label for both fields */}
             <label
+              htmlFor="phone-number-input"
               style={{
                 display: 'block',
                 marginBottom: 6,
@@ -282,7 +281,8 @@ const LoginScreen = () => {
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
               {/* Country code dropdown */}
               <div style={{ position: 'relative', width: 102, height: 52 }}>
-                <div
+                <button
+                  type="button"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -290,8 +290,13 @@ const LoginScreen = () => {
                     borderRadius: 8,
                     padding: '8px 12px',
                     background: '#E7EBEF',
+                    border: 'none',
+                    width: '100%',
+                    height: '100%',
                   }}
                   onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-label="Select country code"
+                  aria-expanded={dropdownOpen}
                 >
                   {selectedCountry && (
                     <>
@@ -305,7 +310,7 @@ const LoginScreen = () => {
                       </span>
                     </>
                   )}
-                </div>
+                </button>
                 {dropdownOpen && (
                   <div
                     style={{
@@ -320,18 +325,24 @@ const LoginScreen = () => {
                     }}
                   >
                     {countryOptions.map((country) => (
-                      <div
+                      <button
                         key={country.id}
+                        type="button"
                         style={{
                           padding: '6px 12px',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
+                          border: 'none',
+                          background: 'transparent',
+                          width: '100%',
+                          textAlign: 'left',
                         }}
                         onClick={() => {
                           setSelectedCountry(country);
                           setDropdownOpen(false);
                         }}
+                        aria-label={`Select ${country.country_name || country.country_code}`}
                       >
                         <img
                         
@@ -342,13 +353,14 @@ const LoginScreen = () => {
                         <span style={{ fontSize: 15 }}>
                           {country.country_code}
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
               </div>
               {/* Phone number input */}
               <input
+                id="phone-number-input"
                 className='login-box'
                 type='tel'
                 placeholder='Enter phone number'

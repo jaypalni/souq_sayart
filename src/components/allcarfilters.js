@@ -65,7 +65,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, so
 const getInitialMake = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.make && saved.make !== '') {
+    if (saved?.make && saved.make !== '') {
       return saved.make;
     }
   } catch (e) {
@@ -80,7 +80,7 @@ const [make, setMake] = useState(getInitialMake);
 const getInitialModel = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.model && saved.model !== '') {
+    if (saved?.model && saved.model !== '') {
       return saved.model;
     }
   } catch (e) {
@@ -94,7 +94,7 @@ const getInitialModel = () => {
 const getInitialBodyType = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.body_type && saved.body_type !== '') {
+    if (saved?.body_type && saved.body_type !== '') {
       return saved.body_type;
     }
   } catch (e) {
@@ -110,7 +110,7 @@ const getInitialBodyType = () => {
 const getInitialLocation = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.location && saved.location !== '') {
+    if (saved?.location && saved.location !== '') {
       return saved.location;
     }
   } catch (e) {
@@ -125,7 +125,7 @@ const getInitialLocation = () => {
 const getInitialNewUsed = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.condition && saved.condition !== '') {
+    if (saved?.condition && saved.condition !== '') {
       return saved.condition;
     }
   } catch (e) {
@@ -138,7 +138,7 @@ const getInitialNewUsed = () => {
 const getInitialPriceMin = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_min && saved.price_min !== '') {
+    if (saved?.price_min && saved.price_min !== '') {
       return saved.price_min;
     }
   } catch (e) {
@@ -151,7 +151,7 @@ const getInitialPriceMin = () => {
 const getInitialPriceMax = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_max && saved.price_max !== '') {
+    if (saved?.price_max && saved.price_max !== '') {
       return saved.price_max;
     }
   } catch (e) {
@@ -161,8 +161,8 @@ const getInitialPriceMax = () => {
 };
 
   const [newUsed, setNewUsed] = useState(getInitialNewUsed);
-  const [priceMin, setPriceMin] = useState(getInitialPriceMin);
-  const [priceMax, setPriceMax] = useState(getInitialPriceMax);
+  const [priceMin, ] = useState(getInitialPriceMin);
+  const [priceMax, ] = useState(getInitialPriceMax);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -173,7 +173,7 @@ const getInitialPriceMax = () => {
 const getInitialMinPrice = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_min && saved.price_min !== '') {
+    if (saved?.price_min && saved.price_min !== '') {
       return parseFloat(saved.price_min);
     }
   } catch (e) {
@@ -185,7 +185,7 @@ const getInitialMinPrice = () => {
 const getInitialMaxPrice = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_max && saved.price_max !== '') {
+    if (saved?.price_max && saved.price_max !== '') {
       return parseFloat(saved.price_max);
     }
   } catch (e) {
@@ -261,7 +261,7 @@ const autoSearchForCount = async (filterParams = {}) => {
 
     useEffect(() => {
       fetchMakeCars({ setLoading, setCarMakes });
-      // fetchtotalcarcount();
+      
     }, []);
 
 
@@ -269,7 +269,7 @@ useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     
-    if (saved && saved.location && saved.location !== '') {
+    if (saved?.location && saved.location !== '') {
       setLocation(saved.location);
       if (setSelectedLocation) {
         setSelectedLocation(saved.location);
@@ -320,7 +320,7 @@ fetchRegionCars()
       fetchModelCars({ setLoading, setCarModels, make }).then(() => {
         // Only reset model if it's not already set from localStorage
         const saved = JSON.parse(localStorage.getItem('searchcardata'));
-        if (!saved || !saved.model || saved.model === '') {
+        if (!saved?.model || saved.model === '') {
           setModel(DEFAULTS.ALL_MODELS);
         }
       });
@@ -340,7 +340,7 @@ fetchRegionCars()
     // Fetch models if there's a saved make
     try {
       const saved = JSON.parse(localStorage.getItem('searchcardata'));
-      if (saved && saved.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
+      if (saved?.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
         fetchModelCars({ setLoading, setCarModels, make: saved.make });
       }
     } catch (e) {
@@ -358,7 +358,7 @@ handleSearch()
     }
     // Only reset body type if it's not already set from localStorage
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (!saved || !saved.body_type || saved.body_type === '') {
+    if (!saved?.body_type || saved.body_type === '') {
       setBodyType(DEFAULTS.ALL_BODY_TYPES);
     }
   }, [make]);
@@ -701,24 +701,7 @@ handleSearch()
     </div>
   );
 
-  const fetchtotalcarcount = async () => {
-    try {
-      setLoading(true);
-      const response = await carAPI.totalcarscount();
-      const data1 = handleApiResponse(response);
-  
-      if (data1?.total_cars !== undefined) {
-        setCarCount(data1.total_cars); 
-      } else {
-        message.error('No content found');
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   return (
     <div className="allcars-filters-outer">

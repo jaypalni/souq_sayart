@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useLocation, Link } from 'react-router-dom';
 import '../assets/styles/banner.css';
 
@@ -159,7 +160,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
       <div className="plane-banner-main">
         <div className="breadcrumb-container">
           {breadcrumbItems.map((item, index) => (
-            <React.Fragment key={index}>
+            <React.Fragment key={`${item.path}-${index}`}>
               {item.isClickable ? (
                 <Link 
                   to={item.path} 
@@ -187,6 +188,10 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
       </div>
     </div>
   );
+};
+
+PlaneBanner.propTypes = {
+  selectedLocation: PropTypes.string,
 };
 
 export default PlaneBanner;

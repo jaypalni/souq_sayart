@@ -432,11 +432,58 @@ const Sell = () => {
   const extras = state?.extras ?? [];
   const populatedRef = useRef(false);
   const { TextArea } = Input;
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
 
 
-  console.log('1234567',extras.warranty_date)
+const handleAddNew = () => {
+  // Reset form fields
+  form.resetFields();
+
+  setAdTitle('');
+  setDescription('');
+
+  // Clear selections
+  setSelectedColor(undefined);
+  setSelectedColorImage(undefined);
+  setSelectedInteriorColor(undefined);
+  setSelectedTrim(undefined);
+  setSelectedBrand(undefined);
+  setSelectedBrandImage(undefined);
+  setSelectedModel(undefined);
+  setModalName(undefined);
+  setSelectedYear(undefined);
+
+  setSelectedCondition('');
+  setSelectedBodyType(undefined);
+  setSelectedBadges([]);
+  setSelectedVehicleType([]);
+
+  setSelectedPrice('');
+  setSelectedHorsepower('');
+  setSelectedRegion(undefined);
+
+  setSelectedRegionalSpecs(undefined);
+
+  setSelectedSeats(undefined);
+  setSelectedDoors(undefined);
+  setSelectedFuelType(undefined);
+  setSelectedTransmissionType(undefined);
+  setSelectedDriveType(undefined);
+  setSelectedCylinders(undefined);
+
+  // Media data
+  setMediaPreviewImage('');
+  setMediaFileList([]);
+
+  // Interior data
+  setSelectedInterior([]);
+
+  // Finally close the modal
+  setShowModal(false);
+};
+
+
   
   const toUploadFileList = (imagePath) => {
   if (!imagePath) return [];
@@ -1631,8 +1678,8 @@ const handleFinish = async (mode) => {
       { required: true, message: 'Please enter the price' },
       {
         validator: (_, value) => {
-          if (!value || Number(value) <= 0) {
-            return Promise.reject(new Error('Price must be greater than 0'));
+          if (!value || Number(value) <= 1000) {
+            return Promise.reject(new Error('Price must be greater than IQD 1000'));
           }
           return Promise.resolve();
         },
@@ -2395,7 +2442,7 @@ const handleFinish = async (mode) => {
           </Form>
         </Card>
         {/* Conditionally render the modal */}
-      {showModal && <CarPostingModal onClose={() => setShowModal(false)} />}
+      {showModal && <CarPostingModal onClose={() => setShowModal(false)} handleAddNew={handleAddNew} />}
       </div>
     </>
   );

@@ -10,16 +10,17 @@ import PropTypes from 'prop-types';
 import '../assets/styles/usersavedsearches.css';
 import posting from '../assets/images/posting.gif';
 
-const CarPostingModal = ({ onClose }) => {
+const CarPostingModal = ({ onClose, handleAddNew}) => {
   const navigate = useNavigate();
 
   const handleViewPost = () => {
-    navigate('/myListings'); // Update this path as needed
+    navigate('/myListings'); 
     onClose();
   };
 
   const handleaddcar = () => {
-    navigate('/sell'); // Update this path as needed
+    navigate('/sell'); 
+    handleAddNew()
     onClose();
   };
 
@@ -65,7 +66,7 @@ const CarPostingModal = ({ onClose }) => {
   );
 };
 
-// ✅ Prop validation
+
 CarPostingModal.propTypes = {
   onClose: PropTypes.func.isRequired,
 };

@@ -165,7 +165,7 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords } = filterParams;
+  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit } = filterParams;
   
   return {
     make: getFilterValue(make, 'All Make'),
@@ -188,8 +188,8 @@ const prepareFilterData = (filterParams) => {
     fuel_type: getArrayFilterValue(filterState.selectedValues),
     seller_type: getArrayFilterValue(filterState.ownerType),
     keyword: keywords.length > 0 ? keywords.join(', ') : '',
-    page: 1,
-    limit: 20
+    page: currentPage,
+    limit: limit
   };
 };
 
@@ -574,8 +574,8 @@ const fetchUpdateOptionsData = async () => {
   const handleApplyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords });
-      const response = await carAPI.searchCars(filterData,currentPage,limit);      
+      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit });
+      const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
         

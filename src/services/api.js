@@ -166,13 +166,13 @@ getMylistingCars: (type, filter, page) =>
       throw error;
     }
   },
-  searchCars: async (params,page,limit) => {
+  searchCars: async (params) => {
     try {
-      return await api.post(`/api/search/search?page=${page}&limit=${limit}`, params);
+      return await api.post('/api/search/search', params);
     } catch (error) {
       // If 422 error, try with public API as fallback
       if (error.response?.status === 422) {
-        return await publicApi.post(`/api/search/search?page=${page}&limit=${limit}`, params);
+        return await publicApi.post('/api/search/search', params);
       }
       throw error;
     }

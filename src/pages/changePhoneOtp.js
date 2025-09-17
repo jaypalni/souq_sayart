@@ -46,6 +46,32 @@ const ChangePhoneOtpPage = () => {
     userlogout();
   };
 
+  useEffect(() => {
+  const preventSwipeNavigation = (e) => {
+    // Detect left or right swipe gestures
+    if (e.deltaX !== 0 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+    }
+  };
+
+  // For mousewheel and trackpad swipe
+  window.addEventListener('wheel', preventSwipeNavigation, { passive: false });
+
+  // For touch events (mobile devices)
+  const preventTouchMove = (e) => {
+    if (e.touches.length > 1) return; // Allow pinch-to-zoom
+    e.preventDefault(); // Block single finger swipe
+  };
+
+  window.addEventListener('touchmove', preventTouchMove, { passive: false });
+
+  return () => {
+    window.removeEventListener('wheel', preventSwipeNavigation);
+    window.removeEventListener('touchmove', preventTouchMove);
+  };
+}, []);
+
+
  useEffect(() => {
     
     const timer = setTimeout(() => {

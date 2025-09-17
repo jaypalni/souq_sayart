@@ -1299,25 +1299,38 @@ const handleFinish = async (mode) => {
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
-                  className="no-asterisk"
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
-                    label="Car Information"
-                    name="brand"
-                    rules={[{ required: true, message: 'Please select the car make and modal' }]}
-                  >
-                    <BrandInput 
-                      selectedBrand={selectedBrand}
-                      selectedModel={selectedModel}
-                      selectedBrandImage={selectedBrandImage}
-                      onOpen={() => setBrandModalOpen(true)}
-                      BASE_URL={BASE_URL}
-                      brandOptions={brandOptions}
-                    />
-                  </Form.Item>
+  className="no-asterisk"
+  style={{
+    fontWeight: 500,
+    fontSize: 10,
+    color: '#0A0A0B',
+  }}
+  label="Car Information"
+  name="brand"
+  rules={[
+    {
+      validator: (_, value) => {
+        if (!selectedBrand) {
+          return Promise.reject(new Error('Please select the car make'));
+        }
+        if (!selectedModel) {
+          return Promise.reject(new Error('Please select the car model'));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
+>
+  <BrandInput
+    selectedBrand={selectedBrand}
+    selectedModel={selectedModel}
+    selectedBrandImage={selectedBrandImage}
+    onOpen={() => setBrandModalOpen(true)}
+    BASE_URL={BASE_URL}
+    brandOptions={brandOptions}
+  />
+</Form.Item>
+
                   <Modal
                     open={brandModalOpen}
                     onCancel={() => setBrandModalOpen(false)}
@@ -1408,6 +1421,7 @@ const handleFinish = async (mode) => {
                               setSelectedModel(opt.model_name);
                               setModalName(opt.model_name);
                               form.setFieldsValue({ trim: opt.model_name });
+                              form.validateFields(['brand']);
                               setBrandNameOpen(false);
                             }}
                           >

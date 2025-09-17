@@ -34,6 +34,11 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.approval || 'Unknown' };
 };
 
+const displayLabel =
+  car.approval === 'pending' || car.approval === 'Pending'
+    ? 'Approval Pending'
+    : tagProps.label;
+
 
   const tagProps = getTagProps();
 
@@ -51,6 +56,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
     }
     setActiveDropdownId(nextId);
   };
+
 
   return (
     <div
@@ -98,12 +104,19 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
 </div>
 
 
-          <Tag
-            color={tagProps.bg}
-            style={{ color: tagProps.color, marginTop: '6px', display: 'inline-block', fontSize: FONT_SIZES.small, fontWeight: 700 }}
-          >
-            {tagProps.label}
-          </Tag>
+           <Tag
+  color={tagProps.bg}
+  style={{
+    color: tagProps.color,
+    marginTop: '6px',
+    display: 'inline-block',
+    fontSize: FONT_SIZES.small,
+    fontWeight: 700,
+  }}
+>
+  {displayLabel}
+</Tag>
+
 
           {value === STATUS_ACTIVE && filterStatus === 'Sport' && (
             <div

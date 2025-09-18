@@ -6,6 +6,7 @@ import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { COLORS, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import boost_icon from '../assets/images/boost_icon.svg';
 import '../assets/styles/mycarslisting.css';
+import bluecar_icon from '../assets/images/blackcar_icon.png';
 
 const STATUS_ACTIVE = 'Active';
 const STATUS_SOLD = 'Sold';
@@ -46,7 +47,9 @@ const displayLabel =
   const CARD_WIDTH = 'auto';
 
   // Precompute values to avoid ternaries in JSX
-  const imageSrc = car.car_image || '/default-car.png';
+  const imageSrc = car.car_image && car.car_image.trim() !== '' 
+  ? `${BASE_URL}${car.car_image}` 
+  : bluecar_icon;
   
   const imageHeight = value === STATUS_ACTIVE ? '144px' : '109px';
 
@@ -69,11 +72,11 @@ const displayLabel =
         onClick={handleCardClick}
         style={{ cursor: 'pointer' }}
         >
-        <img
-          src={`${BASE_URL}${imageSrc}`}
-          alt="car"
-          className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`}
-        />
+       <img
+  src={imageSrc}
+  alt="car"
+  className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`}
+/>
         <div className="car-card-details">
           <div className="car-card-header">
             <h3 className="car-card-title">{car.ad_title}</h3>

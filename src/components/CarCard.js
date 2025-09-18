@@ -127,7 +127,7 @@ const displayLabel =
         <div className="car-card-actions">
           <Button
             type="default"
-            onClick={() => handleDelete(car.id)}
+            // onClick={() => handleDelete(car.id)}
             className="car-card-delete-btn"
           >
             Delete
@@ -135,7 +135,7 @@ const displayLabel =
 
           <Button
             type="primary"
-            onClick={() => navigate('/sell', { state: { extras: car } })}
+            // onClick={() => navigate('/sell', { state: { extras: car } })}
             className="car-card-edit-btn"
           >
             Edit

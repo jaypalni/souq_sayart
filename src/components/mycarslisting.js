@@ -103,7 +103,7 @@ const Mycarslisting = () => {
   };
 
 
-
+console.log('carDetails',carDetails)
 const fetchCars = async () => {
   try {
     setLoading(true);

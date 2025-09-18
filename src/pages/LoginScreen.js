@@ -200,11 +200,16 @@ const LoginScreen = () => {
           // Redux Persist handles token persistence
           localStorage.setItem('userData', JSON.stringify(data));
           localStorage.setItem('fromLogin', 'true');
-        
+        console.log('data11',data)
 
           messageApi.open({
             type: 'success',
             content: data.message,
+          });
+          
+          messageApi.open({
+            type: 'success',
+            content: data?.otp,
           });
           navigate('/verifyOtp');
         }

@@ -58,10 +58,17 @@ const displayLabel =
     setActiveDropdownId(nextId);
   };
 
+   const handleCardClick = () => {
+    navigate(`/carDetails/${car.id}`);
+  };
+
 
   return (
     <div className="car-card">
-      <div className="car-card-content">
+      <div className="car-card-content clickable-area"
+        onClick={handleCardClick}
+        style={{ cursor: 'pointer' }}
+        >
         <img
           src={`${BASE_URL}${imageSrc}`}
           alt="car"

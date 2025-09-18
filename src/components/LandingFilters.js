@@ -99,6 +99,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         limit: 1, // We only need the count, so limit to 1 for efficiency
         ...(currentNewUsed !== DEFAULT_NEW_USED && { condition: currentNewUsed })
       };
+      console.log('Add Type4')
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
@@ -324,7 +325,7 @@ const resolveDefaultLocation = (locations, geoData) => {
 
 
     
-
+console.log('Add Type5')
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
 

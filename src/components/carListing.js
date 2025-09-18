@@ -111,13 +111,14 @@ const CarListing = ({ title, cardata }) => {
       {visibleCars.length > 0 && (
         <div className="car-listing-header mt-4">
           <span>{title}</span>
-          <button
-            type="button"
-            className="car-listing-seeall"
-            onClick={() => navigate('/allcars')}
-          >
-            See All
-          </button>
+         <button
+  type="button"
+  className="car-listing-seeall"
+  onClick={() => navigate('/allcars', { state: { type: title === 'Featured Car' ? 'featured' : 'recommended' } })}
+>
+  See All
+</button>
+
         </div>
       )}
       {visibleCars.length === 0 && Array.isArray(cardata) && cardata.length === 0 && (

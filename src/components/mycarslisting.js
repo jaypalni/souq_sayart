@@ -103,7 +103,7 @@ const Mycarslisting = () => {
   };
 
 
-
+console.log('carDetails',carDetails)
 const fetchCars = async () => {
   try {
     setLoading(true);
@@ -205,66 +205,35 @@ const fetchCars = async () => {
   
 
   return (
-    <div>
+    <div className="mylistings-container">
       {/* Header */}
-      <div style={{ background: '#008ad5', color: '#fff', padding: '32px 0 16px 0' }}>
-        <div style={{ maxWidth: 1200, margin: '0 35px' }}>
-          <h2 style={{ margin: 0 }}>My Listings</h2>
-          <p style={{ margin: 0 }}>Post an ad in just 3 simple steps</p>
+      <div className="mylistings-header">
+        <div className="mylistings-header-content">
+          <h2>My Listings</h2>
+          <p>Post an ad in just 3 simple steps</p>
         </div>
       </div>
 
       {/* Subscribe Banner */}
       <div className="mylisting-car-image-container">
-        <div>
-          <h1 style={{ top: 55, left: 35, color: '#fff', fontSize: 40, fontWeight: 700, width: 355 }}>
+        <div className="mylistings-banner-content">
+          <h1 className="mylistings-banner-title">
             Subscribe To Our Packages
           </h1>
-          <button
-            style={{
-              top: 20,
-              left: 35,
-              background: '#008ad500',
-              color: '#fff',
-              borderRadius: 22,
-              border: '1px solid #fff',
-              padding: '10px 20px',
-            }}
-          >
+          <button className="mylistings-subscribe-btn">
             Subscribe
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div
-        style={{
-          marginTop: 35,
-          marginLeft: 35,
-          marginRight: 25,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '10px',
-        }}
-      >
-        <Radio.Group onChange={handleChange} value={value} style={{ display: 'flex', gap: '10px' }}>
+      <div className="mylistings-filters">
+        <Radio.Group onChange={handleChange} value={value} className="mylistings-radio-group">
           {['Active', 'Drafts', 'Sold'].map((status) => (
             <Radio.Button
               key={status}
               value={status}
-              className="custom-radio-button"
-              style={{
-                width: 75,
-                textAlign: 'center',
-                borderRadius: '4px',
-                color: value === status ? '#D67900' : '#000',
-                fontSize: '14px',
-                fontWeight: value === status ? '700' : '400',
-                borderColor: '#fff',
-                backgroundColor: value === status ? '#FFEDD5' : undefined,
-              }}
+              className={`custom-radio-button mylistings-radio-button ${value === status ? 'active' : 'inactive'}`}
             >
               {status}
             </Radio.Button>
@@ -272,7 +241,7 @@ const fetchCars = async () => {
         </Radio.Group>
 
         {value === 'Active' && (
-          <Select value={filterStatus} style={{ minWidth: 140, borderColor: '#fff' }} onChange={handleFilterChange}>
+          <Select value={filterStatus} className="mylistings-select" onChange={handleFilterChange}>
             <Option value="Any">All</Option>
             <Option value="Base">Pending Approval</Option>
             <Option value="Sport">Approved</Option>
@@ -281,7 +250,7 @@ const fetchCars = async () => {
       </div>
 
       {/* Car List */}
-      <div style={{ padding: '20px' }}>
+      <div className="mylistings-car-list">
         {(() => {
           if (!tokenReady) {
             return <p>Initializing...</p>;
@@ -293,15 +262,7 @@ const fetchCars = async () => {
             return <p>No cars found.</p>;
           }
           return (
-            <div
-              style={{
-                display: 'grid',
-                
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '20px',
-                justifyContent: 'center',
-              }}
-            >
+            <div className="car-grid mylistings-car-grid">
               {carDetails.map((car) => (
                 <CarCard
                   key={car.id}
@@ -318,22 +279,21 @@ const fetchCars = async () => {
       </div>
 
       {/* Pagination */}
-      {/* Pagination */}
-<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
-  <Pagination
-    className="custom-pagination"
-    current={page}            // Controlled by state
-    total={totalCount}        // Comes from API
-    pageSize={limit}          // API provided limit
-    onChange={(newPage) => {
-      console.log('Page Changed To:', newPage);
-      setPage(newPage);
-    }}
-    showSizeChanger={false}   // Hides page size dropdown
-    // showQuickJumper            // Show input for quick jump
-    itemRender={renderPaginationItem} // Custom render for < and >
-  />
-</div>
+      <div className="mylistings-pagination">
+        <Pagination
+          className="custom-pagination"
+          current={page}            // Controlled by state
+          total={totalCount}        // Comes from API
+          pageSize={limit}          // API provided limit
+          onChange={(newPage) => {
+            console.log('Page Changed To:', newPage);
+            setPage(newPage);
+          }}
+          showSizeChanger={false}   // Hides page size dropdown
+          // showQuickJumper            // Show input for quick jump
+          itemRender={renderPaginationItem} // Custom render for < and >
+        />
+      </div>
 
 
     </div>

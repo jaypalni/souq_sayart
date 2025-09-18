@@ -162,7 +162,7 @@ const ImageGallery = ({ images }) => {
           <FaChevronRight />
         </button>
       </div>
-      <div className="thumbnail-row mt-3 d-flex gap-2">
+      <div className=" mt-3 d-flthumbnail-rowex gap-2">
         {images.map((img, idx) => (
           <ThumbnailButton
             key={img}

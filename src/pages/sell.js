@@ -182,7 +182,7 @@ TrimInput.propTypes = {
   onOpen: PropTypes.func.isRequired,
 };
 
-const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, BASE_URL, brandOptions }) => {
+const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandImage, onOpen, BASE_URL, brandOptions }) => {
   const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
 
   let imageSrc = null;
@@ -235,7 +235,11 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, 
       >
         {(() => {
           if (selectedBrand) {
-            return selectedModel ? `${selectedBrand} - ${selectedModel}` : selectedBrand;
+            const parts = [selectedBrand];
+            if (selectedModel) parts.push(selectedModel);
+            if (selectedTrim) parts.push(selectedTrim);
+            const displayText = parts.join(' - ');
+            return displayText;
           }
           return 'Brand and Model of your car';
         })()}
@@ -249,6 +253,7 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedBrandImage, onOpen, 
 BrandInput.propTypes = {
   selectedBrand: PropTypes.string,
   selectedModel: PropTypes.string,
+  selectedTrim: PropTypes.string,
   selectedBrandImage: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
   BASE_URL: PropTypes.string.isRequired,
@@ -513,7 +518,16 @@ const validateAndExtractData = (extras) => {
 const buildFormValues = (data) => ({
   adTitle: data.ad_title ?? data.adTitle ?? '',
   description: data.description ?? data.desc ?? '',
-  brand: data.make ?? data.brand ?? '',
+  brand: (() => {
+    const make = data.make ?? data.brand ?? '';
+    const model = data.model ?? '';
+    const trim = data.trim ?? '';
+    const parts = [];
+    if (make) parts.push(make);
+    if (model) parts.push(model);
+    if (trim) parts.push(trim);
+    return parts.join(' - ');
+  })(),
   trim: data.trim ?? data.model ?? '',
   exteriorColor: data.exterior_color ?? data.exteriorColor ?? data.color ?? '',
   year: data.year ?? data.manufacture_year ?? '',
@@ -527,6 +541,7 @@ const buildFormValues = (data) => ({
   engineCC: data.engine_cc ?? data.engineCC ?? data.engine ?? '',
   transmissionType: data.transmission_type ?? data.transmission ?? '',
   driveType: data.drive_type ?? data.driveType ?? data.drive_type ?? '',
+  fuelType: data.fuel_type ?? '',
   regionalSpecs: data.regional_specs ?? data.regionalSpecs ?? '',
   region: data.location ?? data.region ?? '',
   accidentHistory: data.accident_history ?? '',
@@ -594,7 +609,20 @@ const setBasicVehicleState = (data, setters) => {
     setSelectedRegion
   } = setters;
 
-  if (typeof setSelectedModel === 'function') setSelectedModel(data.model ?? data.trim ?? '');
+  
+  // Try to extract model from various possible fields
+  let modelValue = data.model ?? data.model_name ?? data.car_model ?? data.vehicle_model ?? data.trim ?? '';
+  if (!modelValue && data.ad_title) {
+    // If ad_title contains "Brand - Model" format, extract the model part
+    const titleParts = data.ad_title.split(' - ');
+    if (titleParts.length > 1) {
+      modelValue = titleParts[1]; // Take the second part as model
+    }
+  }
+  
+  if (typeof setSelectedModel === 'function') {
+    setSelectedModel(modelValue);
+  }
   if (typeof setSelectedTrim === 'function') setSelectedTrim(data.trim ?? '');
   if (typeof setSelectedYear === 'function') setSelectedYear(data.year ?? '');
   if (typeof setSelectedPrice === 'function') setSelectedPrice((data.price ?? '').toString().replace(/,/g, ''));
@@ -659,6 +687,10 @@ useEffect(() => {
   // Set form values
   const formValues = buildFormValues(data);
   form.setFieldsValue(formValues);
+  
+  // Set ad title state from extras data
+  const adTitleValue = data.ad_title ?? data.adTitle ?? '';
+  setAdTitle(adTitleValue);
 
   // Set brand state
   setBrandState(data, imagePath, setSelectedBrand, setSelectedBrandImage, setMake);
@@ -694,6 +726,32 @@ useEffect(() => {
     setSelectedInteriorColor
   };
   setDetailedVehicleState(data, detailedSetters);
+
+  // Update form field after state is set
+  setTimeout(() => {
+    const parts = [];
+    if (data.make) parts.push(data.make);
+    if (data.model) parts.push(data.model);
+    if (data.trim) parts.push(data.trim);
+    
+    if (parts.length > 0) {
+      form.setFieldsValue({ 
+        brand: parts.join(' - ')
+      });
+    }
+    
+    // Generate auto title from the data
+    const brandPart = data.make || '';
+    const modelPart = data.model || '';
+    const trimPart = data.trim || '';
+    const yearPart = data.year || '';
+    const autoTitle = `${brandPart} ${modelPart} ${trimPart} ${yearPart}`.trim();
+    
+    if (autoTitle) {
+      setAdTitle(autoTitle);
+      form.setFieldsValue({ adTitle: autoTitle });
+    }
+  }, 100);
 
   populatedRef.current = true;
 }, [extras, form]);
@@ -795,6 +853,20 @@ useEffect(()=>{
 setSelectedTrim(null)
 setSelectedModel(null)
 },[selectedBrand])
+
+// Update form field when brand, model, and trim state changes
+useEffect(() => {
+  const parts = [];
+  if (selectedBrand) parts.push(selectedBrand);
+  if (selectedModel) parts.push(selectedModel);
+  if (selectedTrim) parts.push(selectedTrim);
+  
+  if (parts.length > 0) {
+    form.setFieldsValue({ 
+      brand: parts.join(' - ')
+    });
+  }
+}, [selectedBrand, selectedModel, selectedTrim, form]);
 useEffect(()=>{
 setSelectedTrim(null)
 },[selectedModel])
@@ -1015,6 +1087,97 @@ const handleFinish = async (mode) => {
       messageApi.open({ type: 'error', content: errText });
     }
   }
+};
+
+const handleUpdateCar = async () => {
+  try {
+    setLoading(true);
+    const values = await form.validateFields();
+    const images = values.media?.map((file) => file.originFileObj) || [];
+
+    if (images.length === 0) {
+      message.error('Please upload at least one image.');
+      return;
+    }
+
+    // Upload images first
+    const uploadedImages = await handleImageUpload(images);
+    
+    // Build update data
+    const updateData = buildUpdateData(values, uploadedImages);
+    
+    // Call update API
+    const response = await carAPI.updateCar(extras.id, updateData);
+    const data = handleApiResponse(response);
+
+    if (data) {
+      messageApi.open({
+        type: 'success',
+        content: data.message || 'Car updated successfully',
+      });
+      
+      // Navigate back to my listings
+      navigate('/myListings');
+    }
+  } catch (err) {
+    if (err?.errorFields) {
+      messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
+    } else {
+      const errorData = handleApiError(err);
+      messageApi.open({ type: 'error', content: errorData.message || 'Failed to update car' });
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+const buildUpdateData = (values, uploadedImages) => {
+  return {
+    ad_title: values.adTitle || '',
+    description: values.description || '',
+    exterior_color: selectedColor || '',
+    interior_color: selectedInteriorColor || '',
+    trim: selectedTrim || '',
+    regional_specs: selectedRegionalSpecs || '',
+    body_type: selectedBodyType || '',
+    vechile_type: selectedVehicleType || '',
+    condition: selectedCondition || '',
+    kilometers: values.kilometers || '',
+    location: selectedRegion || '',
+    year: selectedYear || '',
+    warranty_date: values.warranty_date ? moment(values.warranty_date).format('YYYY-MM-DD') : '',
+    accident_history: values.accident_history || 'NoAccidents',
+    number_of_seats: selectedSeats || '',
+    number_of_doors: selectedDoors || '',
+    fuel_type: selectedFuelType || '',
+    transmission_type: selectedTransmissionType || '',
+    drive_type: selectedDriveType || '',
+    engine_cc: values.engine_cc || '',
+    horse_power: selectedHorsepower || '',
+    make: make || '',
+    model: selectedModel || '',
+    price: selectedPrice || '',
+    extra_features: selectedBadges || [],
+    car_images: uploadedImages || [],
+    is_whatsapp: values.is_whatsapp || false,
+    draft: false,
+    consumption: values.consumption || '',
+    no_of_cylinders: selectedCylinders || ''
+  };
+};
+
+const handleImageUpload = async (images) => {
+  if (!images || images.length === 0) return [];
+  
+  const formData = new FormData();
+  images.forEach((image) => {
+    formData.append('attachment', image);
+  });
+
+  const response = await carAPI.postuploadcarimages(formData, 'car');
+  const data = handleApiResponse(response);
+  
+  return data?.attachment_url || [];
 };
 
 
@@ -1310,20 +1473,31 @@ const handleFinish = async (mode) => {
   rules={[
     {
       validator: (_, value) => {
+        console.log('Car Information validation:', { selectedBrand, selectedModel, value });
+        // Check if we have at least brand selected
         if (!selectedBrand) {
-          return Promise.reject(new Error('Please select the car make'));
-        }
-        if (!selectedModel) {
-          return Promise.reject(new Error('Please select the car model'));
+          return Promise.reject(new Error('Please select the car brand'));
         }
         return Promise.resolve();
       },
     },
   ]}
 >
+  <Input
+    value={(() => {
+      const parts = [];
+      if (selectedBrand) parts.push(selectedBrand);
+      if (selectedModel) parts.push(selectedModel);
+      if (selectedTrim) parts.push(selectedTrim);
+      return parts.join(' - ');
+    })()}
+    style={{ display: 'none' }}
+    readOnly
+  />
   <BrandInput
     selectedBrand={selectedBrand}
     selectedModel={selectedModel}
+    selectedTrim={selectedTrim}
     selectedBrandImage={selectedBrandImage}
     onOpen={() => setBrandModalOpen(true)}
     BASE_URL={BASE_URL}
@@ -1366,7 +1540,14 @@ const handleFinish = async (mode) => {
                               setSelectedBrand(opt.name);
                               setMake(opt.name);  
                               setBrandModalOpen(false);
-                              form.setFieldsValue({ brand: opt.name,brandImage: opt.image, });
+                              // Update brand field with current model and trim
+                              const parts = [opt.name];
+                              if (selectedModel) parts.push(selectedModel);
+                              if (selectedTrim) parts.push(selectedTrim);
+                              form.setFieldsValue({ 
+                                brand: parts.join(' - '),
+                                brandImage: opt.image,
+                              });
                               setSelectedBrandImage(opt.image);
                               setBrandNameOpen(true);
                             }}
@@ -1420,7 +1601,15 @@ const handleFinish = async (mode) => {
                             onClick={() => {
                               setSelectedModel(opt.model_name);
                               setModalName(opt.model_name);
-                              form.setFieldsValue({ trim: opt.model_name });
+                              // Update brand field with current brand, model, and trim
+                              const parts = [];
+                              if (selectedBrand) parts.push(selectedBrand);
+                              parts.push(opt.model_name);
+                              if (selectedTrim) parts.push(selectedTrim);
+                              form.setFieldsValue({ 
+                                trim: opt.model_name,
+                                brand: parts.join(' - ')
+                              });
                               form.validateFields(['brand']);
                               setBrandNameOpen(false);
                             }}
@@ -1441,7 +1630,6 @@ const handleFinish = async (mode) => {
                     label="Exterior Color"
                     name="exteriorColor"
                     required={false}
-                    rules={[{ required: true, message: 'Please select the Exterior Color' }]}
                   >
                     <ExteriorColorInput
                     selectedColor={selectedColor}
@@ -1511,9 +1699,8 @@ const handleFinish = async (mode) => {
                       color: '#0A0A0B',
                     }}
                     label="Year"
-                    name="year"
+                     name="year"
                      required={false}
-                     rules={[{ required: true, message: 'Please select the Year' }]}
                   >
                     <YearInput 
                       selectedYear={selectedYear}
@@ -1608,7 +1795,15 @@ const handleFinish = async (mode) => {
                             onClick={() => {
                               setSelectedTrim(opt.trim_name);
                               setTrimModalOpen(false);
-                              form.setFieldsValue({ trim: opt.trim_name });
+                              // Update brand field with current brand, model, and trim
+                              const parts = [];
+                              if (selectedBrand) parts.push(selectedBrand);
+                              if (selectedModel) parts.push(selectedModel);
+                              parts.push(opt.trim_name);
+                              form.setFieldsValue({ 
+                                trim: opt.trim_name,
+                                brand: parts.join(' - ')
+                              });
                             }}
                           >
                             {opt.trim_name}
@@ -1630,8 +1825,12 @@ const handleFinish = async (mode) => {
       label="Body Type"
       name="bodyType"
       required={false}
-      rules={[{ required: true, message: 'Please select the Body Type' }]}
     >
+      <Input
+        value={selectedBodyType}
+        style={{ display: 'none' }}
+        readOnly
+      />
       <div className="option-box-group">
         {updateData?.body_types?.map((opt) => (
           <div
@@ -1659,8 +1858,12 @@ const handleFinish = async (mode) => {
       label="Condition"
       name="condition"
       required={false}
-      rules={[{ required: true, message: 'Please select the car condition' }]}
     >
+      <Input
+        value={selectedCondition}
+        style={{ display: 'none' }}
+        readOnly
+      />
       <div className="option-box-group">
         {updateData?.car_conditions?.map((opt) => (
           <div
@@ -1732,7 +1935,6 @@ const handleFinish = async (mode) => {
       label="Horsepower (HP)"
       name="horsepower"
      required={false}
-     rules={[{ required: true, message: 'Please select the Horse Power' }]}
     >
       <Select
         showSearch
@@ -1803,7 +2005,6 @@ const handleFinish = async (mode) => {
                     label="Vehicle Type"
                     name="vehicletype"
                     required={false}
-                    rules={[{ required: true, message: 'Please select the Vehicle Type' }]}
                   >
                     <Select
         placeholder="Select vehicle type"
@@ -1875,7 +2076,6 @@ const handleFinish = async (mode) => {
                     label="Region"
                     name="region"
                     required={false}
-                    rules={[{ required: true, message: 'Please select the Region' }]}
                   >
                     <RegionInput 
                       selectedRegion={selectedRegion}
@@ -1970,9 +2170,8 @@ const handleFinish = async (mode) => {
                       color: '#0A0A0B',
                     }}
                     label="Regional Specs"
-                    name="regionalSpecs"
+                     name="regionalSpecs"
                      required={false}
-                     rules={[{ required: true, message: 'Please select the Regional Specs'}]}
                   >
                     <RegionalSpecsInput 
                       selectedRegionalSpecs={selectedRegionalSpecs}
@@ -2040,8 +2239,12 @@ const handleFinish = async (mode) => {
                     label="Number of seats"
                     name="seats"
                     required={false}
-                    rules={[{ required: true, message: 'Please select the Seats' }]}
                   >
+                    <Input
+                      value={selectedSeats}
+                      style={{ display: 'none' }}
+                      readOnly
+                    />
                     <div className="option-box-group">
                       {updateData?.number_of_seats?.map((opt) => (
                         <div
@@ -2098,8 +2301,12 @@ const handleFinish = async (mode) => {
                     label="Fuel Type"
                     name="fuelType"
                     required={false}
-                    rules={[{ required: true, message: 'Please select the Fuel Type' }]}
                   >
+                    <Input
+                      value={selectedFuelType}
+                      style={{ display: 'none' }}
+                      readOnly
+                    />
                     <div className="option-box-group">
                       {updateData?.fuel_types?.map((opt) => (
                         <div
@@ -2128,8 +2335,12 @@ const handleFinish = async (mode) => {
                     label="Transmission Type"
                     name="transmissionType"
                     required={false}
-                    rules={[{ required: true, message: 'Please select the Transmission Type' }]}
                   >
+                    <Input
+                      value={selectedTransmissionType}
+                      style={{ display: 'none' }}
+                      readOnly
+                    />
                     <div className="option-box-group">
                       {updateData?.transmission_types?.map((opt) => (
                         <div
@@ -2402,52 +2613,79 @@ const handleFinish = async (mode) => {
             </Card>
             <Form.Item style={{ marginTop: 16 }}>
               <div className="submit-btn-group">
-               <Button
-  size="small"
-  className="btn-outline-blue"
-  onClick={handleEvaluateCar} // ✅ Correct way
-  type="default"
->
-  Evaluate Car
-</Button>
+                {extras && extras.id ? (
+                  // Update mode - show Update Car button
+                  <Button
+                    style={{
+                      background: loading ? '#ccc' : '#0090d4',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 20,
+                      padding: '2px 52px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      fontFamily: 'Roboto',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      opacity: loading ? 0.7 : 1,
+                    }}
+                    size="small"
+                    className="btn-solid-blue"
+                    type="primary"
+                    onClick={handleUpdateCar}
+                    disabled={loading}
+                  >
+                    Update Car
+                  </Button>
+                ) : (
+                  // Create mode - show original buttons
+                  <>
+                    <Button
+                      size="small"
+                      className="btn-outline-blue"
+                      onClick={handleEvaluateCar}
+                      type="default"
+                    >
+                      Evaluate Car
+                    </Button>
 
-                <Button
-                  size="small"
-                  className="btn-outline-blue"
-                  // onClick={() => handleSaveDraft}
-                   onClick={() => handleFinish('draft')}
-                  type="default"
-                >
-                  Save as draft
-                </Button>
-                <Button
-                style={{
-                background: loading ? '#ccc' : '#0090d4',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 20,
-                padding: '2px 52px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontFamily: 'Roboto',
-                fontWeight: 700,
-                fontSize: 14,
-                opacity: loading ? 0.7 : 1,
-              }}
-                  size="small"
-                  className="btn-solid-blue"
-                  type="primary"
-                  htmlType="submit"
-                  disabled={loading}
-                >
-                  Create
-                </Button>
-                <Button
-                  size="small"
-                  className="btn-solid-blue"
-                  type="submit"
-                >
-                  Create & New
-                </Button>
+                    <Button
+                      size="small"
+                      className="btn-outline-blue"
+                      onClick={() => handleFinish('draft')}
+                      type="default"
+                    >
+                      Save as draft
+                    </Button>
+                    <Button
+                      style={{
+                        background: loading ? '#ccc' : '#0090d4',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 20,
+                        padding: '2px 52px',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontFamily: 'Roboto',
+                        fontWeight: 700,
+                        fontSize: 14,
+                        opacity: loading ? 0.7 : 1,
+                      }}
+                      size="small"
+                      className="btn-solid-blue"
+                      type="primary"
+                      htmlType="submit"
+                      disabled={loading}
+                    >
+                      Create
+                    </Button>
+                    <Button
+                      size="small"
+                      className="btn-solid-blue"
+                      type="submit"
+                    >
+                      Create & New
+                    </Button>
+                  </>
+                )}
               </div>
             </Form.Item>
           </Form>

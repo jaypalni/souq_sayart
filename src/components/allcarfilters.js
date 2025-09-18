@@ -16,6 +16,7 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError, DEFAULT_MAKE, DEFAULT_MODEL, DEFAULT_BODY_TYPE, DEFAULT_LOCATION } from '../utils/apiUtils';
 import '../assets/styles/allcarfilters.css';
 import Searchemptymodal from '../components/searchemptymodal';
+import { type } from '@testing-library/user-event/dist/type';
 
 const { Option } = Select;
 
@@ -55,7 +56,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage}) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, featuredorrecommended}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -225,6 +226,7 @@ const buildAutoSearchParams = (filterParams) => {
     price_min: minPrice !== null ? minPrice : '',
     price_max: maxPrice !== null ? maxPrice : '',
     condition: currentNewUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+     type: featuredorrecommended,
     page: 1,
     limit: 1, // We only need the count, so limit to 1 for efficiency
   };
@@ -249,6 +251,7 @@ const handleAutoSearchError = (error) => {
 };
 
 const autoSearchForCount = async (filterParams = {}) => {
+  console.log('Add Type')
   try {
     const apiParams = buildAutoSearchParams(filterParams);
     const response = await carAPI.getSearchCars(apiParams);
@@ -574,6 +577,7 @@ handleSearch()
       oldest_listing: sortConfig.sortbyold,
       sort_by: sortConfig.sortbypriceormileage,
       sort_order: sortConfig.sortorder,
+       type: featuredorrecommended,
     };
   };
 
@@ -641,7 +645,7 @@ handleSearch()
       }
       
       clearCachedData();
-
+console.log('Add Type2')
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
 

@@ -5,6 +5,8 @@ import { Button, Tag } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { COLORS, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import boost_icon from '../assets/images/boost_icon.svg';
+import '../assets/styles/mycarslisting.css';
+import bluecar_icon from '../assets/images/blackcar_icon.png';
 
 const STATUS_ACTIVE = 'Active';
 const STATUS_SOLD = 'Sold';
@@ -45,7 +47,9 @@ const displayLabel =
   const CARD_WIDTH = 'auto';
 
   // Precompute values to avoid ternaries in JSX
-  const imageSrc = car.car_image || '/default-car.png';
+  const imageSrc = car.car_image && car.car_image.trim() !== '' 
+  ? `${BASE_URL}${car.car_image}` 
+  : bluecar_icon;
   
   const imageHeight = value === STATUS_ACTIVE ? '144px' : '109px';
 
@@ -57,127 +61,85 @@ const displayLabel =
     setActiveDropdownId(nextId);
   };
 
+   const handleCardClick = () => {
+    navigate(`/carDetails/${car.id}`);
+  };
+
 
   return (
-    <div
-      style={{
-        border: '1px solid #eee',
-        borderRadius: BORDER_RADIUS.card,
-        padding: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-        backgroundColor: '#fff',
-        width: CARD_WIDTH,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: JUSTIFY_SPACE_BETWEEN,
-      }}
-    >
-      <div style={{ display: 'flex', gap: '12px' }}>
-        <img
-          // src={imageSrc}
-          src={`${BASE_URL}${imageSrc}`}
-          alt="car"
-          style={{ width: 137, height: imageHeight, borderRadius: BORDER_RADIUS.card, objectFit: 'cover' }}
-        />
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, alignItems: 'flex-start', marginTop: '10px', marginRight: '10px' }}>
-            <h3 style={{ margin: 0, fontSize: FONT_SIZES.large, fontWeight: 700 }}>{car.ad_title}</h3>
+    <div className="car-card">
+      <div className="car-card-content clickable-area"
+        onClick={handleCardClick}
+        style={{ cursor: 'pointer' }}
+        >
+       <img
+  src={imageSrc}
+  alt="car"
+  className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`}
+/>
+        <div className="car-card-details">
+          <div className="car-card-header">
+            <h3 className="car-card-title">{car.ad_title}</h3>
             {value === STATUS_ACTIVE && car.status === 'approved' && (
               <button
                 onClick={() => toggleDropdown(car.id)}
-                style={{ height: '20px', width: '20px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                className="car-card-dropdown-btn"
               >
                 <HiOutlineDotsVertical />
               </button>
             )}
           </div>
 
-<div
-  style={{
-    color: COLORS.boostBg,
-    fontWeight: 700,
-    fontSize: FONT_SIZES.medium,
-    marginTop: '4px',
-  }}
->
-  {'IQD ' + Number(car.price).toLocaleString()}
-</div>
+          <div className="car-card-price">
+            {'IQD ' + Number(car.price).toLocaleString()}
+          </div>
 
-
-           <Tag
-  color={tagProps.bg}
-  style={{
-    color: tagProps.color,
-    marginTop: '6px',
-    display: 'inline-block',
-    fontSize: FONT_SIZES.small,
-    fontWeight: 700,
-  }}
->
-  {displayLabel}
-</Tag>
-
+          <Tag
+            color={tagProps.bg}
+            className="car-card-tag"
+            style={{
+              color: tagProps.color,
+            }}
+          >
+            {displayLabel}
+          </Tag>
 
           {value === STATUS_ACTIVE && filterStatus === 'Sport' && (
-            <div
-              style={{
-                display: 'flex',
-                gap: '10px',
-                backgroundColor: COLORS.boostBg,
-                borderRadius: '14px',
-                height: '30px',
-                marginTop: '10px',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span style={{ color: '#fff', fontSize: FONT_SIZES.small, fontWeight: 600 }}>Boost</span>
-              <img src={boost_icon} alt="boost" style={{ width: '13px', height: '13px' }} />
+            <div className="car-card-boost">
+              <span className="car-card-boost-text">Boost</span>
+              <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
             </div>
           )}
         </div>
       </div>
 
-      <div>
-        <div style={{ marginTop: '10px', color: COLORS.primary, fontSize: FONT_SIZES.small, fontWeight: 400 }}>
+      <div className="car-card-footer">
+        <div className="car-card-date">
           {car.updated_at
-  ? new Date(car.updated_at).toLocaleDateString('en-US', {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    })
-  : ''}
-
+            ? new Date(car.updated_at).toLocaleDateString('en-US', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              })
+            : ''}
         </div>
-        <div style={{ marginTop: '10px', display: 'flex', justifyContent: JUSTIFY_SPACE_BETWEEN, gap: '10px' }}>
-        <Button
-    type="default"
-    onClick={() => handleDelete(car.id)}
-    style={{
-      flex: 1,
-      borderRadius: BORDER_RADIUS.button,
-      color: '#008AD5',         
-      borderColor: '#008AD5',    
-      backgroundColor: '#fff',  
-    }}
-  >
-    Delete
-  </Button>
+        <div className="car-card-actions">
+          <Button
+            type="default"
+            // onClick={() => handleDelete(car.id)}
+            className="car-card-delete-btn"
+          >
+            Delete
+          </Button>
 
-  <Button
-    type="primary"
-    onClick={() => navigate('/sell', { state: { extras: car } })}
-    style={{
-      flex: 1,
-      borderRadius: BORDER_RADIUS.button,
-      backgroundColor: '#008AD5', 
-      color: '#fff',               
-      borderColor: '#008AD5',      
-    }}
-  >
-    Edit
-  </Button>
+          <Button
+            type="primary"
+            // onClick={() => navigate('/sell', { state: { extras: car } })}
+            className="car-card-edit-btn"
+          >
+            Edit
+          </Button>
         </div>
       </div>
     </div>

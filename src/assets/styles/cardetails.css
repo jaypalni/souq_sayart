@@ -17,7 +17,30 @@
 
 .thumbnail-row {
   justify-content: center;
+  flex-wrap: nowrap;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    width: 100%;
 }
+
+.d-flthumbnail-rowex {
+  flex-wrap: nowrap;
+  flex-direction: row;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  display: flex;
+
+  
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+}
+
+.d-flthumbnail-rowex::-webkit-scrollbar {
+  display: none; 
+}
+
 
 .thumbnail-img {
   width: 80px;

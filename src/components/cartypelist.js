@@ -157,7 +157,7 @@ const CarTypeList = ({setSaveSearchesReload}) => {
         body_type: item,
         location: '',
       };
-
+console.log('Add Type3')
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
       if (data1) {

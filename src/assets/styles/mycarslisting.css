@@ -8,7 +8,22 @@
   display: flex;
   align-items: center;
   position: relative;
-  padding: 0 35px;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .mylisting-car-image-container {
+    height: 200px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mylisting-car-image-container {
+    height: 150px;
+    padding: 0 10px;
+  }
 }
 
 .custom-radio-button.ant-radio-button-wrapper::before {
@@ -26,4 +41,307 @@
   color: #0A0A0B !important;
   opacity: 1 !important;
   font-weight: bold;
+}
+
+/* Prevent horizontal scroll */
+.mylistings-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Responsive grid adjustments for 4 cards per row */
+@media (max-width: 1200px) {
+  .mylistings-container {
+    padding: 0 15px;
+  }
+  
+  .mylistings-container .car-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .mylistings-container .car-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mylistings-container {
+    padding: 0 10px;
+  }
+  
+  .mylistings-container .car-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mylistings-container {
+    padding: 0 5px;
+  }
+  
+  .mylistings-container .car-grid {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+  }
+}
+
+/* Ensure cards don't overflow */
+.mylistings-container .car-grid {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.mylistings-container .car-grid > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Header Styles */
+.mylistings-header {
+  background: #008ad5;
+  color: #fff;
+  padding: 32px 0 16px 0;
+}
+
+.mylistings-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.mylistings-header h2 {
+  margin: 0;
+}
+
+.mylistings-header p {
+  margin: 0;
+}
+
+/* Subscribe Banner Styles */
+.mylistings-banner-content {
+  position: relative;
+  padding: 0 20px;
+}
+
+.mylistings-banner-title {
+  color: #fff;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 700;
+  max-width: 100%;
+  margin: 55px 0 20px 0;
+  line-height: 1.2;
+}
+
+.mylistings-subscribe-btn {
+  background: #008ad500;
+  color: #fff;
+  border-radius: 22px;
+  border: 1px solid #fff;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* Filters Styles */
+.mylistings-filters {
+  margin-top: 35px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 1200px;
+  margin: 35px auto 0 auto;
+}
+
+.mylistings-radio-group {
+  display: flex;
+  gap: 10px;
+}
+
+.mylistings-radio-button {
+  width: 75px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 14px;
+  border-color: #fff;
+}
+
+.mylistings-radio-button.active {
+  color: #D67900;
+  font-weight: 700;
+  background-color: #FFEDD5;
+}
+
+.mylistings-radio-button.inactive {
+  color: #000;
+  font-weight: 400;
+}
+
+.mylistings-select {
+  min-width: 140px;
+  border-color: #fff;
+}
+
+/* Car List Styles */
+.mylistings-car-list {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mylistings-car-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Pagination Styles */
+.mylistings-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto 0 auto;
+  padding: 0 20px;
+}
+
+/* CarCard Styles */
+.car-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background-color: #fff;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.car-card-content {
+  display: flex;
+  gap: 12px;
+}
+
+.car-card-image {
+  width: 110px;
+  height: 110px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.car-card-image.sold {
+  height: 109px;
+}
+
+.car-card-details {
+  flex: 1;
+}
+
+.car-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 0px;
+  margin-right: 10px;
+}
+
+.car-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.car-card-dropdown-btn {
+  height: 20px;
+  width: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.car-card-price {
+  color: #008AD5;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.car-card-tag {
+  margin-top: 6px;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: normal;
+}
+
+.car-card-boost {
+  display: flex;
+  gap: 10px;
+  background-color: #008AD5;
+  border-radius: 14px;
+  height: 30px;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.car-card-boost-text {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.car-card-boost-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.car-card-footer {
+  margin-top: 10px;
+}
+
+.car-card-date {
+  margin-top: 10px;
+  color: #008AD5;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.car-card-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.car-card-delete-btn {
+  flex: 1;
+  border-radius: 4px;
+  color: #008AD5;
+  border-color: #008AD5;
+  background-color: #fff;
+}
+
+.car-card-edit-btn {
+  flex: 1;
+  border-radius: 4px;
+  background-color: #008AD5;
+  color: #fff;
+  border-color: #008AD5;
 }

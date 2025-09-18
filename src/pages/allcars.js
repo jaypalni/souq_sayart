@@ -452,6 +452,7 @@ const Removefavcarapi = async (carId) => {
             onChange={onPageChange}
             defaultCurrent={paginationToDisplay?.page}
             total={paginationToDisplay?.total}
+              defaultPageSize={20}
           />
         </div>
       </div>

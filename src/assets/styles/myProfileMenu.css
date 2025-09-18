@@ -11,15 +11,15 @@
     position: fixed;
     top: 82px;
     right: 3px;
-    /* z-index: 1001; */
-    /* background: #008AD5; */
+    
+   
     color: white;
     border: none;
     border-radius: 6px;
     padding: 3px 6px;
     font-size: 18px;
     cursor: pointer;
-    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); */
+    
     transition: all 0.3s ease;
     align-items: center;
     justify-content: center;
@@ -28,7 +28,7 @@
 }
 
 .mobile-menu-button:hover {
-  /* background: #006bb3; */
+ 
   transform: scale(1.05);
 }
 
@@ -75,6 +75,7 @@
   z-index: 999;
   opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 999;
 }
 
 .mobile-menu-overlay.open {
@@ -103,15 +104,16 @@
 .mobile-menu-content {
   height: 100%;
   overflow-y: auto;
-  padding: 20px 0;
+  padding: 20px 0;  
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-menu-header {
   padding: 20px 20px 20px;
-  /* border-bottom: 1px solid #f0f0f0; */
+  
   margin-bottom: 20px;
   position: relative;
-  /* background: #fff; */
+  
   z-index: 5;
 }
 
@@ -137,8 +139,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* max-width: calc(100% - 60px); */
-  /* background: rgba(255, 0, 0, 0.1); */
+  
+  
   padding: 2px 4px;
   border-radius: 2px;
 }
@@ -270,14 +272,6 @@
   }
 }
 
-/* Ensure proper z-index stacking */
-.mobile-menu-button {
-  /* z-index: 1001; */
-}
-
-.mobile-menu-overlay {
-  z-index: 999;
-}
 
 .mobile-menu-drawer {
   z-index: 1000;
@@ -302,10 +296,6 @@
   outline-offset: 2px;
 }
 
-/* Ensure proper scrolling on mobile */
-.mobile-menu-content {
-  -webkit-overflow-scrolling: touch;
-}
 
 /* Custom scrollbar for mobile menu */
 .mobile-menu-content::-webkit-scrollbar {

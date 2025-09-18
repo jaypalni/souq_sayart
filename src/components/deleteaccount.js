@@ -30,12 +30,12 @@ const DeleteAccount = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
   const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
-  const [, setDeleteData] = useState([]);
+
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
-  const { customerDetails } = useSelector((state) => state.customerDetails);
+  
   // Menu handlers
   const handleMenuClick = ({ key }) => {
     // Handle any additional menu logic if needed
@@ -183,7 +183,7 @@ const DeleteAccount = () => {
       const data1 = handleApiResponse(result);
   
       if (data1?.status_code === 200) {
-    //    setIsDeleteContinueDisabled(true);
+    
         await messageApi.open({
           type: 'success',
           content: data1?.message,
@@ -194,7 +194,7 @@ const DeleteAccount = () => {
         dispatch({ type: 'CLEAR_USER_DATA' });
         navigate('/');
       } else {
-        // setIsDeleteContinueDisabled(false);
+        
         messageApi.open({
           type: 'error',
           content: data1?.error,
@@ -212,13 +212,13 @@ const DeleteAccount = () => {
         errorMessage = err.message;
       }
   
-    //   setIsDeleteContinueDisabled(false);
+    
       messageApi.open({
         type: 'error',
         content: errorMessage,
       });
     } finally {
-    //   setIsDeleteContinueDisabled(false);
+   
       setLoading(false);
     }
   };
@@ -266,30 +266,7 @@ const DeleteAccount = () => {
 
     return inputClass;
   };
-  const handleDelete = async () => {
-      try {
-        setLoading(true);
-        const response = await userAPI.getDelete();
-        const data1 = handleApiResponse(response);
   
-        if (data1) {
-          setDeleteData(data1)
-          localStorage.setItem('requestId',data1.request_id)
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
-           navigate('/deleteaccount-otp')
-        }
-      } catch (error) {
-        setDeleteData([])
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData?.message,
-        });
-      }
-    }
   const renderTimerContent = (isTimerRunning, timer, formatTime, handleResend) => {
     if (isTimerRunning) {
       return (

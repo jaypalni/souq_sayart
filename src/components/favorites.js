@@ -49,12 +49,6 @@ const MyFavoritesCars = () => {
         setCarsData([]);
       }
 
-      if (data?.message) {
-        messageApi.open({
-          type: 'success',
-          content: data.message,
-        });
-      }
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.open({
@@ -111,8 +105,8 @@ const MyFavoritesCars = () => {
           </p>
 
           <h3 style={{ marginTop: '2px', fontSize: '14px', color: '#0A0A0B', fontWeight: 400 }}>
-            you've got a blank slate (for now).<br />
-            we'll let you know when updates arrive!
+            You have not saved any vehicles yet.<br />
+            Tap the heart icon on a listing to add it here.
           </h3>
 
           <button
@@ -136,7 +130,7 @@ const MyFavoritesCars = () => {
     }
 
     return (
-      <div className="car-listing-flex-row">
+      <div className="car-listing-flex-row-allfav">
         {carsData.map((car) => (
           <div className="car-listing-card" key={car.car_id}>
             <Link

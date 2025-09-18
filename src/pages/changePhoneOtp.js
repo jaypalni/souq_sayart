@@ -30,26 +30,47 @@ const ChangePhoneOtpPage = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [error, setError] = useState('');
   const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
-  const phoneNumber = usePhoneNumber();
-  const [, setDeleteData] = useState([]);
+  
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
   const OTP_LENGTH = 4;
   const OTP_INPUT_IDS = Array.from({ length: OTP_LENGTH }, (_, i) => `otp-${i}`);
   const intervalRef = useRef(null);
-  const { customerDetails } = useSelector((state) => state.customerDetails);
-
-  // Menu handlers
+  
+ const handlestate = useSelector((state) => state.auth);
   const handleMenuClick = ({ key }) => {
-    // Handle any additional menu logic if needed
   };
-
   const handleDeleteClick = () => {
-    // Handle delete click
   };
 
   const handleLogoutClick = () => {
     userlogout();
   };
+
+  useEffect(() => {
+  const preventSwipeNavigation = (e) => {
+    // Detect left or right swipe gestures
+    if (e.deltaX !== 0 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+    }
+  };
+
+  // For mousewheel and trackpad swipe
+  window.addEventListener('wheel', preventSwipeNavigation, { passive: false });
+
+  // For touch events (mobile devices)
+  const preventTouchMove = (e) => {
+    if (e.touches.length > 1) return; // Allow pinch-to-zoom
+    e.preventDefault(); // Block single finger swipe
+  };
+
+  window.addEventListener('touchmove', preventTouchMove, { passive: false });
+
+  return () => {
+    window.removeEventListener('wheel', preventSwipeNavigation);
+    window.removeEventListener('touchmove', preventTouchMove);
+  };
+}, []);
+
 
  useEffect(() => {
     
@@ -93,30 +114,7 @@ const ChangePhoneOtpPage = () => {
 
     return () => clearInterval(intervalRef.current);
   }, [isTimerRunning]);
-  const handleDelete = async () => {
-      try {
-        setLoading(true);
-        const response = await userAPI.getDelete();
-        const data1 = handleApiResponse(response);
   
-        if (data1) {
-          setDeleteData(data1)
-          localStorage.setItem('requestId',data1.request_id)
-          messageApi.open({
-            type: 'success',
-            content: data1?.message,
-          });
-           navigate('/deleteaccount-otp')
-        }
-      } catch (error) {
-        setDeleteData([])
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData?.message,
-        });
-      }
-    }
   // Logout functions
 
   const userlogout = async () => {
@@ -201,13 +199,13 @@ const ChangePhoneOtpPage = () => {
   const handleResend = async () => {
     try {
       setLoading(true);
-      if (!phoneNumber) {
+      if (!handlestate?.phone_login) {
         messageApi.open({ type: 'error', content: 'Phone number not found. Please start over.' });
         navigate('/myProfile/change-phone');
         return;
       }
 
-      const response = await userAPI.changephonenumber({ phone_number: phoneNumber, whatsapp: 0 });
+      const response = await userAPI.changephonenumber({ phone_number: handlestate.phone_login, whatsapp: 0 });
       const data = handleApiResponse(response);
 
       if (data) {

@@ -60,7 +60,7 @@ Arrow.propTypes = {
   left: PropTypes.bool,
 };
 
-const CarTypeList = () => {
+const CarTypeList = ({setSaveSearchesReload}) => {
   const [, setLoading] = useState(false);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,8 +75,8 @@ const CarTypeList = () => {
     speed: 500,
     slidesToShow: 6,
     slidesToScroll: 1,
-    nextArrow: <Arrow left={false} />,
-    prevArrow: <Arrow left={true} />,
+    // nextArrow: <Arrow left={false} />,
+    // prevArrow: <Arrow left={true} />,
     initialSlide: 0,
     lazyLoad: 'ondemand',
     responsive: [
@@ -147,6 +147,7 @@ const CarTypeList = () => {
   }, []);
 
   const handleSearch = async (item) => {
+  setBodyType(item)
     try {
       setLoading(true);
 
@@ -156,7 +157,7 @@ const CarTypeList = () => {
         body_type: item,
         location: '',
       };
-
+console.log('Add Type3')
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
       if (data1) {
@@ -214,7 +215,7 @@ const CarTypeList = () => {
         bodyType={bodyType}
         setBodyType={setBodyType}
         onSave={handleSearch}
-        setSaveSearchesReload={() => {}}
+        setSaveSearchesReload={setSaveSearchesReload}
       />
     </div>
   );

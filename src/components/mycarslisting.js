@@ -30,10 +30,10 @@ const FILTER = {
 
 const renderPaginationItem = (page, type, originalElement) => {
   if (type === 'prev') {
-    return <span>« Prev</span>;  // Optional custom text for previous button
+    return <span>« </span>;  // Optional custom text for previous button
   }
   if (type === 'next') {
-    return <span>Next »</span>;  // Optional custom text for next button
+    return <span> »</span>;  // Optional custom text for next button
   }
   return originalElement;        // Default: page numbers like 1, 2, 3
 };
@@ -102,75 +102,8 @@ const Mycarslisting = () => {
     setPage(1);
   };
 
-  const getStatusParam = () => {
-    if (value === STATUS.ACTIVE) {
-      if (filterStatus === FILTER.BASE) {
-        return 'pending';
-      }
-      if (filterStatus === FILTER.SPORT) {
-        return 'approved';
-      }
-      return 'all';
-    }
-    if (value === STATUS.DRAFTS) {
-      return 'drafts';
-    }
-    if (value === STATUS.SOLD) {
-      return 'sold';
-    }
-    return '';
-  };
 
-
-//   const fetchCars = async () => {
-//   try {
-//     setLoading(true);
-
-//     const statusParam = getStatusParam() || '';
-//     console.log('Calling API with:', { status: statusParam, page });
-
-//     const response = await carAPI.getMylistingCars(statusParam, page || 1);
-//     const cardetail = handleApiResponse(response);
-
-//     // Safely extract data
-//     const data = cardetail?.data || {};
-//     const pagination = cardetail?.pagination || {};
-
-//     let list = [];
-//     if (['pending', 'approved', 'all'].includes(statusParam)) {
-//       list = data.approved_pending || [];
-//     } else if (statusParam === 'drafts') {
-//       list = data.draft || [];
-//     } else if (statusParam === 'sold') {
-//       list = data.sold || [];
-//     }
-
-//     setCarDetails(list);
-
-//     // Use pagination total
-//     setTotalCount(pagination.total || 0);
-
-//     console.log('Pagination Data:', pagination);
-// console.log('Total Count Set To:', pagination.total);
-
-
-//     // Optional: update page limit dynamically
-//     setLimit(pagination.limit || 15);
-
-//     if (list.length === 0) {
-//       message.info('No cars found for the selected filter');
-//     } else {
-//       message.success(cardetail.message || 'Fetched successfully');
-//     }
-//   } catch (error) {
-//     const errorData = handleApiError(error);
-//     message.error(errorData.message || 'Failed to load car data');
-//     setCarDetails([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
+console.log('carDetails',carDetails)
 const fetchCars = async () => {
   try {
     setLoading(true);
@@ -272,66 +205,35 @@ const fetchCars = async () => {
   
 
   return (
-    <div>
+    <div className="mylistings-container">
       {/* Header */}
-      <div style={{ background: '#008ad5', color: '#fff', padding: '32px 0 16px 0' }}>
-        <div style={{ maxWidth: 1200, margin: '0 35px' }}>
-          <h2 style={{ margin: 0 }}>My Listings</h2>
-          <p style={{ margin: 0 }}>Post an ad in just 3 simple steps</p>
+      <div className="mylistings-header">
+        <div className="mylistings-header-content">
+          <h2>My Listings</h2>
+          <p>Post an ad in just 3 simple steps</p>
         </div>
       </div>
 
       {/* Subscribe Banner */}
       <div className="mylisting-car-image-container">
-        <div>
-          <h1 style={{ top: 55, left: 35, color: '#fff', fontSize: 40, fontWeight: 700, width: 355 }}>
+        <div className="mylistings-banner-content">
+          <h1 className="mylistings-banner-title">
             Subscribe To Our Packages
           </h1>
-          <button
-            style={{
-              top: 20,
-              left: 35,
-              background: '#008ad500',
-              color: '#fff',
-              borderRadius: 22,
-              border: '1px solid #fff',
-              padding: '10px 20px',
-            }}
-          >
+          <button className="mylistings-subscribe-btn">
             Subscribe
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div
-        style={{
-          marginTop: 35,
-          marginLeft: 35,
-          marginRight: 25,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '10px',
-        }}
-      >
-        <Radio.Group onChange={handleChange} value={value} style={{ display: 'flex', gap: '10px' }}>
+      <div className="mylistings-filters">
+        <Radio.Group onChange={handleChange} value={value} className="mylistings-radio-group">
           {['Active', 'Drafts', 'Sold'].map((status) => (
             <Radio.Button
               key={status}
               value={status}
-              className="custom-radio-button"
-              style={{
-                width: 75,
-                textAlign: 'center',
-                borderRadius: '4px',
-                color: value === status ? '#D67900' : '#000',
-                fontSize: '14px',
-                fontWeight: value === status ? '700' : '400',
-                borderColor: '#fff',
-                backgroundColor: value === status ? '#FFEDD5' : undefined,
-              }}
+              className={`custom-radio-button mylistings-radio-button ${value === status ? 'active' : 'inactive'}`}
             >
               {status}
             </Radio.Button>
@@ -339,7 +241,7 @@ const fetchCars = async () => {
         </Radio.Group>
 
         {value === 'Active' && (
-          <Select value={filterStatus} style={{ minWidth: 140, borderColor: '#fff' }} onChange={handleFilterChange}>
+          <Select value={filterStatus} className="mylistings-select" onChange={handleFilterChange}>
             <Option value="Any">All</Option>
             <Option value="Base">Pending Approval</Option>
             <Option value="Sport">Approved</Option>
@@ -348,7 +250,7 @@ const fetchCars = async () => {
       </div>
 
       {/* Car List */}
-      <div style={{ padding: '20px' }}>
+      <div className="mylistings-car-list">
         {(() => {
           if (!tokenReady) {
             return <p>Initializing...</p>;
@@ -360,15 +262,7 @@ const fetchCars = async () => {
             return <p>No cars found.</p>;
           }
           return (
-            <div
-              style={{
-                display: 'grid',
-                // gridTemplateColumns: 'repeat(auto-fill, minmax(308px, 1fr))',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '20px',
-                justifyContent: 'center',
-              }}
-            >
+            <div className="car-grid mylistings-car-grid">
               {carDetails.map((car) => (
                 <CarCard
                   key={car.id}
@@ -385,22 +279,21 @@ const fetchCars = async () => {
       </div>
 
       {/* Pagination */}
-      {/* Pagination */}
-<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
-  <Pagination
-    className="custom-pagination"
-    current={page}            // Controlled by state
-    total={totalCount}        // Comes from API
-    pageSize={limit}          // API provided limit
-    onChange={(newPage) => {
-      console.log('Page Changed To:', newPage);
-      setPage(newPage);
-    }}
-    showSizeChanger={false}   // Hides page size dropdown
-    showQuickJumper            // Show input for quick jump
-    itemRender={renderPaginationItem} // Custom render for < and >
-  />
-</div>
+      <div className="mylistings-pagination">
+        <Pagination
+          className="custom-pagination"
+          current={page}            // Controlled by state
+          total={totalCount}        // Comes from API
+          pageSize={limit}          // API provided limit
+          onChange={(newPage) => {
+            console.log('Page Changed To:', newPage);
+            setPage(newPage);
+          }}
+          showSizeChanger={false}   // Hides page size dropdown
+          // showQuickJumper            // Show input for quick jump
+          itemRender={renderPaginationItem} // Custom render for < and >
+        />
+      </div>
 
 
     </div>

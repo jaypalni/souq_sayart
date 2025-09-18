@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button, InputNumber } from 'antd';
+import { Select, Button, InputNumber, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import '../assets/styles/landingFilters.css';
 import { carAPI } from '../services/api';
@@ -36,37 +36,13 @@ const DEFAULT_NEW_USED = 'New & Used';
 const DEFAULT_PRICE_MIN = 'Price Min';
 const DEFAULT_PRICE_MAX = 'Price Max';
 
-// Price constants to avoid magic numbers
-const PRICE_5K = 5000;
-const PRICE_10K = 10000;
-const PRICE_20K = 20000;
-const PRICE_30K = 30000;
-const PRICE_40K = 40000;
-const PRICE_50K = 50000;
-const PRICE_100K = 100000;
 
-const PRICE_MIN_VALUES = Object.freeze([
-  PRICE_5K,
-  PRICE_10K,
-  PRICE_20K,
-  PRICE_30K,
-  PRICE_40K,
-]);
-const PRICE_MAX_VALUES = Object.freeze([
-  PRICE_20K,
-  PRICE_30K,
-  PRICE_40K,
-  PRICE_50K,
-  PRICE_100K,
-]);
 const DEFAULT_CAR_COUNT = 0;
 const INDIA_TZ_OFFSET_MIN = -330;
 const HTTP_STATUS_UNAUTHORIZED = 401;
 const TOKEN_EXPIRY_REDIRECT_DELAY_MS = 2000;
 
 const newUsedOptions = [DEFAULT_NEW_USED, 'New', 'Used'];
-const priceMinOptions = [DEFAULT_PRICE_MIN, ...PRICE_MIN_VALUES];
-const priceMaxOptions = [DEFAULT_PRICE_MAX, ...PRICE_MAX_VALUES];
 
 
 
@@ -90,8 +66,8 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [carLocation, setCarLocation] = useState([]);
   const [newUsed, setNewUsed] = useState(DEFAULT_NEW_USED);
-  const [priceMin, setPriceMin] = useState(DEFAULT_PRICE_MIN);
-  const [priceMax, setPriceMax] = useState(DEFAULT_PRICE_MAX);
+  
+  const [, setPriceMax] = useState(DEFAULT_PRICE_MAX);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,6 +85,8 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       const currentModel = filterParams.model !== undefined ? filterParams.model : model;
       const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
       const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
+      
+ const currentNewUsed = filterParams.newUsed !== undefined ? filterParams.newUsed : newUsed;
 
       const apiParams = {
         make: valueOrEmpty(currentMake, CORRECT_DEFAULT_MAKE),
@@ -117,16 +95,16 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         location: valueOrEmpty(currentLocation, CORRECT_DEFAULT_LOCATION),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
-        condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
         page: 1,
         limit: 1, // We only need the count, so limit to 1 for efficiency
+        ...(currentNewUsed !== DEFAULT_NEW_USED && { condition: currentNewUsed })
       };
-
+      console.log('Add Type4')
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
-      if (data && data.data && data.data.pagination) {
-        setCarCount(data?.data?.pagination?.total);
+      if (data?.data?.pagination) {
+        setCarCount(data?.data?.pagination?.total ?? 0);
       }
     } catch (error) {
       // Silent error handling for auto-search
@@ -166,9 +144,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   setBodyType(searchbodytype);
-  // }, [searchbodytype]);
 
   useEffect(() => {
   if (searchbodytype) {
@@ -193,7 +168,9 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     autoSearchForCount({ bodyType });
   }, [bodyType]);
 
-
+  useEffect(() => {
+    autoSearchForCount({ newUsed });
+  }, [newUsed]);
   const fetchBodyTypeCars = async () => {
     try {
       setLoading(true);
@@ -286,37 +263,6 @@ const resolveDefaultLocation = (locations, geoData) => {
   return null;
 };
 
-const getLocationFromGeo = (locations, geoData) => {
-  if (!geoData) {
-    return null;
-  }
-
-  const userCountry = geoData?.country_name?.toLowerCase();
-  return (
-    locations.find((loc) => loc.location.toLowerCase() === userCountry) || null
-  );
-};
-
-const isIndiaLocale = () => {
-  const tz =
-    Intl.DateTimeFormat().resolvedOptions().timeZone?.toLowerCase() || '';
-  const tzOffset = new Date().getTimezoneOffset();
-  const langs = [navigator.language, ...(navigator.languages || [])].filter(
-    Boolean,
-  );
-
-  const hasIndiaLanguage = langs.some((l) => {
-    const ll = String(l).toLowerCase();
-    return ll.endsWith('-in') || ll === 'en-in' || ll.includes('-in');
-  });
-
-  return (
-    tz === 'asia/kolkata' ||
-    tz === 'asia/calcutta' ||
-    tzOffset === INDIA_TZ_OFFSET_MIN ||
-    hasIndiaLanguage
-  );
-};
 
   const handleToast = (msg) => {
     setToastMsg(msg);
@@ -379,7 +325,7 @@ const isIndiaLocale = () => {
 
 
     
-
+console.log('Add Type5')
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
 
@@ -469,10 +415,10 @@ const isIndiaLocale = () => {
           handleChange(label, opt);
           setOpenDropdown(null);
            if (type === 'priceMin') {
-          validatePriceRange(opt, priceMax);
+          validatePriceRange(opt, maxPrice);
         }
         if (type === 'priceMax') {
-          validatePriceRange(priceMin, opt);
+          validatePriceRange(minPrice, opt);
         }
         };
         return (
@@ -684,7 +630,8 @@ const isIndiaLocale = () => {
             {/* Price Min */}
 <div>
   {!showMinInput ? (
-    <div
+    <button
+      type="button"
       style={{
         borderRadius: '4px',
         padding: '6px 12px',
@@ -694,35 +641,37 @@ const isIndiaLocale = () => {
         minWidth: '100px',
         textAlign: 'center',
         fontWeight: 700,
+        background: 'transparent',
+        border: 'none',
       }}
       onClick={() => setShowMinInput(true)}
+      aria-label="Set minimum price"
     >
       {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
-    </div>
+    </button>
   ) : (
-    <InputNumber
-      style={{ width: '100px' }}
-      min={0}
-      value={minPrice}
-      onChange={(value) => {
-        if (maxPrice !== null && value >= maxPrice) {
-          messageApi.error('Minimum price should be less than Maximum price');
-          return;
-        }
-        setMinPrice(value);
-      }}
-      onBlur={() => {
-        if (minPrice === null) setShowMinInput(false);
-      }}
-      placeholder="Min"
-    />
+   <Input
+  style={{ width: '100px' }}
+  type="tel"
+  value={minPrice}
+  placeholder="Min"
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, ''); // allow only digits
+    setMinPrice(value ? Number(value) : null);
+  }}
+  onBlur={() => {
+    if (minPrice === null) setShowMinInput(false);
+  }}
+/>
+
   )}
 </div>
 
 {/* Price Max */}
 <div>
   {!showMaxInput ? (
-    <div
+    <button
+      type="button"
       style={{
         borderRadius: '4px',
         padding: '6px 12px',
@@ -732,32 +681,40 @@ const isIndiaLocale = () => {
         minWidth: '100px',
         textAlign: 'center',
         fontWeight: 700,
+        background: 'transparent',
+        border: 'none',
       }}
       onClick={() => setShowMaxInput(true)}
+      aria-label="Set maximum price"
     >
       {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
-    </div>
+    </button>
   ) : (
-    <InputNumber
-      style={{ width: '120px' }}
-      min={0}
-      value={maxPrice}
-      onChange={(value) => {
-        if (value > 5000000000) {
-          messageApi.error('Maximum allowed price is ₹5,000,000,000');
-          return;
-        }
-        if (minPrice !== null && value <= minPrice) {
-          messageApi.error('Maximum price should be greater than Minimum price');
-          return;
-        }
-        setMaxPrice(value);
-      }}
-      onBlur={() => {
-        if (maxPrice === null) setShowMaxInput(false);
-      }}
-      placeholder="Max"
-    />
+   <Input
+  style={{ width: '120px' }}
+  type="tel" // use tel so numeric keypad shows on mobile
+  value={maxPrice}
+  placeholder="Max"
+  onChange={(e) => {
+    // Allow only digits
+    const digitsOnly = e.target.value.replace(/\D/g, '');
+    setMaxPrice(digitsOnly ? Number(digitsOnly) : null);
+  }}
+  onBlur={() => {
+    if (maxPrice === null) setShowMaxInput(false);
+
+    // Validation checks on blur
+    if (maxPrice > 5000000000) {
+      messageApi.error('Maximum allowed price is ₹5,000,000,000');
+      setMaxPrice(5000000000); // optional: reset to max limit
+    }
+
+    if (minPrice !== null && maxPrice <= minPrice) {
+      messageApi.error('Maximum price should be greater than Minimum price');
+    }
+  }}
+/>
+
   )}
 </div>
 

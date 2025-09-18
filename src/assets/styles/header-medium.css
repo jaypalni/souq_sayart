@@ -4,10 +4,15 @@
   /* Ensure desktop menu is visible on medium screens */
   .col-5 {
     display: flex !important;
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
   }
 
   .col-4 {
     display: flex !important;
+    justify-content: flex-end !important;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
   }
 
   .hamburger-menu {
@@ -51,7 +56,7 @@
   .notification-icon {
     width: 20px;
     height: 20px;
-    /* margin-bottom: 7px; */
+
   }
 
   .user-dropdown {
@@ -123,16 +128,6 @@
     max-width: 25%;
   }
 
-  .col-5 {
-    flex: 0 0 41.666667%;
-    max-width: 41.666667%;
-  }
-
-  .col-4 {
-    flex: 0 0 33.333333%;
-    max-width: 33.333333%;
-  }
-
   /* Enhanced spacing for medium screens */
   .row.remove_gutter {
     margin-left: 0;
@@ -150,9 +145,7 @@
   }
 
   /* Right-align menu, message, and bell icons for medium screens */
-  .col-4 {
-    justify-content: flex-end !important;
-  }
+
 
   .col-4 .menuLeft {
     margin: 0 8px;
@@ -160,7 +153,7 @@
 
   .col-4 .message-icon,
   .col-4 .notification-icon {
-    /* margin: 0 8px; */
+   
   }
 
   .col-4 .user-dropdown {

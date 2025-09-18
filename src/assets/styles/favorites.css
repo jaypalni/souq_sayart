@@ -6,3 +6,23 @@
 .car-listing-link:hover {
   text-decoration: none; 
 }
+
+.car-listing-flex-row {
+     display: flex
+;
+    /* gap: 20px; */
+    /* padding: 20px; */
+    justify-items: center;
+    align-items: stretch;
+    min-width: 260px;
+}
+.car-listing-flex-row-allfav {
+display: grid;
+  grid-template-columns: repeat(3 , 1fr);
+  gap: 20px;
+  padding: 20px;
+  justify-items: center;
+  align-items: stretch;
+  min-width: 283px;
+}
+

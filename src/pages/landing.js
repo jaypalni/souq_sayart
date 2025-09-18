@@ -70,7 +70,7 @@ const Landing = () => {
     <>
       <div className="container py-4">
         <LandingFilters searchbodytype={searchbodytype} setSaveSearchesReload={setSaveSearchesReload} />
-        <CarTypeList setSearchBodyType={setSearchBodyType} />
+        <CarTypeList setSearchBodyType={setSearchBodyType} setSaveSearchesReload={setSaveSearchesReload} />
         <UserSavedsearch title={'Your Saved Searches'} savesearchesreload={savesearchesreload} />
         <CarListing title={'Featured Car'} cardata={carsData} />
       </div>

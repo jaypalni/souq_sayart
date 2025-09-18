@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../assets/styles/header.css';
 import '../assets/styles/header-mobile.css';
 import '../assets/styles/header-tablet.css';
@@ -21,6 +21,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Select, message, Dropdown,  Modal, Button } from 'antd';
 import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
 import { useToken } from '../hooks/useToken';
+import { userAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { updateCustomerDetails } from '../redux/actions/authActions';
 const Header = () => {
   const dispatch = useDispatch();
   const [messageApi, contextHolder] = message.useMessage();
@@ -62,10 +65,43 @@ const Header = () => {
   ];
   const navigate = useNavigate();
   const { Option } = Select;
+  
+useEffect(()=>{
+  // getUserDisplayName()
+  Userdataapi()
+},[])
+
+const Userdataapi = async () => {
+  try {
+    
+    // If no Redux data, fetch from API
+    console.log('No Redux data, fetching from API');
+    const response = await userAPI.getProfile({});
+    
+    const result = handleApiResponse(response);
+console.log('s224',result)
+dispatch(updateCustomerDetails({
+          first_name: result?.data?.first_name,
+          last_name: result?.data?.last_name,
+          profile_pic: result?.data?.profile_pic,
+          email:result?.data?.email,
+          company_name: result?.data?.company_name,
+          dealer: result?.data?.is_dealer,
+
+        }));
+  
+  } catch (error) {
+    
+   
+  } finally {
+    
+  }
+};
 
   const getUserDisplayName = () => {
-    if (isAuthenticated && user) {
-      const firstName = user.first_name || user.firstName || '';
+    
+    if (isAuthenticated && customerDetails) {
+      const firstName = customerDetails.first_name || user.firstName || '';
       return firstName.trim();
     }
 
@@ -191,28 +227,50 @@ const Header = () => {
             {getUserDisplayName() && (
               <div className="mobile-icons-left">
                 <div className="mobile-icon-container">
-                  <img
+                  <button
+                    type="button"
                     className="mobile-message-icon"
-                    src={MessagesImg}
-                    alt="Messages"
                     onClick={() => {
                       // Add message functionality here
                       console.log('Messages clicked');
                     }}
-                    style={{ cursor: 'pointer' }}
-                  />
+                    style={{ 
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer'
+                    }}
+                    aria-label="Open messages"
+                  >
+                    <img
+                      src={MessagesImg}
+                      alt="Messages"
+                      style={{ width: '100%', height: '100%' }}
+                    />
+                  </button>
                 </div>
                 <div className="mobile-icon-container">
-                  <img
+                  <button
+                    type="button"
                     className="mobile-notification-icon"
-                    src={NotifiyImg}
-                    alt="Notifications"
                     onClick={() => {
                       // Add notification functionality here
                       console.log('Notifications clicked');
                     }}
-                    style={{ cursor: 'pointer' }}
-                  />
+                    style={{ 
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer'
+                    }}
+                    aria-label="Open notifications"
+                  >
+                    <img
+                      src={NotifiyImg}
+                      alt="Notifications"
+                      style={{ width: '100%', height: '100%' }}
+                    />
+                  </button>
                 </div>
               </div>
             )}
@@ -349,10 +407,24 @@ const Header = () => {
       </Modal>
 
       {/* Mobile Menu Overlay */}
-      <div 
+      <button 
+        type="button"
         className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}
         onClick={closeMobileMenu}
-      ></div>
+        aria-label="Close mobile menu"
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 1000
+        }}
+      />
 
       {/* Mobile Menu Panel */}
       <div className={`mobile-menu-panel ${isMobileMenuOpen ? 'active' : ''}`}>

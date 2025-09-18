@@ -17,7 +17,30 @@
 
 .thumbnail-row {
   justify-content: center;
+  flex-wrap: nowrap;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    width: 100%;
 }
+
+.d-flthumbnail-rowex {
+  flex-wrap: nowrap;
+  flex-direction: row;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  display: flex;
+
+  
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+}
+
+.d-flthumbnail-rowex::-webkit-scrollbar {
+  display: none; 
+}
+
 
 .thumbnail-img {
   width: 80px;
@@ -29,7 +52,6 @@
   transition: border 0.2s;
 }
 
-/* Small screen responsive styling */
 @media (max-width: 768px) {
   .thumbnail-img {
     width: 65px;
@@ -37,7 +59,6 @@
   }
 }
 
-/* Extra small screens */
 @media (max-width: 480px) {
   .thumbnail-img {
     width: 60px;
@@ -45,14 +66,12 @@
   }
 }
 
-/* ThumbnailButton styles */
 .thumbnail-button {
   background: none;
   border: none;
   padding: 0;
 }
 
-/* FeaturesSection styles */
 .features-header-text {
   font-weight: 500;
   font-size: 14px;
@@ -69,14 +88,12 @@
   margin-right: 6px;
 }
 
-/* CarEngineSummary styles */
 .car-engine-summary {
   color: #2B2829;
   font-weight: 400;
   font-size: 14px;
 }
 
-/* CarLocation styles */
 .location-icon {
   width: 15px;
   height: 15px;
@@ -88,7 +105,6 @@
   color: #7991A4;
 }
 
-/* CarDetailCard styles */
 .car-detail-card {
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -100,28 +116,24 @@
   justify-content: center;
 }
 
-/* Small screen responsive styling for car detail cards */
 @media (max-width: 768px) {
   .car-detail-card {
     margin-top: 10px;
     margin-bottom: 10px;
   }
   
-  /* Show 2 cards per row on small screens */
   .col-md-3 {
     flex: 0 0 50%;
     max-width: 50%;
   }
 }
 
-/* Extra small screens */
 @media (max-width: 480px) {
   .car-detail-card {
     margin-top: 8px;
     margin-bottom: 8px;
   }
   
-  /* Maintain 2 cards per row on extra small screens */
   .col-md-3 {
     flex: 0 0 50%;
     max-width: 50%;
@@ -139,16 +151,16 @@
 }
 
 .car-detail-label {
-  color: #726C6C;
+  color: #637D92;
   font-weight: 400;
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
 }
 
 .car-detail-value {
   color: #0A0A0B;
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 16px;
   margin: 0;
 }
 
@@ -264,16 +276,6 @@
 
 .thumbnail-img.active, .thumbnail-img:hover {
   border: 2px solid #0090d4;
-}
-
-.car-detail-label {
-  color: #637D92;
-  font-size: 14px;
-}
-
-.car-detail-value {
-  font-weight: 600;
-  font-size: 16px;
 }
 
 .car-info-table {

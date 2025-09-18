@@ -9,7 +9,7 @@
 .headerLogo {
   height: 70px;
   width: 125px;
-  /* margin-left: 15px; */
+ 
   margin-top: 5px;
 }
 
@@ -99,7 +99,7 @@
   width: 20px;
   height: 20px;
   object-fit: contain;
-  /* margin-bottom: 8px; */
+  
   margin-left: 0px;
 }
 

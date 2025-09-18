@@ -16,6 +16,7 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError, DEFAULT_MAKE, DEFAULT_MODEL, DEFAULT_BODY_TYPE, DEFAULT_LOCATION } from '../utils/apiUtils';
 import '../assets/styles/allcarfilters.css';
 import Searchemptymodal from '../components/searchemptymodal';
+import { type } from '@testing-library/user-event/dist/type';
 
 const { Option } = Select;
 
@@ -55,7 +56,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading }) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, featuredorrecommended}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -65,7 +66,7 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, so
 const getInitialMake = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.make && saved.make !== '') {
+    if (saved?.make && saved.make !== '') {
       return saved.make;
     }
   } catch (e) {
@@ -80,7 +81,7 @@ const [make, setMake] = useState(getInitialMake);
 const getInitialModel = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.model && saved.model !== '') {
+    if (saved?.model && saved.model !== '') {
       return saved.model;
     }
   } catch (e) {
@@ -94,7 +95,7 @@ const getInitialModel = () => {
 const getInitialBodyType = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.body_type && saved.body_type !== '') {
+    if (saved?.body_type && saved.body_type !== '') {
       return saved.body_type;
     }
   } catch (e) {
@@ -110,7 +111,7 @@ const getInitialBodyType = () => {
 const getInitialLocation = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.location && saved.location !== '') {
+    if (saved?.location && saved.location !== '') {
       return saved.location;
     }
   } catch (e) {
@@ -125,7 +126,7 @@ const getInitialLocation = () => {
 const getInitialNewUsed = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.condition && saved.condition !== '') {
+    if (saved?.condition && saved.condition !== '') {
       return saved.condition;
     }
   } catch (e) {
@@ -138,7 +139,7 @@ const getInitialNewUsed = () => {
 const getInitialPriceMin = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_min && saved.price_min !== '') {
+    if (saved?.price_min && saved.price_min !== '') {
       return saved.price_min;
     }
   } catch (e) {
@@ -151,7 +152,7 @@ const getInitialPriceMin = () => {
 const getInitialPriceMax = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_max && saved.price_max !== '') {
+    if (saved?.price_max && saved.price_max !== '') {
       return saved.price_max;
     }
   } catch (e) {
@@ -161,8 +162,8 @@ const getInitialPriceMax = () => {
 };
 
   const [newUsed, setNewUsed] = useState(getInitialNewUsed);
-  const [priceMin, setPriceMin] = useState(getInitialPriceMin);
-  const [priceMax, setPriceMax] = useState(getInitialPriceMax);
+  const [priceMin, ] = useState(getInitialPriceMin);
+  const [priceMax, ] = useState(getInitialPriceMax);
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -173,7 +174,7 @@ const getInitialPriceMax = () => {
 const getInitialMinPrice = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_min && saved.price_min !== '') {
+    if (saved?.price_min && saved.price_min !== '') {
       return parseFloat(saved.price_min);
     }
   } catch (e) {
@@ -185,7 +186,7 @@ const getInitialMinPrice = () => {
 const getInitialMaxPrice = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (saved && saved.price_max && saved.price_max !== '') {
+    if (saved?.price_max && saved.price_max !== '') {
       return parseFloat(saved.price_max);
     }
   } catch (e) {
@@ -205,38 +206,65 @@ const getInitialMaxPrice = () => {
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
   // Auto-search function to update car count on filter changes
-  const autoSearchForCount = async (filterParams = {}) => {
-    try {
-      const currentMake = filterParams.make !== undefined ? filterParams.make : make;
-      const currentModel = filterParams.model !== undefined ? filterParams.model : model;
-      const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
-      const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
+  // Helper function to get current filter value
+const getCurrentFilterValue = (filterParams, paramName, defaultValue) => {
+  return filterParams[paramName] !== undefined ? filterParams[paramName] : defaultValue;
+};
 
-      const apiParams = {
-        make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
-        model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
-        body_type: currentBodyType === DEFAULTS.ALL_BODY_TYPES ? '' : currentBodyType,
-        location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
-        price_min: minPrice !== null ? minPrice : '',
-        price_max: maxPrice !== null ? maxPrice : '',
-        page: 1,
-        limit: 1, // We only need the count, so limit to 1 for efficiency
-      };
-
-      const response = await carAPI.getSearchCars(apiParams);
-      const data = handleApiResponse(response);
-
-      if (data && data.data && data.data.pagination) {
-        setCarCount(data.data.pagination.total);
-      }
-    } catch (error) {
-      console.warn('Auto-search for count failed:', error);
-    }
+// Helper function to build API parameters
+const buildAutoSearchParams = (filterParams) => {
+  const currentMake = getCurrentFilterValue(filterParams, 'make', make);
+  const currentModel = getCurrentFilterValue(filterParams, 'model', model);
+  const currentLocation = getCurrentFilterValue(filterParams, 'location', location);
+  const currentBodyType = getCurrentFilterValue(filterParams, 'bodyType', bodyType);
+ const currentNewUsed = getCurrentFilterValue(filterParams, 'condition', newUsed);
+  return {
+    make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
+    model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
+    body_type: currentBodyType === DEFAULTS.ALL_BODY_TYPES ? '' : currentBodyType,
+    location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
+    price_min: minPrice !== null ? minPrice : '',
+    price_max: maxPrice !== null ? maxPrice : '',
+    condition: currentNewUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+     type: featuredorrecommended,
+    page: 1,
+    limit: 1, // We only need the count, so limit to 1 for efficiency
   };
+};
+
+// Helper function to handle API response
+const handleAutoSearchResponse = (data) => {
+  if (data?.data?.pagination) {
+    setCarCount(data.data.pagination.total);
+  }
+};
+
+// Helper function to handle auto search error
+const handleAutoSearchError = (error) => {
+  console.warn('Auto-search for count failed:', error);
+  if (error?.message === 'Network Error') {
+    messageApi.open({
+      type: 'error',
+      content: 'You\'re offline! Please check your network connection and try again.',
+    });
+  }
+};
+
+const autoSearchForCount = async (filterParams = {}) => {
+  console.log('Add Type')
+  try {
+    const apiParams = buildAutoSearchParams(filterParams);
+    const response = await carAPI.getSearchCars(apiParams);
+    const data = handleApiResponse(response);
+    handleAutoSearchResponse(data);
+  } catch (error) {
+    handleAutoSearchError(error);
+  }
+};
 
     useEffect(() => {
       fetchMakeCars({ setLoading, setCarMakes });
-      // fetchtotalcarcount();
+      
     }, []);
 
 
@@ -244,7 +272,7 @@ useEffect(() => {
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     
-    if (saved && saved.location && saved.location !== '') {
+    if (saved?.location && saved.location !== '') {
       setLocation(saved.location);
       if (setSelectedLocation) {
         setSelectedLocation(saved.location);
@@ -295,7 +323,7 @@ fetchRegionCars()
       fetchModelCars({ setLoading, setCarModels, make }).then(() => {
         // Only reset model if it's not already set from localStorage
         const saved = JSON.parse(localStorage.getItem('searchcardata'));
-        if (!saved || !saved.model || saved.model === '') {
+        if (!saved?.model || saved.model === '') {
           setModel(DEFAULTS.ALL_MODELS);
         }
       });
@@ -315,7 +343,7 @@ fetchRegionCars()
     // Fetch models if there's a saved make
     try {
       const saved = JSON.parse(localStorage.getItem('searchcardata'));
-      if (saved && saved.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
+      if (saved?.make && saved.make !== '' && saved.make !== DEFAULTS.ALL_MAKE) {
         fetchModelCars({ setLoading, setCarModels, make: saved.make });
       }
     } catch (e) {
@@ -333,7 +361,7 @@ handleSearch()
     }
     // Only reset body type if it's not already set from localStorage
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (!saved || !saved.body_type || saved.body_type === '') {
+    if (!saved?.body_type || saved.body_type === '') {
       setBodyType(DEFAULTS.ALL_BODY_TYPES);
     }
   }, [make]);
@@ -342,7 +370,9 @@ handleSearch()
   useEffect(() => {
     autoSearchForCount({ model });
   }, [model]);
-
+  useEffect(() => {
+    autoSearchForCount({ newUsed });
+  }, [newUsed]);
   // Auto-search for count when location changes
   useEffect(() => {
     autoSearchForCount({ location });
@@ -476,163 +506,164 @@ handleSearch()
     }
   };
 
-  const handleSearch = async () => {
-    let sortbynewlist = false;
-  let sortbyold = false;
-  let sortbypriceormileage = '';
-  let sortorder = '';
+  // Helper function to determine sort parameters
+  const getSortParameters = (sortedbydata) => {
+    const sortConfig = {
+      sortbynewlist: false,
+      sortbyold: false,
+      sortbypriceormileage: '',
+      sortorder: ''
+    };
 
-  switch (sortedbydata) {
-    case 'Newest Listing':
-      sortbynewlist = true;
-      break;
+    switch (sortedbydata) {
+      case 'Newest Listing':
+        sortConfig.sortbynewlist = true;
+        break;
+      case 'Oldest Listing':
+        sortConfig.sortbyold = true;
+        break;
+      case 'Price : Low to High':
+        sortConfig.sortbypriceormileage = 'price';
+        sortConfig.sortorder = 'asc';
+        break;
+      case 'Price : High to Low':
+        sortConfig.sortbypriceormileage = 'price';
+        sortConfig.sortorder = 'desc';
+        break;
+      case 'Mileage: Low to High':
+        sortConfig.sortbypriceormileage = 'mileage';
+        sortConfig.sortorder = 'asc';
+        break;
+      case 'Mileage: High to Low':
+        sortConfig.sortbypriceormileage = 'mileage';
+        sortConfig.sortorder = 'desc';
+        break;
+      default:
+        break;
+    }
 
-    case 'Oldest Listing':
-      sortbyold = true;
-      break;
+    return sortConfig;
+  };
 
-    case 'Price : Low to High':
-      sortbypriceormileage = 'price';
-      sortorder = 'asc';
-      break;
+  // Helper function to build save parameters
+  const buildSaveParams = (sortConfig) => ({
+    make: make === DEFAULTS.ALL_MAKE ? '' : make,
+    model: model === DEFAULTS.ALL_MODELS ? '' : model,
+    body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+    location: location === 'All Locations' ? '' : (location || ''),
+    condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+    priceMin,
+    priceMax,
+    newest_listing: sortConfig.sortbynewlist,
+    oldest_listing: sortConfig.sortbyold,
+    sort_by: sortConfig.sortbypriceormileage,
+    sort_order: sortConfig.sortorder,
+  });
 
-    case 'Price : High to Low':
-      sortbypriceormileage = 'price';
-      sortorder = 'desc';
-      break;
-
-    case 'Mileage: Low to High':
-      sortbypriceormileage = 'mileage';
-      sortorder = 'asc';
-      break;
-
-    case 'Mileage: High to Low':
-      sortbypriceormileage = 'mileage';
-      sortorder = 'desc';
-      break;
-
-    default:
-      // No sort selected, keep defaults
-      break;
-  }
-    const saveParams = {
+  // Helper function to build API parameters
+  const buildApiParams = (sortConfig) => {
+    const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
+    
+    return {
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
       body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
-      location: location === 'All Locations' ? '' : (location || ''),
-      newUsed: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
-      priceMin,
-      priceMax,
-      newest_listing: sortbynewlist,
-      oldest_listing: sortbyold,
-      sort_by: sortbypriceormileage,
-      sort_order: sortorder,
+      location: (location && location !== '' && location !== 'All Locations') ? location : '',
+      price_min: cleanedMin,
+      price_max: cleanedMax,
+      condition:newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
+      newest_listing: sortConfig.sortbynewlist,
+      oldest_listing: sortConfig.sortbyold,
+      sort_by: sortConfig.sortbypriceormileage,
+      sort_order: sortConfig.sortorder,
+       type: featuredorrecommended,
     };
+  };
 
-
-
-    // Save filters to localStorage
+  // Helper function to save filters and update UI
+  const saveFiltersAndUpdateUI = (saveParams) => {
     localStorage.setItem('searchcardata', JSON.stringify(saveParams));
-    // Update breadcrumb directly via prop
+    
     if (setSelectedLocation) {
       setSelectedLocation(location);
     }
-    // Dispatch custom event to update breadcrumb (fallback)
+    
     window.dispatchEvent(new CustomEvent('searchDataUpdated'));
     message.success('Filters saved!');
+  };
+
+  // Helper function to clear cached data
+  const clearCachedData = () => {
+    setFilterCarsData({ cars: [], pagination: {} });
+    setCarSearch([]);
+    
+    const cacheKeys = ['cachedCarsData', 'carsData', 'filterData', 'carSearchData', 'savedCarsData'];
+    cacheKeys.forEach(key => localStorage.removeItem(key));
+  };
+
+  // Helper function to handle search results
+  const handleSearchResults = (data1, apiParams) => {
+    const results = data1?.data?.cars || [];
+    setCarSearch(results);
+
+    // Update car count from pagination
+    if (data1.data.pagination && data1.data.pagination.total !== undefined) {
+      setCarCount(data1.data.pagination.total);
+    }
+
+    if (results.length === 0) {
+      setIsModalOpen(true);
+      setFilterCarsData({ cars: [], pagination: {} });
+    } else {
+      setFilterCarsData({
+        cars: data1.data.cars || [],
+        pagination: data1.data.pagination || {}
+      });
+      localStorage.setItem('searchcardata', JSON.stringify(apiParams));
+      
+      if (setSelectedLocation) {
+        setSelectedLocation(location);
+      }
+      window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+    }
+  };
+
+  // Main search function
+  const handleSearch = async () => {
+    const sortConfig = getSortParameters(sortedbydata);
+    const saveParams = buildSaveParams(sortConfig);
+    const apiParams = buildApiParams(sortConfig);
+
+    saveFiltersAndUpdateUI(saveParams);
 
     try {
       setLoading(true);
-       const cleanedMin = minPrice !== null ? minPrice : '';
-    const cleanedMax = maxPrice !== null ? maxPrice : '';
-      const apiParams = {
-        make: '',
-        model: '',
-        body_type: '',
-        location: '',
-        price_min: cleanedMin,
-      price_max: cleanedMax,
-      newest_listing: sortbynewlist,
-      oldest_listing: sortbyold,
-      sort_by: sortbypriceormileage,
-      sort_order: sortorder,
-      };
-       // Handle make parameter
-       if (make === DEFAULTS.ALL_MAKE) {
-         apiParams.make = '';
-       } else {
-         apiParams.make = make;
-       }
-      if (model !== DEFAULTS.ALL_MODELS) {
-        apiParams.model = model;
-      } else {
-        apiParams.model = '';
-      }
-      if (bodyType !== DEFAULTS.ALL_BODY_TYPES) {
-        apiParams.body_type = bodyType;
-      } else {
-        apiParams.body_type = '';
-      }
-      if (location && location !== '' && location !== 'All Locations') {
-        apiParams.location = location;
-      } else {
-        apiParams.location = '';
-      }
-
-      // Set loading state and clear previous data immediately
+      
       if (setIsLoading) {
         setIsLoading(true);
       }
-      // Clear previous search results immediately when new search starts
-      setFilterCarsData({ cars: [], pagination: {} });
-      // Also clear any cached search results
-      setCarSearch([]);
-      // Clear only non-essential cached data, preserve searchcardata and filter options
-      localStorage.removeItem('cachedCarsData');
-      localStorage.removeItem('carsData');
-      localStorage.removeItem('filterData');
-      localStorage.removeItem('carSearchData');
-      localStorage.removeItem('savedCarsData');
-
+      
+      clearCachedData();
+console.log('Add Type2')
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
 
       if (data1) {
-        const results = data1?.data?.cars || [];
-        setCarSearch(results);
-
-        // Update car count from pagination
-        if (data1.data.pagination && data1.data.pagination.total !== undefined) {
-          setCarCount(data1.data.pagination.total);
-        }
-
-        if (results.length === 0) {
-          setIsModalOpen(true);
-          setFilterCarsData({ cars: [], pagination: {} });
-        } else {
-          setFilterCarsData({ cars: [], pagination: {} });
-          setFilterCarsData({
-            cars: data1.data.cars || [],
-            pagination: data1.data.pagination || {}
-          });
-          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-          if (setSelectedLocation) {
-            setSelectedLocation(location);
-          }
-          window.dispatchEvent(new CustomEvent('searchDataUpdated'));
-          // messageApi.open({
-          //   type: 'success',
-          //   content: data1?.message,
-          // });
-        }
+        handleSearchResults(data1, apiParams);
       }
     } catch (error) {
       const errorData = handleApiError(error);
+    if(error?.message==='Network Error' ){ messageApi.open({
+            type: 'error',
+            content:'You’re offline! Please check your network connection and try again.',
+          });
+        }
       message.error(errorData.message || 'Failed to search car data');
       setCarSearch([]);
     } finally {
       setLoading(false);
-      // Clear loading state
+      
       if (setIsLoading) {
         setIsLoading(false);
       }
@@ -674,24 +705,7 @@ handleSearch()
     </div>
   );
 
-  const fetchtotalcarcount = async () => {
-    try {
-      setLoading(true);
-      const response = await carAPI.totalcarscount();
-      const data1 = handleApiResponse(response);
-  
-      if (data1?.total_cars !== undefined) {
-        setCarCount(data1.total_cars); 
-      } else {
-        message.error('No content found');
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
-      message.error(errorData.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   return (
     <div className="allcars-filters-outer">
@@ -832,6 +846,8 @@ handleSearch()
                 setFilterVisible(false);
               }
             }}
+            limit={limit}
+            currentPage={currentPage}
           />
 
           <div className="allcars-filters-col allcars-filters-btn-col">

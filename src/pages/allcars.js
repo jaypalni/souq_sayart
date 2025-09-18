@@ -27,7 +27,13 @@ const Allcars = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [isLoading, setIsLoading] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
+const [currentPage, setCurrentPage] = useState({});
+  const [limit, setLimit] = useState({});
 
+  const location = useLocation();
+  const carType = location.state?.type; // 'featured' or 'recommended'
+
+  console.log('Car Type:', carType);
 
   // Initialize selectedLocation from localStorage on component mount
   useEffect(() => {
@@ -84,6 +90,10 @@ const Allcars = () => {
         sortedbydata={sortedbydata}
         setSelectedLocation={setSelectedLocation}
         setIsLoading={debugSetIsLoading}
+        limit={limit}
+        currentPage={currentPage}
+        featuredorrecommended={carType}
+
       />
       <CarListing
         key={`${renderKey}-${filtercarsData?.cars?.length || 0}`}
@@ -93,14 +103,15 @@ const Allcars = () => {
         sortedbydata={sortedbydata}
         setSortedbyData={setSortedbyData}
         isLoading={isLoading}
+        setCurrentPage={setCurrentPage}
+        setLimit={setLimit}
       />
       <Bestcarsalebytype />
     </div>
   );
 };
 
-const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading }) => {
-  const location = useLocation();
+const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading ,setLimit,setCurrentPage}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -199,12 +210,109 @@ const Removefavcarapi = async (carId) => {
   const onShowSizeChange = (current, pageSize) => {
   };
   const onPageChange = (page, pageSize) => {
+
+    setCurrentPage(page)
+    setLimit(pageSize)
   };
   const handleSelect = (option) => {
     setSortOption(option); 
     setSortedbyData(option);
     localStorage.setItem('sortOption', option);
     setIsOpen(false);
+  };
+
+  const renderCarCards = () => {
+    if (!carsToDisplay || carsToDisplay.length === 0) {
+      return null;
+    }
+    
+    return carsToDisplay.map((car) => {
+      return (
+        <div className="col-3 col-lg-3 col-xl-3  col-md-6 col-sm-6 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
+          <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
+            <div className="car-listing-image-wrapper">
+              <img
+                src={`${BASE_URL}${car.car_image}`}
+                alt="Car"
+                onError={(e) => (e.target.src = redcar_icon)}
+              />
+              <div className="car-listing-badges">
+                {Number(car.featured) === 1 && (
+                  <div className="car-listing-badge blue-bg">Featured</div>
+                )}
+                {Number(car.is_verified) === 1 && (
+                  <div className="car-listing-badge orenge-bg">
+                    <CheckCircleFilled /> Certified Dealer
+                  </div>
+                )}
+              </div>
+
+             <button
+        key={car.car_id}
+        className="car-listing-fav"
+        style={{
+          backgroundColor: '#ffffff',
+          color: '#008ad5',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (car.is_favorite) {
+            Removefavcarapi(car.car_id);
+          } else {
+            Addfavcarapi(car.car_id);
+          }
+        }}
+        disabled={loading === car.car_id}
+      >
+        {car.is_favorite ? <FaHeart color='#008ad5' /> : <FaRegHeart />}
+      </button>
+
+            </div>
+            <div className="car-listing-content">
+              <div className="d-flex">
+                <div className="car-listing-title">
+                  {car.ad_title || 'No Title Available'}
+                </div>
+              </div>
+              <div className="car-listing-price">
+                {'IQD ' + Number(car.price).toLocaleString()}
+              </div>
+              <div className="car-listing-engine">
+                {car.fuel_type === 'Electric'
+                  ? car.fuel_type
+                  : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
+                      1
+                    )}L  ${car.fuel_type}`}
+              </div>
+              <div className="car-listing-details row">
+                <div className="col-5">
+                  <span>
+                    <img src={car_type} alt="Car" style={{ width: 14, height: 14 }} />{' '}
+                    {car.transmission}
+                  </span>
+                </div>
+                <div className="col-3">
+                  <span>
+                    <img src={country_code} alt="Country" style={{ width: 14, height: 14 }} />{' '}
+                    {car.country_code}
+                  </span>
+                </div>
+                <div className="col-4">
+                  <span>
+                    <img src={speed_code} alt="Speed" style={{ width: 14, height: 14 }} />{' '}
+                    {car.mileage}
+                  </span>
+                </div>
+                <div className="car-listing-location">{car.location}</div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      );
+    });
   };
   return (
     <div className="car-listing-container">
@@ -311,7 +419,7 @@ const Removefavcarapi = async (carId) => {
         {isLoading ? (
           // Show skeleton loaders while loading
           Array.from({ length: 8 }).map((_, index) => (
-            <div className="col-3 col-md-4 col-sm-6 p-0" key={`skeleton-${index}`}>
+            <div className="col-3 col-md-4 col-sm-6 p-0" key={`skeleton-loader-${index}`}>
               <div className="allcars-listing-card">
                 <Skeleton.Image 
                   // style={{ }} 
@@ -332,95 +440,7 @@ const Removefavcarapi = async (carId) => {
             </div>
           ))
         ) : (
-          carsToDisplay && carsToDisplay.length > 0 ? (() => {
-            return carsToDisplay.map((car) => {
-              return (
-      <div className="col-3 col-lg-3 col-xl-3  col-md-6 col-sm-6 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
-        <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
-          <div className="car-listing-image-wrapper">
-            <img
-              src={`${BASE_URL}${car.car_image}`}
-              alt="Car"
-              onError={(e) => (e.target.src = redcar_icon)}
-            />
-            <div className="car-listing-badges">
-              {Number(car.featured) === 1 && (
-                <div className="car-listing-badge blue-bg">Featured</div>
-              )}
-              {Number(car.is_verified) === 1 && (
-                <div className="car-listing-badge orenge-bg">
-                  <CheckCircleFilled /> Certified Dealer
-                </div>
-              )}
-            </div>
-
-           <button
-  key={car.car_id}
-  className="car-listing-fav"
-  style={{
-    backgroundColor: '#ffffff',
-    color: '#008ad5',
-    border: 'none',
-    cursor: 'pointer',
-  }}
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (car.is_favorite) {
-      Removefavcarapi(car.car_id);
-    } else {
-      Addfavcarapi(car.car_id);
-    }
-  }}
-  disabled={loading === car.car_id}
->
-  {car.is_favorite ? <FaHeart color='#008ad5' /> : <FaRegHeart />}
-</button>
-
-          </div>
-          <div className="car-listing-content">
-            <div className="d-flex">
-              <div className="car-listing-title">
-                {car.ad_title || 'No Title Available'}
-              </div>
-            </div>
-            <div className="car-listing-price">
-              {'IQD ' + Number(car.price).toLocaleString()}
-            </div>
-            <div className="car-listing-engine">
-              {car.fuel_type === 'Electric'
-                ? car.fuel_type
-                : `${car.no_of_cylinders}cyl ${(car.engine_cc / 1000).toFixed(
-                    1
-                  )}L  ${car.fuel_type}`}
-            </div>
-            <div className="car-listing-details row">
-              <div className="col-5">
-                <span>
-                  <img src={car_type} alt="Car" style={{ width: 14, height: 14 }} />{' '}
-                  {car.transmission}
-                </span>
-              </div>
-              <div className="col-3">
-                <span>
-                  <img src={country_code} alt="Country" style={{ width: 14, height: 14 }} />{' '}
-                  {car.country_code}
-                </span>
-              </div>
-              <div className="col-4">
-                <span>
-                  <img src={speed_code} alt="Speed" style={{ width: 14, height: 14 }} />{' '}
-                  {car.mileage}
-                </span>
-              </div>
-              <div className="car-listing-location">{car.location}</div>
-            </div>
-          </div>
-        </Link>
-      </div>
-              );
-            });
-          })() : null
+          renderCarCards()
         )}
 </div>
 
@@ -484,6 +504,9 @@ CarListing.propTypes = {
   }),
   cardata: PropTypes.array,
   title: PropTypes.string,
+  sortedbydata: PropTypes.string,
+  setSortedbyData: PropTypes.func,
+  isLoading: PropTypes.bool,
 };
 
 CarListing.defaultProps = {

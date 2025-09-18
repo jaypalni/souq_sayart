@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useLocation, Link } from 'react-router-dom';
 import '../assets/styles/banner.css';
 
@@ -70,16 +71,16 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
   }, []);
 
   // Additional effect to check for location changes periodically (fallback)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLocation = getSelectedLocation();
-      if (currentLocation !== selectedLocation) {
-        setSelectedLocation(currentLocation);
-      }
-    }, 1000); // Check every second
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const currentLocation = getSelectedLocation();
+  //     if (currentLocation !== selectedLocation) {
+  //       setSelectedLocation(currentLocation);
+  //     }
+  //   }, 1000); // Check every second
 
-    return () => clearInterval(interval);
-  }, [selectedLocation]);
+  //   return () => clearInterval(interval);
+  // }, [selectedLocation]);
 
   // Function to generate breadcrumb from current path
   const generateBreadcrumb = () => {
@@ -159,7 +160,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
       <div className="plane-banner-main">
         <div className="breadcrumb-container">
           {breadcrumbItems.map((item, index) => (
-            <React.Fragment key={index}>
+            <React.Fragment key={`${item.path}-${index}`}>
               {item.isClickable ? (
                 <Link 
                   to={item.path} 
@@ -187,6 +188,10 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
       </div>
     </div>
   );
+};
+
+PlaneBanner.propTypes = {
+  selectedLocation: PropTypes.string,
 };
 
 export default PlaneBanner;

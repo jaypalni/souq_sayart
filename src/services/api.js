@@ -80,7 +80,7 @@ api.interceptors.response.use(
       } else if (status === HTTP_STATUS.NOT_FOUND) {
         // Resource not found
       } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
-        // Internal server error
+       //network error
       }
     }
 
@@ -126,7 +126,7 @@ getMylistingCars: (type, filter, page) =>
   api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(type, filter, page)),
   createCar: (data) => api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, data),
   saveDraftCar: () => api.post(API_CONFIG.ENDPOINTS.CARS.SAVE_DRAFT),
-  updateCar: (id, data) => api.put(API_CONFIG.ENDPOINTS.CARS.UPDATE(id), data),
+  updateCar: (id, data) => api.post(API_CONFIG.ENDPOINTS.CARS.UPDATE(id), data),
   deleteCar: (id) => api.delete(API_CONFIG.ENDPOINTS.CARS.DELETE(id)),
   uploadOptionDetails: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.UPLOAD_OPTION_DETAILS),

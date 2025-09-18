@@ -117,11 +117,11 @@ const ChangePhoneNumberPage = () => {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [, setDeleteData] = useState([]);
-      const [timer, setTimer] = useState(30);
+      const [, setTimer] = useState(30);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
        const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
-  const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [, setIsTimerRunning] = useState(true);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const { customerDetails } = useSelector((state) => state.customerDetails);
 
@@ -839,7 +839,7 @@ const ChangePhoneNumberPage = () => {
                   onClick={() => {
                     setDeleteModalOpen(false);
                     setIsDeleteDisabled(true);
-                    // setShowOtpStep(true); 
+                     
                     setTimer(30);
                     setIsTimerRunning(true);
                     handleDelete();

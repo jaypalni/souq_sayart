@@ -30,6 +30,11 @@ const Allcars = () => {
 const [currentPage, setCurrentPage] = useState({});
   const [limit, setLimit] = useState({});
 
+  const location = useLocation();
+  const carType = location.state?.type; // 'featured' or 'recommended'
+
+  console.log('Car Type:', carType);
+
   // Initialize selectedLocation from localStorage on component mount
   useEffect(() => {
     try {
@@ -87,6 +92,7 @@ const [currentPage, setCurrentPage] = useState({});
         setIsLoading={debugSetIsLoading}
         limit={limit}
         currentPage={currentPage}
+        featuredorrecommended={carType}
 
       />
       <CarListing

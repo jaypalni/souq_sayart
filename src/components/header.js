@@ -65,7 +65,7 @@ const Header = () => {
   ];
   const navigate = useNavigate();
   const { Option } = Select;
-  console.log('user11',customerDetails)
+  
 useEffect(()=>{
   // getUserDisplayName()
   Userdataapi()

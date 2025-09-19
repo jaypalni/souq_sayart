@@ -165,7 +165,7 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended } = filterParams;
+  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended, newUsed } = filterParams;
   
   const apiParams = {
     make: getFilterValue(make, 'All Make'),
@@ -181,7 +181,6 @@ const prepareFilterData = (filterParams) => {
     colour: getFilterValue(singleInputs.colorValue, 'Any'),
     transmission: getArrayFilterValue(filterState.transmissionselectedValues),
     regional_specs: getFilterValue(singleInputs.regionalSpecs, 'Any'),
-    condition: getArrayFilterValue(filterState.condition),
     body_type: getFilterValue(bodyType, 'All Body Types'),
     number_of_doors: getArrayFilterValue(filterState.doorselectedValues),
     number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
@@ -195,6 +194,11 @@ const prepareFilterData = (filterParams) => {
   // Only include type parameter if featuredorrecommended has a value
   if (featuredorrecommended) {
     apiParams.type = featuredorrecommended;
+  }
+
+  // Only include condition parameter if newUsed has a value and is not default
+  if (newUsed && newUsed !== 'New & Used') {
+    apiParams.condition = newUsed;
   }
 
   return apiParams;
@@ -221,11 +225,12 @@ prepareFilterData.propTypes = {
     model: PropTypes.string,
     bodyType: PropTypes.string,
     location: PropTypes.string,
-    singleInputs: PropTypes.object.isRequired,
-    rangeInputs: PropTypes.object.isRequired,
-    featuredorrecommended: PropTypes.string,
-    filterState: PropTypes.object.isRequired,
-    keywords: PropTypes.array.isRequired,
+      singleInputs: PropTypes.object.isRequired,
+      rangeInputs: PropTypes.object.isRequired,
+      featuredorrecommended: PropTypes.string,
+      newUsed: PropTypes.string,
+      filterState: PropTypes.object.isRequired,
+      keywords: PropTypes.array.isRequired,
   }).isRequired,
 };
 
@@ -500,12 +505,16 @@ ExtraFeaturesDrawer.propTypes = {
   onFeatureToggle: PropTypes.func.isRequired,
 };
 
-const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended }) => {
+const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended, newUsed }) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
   const [value, setValue] = useState('Any');
   const [search, setSearch] = useState('');
+
+  // Ensure limit and currentPage are valid numbers
+  const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
+  const validCurrentPage = typeof currentPage === 'number' && currentPage > 0 ? currentPage : 1;
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [trimData, setTrimData] = useState(false);
@@ -526,7 +535,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
 
    useEffect(() => {
     handleApplyFilters()
-  },[currentPage,limit])
+  },[validCurrentPage, validLimit])
 
   useEffect(() => {
       fetchUpdateOptionsData();
@@ -580,7 +589,7 @@ const fetchUpdateOptionsData = async () => {
   const handleApplyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended });
+      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords, currentPage: validCurrentPage, limit: validLimit, featuredorrecommended, newUsed });
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];

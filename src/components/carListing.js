@@ -10,7 +10,7 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import '../assets/styles/carListing.css';
-import { message } from 'antd';
+import { Empty, message } from 'antd';
 import { userAPI } from '../services/api';
 import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
@@ -114,7 +114,12 @@ const CarListing = ({ title, cardata }) => {
          <button
   type="button"
   className="car-listing-seeall"
-  onClick={() => navigate('/allcars', { state: { type: title === 'Featured Car' ? 'featured' : 'recommended' } })}
+ onClick={() => {
+  const type = title === 'Featured Car' ? 'featured' : 'recommended';
+  localStorage.setItem('searchcardata', JSON.stringify({ Empty }));
+  navigate('/allcars', { state: { type } });
+}}
+
 >
   See All
 </button>

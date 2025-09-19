@@ -1461,7 +1461,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label"
                     label="Exterior Color"
                     name="exteriorColor"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select exterior color!' },
+  ]}
+  required={false}
                   >
                     <ExteriorColorInput
                     selectedColor={selectedColor}
@@ -1522,7 +1525,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label-small"
                     label="Year"
                      name="year"
-                     required={false}
+                     rules={[
+    { required: true, message: 'Please select condition!' },
+  ]}
+  required={false}
                   >
                     <YearInput 
                       selectedYear={selectedYear}
@@ -1638,12 +1644,16 @@ const handleImageUpload = async (images) => {
       className="form-item-label"
       label="Body Type"
       name="bodyType"
-      required={false}
+      rules={[
+    { required: true, message: 'Please select body type!' },
+  ]}
+  required={false}
     >
       <Input
         value={selectedBodyType}
         className="hidden-input"
         readOnly
+       
       />
       <div className="option-box-group">
         {updateData?.body_types?.map((opt) => (
@@ -1667,7 +1677,10 @@ const handleImageUpload = async (images) => {
       className="form-item-label"
       label="Condition"
       name="condition"
-      required={false}
+      rules={[
+    { required: true, message: 'Please select condition!' },
+  ]}
+  required={false}
     >
       <Input
         value={selectedCondition}
@@ -1734,8 +1747,10 @@ const handleImageUpload = async (images) => {
     <Form.Item
       className="form-item-label"
       label="Horsepower (HP)"
-      name="horsepower"
-     required={false}
+      name="horsepower"rules={[
+    { required: true, message: 'Please select horse power!' },
+  ]}
+  required={false}
     >
       <Select
         showSearch
@@ -1797,7 +1812,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label"
                     label="Vehicle Type"
                     name="vehicletype"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select vehicle type!' },
+  ]}
+  required={false}
                   >
                     <Select
         placeholder="Select vehicle type"
@@ -1860,7 +1878,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label-small"
                     label="Region"
                     name="region"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select region!' },
+  ]}
+  required={false}
                   >
                     <RegionInput 
                       selectedRegion={selectedRegion}
@@ -1944,7 +1965,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label"
                     label="Regional Specs"
                      name="regionalSpecs"
-                     required={false}
+                     rules={[
+    { required: true, message: 'Please select regional specs!' },
+  ]}
+  required={false}
                   >
                     <RegionalSpecsInput 
                       selectedRegionalSpecs={selectedRegionalSpecs}
@@ -2007,7 +2031,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label-small"
                     label="Number of seats"
                     name="seats"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select number of seats!' },
+  ]}
+  required={false}
                   >
                     <Input
                       value={selectedSeats}
@@ -2061,7 +2088,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label-small"
                     label="Fuel Type"
                     name="fuelType"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select fuel type!' },
+  ]}
+  required={false}
                   >
                     <Input
                       value={selectedFuelType}
@@ -2091,7 +2121,10 @@ const handleImageUpload = async (images) => {
                     className="form-item-label-small"
                     label="Transmission Type"
                     name="transmissionType"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select transmission type!' },
+  ]}
+  required={false}
                   >
                     <Input
                       value={selectedTransmissionType}

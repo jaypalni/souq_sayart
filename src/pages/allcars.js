@@ -27,8 +27,8 @@ const Allcars = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [isLoading, setIsLoading] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
-  const [currentPage, setCurrentPage] = useState({});
-  const [limit, setLimit] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
   const location = useLocation();
   const [carType, setCarType] = useState(location.state?.type); // 'featured' or 'recommended'

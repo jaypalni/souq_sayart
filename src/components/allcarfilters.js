@@ -62,6 +62,10 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, so
   const [carLocation,setCarLocation]=useState()
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
 
+  // Ensure limit and currentPage are valid numbers
+  const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
+  const validCurrentPage = typeof currentPage === 'number' && currentPage > 0 ? currentPage : 1;
+
 // Initialize make from localStorage if available
 const getInitialMake = () => {
   try {
@@ -864,6 +868,7 @@ fetchRegionCars()
             bodyType={bodyType}
             location={location}
             featuredorrecommended={featuredorrecommended}
+            newUsed={newUsed}
             onSearchResults={(searchResults) => {
               // Null checks for search results
               if (!searchResults || !searchResults.data) {
@@ -879,8 +884,8 @@ fetchRegionCars()
                 setCurrentPage(searchResults.data.pagination.page);
               }
             }}
-            limit={limit}
-            currentPage={currentPage}
+            limit={validLimit}
+            currentPage={validCurrentPage}
           />
 
           <div className="allcars-filters-col allcars-filters-btn-col">

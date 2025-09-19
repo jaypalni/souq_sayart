@@ -313,64 +313,79 @@ const ProfileForm = ({
           </Form.Item>
         </Col>
         <div className="col-md-6">
-                          <Form.Item
-                            label={
-                              <span
-                                style={{
-                                  fontWeight: 400,
-                                  color: '#637D92',
-                                  fontSize: 12,
-                                }}
-                              >
-                                Upload Documents*
-                              </span>
-                            }
-                            name="uploadDocuments"
-                            required={false}
-                             rules={[
-                                {
-                                  required: true,
-                                  message: 'Please upload your company documents',
-                                },
-                              ]}
-                          >
-                            <div>
-                              {uploadedDocUrl && (
-                                <div className="document-upload-container">
-                                  <button
-                                    type="button"
-                                    className="document-upload-content"
-                                    onClick={() => handleDocumentDownload(uploadedDocUrl)}
-                                    style={{ 
-                                      background: 'none', 
-                                      border: 'none', 
-                                      padding: 0, 
-                                      width: '100%',
-                                      cursor: 'pointer'
-                                    }}
-                                  >
-                                    <span className="document-icon">📄</span>
-                                    <span className="document-filename">
-                                      {uploadedDocUrl.split('/').pop() || 'Download Document'}
-                                    </span>
-                                    <span className="document-download-text">
-                                      Click to download
-                                    </span>
-                                  </button>
-                                </div>
-                              )}
-                                                          <Input
-                                disabled={!editMode}
-                                type="file"
-                                placeholder="Documents"
-                                size="middle"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                accept=".pdf"
-                              />
-                            </div>
-                          </Form.Item>
-                        </div>
+  <Form.Item
+    label={
+      <span
+        style={{
+          fontWeight: 400,
+          color: '#637D92',
+          fontSize: 12,
+        }}
+      >
+        Upload Documents*
+      </span>
+    }
+    name="uploadDocuments"
+    // ✅ Custom validation rule
+    rules={[
+      {
+        validator: (_, value) => {
+          if (uploadedDocUrl) {
+            // ✅ If document is already uploaded, no validation error
+            return Promise.resolve();
+          }
+          if (!value || value.fileList?.length === 0) {
+            // ❌ Show error only when no document and no upload
+            return Promise.reject(
+              new Error('Please upload your company documents')
+            );
+          }
+          return Promise.resolve();
+        },
+      },
+    ]}
+  >
+    <div>
+      {/* ✅ Show download link if document already uploaded */}
+      {uploadedDocUrl && (
+        <div className="document-upload-container">
+          <button
+            type="button"
+            className="document-upload-content"
+            onClick={() => handleDocumentDownload(uploadedDocUrl)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              width: '100%',
+              cursor: 'pointer',
+            }}
+          >
+            <span className="document-icon">📄</span>
+            <span className="document-filename">
+              {uploadedDocUrl.split('/').pop() || 'Download Document'}
+            </span>
+            <span className="document-download-text">
+              Click to download
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* File Input */}
+      <Input
+        disabled={!editMode}
+        type="file"
+        placeholder="Documents"
+        size="middle"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".pdf"
+      />
+    </div>
+  </Form.Item>
+</div>
+
       </>
     );
   };
@@ -495,10 +510,6 @@ const ProfileForm = ({
                rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[a-zA-Z]+$/,
-                    message: 'First name should contain only letters',
-                  },
-                  {
                     max: 50,
                     message: 'First name cannot exceed 50 characters',
                   },
@@ -531,10 +542,6 @@ const ProfileForm = ({
               name="last_name"
                rules={[
                   { required: true, message: 'Last name is required' },
-                  {
-                    pattern: /^[a-zA-Z]+$/,
-                    message: 'Last name should contain only letters',
-                  },
                   {
                     max: 50,
                     message: 'Last name cannot exceed 50 characters',

@@ -657,6 +657,21 @@
   gap: 14px;
   justify-content: end;
 }
+@media (max-width: 768px) {
+  .submit-btn-group {
+    display: block;
+  }
+   .submit-btn-group button {
+    width: 100%;         /* Make each button full width */
+    margin-bottom: 10px; /* Add spacing between buttons */
+    box-sizing: border-box; /* Prevent overflow issues */
+  }
+
+  /* Remove margin-bottom for the last button */
+  .submit-btn-group button:last-child {
+    margin-bottom: 0;
+  }
+}
 
 .btn-outline-blue {
   border: 1px solid #008AD5 !important;

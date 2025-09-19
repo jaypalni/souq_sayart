@@ -163,6 +163,7 @@ const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, ti
         content: data?.message || 'Car added to favorites',
       });
     } else {
+      console.log('error11',data)
       message.error(data.message || 'Something went wrong');
     }
   } catch (error) {
@@ -452,6 +453,7 @@ const Removefavcarapi = async (carId) => {
             onChange={onPageChange}
             defaultCurrent={paginationToDisplay?.page}
             total={paginationToDisplay?.total}
+              defaultPageSize={20}
           />
         </div>
       </div>

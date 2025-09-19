@@ -115,6 +115,7 @@ const Allcars = () => {
         setIsLoading={debugSetIsLoading}
         limit={limit}
         currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
         featuredorrecommended={carType}
         onClearFeaturedOrRecommended={(onSearchAfterClear) => handleClearFeaturedOrRecommended(onSearchAfterClear)}
       />

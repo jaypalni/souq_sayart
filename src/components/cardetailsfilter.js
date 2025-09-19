@@ -165,9 +165,9 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit } = filterParams;
+  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended } = filterParams;
   
-  return {
+  const apiParams = {
     make: getFilterValue(make, 'All Make'),
     model: getFilterValue(model, 'All Models'),
     trim: getFilterValue(singleInputs.trimValue, 'Any'),
@@ -191,6 +191,13 @@ const prepareFilterData = (filterParams) => {
     page: currentPage,
     limit: limit
   };
+
+  // Only include type parameter if featuredorrecommended has a value
+  if (featuredorrecommended) {
+    apiParams.type = featuredorrecommended;
+  }
+
+  return apiParams;
 };
 
 // PropTypes for helper functions
@@ -216,6 +223,7 @@ prepareFilterData.propTypes = {
     location: PropTypes.string,
     singleInputs: PropTypes.object.isRequired,
     rangeInputs: PropTypes.object.isRequired,
+    featuredorrecommended: PropTypes.string,
     filterState: PropTypes.object.isRequired,
     keywords: PropTypes.array.isRequired,
   }).isRequired,
@@ -492,7 +500,7 @@ ExtraFeaturesDrawer.propTypes = {
   onFeatureToggle: PropTypes.func.isRequired,
 };
 
-const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage }) => {
+const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended }) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
@@ -511,8 +519,6 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
 
   const handleChange = (e) => setValue(e.target.value);
 
-  console.log('page123',currentPage)
-  console.log('limit123',limit)
 
   useEffect(() => {
     fetchTrimData()
@@ -574,7 +580,7 @@ const fetchUpdateOptionsData = async () => {
   const handleApplyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit });
+      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended });
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];

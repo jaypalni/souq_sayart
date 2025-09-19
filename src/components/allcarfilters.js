@@ -56,7 +56,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, featuredorrecommended, onClearFeaturedOrRecommended}) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, setCurrentPage, featuredorrecommended, onClearFeaturedOrRecommended}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -244,12 +244,12 @@ const getInitialMaxPrice = () => {
         // Note: No type parameter included
       };
       
-      console.log('API call after clearing (no type):', apiParams);
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
-      if (data?.data?.pagination) {
-        setCarCount(data?.data?.pagination?.total ?? 0);
+      // Null checks for pagination data
+      if (data?.data?.pagination && typeof data.data.pagination.total === 'number') {
+        setCarCount(data.data.pagination.total);
       }
     } catch (error) {
       // Silent error handling for auto-search
@@ -279,12 +279,12 @@ const getInitialMaxPrice = () => {
         apiParams.type = featuredorrecommended;
       }
       
-      console.log('Single API call with params:', apiParams);
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
-      if (data?.data?.pagination) {
-        setCarCount(data?.data?.pagination?.total ?? 0);
+      // Null checks for pagination data
+      if (data?.data?.pagination && typeof data.data.pagination.total === 'number') {
+        setCarCount(data.data.pagination.total);
       }
     } catch (error) {
       // Silent error handling for auto-search
@@ -462,7 +462,6 @@ fetchRegionCars()
       setCarLocation(locations);
   
       const geoData = await getGeoData();
-      console.log('geoData',geoData)
       const defaultLocation = resolveDefaultLocation(locations, geoData);
   
       if (defaultLocation) {
@@ -565,7 +564,7 @@ fetchRegionCars()
     const cleanedMin = minPrice !== null ? minPrice : '';
     const cleanedMax = maxPrice !== null ? maxPrice : '';
     
-    return {
+    const apiParams = {
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
       body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
@@ -577,8 +576,14 @@ fetchRegionCars()
       oldest_listing: sortConfig.sortbyold,
       sort_by: sortConfig.sortbypriceormileage,
       sort_order: sortConfig.sortorder,
-       type: featuredorrecommended,
     };
+
+    // Only include type parameter if featuredorrecommended has a value
+    if (featuredorrecommended) {
+      apiParams.type = featuredorrecommended;
+    }
+
+    return apiParams;
   };
 
   // Helper function to save filters and update UI
@@ -604,12 +609,23 @@ fetchRegionCars()
 
   // Helper function to handle search results
   const handleSearchResults = (data1, apiParams) => {
-    const results = data1?.data?.cars || [];
+    // Null checks for data structure
+    if (!data1 || !data1.data) {
+      console.warn('Invalid data structure received');
+      return;
+    }
+
+    const results = data1.data.cars || [];
     setCarSearch(results);
 
-    // Update car count from pagination
-    if (data1.data.pagination && data1.data.pagination.total !== undefined) {
+    // Update car count from pagination with null checks
+    if (data1.data.pagination && typeof data1.data.pagination.total === 'number') {
       setCarCount(data1.data.pagination.total);
+    }
+
+    // Update current page with the page value from backend response with null checks
+    if (setCurrentPage && data1.data.pagination && typeof data1.data.pagination.page === 'number') {
+      setCurrentPage(data1.data.pagination.page);
     }
 
     if (results.length === 0) {
@@ -620,9 +636,17 @@ fetchRegionCars()
         cars: data1.data.cars || [],
         pagination: data1.data.pagination || {}
       });
-      localStorage.setItem('searchcardata', JSON.stringify(apiParams));
       
-      if (setSelectedLocation) {
+      // Safe localStorage operation with null check
+      if (apiParams && typeof apiParams === 'object') {
+        try {
+          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
+        } catch (error) {
+          console.warn('Failed to save search data to localStorage:', error);
+        }
+      }
+      
+      if (setSelectedLocation && location) {
         setSelectedLocation(location);
       }
       window.dispatchEvent(new CustomEvent('searchDataUpdated'));
@@ -645,7 +669,6 @@ fetchRegionCars()
       }
       
       clearCachedData();
-console.log('Add Type2')
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
 
@@ -840,10 +863,20 @@ console.log('Add Type2')
             model={model}
             bodyType={bodyType}
             location={location}
+            featuredorrecommended={featuredorrecommended}
             onSearchResults={(searchResults) => {
-              if (searchResults?.data !== undefined) {
-                setFilterCarsData(searchResults.data);
-                setFilterVisible(false);
+              // Null checks for search results
+              if (!searchResults || !searchResults.data) {
+                console.warn('Invalid search results received');
+                return;
+              }
+              
+              setFilterCarsData(searchResults.data);
+              setFilterVisible(false);
+              
+              // Update current page with the page value from backend response with null checks
+              if (setCurrentPage && searchResults.data.pagination && typeof searchResults.data.pagination.page === 'number') {
+                setCurrentPage(searchResults.data.pagination.page);
               }
             }}
             limit={limit}
@@ -987,11 +1020,11 @@ console.log('Add Type2')
       {isHovering && (
         <CloseOutlined 
           style={{ 
-          fontSize: '10px',
-    color: 'rgb(152 149 149)',
+          fontSize: '8px',
+    color: '#f8f8f8',
     cursor: 'pointer',
     borderRadius: '20px',
-    backgroundColor:'#e0dbdb',
+    backgroundColor:'#b9b5b5',
     padding: '4px'
           }} 
         />
@@ -1033,4 +1066,9 @@ LandingFilters.propTypes = {
   sortedbydata: PropTypes.string,
   setSelectedLocation: PropTypes.func,
   setIsLoading: PropTypes.func,
+  limit: PropTypes.any,
+  currentPage: PropTypes.any,
+  setCurrentPage: PropTypes.func,
+  featuredorrecommended: PropTypes.string,
+  onClearFeaturedOrRecommended: PropTypes.func,
 };

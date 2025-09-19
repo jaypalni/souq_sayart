@@ -8,7 +8,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Select, Button, message, InputNumber } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
 import { fetchMakeCars ,fetchModelCars} from '../commonFunction/fetchMakeCars';
@@ -56,7 +56,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, featuredorrecommended}) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, featuredorrecommended, onClearFeaturedOrRecommended}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -204,63 +204,93 @@ const getInitialMaxPrice = () => {
   };
   const [filterVisible, setFilterVisible] = useState(false);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const hasInitialSearch = useRef(false); // Track if initial search has been made
+  const [isHovering, setIsHovering] = useState(false); // Track hover state for clear button
+
+  // Helper function to get value or empty string
+  const valueOrEmpty = (currentValue, defaultValue) => {
+    if (currentValue !== defaultValue) {
+      return currentValue;
+    }
+    return '';
+  };
+
+  // Function to clear featuredorrecommended and location state
+  const clearFeaturedOrRecommended = () => {
+    // Call the parent callback to clear the featuredorrecommended value
+    // Pass a custom search function that doesn't include the type parameter
+    if (onClearFeaturedOrRecommended) {
+      onClearFeaturedOrRecommended(() => {
+        // Custom search function that excludes type parameter
+        autoSearchForCountWithoutType();
+      });
+    }
+  };
+
+  // Auto-search function without type parameter (for after clearing)
+  const autoSearchForCountWithoutType = async () => {
+    try {
+      const apiParams = {
+        make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
+        model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
+        body_type: valueOrEmpty(bodyType, DEFAULTS.ALL_BODY_TYPES),
+        location: valueOrEmpty(location, 'All Locations'),
+        price_min: minPrice !== null ? minPrice : '',
+        price_max: maxPrice !== null ? maxPrice : '',
+        page: 1,
+        limit: 1, // We only need the count, so limit to 1 for efficiency
+        ...(newUsed !== DEFAULTS.NEW_USED && { condition: newUsed })
+        // Note: No type parameter included
+      };
+      
+      console.log('API call after clearing (no type):', apiParams);
+      const response = await carAPI.getSearchCars(apiParams);
+      const data = handleApiResponse(response);
+
+      if (data?.data?.pagination) {
+        setCarCount(data?.data?.pagination?.total ?? 0);
+      }
+    } catch (error) {
+      // Silent error handling for auto-search
+      console.warn('Auto-search for count failed:', error);
+    }
+  };
 
   // Auto-search function to update car count on filter changes
-  // Helper function to get current filter value
-const getCurrentFilterValue = (filterParams, paramName, defaultValue) => {
-  return filterParams[paramName] !== undefined ? filterParams[paramName] : defaultValue;
-};
+  const autoSearchForCount = async () => {
+    try {
+      const apiParams = {
+        make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
+        model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
+        body_type: valueOrEmpty(bodyType, DEFAULTS.ALL_BODY_TYPES),
+        location: valueOrEmpty(location, 'All Locations'),
+        price_min: minPrice !== null ? minPrice : '',
+        price_max: maxPrice !== null ? maxPrice : '',
+        page: 1,
+        limit: 1, // We only need the count, so limit to 1 for efficiency
+        ...(newUsed !== DEFAULTS.NEW_USED && { condition: newUsed })
+        // Note: Only include type if featuredorrecommended has a truthy value
+        // When cleared (undefined/null/empty), type parameter is not included
+      };
+      
+      // Only add type parameter if featuredorrecommended has a value
+      if (featuredorrecommended) {
+        apiParams.type = featuredorrecommended;
+      }
+      
+      console.log('Single API call with params:', apiParams);
+      const response = await carAPI.getSearchCars(apiParams);
+      const data = handleApiResponse(response);
 
-// Helper function to build API parameters
-const buildAutoSearchParams = (filterParams) => {
-  const currentMake = getCurrentFilterValue(filterParams, 'make', make);
-  const currentModel = getCurrentFilterValue(filterParams, 'model', model);
-  const currentLocation = getCurrentFilterValue(filterParams, 'location', location);
-  const currentBodyType = getCurrentFilterValue(filterParams, 'bodyType', bodyType);
- const currentNewUsed = getCurrentFilterValue(filterParams, 'condition', newUsed);
-  return {
-    make: currentMake === DEFAULTS.ALL_MAKE ? '' : currentMake,
-    model: currentModel === DEFAULTS.ALL_MODELS ? '' : currentModel,
-    body_type: currentBodyType === DEFAULTS.ALL_BODY_TYPES ? '' : currentBodyType,
-    location: currentLocation === 'All Locations' ? '' : (currentLocation || ''),
-    price_min: minPrice !== null ? minPrice : '',
-    price_max: maxPrice !== null ? maxPrice : '',
-    condition: currentNewUsed === DEFAULTS.NEW_USED ? '' : newUsed,
-     type: featuredorrecommended,
-    page: 1,
-    limit: 1, // We only need the count, so limit to 1 for efficiency
+      if (data?.data?.pagination) {
+        setCarCount(data?.data?.pagination?.total ?? 0);
+      }
+    } catch (error) {
+      // Silent error handling for auto-search
+      console.warn('Auto-search for count failed:', error);
+    }
   };
-};
-
-// Helper function to handle API response
-const handleAutoSearchResponse = (data) => {
-  if (data?.data?.pagination) {
-    setCarCount(data.data.pagination.total);
-  }
-};
-
-// Helper function to handle auto search error
-const handleAutoSearchError = (error) => {
-  console.warn('Auto-search for count failed:', error);
-  if (error?.message === 'Network Error') {
-    messageApi.open({
-      type: 'error',
-      content: 'You\'re offline! Please check your network connection and try again.',
-    });
-  }
-};
-
-const autoSearchForCount = async (filterParams = {}) => {
-  console.log('Add Type')
-  try {
-    const apiParams = buildAutoSearchParams(filterParams);
-    const response = await carAPI.getSearchCars(apiParams);
-    const data = handleApiResponse(response);
-    handleAutoSearchResponse(data);
-  } catch (error) {
-    handleAutoSearchError(error);
-  }
-};
 
     useEffect(() => {
       fetchMakeCars({ setLoading, setCarMakes });
@@ -285,32 +315,8 @@ useEffect(() => {
   }
 }, [setSelectedLocation]);
 
-// Trigger search on component mount if there are saved filter values
-useEffect(() => {
-  const hasSavedFilters = () => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('searchcardata'));
-      return saved && (
-        (saved.make && saved.make !== '') ||
-        (saved.model && saved.model !== '') ||
-        (saved.body_type && saved.body_type !== '') ||
-        (saved.price_min && saved.price_min !== '') ||
-        (saved.price_max && saved.price_max !== '')
-      );
-    } catch (e) {
-      return false;
-    }
-  };
-
-  // Only trigger search if there are meaningful saved filters
-  if (hasSavedFilters()) {
-    // Small delay to ensure all state is initialized
-    const timer = setTimeout(() => {
-      handleSearch();
-    }, 100);
-    return () => clearTimeout(timer);
-  }
-}, []); // Empty dependency array - only run on mount
+// Note: Removed handleSearch() call on mount to prevent multiple API calls
+// The autoSearchForCount() in the combined useEffect will handle the count display
 
 // Temporary: Add a function to manually clear localStorage (for debugging)
 useEffect(() => {
@@ -331,9 +337,6 @@ fetchRegionCars()
       setCarModels([]);
       setModel(DEFAULTS.ALL_MODELS);
     }
-    
-    // Auto-search for count when make changes
-    autoSearchForCount({ make });
   }, [make]);
 
   useEffect(() => {
@@ -352,36 +355,33 @@ fetchRegionCars()
   }, []);
 
   useEffect(() => {
-handleSearch()
+    // Only call handleSearch when sortedbydata actually changes, not on initial load
+    if (sortedbydata) {
+      handleSearch();
+    }
   }, [sortedbydata]);
-  
-  useEffect(() => {
-    if (make) {
-      fetchModelCars({ setLoading, setCarModels, make });
-    }
-    // Only reset body type if it's not already set from localStorage
-    const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    if (!saved?.body_type || saved.body_type === '') {
-      setBodyType(DEFAULTS.ALL_BODY_TYPES);
-    }
-  }, [make]);
 
-  // Auto-search for count when model changes
+  // Initial load - call handleSearch once when data is ready
   useEffect(() => {
-    autoSearchForCount({ model });
-  }, [model]);
-  useEffect(() => {
-    autoSearchForCount({ newUsed });
-  }, [newUsed]);
-  // Auto-search for count when location changes
-  useEffect(() => {
-    autoSearchForCount({ location });
-  }, [location]);
+    if (carMakes.length > 0 && !hasInitialSearch.current) {
+      hasInitialSearch.current = true;
+      setIsInitialized(true);
+      // Call handleSearch on initial load to show data
+      handleSearch();
+    }
+  }, [carMakes.length]);
 
-  // Auto-search for count when body type changes
+  // Filter changes - call autoSearchForCount after each param change (only after initial load)
   useEffect(() => {
-    autoSearchForCount({ bodyType });
-  }, [bodyType]);
+    // Only call search if we have the necessary data loaded and initial search is done
+    // Add a small delay to prevent calls during initialization
+    if (carMakes.length > 0 && hasInitialSearch.current) {
+      const timer = setTimeout(() => {
+        autoSearchForCount();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [make, model, location, bodyType, newUsed, minPrice, maxPrice]);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -960,7 +960,44 @@ console.log('Add Type2')
   )}
 </div>
 
-
+{featuredorrecommended && (
+ <div
+      style={{
+        borderRadius: '4px',
+        padding: '6px 12px',
+        cursor: 'pointer',
+        fontSize: '15px',
+        color: '#008AD5',
+        minWidth: '100px',
+        textAlign: 'center',
+        fontWeight: 400,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        position: 'relative',
+        backgroundColor: 'transparent',
+        transition: 'background-color 0.2s ease'
+      }}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onClick={clearFeaturedOrRecommended}
+    >
+      <span>{featuredorrecommended?.charAt(0).toUpperCase() + featuredorrecommended?.slice(1).toLowerCase()}</span>
+      {isHovering && (
+        <CloseOutlined 
+          style={{ 
+          fontSize: '10px',
+    color: 'rgb(152 149 149)',
+    cursor: 'pointer',
+    borderRadius: '20px',
+    backgroundColor:'#e0dbdb',
+    padding: '4px'
+          }} 
+        />
+      )}
+</div>
+)}
         </div>
         </div>
       </div>

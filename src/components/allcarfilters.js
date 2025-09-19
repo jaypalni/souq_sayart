@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Button, message, InputNumber } from 'antd';
+import { Select, Button, message, Input } from 'antd';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import Cardetailsfilter from '../components/cardetailsfilter';
@@ -899,22 +899,27 @@ console.log('Add Type2')
       {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
     </div>
   ) : (
-    <InputNumber
-      style={{ width: '100px' }}
-      min={0}
-      value={minPrice}
-      onChange={(value) => {
-        if (maxPrice !== null && value >= maxPrice) {
-          messageApi.error('Minimum price should be less than Maximum price');
-          return;
-        }
-        setMinPrice(value);
-      }}
-      onBlur={() => {
-        if (minPrice === null) setShowMinInput(false);
-      }}
-      placeholder="Min"
-    />
+   <Input
+  style={{ width: '100px' }}
+  type="tel"
+  value={minPrice}
+  placeholder="Min"
+  onChange={(e) => {
+    // Allow only digits
+    const value = e.target.value.replace(/\D/g, '');
+
+    // Check against maxPrice
+    if (maxPrice !== null && Number(value) >= maxPrice) {
+      messageApi.error('Minimum price should be less than Maximum price');
+      return;
+    }
+
+    setMinPrice(value ? Number(value) : null);
+  }}
+  onBlur={() => {
+    if (minPrice === null) setShowMinInput(false);
+  }}
+/>
   )}
 </div>
 
@@ -937,26 +942,34 @@ console.log('Add Type2')
       {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
     </div>
   ) : (
-    <InputNumber
-      style={{ width: '120px' }}
-      min={0}
-      value={maxPrice}
-      onChange={(value) => {
-        if (value > 5000000000) {
-          messageApi.error('Maximum allowed price is ₹5,000,000,000');
-          return;
-        }
-        if (minPrice !== null && value <= minPrice) {
-          messageApi.error('Maximum price should be greater than Minimum price');
-          return;
-        }
-        setMaxPrice(value);
-      }}
-      onBlur={() => {
-        if (maxPrice === null) setShowMaxInput(false);
-      }}
-      placeholder="Max"
-    />
+   <Input
+  style={{ width: '120px' }}
+  type="tel"
+  value={maxPrice !== null ? maxPrice : ''} // Show empty string when null
+  placeholder="Max"
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Allow only digits
+    const numericValue = value ? Number(value) : null;
+
+    // Always update state first
+    setMaxPrice(numericValue);
+
+    // Validate max limit
+    if (numericValue !== null && numericValue > 5000000000) {
+      messageApi.error('Maximum allowed price is ₹5,000,000,000');
+    }
+
+    // Validate against min price
+    if (minPrice !== null && numericValue !== null && numericValue <= minPrice) {
+      messageApi.error('Maximum price should be greater than Minimum price');
+    }
+  }}
+  onBlur={() => {
+    if (maxPrice === null) setShowMaxInput(false);
+  }}
+/>
+
+
   )}
 </div>
 

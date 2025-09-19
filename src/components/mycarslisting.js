@@ -189,7 +189,7 @@ const fetchCars = async () => {
       setLoading(true);
       const response = await carAPI.deleteCar(carId);
       const cardetail = handleApiResponse(response);
-      if (cardetail?.data) {
+      if (cardetail.status_code === 200) {
         message.success(cardetail.message || 'Car deleted successfully');
         fetchCars();
       }

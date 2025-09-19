@@ -260,6 +260,7 @@ const handleContinue = async () => {
     console.log('is_registered value:', result.data?.is_registered);
     console.log('Result success:', result.success);
     console.log('Result error:', result.error);
+    localStorage.setItem('RefreshToken', result.refresh_token)
 
     if (result.success) {
       handleSuccessfulVerification(result);
@@ -343,16 +344,29 @@ const handleContinue = async () => {
       </div>
 
       <div className='otp-btn-row'>
-        <button className='otp-btn otp-btn-outline' type='button'>Continue as guest</button>
-        <button
-          className='otp-btn otp-btn-filled'
-          type='button'
-          onClick={handleContinue}
-          disabled={loading}
-          style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer', background: loading ? '#ccc' : undefined }}
-        >
-          {loading ? 'Verifying...' : 'Continue'}
-        </button>
+        {/* <button className='otp-btn otp-btn-outline' type='button'>Continue as guest</button> */}
+       <button
+  className="otp-btn otp-btn-filled"
+  type="button"
+  onClick={handleContinue}
+  disabled={loading}
+  // style={{
+  //   opacity: loading ? 0.7 : 1,
+  //   cursor: loading ? 'not-allowed' : 'pointer', 
+  //   background: loading ? '#ccc' : undefined,
+  //   height: '45px',            
+  //   padding: '0 16px',        
+  //   display: 'flex',           
+  //   alignItems: 'center',      
+  //   justifyContent: 'center',  
+  //   gap: '8px',                
+  //   borderRadius: '22px',        
+  //   width: '50%'
+  // }}
+>
+  {loading ? 'Verifying...' : 'Continue'}
+</button>
+
       </div>
     </div>
   );

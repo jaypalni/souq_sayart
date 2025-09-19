@@ -22,9 +22,9 @@ export const loginRequest = () => ({
   type: AUTH_LOGIN_REQUEST,
 });
 
-export const loginSuccess = (user, token, phoneNumber) => ({
+export const loginSuccess = (user, token, phoneNumber, refresh_token) => ({
   type: AUTH_LOGIN_SUCCESS,
-  payload: { user, token, phoneNumber },
+  payload: { user, token, phoneNumber, refresh_token },
 });
 
 export const loginFailure = (error) => ({
@@ -185,7 +185,7 @@ export const verifyOTP = (otpData) => async (dispatch) => {
       // If user data exists, store it; otherwise create a minimal user object
       if (apiData.user) {
         dispatch(customerDetailsSuccess(apiData.user));
-        dispatch(loginSuccess(apiData.user, apiData.access_token, apiData.user.phone_number));
+        dispatch(loginSuccess(apiData.user, apiData.access_token, apiData.user.phone_number, apiData.refresh_token));
         // Store phone number in Redux for resend functionality
         if (apiData.user.phone_number) {
           dispatch(setPhoneLogin(apiData.user.phone_number));

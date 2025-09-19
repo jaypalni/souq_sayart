@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/mycarslisting.css';
-import { Radio, Select, Pagination, message } from 'antd';
+import { Radio, Select, Pagination, message, Modal, Button } from 'antd';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
@@ -76,6 +76,8 @@ const Mycarslisting = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [limit, setLimit] = useState(15);
   const [tokenReady, setTokenReady] = useState(false);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCarId, setSelectedCarId] = useState(null);
 
   const navigate = useNavigate();
   const authState = useSelector(state => state.auth);
@@ -189,7 +191,7 @@ const fetchCars = async () => {
       setLoading(true);
       const response = await carAPI.deleteCar(carId);
       const cardetail = handleApiResponse(response);
-      if (cardetail?.data) {
+      if (cardetail.status_code === 200) {
         message.success(cardetail.message || 'Car deleted successfully');
         fetchCars();
       }
@@ -201,8 +203,19 @@ const fetchCars = async () => {
     }
   };
 
+  const openDeleteModal = (carId) => {
+    setSelectedCarId(carId);
+    setIsModalOpen(true);
+  };
 
-  
+    const confirmDelete = async () => {
+    if (selectedCarId) {
+      await handleDeleteMethod(selectedCarId);
+    }
+    setIsModalOpen(false);
+    setSelectedCarId(null);
+  };
+
 
   return (
     <div className="mylistings-container">
@@ -269,7 +282,7 @@ const fetchCars = async () => {
                   car={car}
                   value={value}
                   filterStatus={filterStatus}
-                  handleDelete={handleDeleteMethod}
+                  handleDelete={() => openDeleteModal(car.id)}
                   navigate={navigate}
                 />
               ))}
@@ -282,19 +295,72 @@ const fetchCars = async () => {
       <div className="mylistings-pagination">
         <Pagination
           className="custom-pagination"
-          current={page}            // Controlled by state
-          total={totalCount}        // Comes from API
-          pageSize={limit}          // API provided limit
+          current={page}            
+          total={totalCount}        
+          pageSize={limit}          
           onChange={(newPage) => {
             console.log('Page Changed To:', newPage);
             setPage(newPage);
           }}
-          showSizeChanger={false}   // Hides page size dropdown
+          showSizeChanger={false}   
           // showQuickJumper            // Show input for quick jump
           itemRender={renderPaginationItem} // Custom render for < and >
         />
       </div>
 
+{/* Delete Confirmation Modal */}
+      <Modal
+  open={isModalOpen}
+  onCancel={() => setIsModalOpen(false)}
+  width={400} // ✅ Custom modal width
+  footer={[
+    <div
+      key="footer-buttons"
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+        width: '100%',
+      }}
+    >
+      <Button
+        key="cancel"
+        onClick={() => setIsModalOpen(false)}
+        style={{
+          borderColor: '#008AD5',
+          color: '#008AD5',
+          backgroundColor: 'white',
+          fontSize: '15px',
+          fontWeight: 600,
+          flex: 1, 
+          maxWidth: '120px', 
+        }}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        key="confirm"
+        onClick={confirmDelete}
+        style={{
+          backgroundColor: '#008AD5',
+          color: 'white',
+          fontSize: '15px',
+          fontWeight: 600,
+          border: 'none',
+          flex: 1,
+          maxWidth: '120px', 
+        }}
+      >
+        {loading ? 'Confirming...' : 'Confirm'}
+      </Button>
+    </div>,
+  ]}
+>
+  <p style={{ fontSize: '18px', fontWeight: 500, textAlign: 'center', marginRight: '15px' }}>
+    Are you sure you want to delete this car? 
+  </p>
+</Modal>
 
     </div>
   );

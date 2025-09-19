@@ -17,8 +17,8 @@
     min-width: 260px;
 }
 .car-listing-flex-row-allfav {
-display: grid;
-  grid-template-columns: repeat(3 , 1fr);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 20px;
   justify-items: center;
@@ -26,3 +26,16 @@ display: grid;
   min-width: 283px;
 }
 
+/* ✅ Mobile view: full-width cards */
+@media (max-width: 768px) {
+  .car-listing-flex-row-allfav {
+    display: block;
+    padding: 10px; /* Optional: smaller padding for mobile */
+  }
+
+  .car-listing-flex-row-allfav .car-card {
+    width: 100%;         /* Make each card take full width */
+    margin-bottom: 20px; /* Space between cards */
+    box-sizing: border-box; /* Ensure padding doesn't overflow */
+  }
+}

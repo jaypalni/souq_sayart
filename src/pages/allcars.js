@@ -27,7 +27,7 @@ const Allcars = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [isLoading, setIsLoading] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
-const [currentPage, setCurrentPage] = useState({});
+  const [currentPage, setCurrentPage] = useState({});
   const [limit, setLimit] = useState({});
 
   const location = useLocation();

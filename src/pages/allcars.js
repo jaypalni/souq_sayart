@@ -163,6 +163,7 @@ const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, ti
         content: data?.message || 'Car added to favorites',
       });
     } else {
+      console.log('error11',data)
       message.error(data.message || 'Something went wrong');
     }
   } catch (error) {

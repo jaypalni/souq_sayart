@@ -8,12 +8,14 @@
 import axios from 'axios';
 import API_CONFIG from '../config/api.config';
 import { getValidTokenFromRedux } from '../utils/tokenSync';
-
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { useSelector } from 'react-redux';
 const HTTP_STATUS = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500,
 };
+  
 
 if (!API_CONFIG.BASE_URL) {
   throw new Error(
@@ -69,9 +71,22 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status } = error.response;
-      
+      console.log('Error News', error.response)
       // Handle authentication errors
       if (status === 401) {
+         console.log('No Token');
+
+        // ✅ Dynamically get Redux store to access refresh token
+        const store = require('../redux/store').default;
+        const state = store.getState();
+        const refresh_token = state.auth?.refresh_token;
+
+        if (refresh_token) {
+          // Call refresh token API
+          refreshtokenapi();
+        } else {
+          console.error('Refresh token missing in Redux store');
+        }
         // Token may be invalid or expired
       } else if (status === 422) {
         // Request data may be invalid or missing required fields
@@ -90,6 +105,46 @@ api.interceptors.response.use(
     return Promise.reject(new Error('API request failed'));
   },
 );
+
+const refreshtokenapi = async () => {
+  try {
+    // ✅ Dynamically import the Redux store to avoid circular dependency
+    const store = require('../redux/store').default;
+    const state = store.getState();
+
+    // ✅ Get refresh_token from Redux state
+    const refresh_token = state.auth?.refresh_token;
+    console.log('New RT', refresh_token);
+
+    if (!refresh_token) {
+      throw new Error('Refresh token is missing.');
+    }
+
+    // ✅ Call refresh token API
+    const response = await axios.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {
+      baseURL: API_CONFIG.BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${refresh_token}`,
+      },
+    });
+
+    // ✅ Process response
+    const data1 = handleApiResponse(response);
+
+    // ✅ Save new access token
+    localStorage.setItem('token', data1.access_token);
+    console.log('New Token', data1.access_token);
+
+    return data1.access_token;
+  } catch (error) {
+    const errorData = handleApiError(error);
+    console.error('Error refreshing token:', errorData);
+    throw errorData;
+  }
+};
+
+
 
 export const authAPI = {
   login: (credentials) =>
@@ -112,8 +167,8 @@ export const authAPI = {
         'Content-Type': 'multipart/form-data',
       },
     }),
-  refresh: (credentials) =>
-    api.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, credentials),
+  refresh: () =>
+    api.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN),
 };
 
 export const carAPI = {

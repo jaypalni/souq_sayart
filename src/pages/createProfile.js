@@ -474,10 +474,6 @@ const CreateProfile = () => {
                 rules={[
                   { required: true, message: 'First name is required' },
                   {
-                    pattern: /^[a-zA-Z]+$/,
-                    message: 'First name should contain only letters',
-                  },
-                  {
                     max: 50,
                     message: 'First name cannot exceed 50 characters',
                   },
@@ -500,10 +496,6 @@ const CreateProfile = () => {
                 name="lastName"
                 rules={[
                   { required: true, message: 'Last name is required' },
-                  {
-                    pattern: /^[a-zA-Z]+$/,
-                    message: 'Last name should contain only letters',
-                  },
                   {
                     max: 50,
                     message: 'Last name cannot exceed 50 characters',

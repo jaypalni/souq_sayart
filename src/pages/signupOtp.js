@@ -260,6 +260,7 @@ const handleContinue = async () => {
     console.log('is_registered value:', result.data?.is_registered);
     console.log('Result success:', result.success);
     console.log('Result error:', result.error);
+    localStorage.setItem('RefreshToken', result.refresh_token)
 
     if (result.success) {
       handleSuccessfulVerification(result);

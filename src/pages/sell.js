@@ -1189,7 +1189,7 @@ const handleImageUpload = async (images) => {
                         type="file"
                         multiple
                         accept=".jpg,.jpeg,.png,.gif,.mp4"
-                        className="hidden-input"
+                        style={{ display: 'none' }}
                         onChange={(e) => {
                           const files = Array.from(e.target.files);
                           const newFileList = files?.map((file, idx) => ({
@@ -1236,14 +1236,17 @@ const handleImageUpload = async (images) => {
   </Upload>
 
   {mediaFileList.length > 0 && (
-    <div className="media-info-text">
+    <div
+      className="media-info-text"
+      style={{ marginTop: '8px', color: '#666' }}
+    >
       Tap on the images to edit them, or press, hold and move for reordering
     </div>
   )}
 
   {mediaPreviewImage && (
     <Image
-      className="media-preview-hidden"
+      wrapperStyle={{ display: 'none' }}
       preview={{
         visible: mediaPreviewOpen,
         onVisibleChange: (visible) => setMediaPreviewOpen(visible),

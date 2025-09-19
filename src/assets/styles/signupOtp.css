@@ -68,6 +68,26 @@
   margin-top: 8px;
 }
 
+.otp-btn.otp-btn-filled {
+  height: 45px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 22px;
+  width: 50%; /* Default width for laptop/desktop */
+  transition: all 0.3s ease;
+}
+
+/* For mobile view */
+@media (max-width: 768px) {
+  .otp-btn.otp-btn-filled {
+    width: 70%; /* Override width for mobile */
+  }
+}
+
+
 .otp-btn {
   border: none;
   border-radius: 20px;

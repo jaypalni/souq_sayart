@@ -29,7 +29,7 @@ const API_CONFIG = {
       CREATE: '/api/cars/add',
       SAVE_DRAFT: '/api/cars/draft',
       UPDATE: (id) => `/api/cars/update/${id}`,
-      DELETE: (id) => `/cars/${id}`,
+      DELETE: (id) => `/api/cars/delete/${id}`,
       UPLOAD_IMAGES: '/cars/upload-images',
       GET_CAR_OPTIONS: '/cars/options',
       GET_CAR_FEATURES: '/api/cars/featured',

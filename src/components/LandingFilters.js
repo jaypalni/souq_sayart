@@ -79,27 +79,20 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
 
   // Auto-search function to update car count on filter changes
-  const autoSearchForCount = async (filterParams = {}) => {
+  const autoSearchForCount = async () => {
     try {
-      const currentMake = filterParams.make !== undefined ? filterParams.make : make;
-      const currentModel = filterParams.model !== undefined ? filterParams.model : model;
-      const currentLocation = filterParams.location !== undefined ? filterParams.location : location;
-      const currentBodyType = filterParams.bodyType !== undefined ? filterParams.bodyType : bodyType;
-      
- const currentNewUsed = filterParams.newUsed !== undefined ? filterParams.newUsed : newUsed;
-
       const apiParams = {
-        make: valueOrEmpty(currentMake, CORRECT_DEFAULT_MAKE),
-        model: valueOrEmpty(currentModel, CORRECT_DEFAULT_MODEL),
-        body_type: valueOrEmpty(currentBodyType, CORRECT_DEFAULT_BODY_TYPE),
-        location: valueOrEmpty(currentLocation, CORRECT_DEFAULT_LOCATION),
+        make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
+        model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
+        body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
+        location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
         page: 1,
         limit: 1, // We only need the count, so limit to 1 for efficiency
-        ...(currentNewUsed !== DEFAULT_NEW_USED && { condition: currentNewUsed })
+        ...(newUsed !== DEFAULT_NEW_USED && { condition: newUsed })
       };
-      console.log('Add Type4')
+      console.log('Single API call with params:', apiParams);
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
 
@@ -127,9 +120,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     if (make) {
       fetchModelCars({ setLoading, setCarModels, make });
     }
-    
-    // Auto-search for count when make changes
-    autoSearchForCount({ make });
   }, [make]);
 
   useEffect(() => {
@@ -146,31 +136,20 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
 
 
   useEffect(() => {
-  if (searchbodytype) {
-    setBodyType(searchbodytype);
-  } else {
-    setBodyType(CORRECT_DEFAULT_BODY_TYPE);
-  }
-}, [searchbodytype]);
+    if (searchbodytype) {
+      setBodyType(searchbodytype);
+    } else {
+      setBodyType(CORRECT_DEFAULT_BODY_TYPE);
+    }
+  }, [searchbodytype]);
 
-  // Auto-search for count when model changes
+  // Combined effect for auto-search - calls once on load and after each param change
   useEffect(() => {
-    autoSearchForCount({ model });
-  }, [model]);
-
-  // Auto-search for count when location changes
-  useEffect(() => {
-    autoSearchForCount({ location });
-  }, [location]);
-
-  // Auto-search for count when body type changes
-  useEffect(() => {
-    autoSearchForCount({ bodyType });
-  }, [bodyType]);
-
-  useEffect(() => {
-    autoSearchForCount({ newUsed });
-  }, [newUsed]);
+    // Only call search if we have the necessary data loaded
+  
+      autoSearchForCount();
+    
+  }, [make, model, location, bodyType, newUsed, minPrice, maxPrice, carMakes.length]);
   const fetchBodyTypeCars = async () => {
     try {
       setLoading(true);

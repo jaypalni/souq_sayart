@@ -27,13 +27,36 @@ const Allcars = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [isLoading, setIsLoading] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
-const [currentPage, setCurrentPage] = useState({});
+  const [currentPage, setCurrentPage] = useState({});
   const [limit, setLimit] = useState({});
 
   const location = useLocation();
-  const carType = location.state?.type; // 'featured' or 'recommended'
+  const [carType, setCarType] = useState(location.state?.type); // 'featured' or 'recommended'
 
-  console.log('Car Type:', carType);
+  // Update carType when location state changes
+  useEffect(() => {
+    setCarType(location.state?.type);
+  }, [location.state?.type]);
+
+  // Function to clear the carType without page reload
+  const handleClearFeaturedOrRecommended = (onSearchAfterClear) => {
+    // Clear the location state
+    if (window.history && window.history.replaceState) {
+      const newState = { ...window.history.state };
+      if (newState && newState.type) {
+        delete newState.type;
+        window.history.replaceState(newState, '', window.location.pathname);
+      }
+    }
+    // Clear the carType state
+    setCarType(undefined);
+    
+    // Trigger a search to update the count after clearing
+    if (onSearchAfterClear) {
+      onSearchAfterClear();
+    }
+  };
+
 
   // Initialize selectedLocation from localStorage on component mount
   useEffect(() => {
@@ -93,7 +116,7 @@ const [currentPage, setCurrentPage] = useState({});
         limit={limit}
         currentPage={currentPage}
         featuredorrecommended={carType}
-
+        onClearFeaturedOrRecommended={(onSearchAfterClear) => handleClearFeaturedOrRecommended(onSearchAfterClear)}
       />
       <CarListing
         key={`${renderKey}-${filtercarsData?.cars?.length || 0}`}
@@ -163,6 +186,7 @@ const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, ti
         content: data?.message || 'Car added to favorites',
       });
     } else {
+      console.log('error11',data)
       message.error(data.message || 'Something went wrong');
     }
   } catch (error) {
@@ -452,6 +476,7 @@ const Removefavcarapi = async (carId) => {
             onChange={onPageChange}
             defaultCurrent={paginationToDisplay?.page}
             total={paginationToDisplay?.total}
+              defaultPageSize={20}
           />
         </div>
       </div>

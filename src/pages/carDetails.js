@@ -28,6 +28,7 @@ import gear_image from '../assets/images/gear_image.png';
 import fuel_image from '../assets/images/fuel_image.png';
 import calender_image from '../assets/images/Layer_1.png';
 import { carAPI } from '../services/api';
+import { useSelector } from 'react-redux';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import CarListing from '../components/carListing';
 import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
@@ -706,7 +707,7 @@ const CarDetails = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
   
   const { carDetails, loading, messageApi, contextHolder } = useCarDetails(id);
-  
+    const { user } = useSelector((state) => state.auth);
   if (loading) {
     return <LoadingState />;
   }
@@ -716,7 +717,6 @@ const CarDetails = () => {
   }
 
   const { images, carInfo, additionalDetails } = processCarData(carDetails, BASE_URL);
-
   return (
     <div className="container py-4 car-details-page">
       {contextHolder}
@@ -736,7 +736,8 @@ const CarDetails = () => {
         />
       </div>
 
-      <SimilarCarsSection carDetails={carDetails} />
+   { user?.id!=  carDetails?.seller?.id &&    <SimilarCarsSection carDetails={carDetails} />
+    }
     </div>
   );
 };

@@ -5,6 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
+import { act } from 'react';
 import {
   AUTH_LOGIN_REQUEST,
   AUTH_LOGIN_SUCCESS,
@@ -37,6 +38,7 @@ const authReducer = (state = initialState, action) => {
         user: action.payload.user,
         token: action.payload.token,
         phone_login: action.payload.phoneNumber,
+        refresh_token: action.payload.refresh_token,
         isAuthenticated: true,
         error: null,
       };

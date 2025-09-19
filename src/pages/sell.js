@@ -66,18 +66,6 @@ const ExteriorColorInput = ({
       type="button"
       className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
       onClick={onOpen}
-      style={{
-        border: '1px solid #d9d9d9',
-        borderRadius: '6px',
-        padding: '4px 11px',
-        minHeight: '32px',
-        display: 'flex',
-        alignItems: 'center',
-        cursor: 'pointer',
-        background: 'transparent',
-        width: '100%',
-        textAlign: 'left'
-      }}
     >
       <div className="exterior-color-left">
         {hasImage && imageSrc ? (
@@ -91,13 +79,7 @@ const ExteriorColorInput = ({
         )}
       </div>
 
-      <span
-        style={{
-          fontSize: 14,
-          marginLeft: 8,
-          flex: 1,
-        }}
-      >
+      <span className="brand-text">
         {selectedColor || placeholder}
       </span>
 
@@ -117,26 +99,10 @@ ExteriorColorInput.propTypes = {
 const InteriorColorInput = ({ selectedInteriorColor, onOpen }) => (
   <button
     type="button"
-    className={`exterior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
+    className={`interior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
     onClick={onOpen}
-    style={{ 
-      background: 'none', 
-      border: '1px solid #d9d9d9',
-      borderRadius: '6px',
-      padding: '4px 11px',
-      minHeight: '32px',
-      width: '100%', 
-      textAlign: 'left',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center'
-    }}
   >
-    <span
-      style={{
-        fontSize: 14,
-      }}
-    >
+    <span className="interior-color-text">
       {selectedInteriorColor || 'Beige'}
     </span>
     <RightOutlined className="color-arrow" />
@@ -153,24 +119,8 @@ const TrimInput = ({ selectedTrim, onOpen }) => (
     type="button"
     className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
     onClick={onOpen}
-    style={{ 
-      background: 'none', 
-      border: '1px solid #d9d9d9',
-      borderRadius: '6px',
-      padding: '4px 11px',
-      minHeight: '32px',
-      width: '100%', 
-      textAlign: 'left',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center'
-    }}
   >
-    <span
-      style={{
-        fontSize: 14,
-      }}
-    >
+    <span className="trim-text">
       {selectedTrim || 'B200'}
     </span>
     <RightOutlined className="trim-arrow" />
@@ -197,42 +147,16 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandI
       type="button"
       className={`brand-input${!selectedBrand ? ' placeholder' : ''}`}
       onClick={onOpen}
-      style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 8,
-        background: 'none', 
-        border: '1px solid #d9d9d9',
-        borderRadius: '6px',
-        padding: '4px 11px',
-        minHeight: '32px',
-        width: '100%', 
-        textAlign: 'left',
-        cursor: 'pointer'
-      }}
     >
       {imageSrc && (
         <img
           src={imageSrc}
           alt={selectedBrand || 'brand'}
           className="brand-input-img"
-          style={{
-            width: 32,
-            height: 32,
-            objectFit: 'contain',
-          }}
         />
       )}
 
-      <span
-        style={{
-          fontSize: 14,
-          fontWeight: 400,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
+      <span className="brand-text">
         {(() => {
           if (selectedBrand) {
             const parts = [selectedBrand];
@@ -245,7 +169,7 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandI
         })()}
       </span>
 
-      <RightOutlined className="brand-arrow" style={{ marginLeft: 'auto' }} />
+      <RightOutlined className="brand-arrow" />
     </button>
   );
 };
@@ -265,24 +189,8 @@ const YearInput = ({ selectedYear, onOpen }) => (
     type="button"
     className={`year-input${!selectedYear ? ' placeholder' : ''}`}
     onClick={onOpen}
-    style={{ 
-      background: 'none', 
-      border: '1px solid #d9d9d9',
-      borderRadius: '6px',
-      padding: '4px 11px',
-      minHeight: '32px',
-      width: '100%', 
-      textAlign: 'left',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center'
-    }}
   >
-    <span
-      style={{
-        fontSize: 14,
-      }}
-    >
+    <span className="year-text">
       {selectedYear || 'Select Year'}
     </span>
     <RightOutlined className="year-arrow" />
@@ -299,24 +207,8 @@ const RegionInput = ({ selectedRegion, onOpen }) => (
     type="button"
     className={`region-input${!selectedRegion ? ' placeholder' : ''}`}
     onClick={onOpen}
-    style={{ 
-      background: 'none', 
-      border: '1px solid #d9d9d9',
-      borderRadius: '6px',
-      padding: '4px 11px',
-      minHeight: '32px',
-      width: '100%', 
-      textAlign: 'left',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center'
-    }}
   >
-    <span
-      style={{
-        fontSize: 14,
-      }}
-    >
+    <span className="region-text">
       {selectedRegion || 'Select Region'}
     </span>
     <RightOutlined className="region-arrow" />
@@ -335,24 +227,8 @@ const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
       !selectedRegionalSpecs ? ' placeholder' : ''
     }`}
     onClick={onOpen}
-    style={{ 
-      background: 'none', 
-      border: '1px solid #d9d9d9',
-      borderRadius: '6px',
-      padding: '4px 11px',
-      minHeight: '32px',
-      width: '100%', 
-      textAlign: 'left',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center'
-    }}
   >
-    <span
-      style={{
-        fontSize: 14,
-      }}
-    >
+    <span className="regionalspecs-text">
       {selectedRegionalSpecs || 'Select Specs'}
     </span>
     <RightOutlined className="regionalspecs-arrow" />
@@ -1235,19 +1111,12 @@ const handleImageUpload = async (images) => {
   };
   const mediaUploadButton = (
     <button 
-      style={{ border: 0, background: 'none', cursor: 'pointer' }} 
+      className="media-upload-button"
       type="button"
       aria-label="Add media file"
     >
-      <PlusOutlined style={{ fontSize: 32, color: '#1890ff' }} />
-      <div
-        style={{
-          marginTop: 8,
-          fontWeight: 500,
-          color: '#008AD5',
-          fontSize: 16,
-        }}
-      >
+      <PlusOutlined className="media-upload-icon" />
+      <div className="media-upload-text">
         Add Media
       </div>
     </button>
@@ -1257,21 +1126,15 @@ const handleImageUpload = async (images) => {
     <>
       <div className="page-header">
         {contextHolder}
-        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>
+        <div className="page-header-title">
           Sell Your Car In IRAQ
         </div>
-        <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
+        <div className="page-header-subtitle">Post an ad in just 3 simple steps</div>
       </div>
       <div className="sell-container">
         <Card
           title="Car Description"
-          style={{
-            borderRadius: 8,
-            boxShadow: '0 2px 8px #f0f1f2',
-            marginBottom: 24,
-            border: '1px solid #e5e6e8',
-            padding: 24,
-          }}
+          className="card-description"
         >
           <Form
             form={form}
@@ -1399,11 +1262,7 @@ const handleImageUpload = async (images) => {
               </Col>
               <Col xs={24} md={14}>
                 <Form.Item
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: '#0A0A0B',
-                  }}
+                  className="form-item-label"
                   label="Ad Title"
                   name="adTitle"
                 >
@@ -1418,15 +1277,11 @@ const handleImageUpload = async (images) => {
   />
                 </Form.Item>
                   <Form.Item
-  style={{
-    fontSize: 12,
-    fontWeight: 500,
-    color: '#0A0A0B',
-  }}
+  className="form-item-label"
   label="Description"
   name="description"
 >
-  <div style={{ position: 'relative' }}>
+  <div className="description-container">
     <TextArea
       rows={4}
       placeholder="Enter Description..."
@@ -1435,14 +1290,7 @@ const handleImageUpload = async (images) => {
       onPaste={handlePaste}
     />
     {/* Live Counter */}
-    <div
-      style={{
-        textAlign: 'right',
-        fontSize: 12,
-        color: description.length === MAX_LEN ? 'red' : '#888',
-        marginTop: 4,
-      }}
-    >
+    <div className={`description-counter ${description.length === MAX_LEN ? 'max-length' : ''}`}>
       {description.length}/{MAX_LEN}
     </div>
   </div>
@@ -1453,21 +1301,12 @@ const handleImageUpload = async (images) => {
 
             <Card
               title="Enter Your Car Information"
-              style={{
-                marginTop: 15,
-                marginBottom: 32,
-                padding: 24,
-              }}
+              className="card-car-info"
             >
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
-  className="no-asterisk"
-  style={{
-    fontWeight: 500,
-    fontSize: 10,
-    color: '#0A0A0B',
-  }}
+  className="no-asterisk form-item-label-small"
   label="Car Information"
   name="brand"
   rules={[
@@ -1491,7 +1330,7 @@ const handleImageUpload = async (images) => {
       if (selectedTrim) parts.push(selectedTrim);
       return parts.join(' - ');
     })()}
-    style={{ display: 'none' }}
+    className="hidden-input"
     readOnly
   />
   <BrandInput
@@ -1510,7 +1349,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setBrandModalOpen(false)}
                     footer={null}
                     title={
-                      <div className="brand-modal-title-row">
+                      <div className="modal-title-row">
                         <span>What is the brand of your car? </span>
                       </div>
                     }
@@ -1521,7 +1360,7 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={brandSearch}
                       onChange={(e) => setBrandSearch(e.target.value)}
-                      className="brand-modal-search"
+                      className="modal-search"
                     />
                     <div className="brand-modal-grid">
                       {carMakes
@@ -1570,7 +1409,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setBrandNameOpen(false)}
                     footer={null}
                     title={
-                      <div className="trim-modal-title-row">
+                      <div className="modal-title-row">
                         <span>What is the Model of your car?</span>
                       </div>
                     }
@@ -1581,9 +1420,9 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={modalName}
                       onChange={(e) => setModalName(e.target.value)}
-                      className="trim-modal-search"
+                      className="modal-search"
                     />
-                    <div className="trim-modal-list">
+                    <div className="modal-list">
                       {carModels
                         ?.filter((opt) =>
                           opt.model_name
@@ -1593,7 +1432,7 @@ const handleImageUpload = async (images) => {
                         ?.map((opt) => (
                           <div
                             key={opt.model_name}
-                            className={`trim-modal-option${
+                            className={`modal-option${
                               selectedModel === opt.model_name
                                 ? ' selected'
                                 : ''
@@ -1622,14 +1461,13 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label"
                     label="Exterior Color"
                     name="exteriorColor"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select exterior color!' },
+  ]}
+  required={false}
                   >
                     <ExteriorColorInput
                     selectedColor={selectedColor}
@@ -1644,13 +1482,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setColorModalOpen(false)}
                     footer={null}
                     title={
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
+                      <div className="modal-title-row">
                         <span>What is the exterior color of your car?</span>
                       </div>
                     }
@@ -1661,7 +1493,7 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={colorSearch}
                       onChange={(e) => setColorSearch(e.target.value)}
-                      style={{ marginBottom: 16, borderRadius: 8 }}
+                      className="modal-search"
                     />
                     <div className="color-modal-grid">
                       {filteredColors?.map((opt) => (
@@ -1693,14 +1525,13 @@ const handleImageUpload = async (images) => {
                 </Col>
                  <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Year"
                      name="year"
-                     required={false}
+                     rules={[
+    { required: true, message: 'Please select condition!' },
+  ]}
+  required={false}
                   >
                     <YearInput 
                       selectedYear={selectedYear}
@@ -1712,7 +1543,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setYearModalOpen(false)}
                     footer={null}
                     title={
-                      <div className="year-modal-title-row">
+                      <div className="modal-title-row">
                         <span>What is the Year of your car?</span>
                       </div>
                     }
@@ -1723,15 +1554,15 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={yearSearch}
                       onChange={(e) => setYearSearch(e.target.value)}
-                      className="year-modal-search"
+                      className="modal-search"
                     />
-                    <div className="year-modal-list">
+                    <div className="modal-list-scrollable">
                       {yearData
                         ?.filter((opt) => opt.year.includes(yearSearch))
                         ?.map((opt) => (
                           <div
                             key={opt.year}
-                            className={`year-modal-option${
+                            className={`modal-option${
                               selectedYear === opt.year ? ' selected' : ''
                             }`}
                             onClick={() => {
@@ -1748,11 +1579,7 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label"
                     label="Trim"
                     name="trim"
                   >
@@ -1766,7 +1593,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setTrimModalOpen(false)}
                     footer={null}
                     title={
-                      <div className="trim-modal-title-row">
+                      <div className="modal-title-row">
                         <span>What is the Trim of your car?</span>
                       </div>
                     }
@@ -1777,9 +1604,9 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={trimSearch}
                       onChange={(e) => setTrimSearch(e.target.value)}
-                      className="trim-modal-search"
+                      className="modal-search"
                     />
-                    <div className="trim-modal-list">
+                    <div className="modal-list">
                       {trimData
                         ?.filter((opt) =>
                           opt?.trim_name
@@ -1789,7 +1616,7 @@ const handleImageUpload = async (images) => {
                         ?.map((opt) => (
                           <div
                             key={opt.trim_name}
-                            className={`trim-modal-option${
+                            className={`modal-option${
                               selectedTrim === opt.value ? ' selected' : ''
                             }`}
                             onClick={() => {
@@ -1817,19 +1644,19 @@ const handleImageUpload = async (images) => {
              <Row gutter={16}>
   <Col xs={24} md={6}>
     <Form.Item
-      style={{
-        fontWeight: 500,
-        fontSize: 12,
-        color: '#0A0A0B',
-      }}
+      className="form-item-label"
       label="Body Type"
       name="bodyType"
-      required={false}
+      rules={[
+    { required: true, message: 'Please select body type!' },
+  ]}
+  required={false}
     >
       <Input
         value={selectedBodyType}
-        style={{ display: 'none' }}
+        className="hidden-input"
         readOnly
+       
       />
       <div className="option-box-group">
         {updateData?.body_types?.map((opt) => (
@@ -1850,18 +1677,17 @@ const handleImageUpload = async (images) => {
 
   <Col xs={24} md={6}>
     <Form.Item
-      style={{
-        fontWeight: 500,
-        fontSize: 12,
-        color: '#0A0A0B',
-      }}
+      className="form-item-label"
       label="Condition"
       name="condition"
-      required={false}
+      rules={[
+    { required: true, message: 'Please select condition!' },
+  ]}
+  required={false}
     >
       <Input
         value={selectedCondition}
-        style={{ display: 'none' }}
+        className="hidden-input"
         readOnly
       />
       <div className="option-box-group">
@@ -1884,11 +1710,7 @@ const handleImageUpload = async (images) => {
   {/* Price input */}
   <Col xs={24} md={6}>
   <Form.Item
-    style={{
-      fontWeight: 500,
-      fontSize: 14,
-      color: '#0A0A0B',
-    }}
+    className="form-item-label-large"
     label="Price"
     name="price"
     rules={[
@@ -1904,8 +1726,7 @@ const handleImageUpload = async (images) => {
     ]}
   >
     <Input
-      className="custom-placeholder"
-      style={{ width: '100%' }}
+      className="custom-placeholder full-width-input"
       type="tel"
       inputMode="numeric"
       pattern="[0-9]*"
@@ -1927,14 +1748,12 @@ const handleImageUpload = async (images) => {
 
   <Col xs={24} md={6}>
     <Form.Item
-      style={{
-        fontWeight: 500,
-        fontSize: 12,
-        color: '#0A0A0B',
-      }}
+      className="form-item-label"
       label="Horsepower (HP)"
-      name="horsepower"
-     required={false}
+      name="horsepower"rules={[
+    { required: true, message: 'Please select horse power!' },
+  ]}
+  required={false}
     >
       <Select
         showSearch
@@ -1960,11 +1779,7 @@ const handleImageUpload = async (images) => {
               <Row gutter={16}>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label"
                     label="Badges"
                     name="badges"
                   >
@@ -1997,14 +1812,13 @@ const handleImageUpload = async (images) => {
 
                 <Col xs={24} md={12}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label"
                     label="Vehicle Type"
                     name="vehicletype"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select vehicle type!' },
+  ]}
+  required={false}
                   >
                     <Select
         placeholder="Select vehicle type"
@@ -2027,11 +1841,7 @@ const handleImageUpload = async (images) => {
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Kilometers"
                     name="kilometers"
                     rules={[
@@ -2049,7 +1859,7 @@ const handleImageUpload = async (images) => {
                     validateTrigger="onBlur"
                   >
                       <Input
-    style={{ width: '100%' }}
+    className="full-width-input"
     type="tel"
     inputMode="numeric"
     pattern="[0-9]*"
@@ -2068,14 +1878,13 @@ const handleImageUpload = async (images) => {
               
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Region"
                     name="region"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select region!' },
+  ]}
+  required={false}
                   >
                     <RegionInput 
                       selectedRegion={selectedRegion}
@@ -2087,7 +1896,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setRegionModalOpen(false)}
                     footer={null}
                     title={
-                      <div className="region-modal-title-row">
+                      <div className="modal-title-row">
                         <span>Where is the Location of your car?</span>
                       </div>
                     }
@@ -2098,9 +1907,9 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={regionSearch}
                       onChange={(e) => setRegionSearch(e.target.value)}
-                      className="region-modal-search"
+                      className="modal-search"
                     />
-                    <div className="region-modal-list">
+                    <div className="modal-list-scrollable">
                       {updateData?.locations
                         ?.filter((opt) =>
                           opt?.location
@@ -2110,7 +1919,7 @@ const handleImageUpload = async (images) => {
                         ?.map((opt) => (
                           <div
                             key={opt?.location}
-                            className={`region-modal-option${
+                            className={`modal-option${
                               selectedRegion === opt?.location
                                 ? ' selected'
                                 : ''
@@ -2129,26 +1938,18 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Warranty Date (Optional)"
                     name="warrantyDate"
                   >
-                    <DatePicker style={{ width: '100%' }} format="MM/DD/YYYY" />
+                    <DatePicker className="full-width-input" format="MM/DD/YYYY" />
                   </Form.Item>
                 </Col>
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Accident History"
                     name="accidentHistory"
                   >
@@ -2164,14 +1965,13 @@ const handleImageUpload = async (images) => {
 
                 <Col xs={24} md={12}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label"
                     label="Regional Specs"
                      name="regionalSpecs"
-                     required={false}
+                     rules={[
+    { required: true, message: 'Please select regional specs!' },
+  ]}
+  required={false}
                   >
                     <RegionalSpecsInput 
                       selectedRegionalSpecs={selectedRegionalSpecs}
@@ -2183,7 +1983,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setRegionalSpecsModalOpen(false)}
                     footer={null}
                     title={
-                      <div className="regionalspecs-modal-title-row">
+                      <div className="modal-title-row">
                         <span>What is the Regional Specs of your car?</span>
                       </div>
                     }
@@ -2194,9 +1994,9 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={regionalSpecsSearch}
                       onChange={(e) => setRegionalSpecsSearch(e.target.value)}
-                      className="regionalspecs-modal-search"
+                      className="modal-search"
                     />
-                    <div className="regionalspecs-modal-list">
+                    <div className="modal-list-scrollable">
                       {updateData?.regional_specs
                         ?.filter((opt) =>
                           opt?.regional_spec
@@ -2206,7 +2006,7 @@ const handleImageUpload = async (images) => {
                         ?.map((opt) => (
                           <div
                             key={opt.regional_spec}
-                            className={`regionalspecs-modal-option${
+                            className={`modal-option${
                               selectedRegionalSpecs === opt.regional_spec
                                 ? ' selected'
                                 : ''
@@ -2227,22 +2027,21 @@ const handleImageUpload = async (images) => {
                 </Col>
               </Row>
             </Card>
-            <Card title="Additional Details" style={{ padding: ' 0px 24px' }}>
+            <Card title="Additional Details" className="card-additional-details">
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Number of seats"
                     name="seats"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select number of seats!' },
+  ]}
+  required={false}
                   >
                     <Input
                       value={selectedSeats}
-                      style={{ display: 'none' }}
+                      className="hidden-input"
                       readOnly
                     />
                     <div className="option-box-group">
@@ -2265,11 +2064,7 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={4}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Number of doors"
                     name="doors"
                   >
@@ -2293,18 +2088,17 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={7}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Fuel Type"
                     name="fuelType"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select fuel type!' },
+  ]}
+  required={false}
                   >
                     <Input
                       value={selectedFuelType}
-                      style={{ display: 'none' }}
+                      className="hidden-input"
                       readOnly
                     />
                     <div className="option-box-group">
@@ -2327,18 +2121,17 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Transmission Type"
                     name="transmissionType"
-                    required={false}
+                    rules={[
+    { required: true, message: 'Please select transmission type!' },
+  ]}
+  required={false}
                   >
                     <Input
                       value={selectedTransmissionType}
-                      style={{ display: 'none' }}
+                      className="hidden-input"
                       readOnly
                     />
                     <div className="option-box-group">
@@ -2361,11 +2154,7 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Drive Type"
                     name="driveType"
                   >
@@ -2389,16 +2178,12 @@ const handleImageUpload = async (images) => {
                 </Col>
               <Col xs={24} md={6}>
   <Form.Item
-    style={{
-      fontWeight: 500,
-      fontSize: 10,
-      color: '#0A0A0B',
-    }}
+    className="form-item-label-small"
     label="Engine CC"
     name="engineCC"
   >
     <Input
-      style={{ fontSize: 14 }}
+      className="input-font-14"
       placeholder="Enter Engine CC..."
       type="tel"
       inputMode="numeric"
@@ -2427,16 +2212,12 @@ const handleImageUpload = async (images) => {
 
  <Col xs={24} md={6}>
   <Form.Item
-    style={{
-      fontWeight: 500,
-      fontSize: 10,
-      color: '#0A0A0B',
-    }}
+    className="form-item-label-small"
     label="Consumption"
     name="consumption"
   >
     <Input
-      style={{ fontSize: 14 }}
+      className="input-font-14"
       placeholder="Enter Consumption..."
       type="tel"
       inputMode="numeric"
@@ -2468,11 +2249,7 @@ const handleImageUpload = async (images) => {
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Extra Features"
                     name="extraFeatures"
                   >
@@ -2491,11 +2268,7 @@ const handleImageUpload = async (images) => {
                 </Col>
                 <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Interior"
                     name="interior"
                   >
@@ -2516,11 +2289,7 @@ const handleImageUpload = async (images) => {
 
                  <Col xs={24} md={6}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 12,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label"
                     label="Interior Color"
                     name="interiorColor"
                   >
@@ -2534,13 +2303,7 @@ const handleImageUpload = async (images) => {
                     onCancel={() => setColorModalOpenInterior(false)}
                     footer={null}
                     title={
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
+                      <div className="modal-title-row">
                         <span>What is the interior color of your car?</span>
                       </div>
                     }
@@ -2551,7 +2314,7 @@ const handleImageUpload = async (images) => {
                       placeholder="Search By Typing"
                       value={colorSearch}
                       onChange={(e) => setColorSearch(e.target.value)}
-                      style={{ marginBottom: 16, borderRadius: 8 }}
+                      className="modal-search"
                     />
                     <div className="color-modal-grid">
                       {filteredColors1?.map((opt) => (
@@ -2583,11 +2346,7 @@ const handleImageUpload = async (images) => {
               <Row gutter={16}>
                 <Col xs={24} md={18}>
                   <Form.Item
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#0A0A0B',
-                    }}
+                    className="form-item-label-small"
                     label="Number of Cylinders"
                     name="cylinders"
                   >
@@ -2611,25 +2370,13 @@ const handleImageUpload = async (images) => {
                 </Col>
               </Row>
             </Card>
-            <Form.Item style={{ marginTop: 16 }}>
+            <Form.Item className="form-item-margin-top">
               <div className="submit-btn-group">
                 {extras && extras.id ? (
                   // Update mode - show Update Car button
                   <Button
-                    style={{
-                      background: loading ? '#ccc' : '#0090d4',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: 20,
-                      padding: '2px 52px',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      fontFamily: 'Roboto',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      opacity: loading ? 0.7 : 1,
-                    }}
+                    className={`btn-update-car ${loading ? '' : 'enabled'}`}
                     size="small"
-                    className="btn-solid-blue"
                     type="primary"
                     onClick={handleUpdateCar}
                     disabled={loading}
@@ -2657,20 +2404,8 @@ const handleImageUpload = async (images) => {
                       Save as draft
                     </Button>
                     <Button
-                      style={{
-                        background: loading ? '#ccc' : '#0090d4',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 20,
-                        padding: '2px 52px',
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        fontFamily: 'Roboto',
-                        fontWeight: 700,
-                        fontSize: 14,
-                        opacity: loading ? 0.7 : 1,
-                      }}
+                      className={`btn-create ${loading ? '' : 'enabled btn-solid-blue'}`}
                       size="small"
-                      className="btn-solid-blue"
                       type="primary"
                       htmlType="submit"
                       disabled={loading}

@@ -195,15 +195,27 @@ if (loading) {
                 color: '#0A0A0B',
               }}
             >
-              {[
-                 search.search_params.price_to && `$${search.search_params.price_to}`,
-                 search.search_params.price_min && `$${search.search_params.price_min}`,
-                 search.search_params.year_min && `From ${search.search_params.year_min}`,
-                 search.search_params.max_kilometers && `to ${search.search_params.max_kilometers}`,
-                 search.search_params.number_of_seats && `number of seats: ${search.search_params.number_of_seats}`,
-                ]
-                 .filter(Boolean) 
-                 .join(' • ')}
+             {[
+  // Show price range if both min and max are available
+  (search.search_params.price_min && search.search_params.price_max) &&
+    `IQD ${search.search_params.price_min} - IQD ${search.search_params.price_max}`,
+
+  // Show only price_to if available and min/max are not set
+  (!search.search_params.price_min && search.search_params.price_to) &&
+    `IQD ${search.search_params.price_to}`,
+
+  // Year range
+  search.search_params.year_min && `From ${search.search_params.year_min}`,
+
+  // Max kilometers
+  search.search_params.max_kilometers && `To ${search.search_params.max_kilometers}`,
+
+  // Number of seats
+  search.search_params.number_of_seats &&
+    `Number of seats: ${search.search_params.number_of_seats}`,
+]
+  .filter(Boolean) 
+  .join(' • ')}    
             </div>
           <div className="saved-search-details">{search.details}</div>
           <div

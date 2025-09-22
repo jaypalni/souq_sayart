@@ -50,6 +50,8 @@ const MyProfileMenu = ({
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [, setDeleteData] = useState([]);
+  const [isDealer, setIsDealer] = useState(null); // null initially
+
   
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -62,6 +64,7 @@ const MyProfileMenu = ({
         const profileData = handleApiResponse(response);
         if (profileData) {
           setWhatsappNotification(profileData?.data?.whatsapp);
+          setIsDealer(profileData?.data?.is_dealer);
         }
       } catch (error) {
         // Handle error silently
@@ -283,22 +286,26 @@ const MyProfileMenu = ({
         </Link>
       ),
     },
-    {
-      key: 'dashboard',
-      icon: <img src={dealerIcon} alt="Dealor" style={{ width: 16, height: 16 }} />,
-      label: (
-        <Link
-          to="/myProfile/dashboard"
-          style={{
-            fontSize: '12px',
-            fontWeight: 400,
-            color: '#0A0A0B',
-          }}
-        >
-          Dealership Dashboard
-        </Link>
-      ),
-    },
+    ...(isDealer === 1
+    ? [
+        {
+          key: 'dashboard',
+          icon: <img src={dealerIcon} alt="Dealer" style={{ width: 16, height: 16 }} />,
+          label: (
+            <Link
+              to="/myProfile/dashboard"
+              style={{
+                fontSize: '12px',
+                fontWeight: 400,
+                color: '#0A0A0B',
+              }}
+            >
+              Dealership Dashboard
+            </Link>
+          ),
+        },
+      ]
+    : []),
     {
       key: 'favorites',
       icon: <img src={favoriteIcon} alt="Favorite" style={{ width: 16, height: 16 }} />,

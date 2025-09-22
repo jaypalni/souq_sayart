@@ -121,7 +121,7 @@ const refreshtokenapi = async () => {
     }
 
     // ✅ Call refresh token API
-    const response = await axios.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {
+    const response = await axios.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {
       baseURL: API_CONFIG.BASE_URL,
       headers: {
         'Content-Type': 'application/json',

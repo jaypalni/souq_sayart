@@ -285,7 +285,7 @@ const LoginScreen = () => {
             </label>
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
               {/* Country code dropdown */}
-              <div style={{ position: 'relative', width: 102, height: 52 }}>
+              <div >
                 <button
                   type="button"
                   style={{

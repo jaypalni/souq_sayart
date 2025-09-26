@@ -135,7 +135,7 @@ const displayLabel =
 
           <Button
             type="primary"
-            // onClick={() => navigate('/sell', { state: { extras: car } })}
+            onClick={() => navigate('/sell', { state: { extras: car } })}
             className="car-card-edit-btn"
           >
             Edit

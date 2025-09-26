@@ -235,7 +235,7 @@ prepareFilterData.propTypes = {
 };
 
 // Extracted components
-const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, minPlaceholder, maxPlaceholder }) => (
+const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, minPlaceholder, maxPlaceholder, onBlurValidation }) => (
   <div style={{ marginBottom: 16 }}>
     <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
       {label}
@@ -246,6 +246,7 @@ const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, 
           placeholder={minPlaceholder || 'Min'} 
           value={minValue}
           onChange={(e) => handleNumberInput(e, onMinChange)}
+           onBlur={() => onBlurValidation?.()}
         />
       </Col>
       <Col span={12}>
@@ -253,6 +254,7 @@ const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, 
           placeholder={maxPlaceholder || 'Max'} 
           value={maxValue}
           onChange={(e) => handleNumberInput(e, onMaxChange)}
+           onBlur={() => onBlurValidation?.()}
         />
       </Col>
     </Row>
@@ -511,6 +513,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
   const [value, setValue] = useState('Any');
   const [search, setSearch] = useState('');
+  const [messageApi, contextHolder] = message.useMessage();
 
   // Ensure limit and currentPage are valid numbers
   const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
@@ -581,12 +584,51 @@ const fetchUpdateOptionsData = async () => {
     setLoading(false);
   }
 };
+const validateRange = (label, min, max) => {
+  if (!isNaN(min) && !isNaN(max) && min > max) {
+     messageApi.open({
+                type: 'error',
+                content: `Minimum ${label} cannot be greater than maximum ${label}`,
+              });
+   
+    return false;
+  }
+  return true;
+};
+
+  const handleApplyFilters = () => {
+  const validateRange = (label, min, max) => {
+    // alert('wdhuwjd')
+  if (!isNaN(min) && !isNaN(max) && min > max) {
+   messageApi.open({
+                type: 'error',
+                content: `Minimum ${label} cannot be greater than maximum ${label}`,
+              });
+   
+    return false;
+  }
+  return true;
+};
+  const minKilometers = parseInt(rangeInputs.kilometersMin, 10);
+  const maxKilometers = parseInt(rangeInputs.kilometersMax, 10);
+  const minYear = parseInt(rangeInputs.yearMin, 10);
+  const maxYear = parseInt(rangeInputs.yearMax, 10);
+// In handleApplyFilters:
+if (
+  !validateRange('kilometers', minKilometers, maxKilometers) ||
+  !validateRange('price', rangeInputs.priceMin, rangeInputs.priceMax)||
+   !validateRange('Year', minYear, maxYear)
+
+) {
+  return;
+}
+
+  applyFilters()
+};
 
 
-  
 
-
-  const handleApplyFilters = async () => {
+  const applyFilters = async () => {
     try {
       setLoading(true);
       const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords, currentPage: validCurrentPage, limit: validLimit, featuredorrecommended, newUsed });
@@ -662,6 +704,7 @@ const fetchUpdateOptionsData = async () => {
 
   return (
     <>
+    {contextHolder}
       <button
         type="button"
         onClick={() => setVisible(true)}
@@ -752,6 +795,19 @@ const fetchUpdateOptionsData = async () => {
             maxValue={rangeInputs.kilometersMax}
             onMinChange={(e) => rangeInputs.setKilometersMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setKilometersMax(e.target.value)}
+             onBlurValidation={() => {
+              console.log('s33',rangeInputs.kilometersMax,rangeInputs.kilometersMin)
+    const min = parseInt(rangeInputs.kilometersMin, 10);
+    const max = parseInt(rangeInputs.kilometersMax, 10);
+
+    if (!isNaN(min) && !isNaN(max) && min > max) {
+        messageApi.open({
+                type: 'error',
+                content: 'Minimum kilometers cannot be greater than maximum kilometers',
+              });
+    
+    }
+  }}
           />
 
           <RangeInputGroup
@@ -760,6 +816,18 @@ const fetchUpdateOptionsData = async () => {
             maxValue={rangeInputs.yearMax}
             onMinChange={(e) => rangeInputs.setYearMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setYearMax(e.target.value)}
+            onBlurValidation={() => {
+    const min = parseInt(rangeInputs.yearMin, 10);
+    const max = parseInt(rangeInputs.yearMax, 10);
+
+    if (!isNaN(min) && !isNaN(max) && min > max) {
+        messageApi.open({
+                type: 'error',
+                content: 'Minimum Year cannot be greater than maximum Year',
+              });
+    
+    }
+  }}
           />
 
           <RangeInputGroup
@@ -768,6 +836,18 @@ const fetchUpdateOptionsData = async () => {
             maxValue={rangeInputs.priceMax}
             onMinChange={(e) => rangeInputs.setPriceMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setPriceMax(e.target.value)}
+            onBlurValidation={() => {
+    const min = parseInt(rangeInputs.priceMin, 10);
+    const max = parseInt(rangeInputs.priceMax, 10);
+
+    if (!isNaN(min) && !isNaN(max) && min > max) {
+        messageApi.open({
+                type: 'error',
+                content: 'Minimum Price cannot be greater than maximum Price',
+              });
+    
+    }
+  }}
           />
 
           <CheckboxGroup

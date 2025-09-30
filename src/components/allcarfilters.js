@@ -24,6 +24,7 @@ const DEFAULTS = {
   ALL_MAKE: 'All Make',
   ALL_MODELS: 'All Models',
   ALL_BODY_TYPES: 'All Body Types',
+  ALL_LOCATIONS: 'All Locations',
   BAGHDAD: 'Baghdad',
   NEW_USED: 'New & Used',
   PRICE_MIN: 'Price Min',
@@ -66,68 +67,131 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, so
   const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
   const validCurrentPage = typeof currentPage === 'number' && currentPage > 0 ? currentPage : 1;
 
-// Initialize make from localStorage if available
+// Initialize make from props or localStorage if available
 const getInitialMake = () => {
+  console.log('getInitialMake - selectedMake prop:', selectedMake);
+  
+  // First check if prop is provided
+  if (selectedMake && selectedMake !== '') {
+    console.log('getInitialMake - Using prop value:', selectedMake);
+    return selectedMake;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    console.log('getInitialMake - localStorage saved:', saved);
     if (saved?.make && saved.make !== '') {
+      console.log('getInitialMake - Using localStorage value:', saved.make);
       return saved.make;
     }
   } catch (e) {
+    console.log('getInitialMake - localStorage error:', e);
     // Silent error handling
   }
+  
+  console.log('getInitialMake - Using default value:', DEFAULTS.ALL_MAKE);
   return DEFAULTS.ALL_MAKE;
 };
 
 const [make, setMake] = useState(getInitialMake);
+console.log('Initial make state:', make);
 
-// Initialize model from localStorage if available
+// Initialize model from props or localStorage if available
 const getInitialModel = () => {
+  console.log('getInitialModel - selectedModel prop:', selectedModel);
+  
+  // First check if prop is provided
+  if (selectedModel && selectedModel !== '') {
+    console.log('getInitialModel - Using prop value:', selectedModel);
+    return selectedModel;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    console.log('getInitialModel - localStorage saved:', saved);
     if (saved?.model && saved.model !== '') {
+      console.log('getInitialModel - Using localStorage value:', saved.model);
       return saved.model;
     }
   } catch (e) {
+    console.log('getInitialModel - localStorage error:', e);
     // Silent error handling
   }
+  
+  console.log('getInitialModel - Using default value:', DEFAULTS.ALL_MODELS);
   return DEFAULTS.ALL_MODELS;
 };
 
   const [model, setModel] = useState(getInitialModel);
-// Initialize bodyType from localStorage if available
+console.log('Initial model state:', model);
+
+// Initialize bodyType from props or localStorage if available
 const getInitialBodyType = () => {
+  console.log('getInitialBodyType - selectedBodyType prop:', selectedBodyType);
+  
+  // First check if prop is provided
+  if (selectedBodyType && selectedBodyType !== '') {
+    console.log('getInitialBodyType - Using prop value:', selectedBodyType);
+    return selectedBodyType;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    console.log('getInitialBodyType - localStorage saved:', saved);
     if (saved?.body_type && saved.body_type !== '') {
+      console.log('getInitialBodyType - Using localStorage value:', saved.body_type);
       return saved.body_type;
     }
   } catch (e) {
+    console.log('getInitialBodyType - localStorage error:', e);
     // Silent error handling
   }
+  
+  console.log('getInitialBodyType - Using default value:', DEFAULTS.ALL_BODY_TYPES);
   return DEFAULTS.ALL_BODY_TYPES;
 };
 
   const [bodyType, setBodyType] = useState(getInitialBodyType);
+console.log('Initial bodyType state:', bodyType);
+
    const [carModels, setCarModels] = useState([]);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
-// Initialize location from localStorage if available
+// Initialize location from props or localStorage if available
 const getInitialLocation = () => {
+  console.log('getInitialLocation - selectedLocation prop:', selectedLocation);
+  
+  // First check if prop is provided
+  if (selectedLocation && selectedLocation !== '') {
+    console.log('getInitialLocation - Using prop value:', selectedLocation);
+    return selectedLocation;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    console.log('getInitialLocation - localStorage saved:', saved);
     if (saved?.location && saved.location !== '') {
+      console.log('getInitialLocation - Using localStorage value:', saved.location);
       return saved.location;
     }
   } catch (e) {
+    console.log('getInitialLocation - localStorage error:', e);
     // Silent error handling
   }
-  return 'All Locations';
+  
+  console.log('getInitialLocation - Using default value:', DEFAULTS.ALL_LOCATIONS);
+  return DEFAULTS.ALL_LOCATIONS;
 };
 
   const [location, setLocation] = useState(getInitialLocation);
+console.log('Initial location state:', location);
 
-// Initialize newUsed from localStorage if available
+// Initialize newUsed from props or localStorage if available
 const getInitialNewUsed = () => {
+  // First check if prop is provided
+  if (selectedNewUsed && selectedNewUsed !== '') {
+    return selectedNewUsed;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     if (saved?.condition && saved.condition !== '') {
@@ -139,8 +203,13 @@ const getInitialNewUsed = () => {
   return DEFAULTS.NEW_USED;
 };
 
-// Initialize priceMin from localStorage if available
+// Initialize priceMin from props or localStorage if available
 const getInitialPriceMin = () => {
+  // First check if prop is provided
+  if (selectedPriceMin !== null && selectedPriceMin !== undefined) {
+    return selectedPriceMin;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     if (saved?.price_min && saved.price_min !== '') {
@@ -152,8 +221,13 @@ const getInitialPriceMin = () => {
   return DEFAULTS.PRICE_MIN;
 };
 
-// Initialize priceMax from localStorage if available
+// Initialize priceMax from props or localStorage if available
 const getInitialPriceMax = () => {
+  // First check if prop is provided
+  if (selectedPriceMax !== null && selectedPriceMax !== undefined) {
+    return selectedPriceMax;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     if (saved?.price_max && saved.price_max !== '') {
@@ -174,8 +248,13 @@ const getInitialPriceMax = () => {
    const [showMinInput, setShowMinInput] = useState(false);
     const [showMaxInput, setShowMaxInput] = useState(false);
 
-// Initialize minPrice and maxPrice from localStorage if available
+// Initialize minPrice and maxPrice from props or localStorage if available
 const getInitialMinPrice = () => {
+  // First check if prop is provided
+  if (selectedPriceMin !== null && selectedPriceMin !== undefined) {
+    return selectedPriceMin;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     if (saved?.price_min && saved.price_min !== '') {
@@ -188,6 +267,11 @@ const getInitialMinPrice = () => {
 };
 
 const getInitialMaxPrice = () => {
+  // First check if prop is provided
+  if (selectedPriceMax !== null && selectedPriceMax !== undefined) {
+    return selectedPriceMax;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
     if (saved?.price_max && saved.price_max !== '') {
@@ -211,6 +295,7 @@ const getInitialMaxPrice = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const hasInitialSearch = useRef(false); // Track if initial search has been made
   const [isHovering, setIsHovering] = useState(false); // Track hover state for clear button
+  const [propsProcessed, setPropsProcessed] = useState(false); // Track if props have been processed
 
   // Helper function to get value or empty string
   const valueOrEmpty = (currentValue, defaultValue) => {
@@ -218,6 +303,15 @@ const getInitialMaxPrice = () => {
       return currentValue;
     }
     return '';
+  };
+
+  // Helper function to handle locations parameter consistently
+  const getLocationsParam = (currentLocation) => {
+    // Always return an array
+    if (currentLocation && currentLocation !== '' && currentLocation !== DEFAULTS.ALL_LOCATIONS) {
+      return [currentLocation];
+    }
+    return [];
   };
 
   // Function to clear featuredorrecommended and location state
@@ -239,7 +333,7 @@ const getInitialMaxPrice = () => {
         make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
         model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
         body_type: valueOrEmpty(bodyType, DEFAULTS.ALL_BODY_TYPES),
-        location: valueOrEmpty(location, 'All Locations'),
+        locations: getLocationsParam(location),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
         page: 1,
@@ -248,7 +342,11 @@ const getInitialMaxPrice = () => {
         // Note: No type parameter included
       };
       
+      console.log('autoSearchForCountWithoutType - Current state:', { make, model, bodyType, location, newUsed, minPrice, maxPrice });
+      console.log('autoSearchForCountWithoutType - API params:', apiParams);
+      
       const response = await carAPI.getSearchCars(apiParams);
+      console.log('New APi one', newUsed)
       const data = handleApiResponse(response);
 
       // Null checks for pagination data
@@ -268,7 +366,7 @@ const getInitialMaxPrice = () => {
         make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
         model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
         body_type: valueOrEmpty(bodyType, DEFAULTS.ALL_BODY_TYPES),
-        location: valueOrEmpty(location, 'All Locations'),
+        locations: getLocationsParam(location),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
         page: 1,
@@ -283,7 +381,19 @@ const getInitialMaxPrice = () => {
         apiParams.type = featuredorrecommended;
       }
       
+      console.log('autoSearchForCount - Current state values:', {
+        make,
+        model,
+        bodyType,
+        location,
+        newUsed,
+        minPrice,
+        maxPrice
+      });
+      console.log('autoSearchForCount - API params:', apiParams);
+      
       const response = await carAPI.getSearchCars(apiParams);
+      console.log('New APi two', newUsed)
       const data = handleApiResponse(response);
 
       // Null checks for pagination data
@@ -303,21 +413,31 @@ const getInitialMaxPrice = () => {
 
 
 useEffect(() => {
+  // Only run this effect if no prop is provided
+  if (selectedLocation) {
+    console.log('Location useEffect - Skipping localStorage check because prop is provided:', selectedLocation);
+    return;
+  }
+  
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
+    console.log('Location useEffect - localStorage saved:', saved);
     
     if (saved?.location && saved.location !== '') {
+      console.log('Location useEffect - Setting location from localStorage:', saved.location);
       setLocation(saved.location);
       if (setSelectedLocation) {
         setSelectedLocation(saved.location);
       }
     } else {
-      setLocation('All Locations');
+      console.log('Location useEffect - Setting default location');
+      setLocation(DEFAULTS.ALL_LOCATIONS);
     }
   } catch (e) {
-    setLocation('All Locations');
+    console.log('Location useEffect - Error, setting default location');
+    setLocation(DEFAULTS.ALL_LOCATIONS);
   }
-}, [setSelectedLocation]);
+}, [setSelectedLocation, selectedLocation]);
 
 // Note: Removed handleSearch() call on mount to prevent multiple API calls
 // The autoSearchForCount() in the combined useEffect will handle the count display
@@ -365,15 +485,24 @@ fetchRegionCars()
     }
   }, [sortedbydata]);
 
-  // Initial load - call handleSearch once when data is ready
+  // Initial load - call handleSearch once when data is ready and props are processed
   useEffect(() => {
     if (carMakes.length > 0 && !hasInitialSearch.current) {
-      hasInitialSearch.current = true;
-      setIsInitialized(true);
-      // Call handleSearch on initial load to show data
-      handleSearch();
+      // If no props are provided, process immediately
+      if (!selectedMake && !selectedModel && !selectedBodyType && !selectedLocation) {
+        console.log('No props provided, processing immediately');
+        setPropsProcessed(true);
+      }
+      
+      if (propsProcessed) {
+        hasInitialSearch.current = true;
+        setIsInitialized(true);
+        
+        console.log('Initial handleSearch called after props processed');
+        handleSearch();
+      }
     }
-  }, [carMakes.length]);
+  }, [carMakes.length, propsProcessed]);
 
   // Filter changes - call autoSearchForCount after each param change (only after initial load)
   useEffect(() => {
@@ -399,6 +528,77 @@ fetchRegionCars()
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdown]);
+
+  // Debug effect to track prop changes
+  useEffect(() => {
+    console.log('Props changed - Current props:', {
+      selectedMake,
+      selectedModel,
+      selectedBodyType,
+      selectedLocation,
+      selectedNewUsed,
+      selectedPriceMin,
+      selectedPriceMax
+    });
+    
+    // Mark props as processed after a short delay
+    const timer = setTimeout(() => {
+      setPropsProcessed(true);
+      console.log('Props processing completed');
+    }, 50);
+    
+    return () => clearTimeout(timer);
+  }, [selectedMake, selectedModel, selectedBodyType, selectedLocation, selectedNewUsed, selectedPriceMin, selectedPriceMax]);
+
+  // Update state when props change
+  useEffect(() => {
+    if (selectedMake && selectedMake !== make) {
+      console.log('Updating make from prop:', selectedMake);
+      setMake(selectedMake);
+    }
+  }, [selectedMake]);
+
+  useEffect(() => {
+    if (selectedModel && selectedModel !== model) {
+      console.log('Updating model from prop:', selectedModel);
+      setModel(selectedModel);
+    }
+  }, [selectedModel]);
+
+  useEffect(() => {
+    if (selectedBodyType && selectedBodyType !== bodyType) {
+      console.log('Updating bodyType from prop:', selectedBodyType);
+      setBodyType(selectedBodyType);
+    }
+  }, [selectedBodyType]);
+
+  useEffect(() => {
+    if (selectedLocation && selectedLocation !== location) {
+      console.log('Updating location from prop:', selectedLocation);
+      setLocation(selectedLocation);
+    }
+  }, [selectedLocation]);
+
+  useEffect(() => {
+    if (selectedNewUsed && selectedNewUsed !== newUsed) {
+      console.log('Updating newUsed from prop:', selectedNewUsed);
+      setNewUsed(selectedNewUsed);
+    }
+  }, [selectedNewUsed]);
+
+  useEffect(() => {
+    if (selectedPriceMin !== null && selectedPriceMin !== undefined && selectedPriceMin !== minPrice) {
+      console.log('Updating minPrice from prop:', selectedPriceMin);
+      setMinPrice(selectedPriceMin);
+    }
+  }, [selectedPriceMin]);
+
+  useEffect(() => {
+    if (selectedPriceMax !== null && selectedPriceMax !== undefined && selectedPriceMax !== maxPrice) {
+      console.log('Updating maxPrice from prop:', selectedPriceMax);
+      setMaxPrice(selectedPriceMax);
+    }
+  }, [selectedPriceMax]);
 
   const toggleDropdown = (type) => {
     if (openDropdown === type) {
@@ -553,7 +753,7 @@ fetchRegionCars()
     make: make === DEFAULTS.ALL_MAKE ? '' : make,
     model: model === DEFAULTS.ALL_MODELS ? '' : model,
     body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
-    location: location === 'All Locations' ? '' : (location || ''),
+    locations: getLocationsParam(location),
     condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
     priceMin,
     priceMax,
@@ -572,7 +772,7 @@ fetchRegionCars()
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
       body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
-      location: (location && location !== '' && location !== 'All Locations') ? location : '',
+      locations: getLocationsParam(location),
       price_min: cleanedMin,
       price_max: cleanedMax,
       condition:newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
@@ -587,6 +787,16 @@ fetchRegionCars()
       apiParams.type = featuredorrecommended;
     }
 
+    console.log('buildApiParams - Current state values:', {
+      make,
+      model,
+      bodyType,
+      location,
+      newUsed,
+      minPrice,
+      maxPrice
+    });
+    console.log('buildApiParams - Final API params:', apiParams);
     return apiParams;
   };
 
@@ -659,6 +869,16 @@ fetchRegionCars()
 
   // Main search function
   const handleSearch = async () => {
+    console.log('handleSearch - Current state before API call:', {
+      make,
+      model,
+      bodyType,
+      location,
+      newUsed,
+      minPrice,
+      maxPrice
+    });
+    
     const sortConfig = getSortParameters(sortedbydata);
     const saveParams = buildSaveParams(sortConfig);
     const apiParams = buildApiParams(sortConfig);
@@ -674,6 +894,7 @@ setIsnetworkError(false)
       
       clearCachedData();
       const response = await carAPI.getSearchCars(apiParams);
+      console.log('New APi three', newUsed)
       const data1 = handleApiResponse(response);
 
       if (data1) {
@@ -725,6 +946,16 @@ setIsnetworkError(false)
               setValue(opt);
               handleChange(getDropdownLabel(type), opt);
               setOpenDropdown(null);
+              
+              // Call API only when condition is selected
+              if (type === DROPDOWN_NEW_USED) {
+                console.log('Condition selected:', opt, '- Calling handleSearch API');
+                // Call handleSearch with the selected condition
+                setTimeout(() => {
+                  console.log('About to call handleSearch, selected condition:', opt);
+                  handleSearchWithCondition(opt);
+                }, 100);
+              }
             }}
           >
             {opt}
@@ -962,6 +1193,12 @@ setIsnetworkError(false)
     }
 
     setMinPrice(value ? Number(value) : null);
+    
+    // Call API when price changes
+    console.log('Min price changed:', value ? Number(value) : null, '- Calling handleSearch API');
+    setTimeout(() => {
+      handleSearch();
+    }, 500);
   }}
   onBlur={() => {
     if (minPrice === null) setShowMinInput(false);
@@ -1010,6 +1247,12 @@ setIsnetworkError(false)
     if (minPrice !== null && numericValue !== null && numericValue <= minPrice) {
       messageApi.error('Maximum price should be greater than Minimum price');
     }
+    
+    // Call API when price changes
+    console.log('Max price changed:', numericValue, '- Calling handleSearch API');
+    setTimeout(() => {
+      handleSearch();
+    }, 500);
   }}
   onBlur={() => {
     if (maxPrice === null) setShowMaxInput(false);
@@ -1073,13 +1316,15 @@ setIsnetworkError(false)
         setBodyType={setBodyType}
         selectedLocation={location}
         setSelectedLocation={setLocation}
-         priceMin={minPrice}               
+        priceMin={minPrice}               
         setPriceMin={setMinPrice}         
         priceMax={maxPrice}              
         setPriceMax={setMaxPrice}         
-        newUsed={newUsed}     
+        newUsed={newUsed}
+        setNewUsed={setNewUsed}
         onSave={handleSearch}
         setSaveSearchesReload={() => {}}
+        filterData={null}
       />
     </div>
   );
@@ -1098,4 +1343,12 @@ LandingFilters.propTypes = {
   setCurrentPage: PropTypes.func,
   featuredorrecommended: PropTypes.string,
   onClearFeaturedOrRecommended: PropTypes.func,
+  // New props for selected values from previous page
+  selectedMake: PropTypes.string,
+  selectedModel: PropTypes.string,
+  selectedBodyType: PropTypes.string,
+  selectedLocation: PropTypes.string,
+  selectedNewUsed: PropTypes.string,
+  selectedPriceMin: PropTypes.number,
+  selectedPriceMax: PropTypes.number,
 };

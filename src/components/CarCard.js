@@ -92,15 +92,16 @@ const displayLabel = car&&(  car?.approval === 'pending' || car?.approval === 'P
             {'IQD ' + Number(car.price).toLocaleString()}
           </div>
 
-          <Tag
-            color={tagProps.bg}
-            className="car-card-tag"
-            style={{
-              color: tagProps.color,
-            }}
-          >
-            {displayLabel}
-          </Tag>
+         {displayLabel.isVisible && (
+  <Tag
+    color={tagProps.bg}
+    className="car-card-tag"
+    style={{ color: tagProps.color }}
+  >
+    {displayLabel.label}
+  </Tag>
+)}
+
 
           {value === STATUS_ACTIVE && filterStatus === 'Sport' && (
             <div className="car-card-boost">

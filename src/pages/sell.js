@@ -39,6 +39,7 @@ import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
+import EmojiPicker from 'emoji-picker-react';
 // const { TextArea } = Input;
 const { Option } = Select;
 // const MAX_LEN = 1000;
@@ -67,7 +68,7 @@ const ExteriorColorInput = ({
       className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
       onClick={onOpen}
     >
-      <div className='exterior-color-left'>
+      {/* <div className='exterior-color-left'>
         {hasImage && imageSrc ? (
           <img
             src={imageSrc}
@@ -77,7 +78,7 @@ const ExteriorColorInput = ({
         ) : (
           <span className='color-swatch-placeholder' aria-hidden='true' />
         )}
-      </div>
+      </div> */}
 
       <span className='brand-text'>
         {selectedColor || placeholder}
@@ -215,7 +216,7 @@ const RegionInput = ({ selectedRegion, onOpen }) => (
     onClick={onOpen}
   >
     <span className='region-text'>
-      {selectedRegion || 'Select Region'}
+      {selectedRegion || 'Select Location'}
     </span>
     <RightOutlined className='region-arrow' />
   </button>
@@ -271,6 +272,7 @@ const Sell = () => {
   const [form] = Form.useForm();
   // const [desc, setDesc] = useState(form.getFieldValue('description') || '');
   const [description, setDescription] = useState(form.getFieldValue('description') || '');
+  const [showPicker, setShowPicker] = useState(false);
   const MAX_LEN = 1000;
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalOpenInterior, setColorModalOpenInterior] = useState(false);
@@ -320,6 +322,7 @@ const Sell = () => {
   const populatedRef = useRef(false);
   const { TextArea } = Input;
   const [showModal, setShowModal] = useState(false);
+   const pickerRef = useRef(null);
 
 console.log('extras11',extras)
 
@@ -690,15 +693,55 @@ useEffect(() => {
   populatedRef.current = true;
 }, [extras, form]);
 
-  const handleChange = (e) => {
-  let v = e.target.value || '';
-  if (v.length > MAX_LEN) {
-    v = v.slice(0, MAX_LEN);
-    message.warning(`Description truncated to ${MAX_LEN} characters.`);
+// Auto-select "New" condition when kilometers is 0
+useEffect(() => {
+  const kilometers = form.getFieldValue('kilometers');
+  if (kilometers === '0' || kilometers === 0) {
+    console.log('Auto-selecting "New" condition for 0 kilometers');
+    setSelectedCondition('New');
+    form.setFieldsValue({ condition: 'New' });
   }
-  setDescription(v);
-  form.setFieldsValue({ description: v });
-};
+}, [form.getFieldValue('kilometers')]);
+
+  // your handleChange stays same
+const handleChange = (e) => {
+    let v = e.target.value || '';
+    if (v.length > MAX_LEN) {
+      v = v.slice(0, MAX_LEN);
+      message.warning(`Description truncated to ${MAX_LEN} characters.`);
+    }
+    setDescription(v);
+    form.setFieldsValue({ description: v });
+  };
+
+  // ✅ Emoji click (NO auto-close here)
+  const handleEmojiClick = (emojiData) => {
+    let v = (description || '') + emojiData.emoji;
+    if (v.length > MAX_LEN) {
+      v = v.slice(0, MAX_LEN);
+      message.warning(`Description truncated to ${MAX_LEN} characters.`);
+    }
+    setDescription(v);
+    form.setFieldsValue({ description: v });
+    // ❌ removed: setShowPicker(false)
+  };
+
+  // ✅ Close picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+        setShowPicker(false);
+      }
+    };
+
+    if (showPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPicker]);
 
 
 const handlePaste = (e) => {
@@ -783,11 +826,12 @@ const handlePaste = (e) => {
   }
 }, [selectedBrand, selectedModel, selectedTrim, selectedYear, form]);
 
-// Removed this useEffect as it was clearing model when brand was set
+// Clear dependent fields when brand changes
 useEffect(()=>{
 setSelectedTrim(null)
     setSelectedYear()
 setSelectedBodyType()
+    form.setFieldsValue({ bodyType: undefined });
 },[selectedBrand])
 
 // Update form field when brand, model, and trim state changes
@@ -803,11 +847,13 @@ useEffect(() => {
     });
   }
 }, [selectedBrand, selectedModel, selectedTrim, form]);
-// Only clear trim when model changes manually (not during initial data loading)
+// Only clear trim and body type when model changes manually (not during initial data loading)
 useEffect(() => {
   // Add a small delay to avoid clearing trim during initial data population
   const timer = setTimeout(() => {
     setSelectedTrim(null);
+    setSelectedBodyType();
+    form.setFieldsValue({ bodyType: undefined });
   }, 100);
   
   return () => clearTimeout(timer);
@@ -924,6 +970,8 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
   try {
     const values = valuesParam ?? (await form.validateFields());
 
+    const cleanPrice = values.price ? values.price.replace(/,/g, '') : '';
+
     // Create FormData instead of JSON payload
     const formData = new FormData();
     
@@ -931,7 +979,8 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     formData.append('make', make || '');
     formData.append('model', selectedModel || modalName || '');
     formData.append('year', selectedYear || '');
-    formData.append('price', values.price || '');
+    // formData.append('price', values.price || '');
+    formData.append('price', cleanPrice || '')
     formData.append('description', values?.description || '');
     formData.append('ad_title', values?.adTitle || '');
     formData.append('exterior_color', selectedColor || '');
@@ -993,7 +1042,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
 
     if (text === '1') {
       // navigate('/landing');
-      setShowModal(true); // ✅ Show modal when text is '1'
+      setShowModal(true); 
         console.log('Added Success');
     } else {
       form.resetFields();
@@ -1245,8 +1294,8 @@ const handleImageUpload = async (images) => {
     opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
   );
 
-  const filteredColors1 = updateData?.colours?.filter((opt) =>
-    opt.colour?.toLowerCase().includes(colorSearch?.toLowerCase())
+  const filteredColors1 = updateData?.interior_colors?.filter((opt) =>
+    opt.interior_color?.toLowerCase().includes(colorSearch?.toLowerCase())
   );
 
 
@@ -1379,59 +1428,110 @@ const handleImageUpload = async (images) => {
                       </Button>
                       <div className='custom-upload-info'>
                         5MB maximum file size accepted in the following format :
-                        jpg , jpeg, png, gif, mp4
+                        JPG , JPEG, PNG, HEIC, HEIF
                       </div>
                       <input
-                        id='hidden-upload-input'
-                        type='file'
-                        multiple
-                        accept='.jpg,.jpeg,.png,.gif,.mp4'
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files);
-                          const newFileList = files?.map((file, idx) => ({
-                            uid: `${Date.now()}-${idx}`,
-                            name: file.name,
-                            status: 'done',
-                            originFileObj: file,
-                          }));
-                          setMediaFileList(newFileList);
-                          form.setFieldsValue({ media: newFileList });
-                        }}
-                      />
+  id="hidden-upload-input"
+  type="file"
+  multiple
+  accept=".jpg,.jpeg,.png,.heic,.heif"
+  style={{ display: 'none' }}
+  onChange={(e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Check total count first
+    if (mediaFileList.length + files.length > 15) {
+      messageApi.error('You can select only 15 images');
+      e.target.value = null; // reset so it fires again
+      return;
+    }
+
+    let hasInvalidFile = false;
+
+    files.forEach((file) => {
+      // Check file size
+      if (file.size / 1024 / 1024 > 5) {
+        hasInvalidFile = true;
+        messageApi.error(`"${file.name}" is larger than 5MB. Please select a less than 5MB file.`);
+        return;
+      }
+
+      // Check file type
+      const allowedTypes = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
+      const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+      
+      if (!allowedTypes.includes(fileExtension)) {
+        hasInvalidFile = true;
+        messageApi.error(`"${file.name}" format is not supported. We only accept JPEG/JPG/HEIC/HEIF/PNG formats.`);
+        return;
+      }
+    });
+
+    if (!hasInvalidFile) {
+      const newFileList = [
+        ...mediaFileList,
+        ...files.map((file, idx) => ({
+          uid: `${Date.now()}-${idx}`,
+          name: file.name,
+          status: 'done',
+          originFileObj: file,
+        })),
+      ];
+
+      setMediaFileList(newFileList);
+      form.setFieldsValue({ media: newFileList });
+    }
+
+    e.target.value = null; // reset so it fires again
+  }}
+/>
+
+
                     </div>
                   ) : (
                    <>
-  <Upload
-    action='#'
-    listType='picture-card'
-    fileList={mediaFileList}
-    onPreview={handleMediaPreview}
-    onChange={handleMediaChange}
-    onRemove={handleMediaRemove}
-    beforeUpload={(file, fileList) => {
-      const totalFiles = mediaFileList.length + fileList.length;
+ <Upload
+  action="#"
+  listType="picture-card"
+  fileList={mediaFileList}
+  onPreview={handleMediaPreview}
+  onChange={handleMediaChange}
+  onRemove={handleMediaRemove}
+  beforeUpload={(file) => {
+    // Check file size
+    if (file.size / 1024 / 1024 > 5) {
+      messageApi.error(`"${file.name}" is larger than 5MB. Please select a smaller file.`);
+      return Upload.LIST_IGNORE; // prevent adding this file
+    }
 
-      if (totalFiles > 15) {
-        messageApi.error('We only accept up to 15 images.');
-        return Upload.LIST_IGNORE; // ❌ Prevents adding extra files
-      }
+    // Check file type
+    const allowedTypes = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    
+    if (!allowedTypes.includes(fileExtension)) {
+      messageApi.error(`"${file.name}" format is not supported. We only accept JPEG/JPG/HEIC/HEIF/PNG formats.`);
+      return Upload.LIST_IGNORE;
+    }
 
-      return true; // ✅ Allow upload
-    }}
-    showUploadList={{
-      showRemoveIcon: true,
-      showPreviewIcon: true,
-    }}
-    multiple
-    maxCount={15}
-    accept='.jpg,.jpeg,.png,.gif,.mp4'
-    customRequest={({ file, onSuccess }) => {
-      setTimeout(() => onSuccess('ok'), 0);
-    }}
-  >
-    {mediaFileList.length < 15 && mediaUploadButton}
-  </Upload>
+    if (mediaFileList.length + 1 > 15) {
+      messageApi.error('You can only upload up to 15 images.');
+      return Upload.LIST_IGNORE;
+    }
+
+    return true; // allow valid files
+  }}
+  multiple
+  maxCount={15}
+  accept=".jpg,.jpeg,.png,.heic,.heif"
+  customRequest={({ file, onSuccess }) => {
+    setTimeout(() => onSuccess('ok'), 0); // fake upload
+  }}
+>
+  {mediaFileList.length < 15 && mediaUploadButton}
+</Upload>
+
+
 
   {mediaFileList.length > 0 && (
     <div
@@ -1465,7 +1565,7 @@ const handleImageUpload = async (images) => {
                   name='adTitle'
                 >
                    <Input
-    placeholder='Ad Title'
+    placeholder='Title will Auto-Generated'
     value={adTitle}
     disabled
     onChange={(e) => {
@@ -1474,25 +1574,59 @@ const handleImageUpload = async (images) => {
     }}
   />
                 </Form.Item>
-                  <Form.Item
-  className='form-item-label'
-  label='Description'
-  name='description'
+                    <Form.Item
+  className="form-item-label"
+  label="Description"
+  name="description"
 >
-  <div className='description-container'>
+  <div className="description-container" style={{ position: 'relative' }}>
     <TextArea
       rows={4}
-      placeholder='Enter Description...'
-      value={description} // ✅ Controlled by single state
+      placeholder="Enter Description..."
+      value={description}
       onChange={handleChange}
-      onPaste={handlePaste}
     />
-    {/* Live Counter */}
-    <div className={`description-counter ${description.length === MAX_LEN ? 'max-length' : ''}`}>
-      {description.length}/{MAX_LEN}
+
+    {/* Row for emoji button + counter */}
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+      }}
+    >
+      {/* Emoji button */}
+      <Button
+        type="default"
+        size="small"
+        onClick={() => setShowPicker((prev) => !prev)}
+      >
+        😀 Emoji
+      </Button>
+
+      {/* Live Counter */}
+      <div
+        className={`description-counter ${
+          description.length === MAX_LEN ? 'max-length' : ''
+        }`}
+      >
+        {description.length}/{MAX_LEN}
+      </div>
     </div>
+
+    {/* Emoji Picker */}
+    {showPicker && (
+      <div
+        ref={pickerRef}
+        style={{ position: 'absolute', zIndex: 1000, marginTop: 8 }}
+      >
+        <EmojiPicker onEmojiClick={handleEmojiClick} />
+      </div>
+    )}
   </div>
 </Form.Item>
+
 
               </Col>
             </Row>
@@ -1505,7 +1639,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
   className='no-asterisk form-item-label-small'
-  label='Car Information'
+  label='Car Information*'
   name='brand'
   rules={[
     {
@@ -1514,6 +1648,10 @@ const handleImageUpload = async (images) => {
         // Check if we have at least brand selected
         if (!selectedBrand) {
           return Promise.reject(new Error('Please select the car brand'));
+        }
+        // Check if model is selected when brand is selected
+        if (selectedBrand && !selectedModel) {
+          return Promise.reject(new Error('Please select car model'));
         }
         return Promise.resolve();
       },
@@ -1660,7 +1798,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label'
-                    label='Exterior Color'
+                    label='Exterior Color*'
                     name='exteriorColor'
                     rules={[
     { required: true, message: 'Please select exterior color!' },
@@ -1724,13 +1862,26 @@ const handleImageUpload = async (images) => {
                  <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Year'
+                    label='Year*'
                      name='year'
                      rules={[
-    { required: true, message: 'Please select Year!' },
+    // { required: true, message: 'Please select Year!' },
+    {
+      validator: (_, value) => {
+        if (!selectedYear || selectedYear === '') {
+          return Promise.reject(new Error('Please select Year!'));
+        }
+        return Promise.resolve();
+      },
+    },
   ]}
   required={false}
                   >
+                    <Input
+                      value={selectedYear}
+                      className='hidden-input'
+                      readOnly
+                    />
                     <YearInput 
                       selectedYear={selectedYear}
                       onOpen={() => setYearModalOpen(true)}
@@ -1843,7 +1994,7 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
     <Form.Item
       className='form-item-label'
-      label='Body Type'
+      label='Body Type*'
       name='bodyType'
       rules={[
     { required: true, message: 'Please select body type!' },
@@ -1876,7 +2027,7 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
     <Form.Item
       className='form-item-label'
-      label='Condition'
+      label='Condition*'
       name='condition'
       rules={[
     { required: true, message: 'Please select condition!' },
@@ -1894,6 +2045,15 @@ const handleImageUpload = async (images) => {
             key={opt.car_condition}
             className={`option-box${selectedCondition === opt.car_condition ? ' selected' : ''}`}
             onClick={() => {
+              const currentKilometers = form.getFieldValue('kilometers');
+              
+              // Check if user is changing from "New" to something else while kilometers is 0
+              if (selectedCondition === 'New' && opt.car_condition !== 'New' && (currentKilometers === '0' || currentKilometers === 0)) {
+                console.log('Warning: Changing condition from "New" while kilometers is 0');
+                // You can add a warning message here if needed
+                // message.warning('Cars with 0 kilometers are typically "New". Are you sure?');
+              }
+              
               setSelectedCondition(opt.car_condition);
               form.setFieldsValue({ condition: opt.car_condition });
             }}
@@ -1909,15 +2069,27 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
   <Form.Item
     className='form-item-label-large'
-    label='Price'
+    label='Price (IQD)*'
     name='price'
     rules={[
       { required: true, message: 'Please enter the price' },
       {
         validator: (_, value) => {
-          if (!value || Number(value) <= 1000) {
+          if (!value) {
+            return Promise.reject(new Error('Minimum price should be more than IQD 1000'));
+          }
+
+          // Remove commas before validating
+          const numericValue = parseFloat(value.replace(/,/g, ''));
+
+          if (isNaN(numericValue)) {
+            return Promise.reject(new Error('Please enter a valid number'));
+          }
+
+          if (numericValue <= 1000) {
             return Promise.reject(new Error('Price must be greater than IQD 1000'));
           }
+
           return Promise.resolve();
         },
       },
@@ -1925,29 +2097,32 @@ const handleImageUpload = async (images) => {
   >
     <Input
       className='custom-placeholder full-width-input'
-      type='tel'
-      inputMode='numeric'
-      pattern='[0-9]*'
-      value={
-        selectedPrice
-          ? selectedPrice.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-          : ''
-      }
-      placeholder='Enter price...'
+      type='text'
+      inputMode='decimal'
+      placeholder='Enter price (IQD)...'
+      value={selectedPrice || ''}
       onChange={(e) => {
-        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-        const sanitizedValue = digitsOnly.replace(/^0+/, '');
-        setSelectedPrice(sanitizedValue);
-        form.setFieldsValue({ price: sanitizedValue });
+        let inputValue = e.target.value;
+
+        // Allow only numbers, commas, and one decimal point
+        inputValue = inputValue.replace(/[^0-9.,]/g, '');
+
+        // Prevent multiple decimal points
+        const decimalParts = inputValue.split('.');
+        if (decimalParts.length > 2) {
+          inputValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
+        }
+
+        setSelectedPrice(inputValue); // Keep exactly what the user typed
+        form.setFieldsValue({ price: inputValue });
       }}
     />
   </Form.Item>
 </Col>
-
   <Col xs={24} md={6}>
     <Form.Item
       className='form-item-label'
-      label='Horsepower (HP)'
+      label='Horsepower (HP)*'
       name='horsepower'rules={[
     { required: true, message: 'Please select horse power!' },
   ]}
@@ -2011,7 +2186,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label'
-                    label='Vehicle Type'
+                    label='Vehicle Type*'
                     name='vehicletype'
                     rules={[
     { required: true, message: 'Please select vehicle type!' },
@@ -2040,19 +2215,22 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Kilometers'
+                    label='Kilometers*'
                     name='kilometers'
                     rules={[
-    { required: true, message: 'Please enter kilometers!' },
-    {
-      validator: (_, value) => {
-        if (!value || Number(value) <= 0) {
-          return Promise.reject(new Error('Kilometers must be greater than 0'));
-        }
-        return Promise.resolve();
-      },
+  
+  {
+    validator: (_, value) => {
+      const numberValue = Number(value);
+      if (value === undefined || value === null || value === '') {
+        return Promise.reject(new Error('Please enter kilometers!'));
+      }
+     
+      return Promise.resolve();
     },
-  ]}
+  },
+]}
+
   required={false}
                     validateTrigger='onBlur'
                   >
@@ -2065,11 +2243,18 @@ const handleImageUpload = async (images) => {
     onChange={(e) => {
       const digitsOnly = (e.target.value || '').replace(/\D/g, '');
 
-      // Remove leading zeros to prevent entries like 0001
-      const sanitizedValue = digitsOnly.replace(/^0+/, '');
+      // Remove leading zeros to prevent entries like 0001, but allow single 0
+      const sanitizedValue = digitsOnly === '0' ? '0' : digitsOnly.replace(/^0+/, '');
 
       console.log('Kilometers onChange - original:', e.target.value, 'sanitized:', sanitizedValue);
       form.setFieldsValue({ kilometers: sanitizedValue });
+      
+      // Auto-select "New" condition if kilometers is 0
+      if (sanitizedValue === '0' || sanitizedValue === '') {
+        console.log('Kilometers is 0, auto-selecting "New" condition');
+        setSelectedCondition('New');
+        form.setFieldsValue({ condition: 'New' });
+      }
       
       // Verify the field was set
       setTimeout(() => {
@@ -2084,10 +2269,10 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Region'
+                    label='Location*'
                     name='region'
                     rules={[
-    { required: true, message: 'Please select region!' },
+    { required: true, message: 'Please select Location!' },
   ]}
   required={false}
                   >
@@ -2171,7 +2356,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label'
-                    label='Regional Specs'
+                    label='Regional Specs*'
                      name='regionalSpecs'
                      rules={[
     { required: true, message: 'Please select regional specs!' },
@@ -2237,7 +2422,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Number of seats'
+                    label='Number of seats*'
                     name='seats'
                     rules={[
     { required: true, message: 'Please select number of seats!' },
@@ -2294,7 +2479,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={7}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Fuel Type'
+                    label='Fuel Type*'
                     name='fuelType'
                     rules={[
     { required: true, message: 'Please select fuel type!' },
@@ -2327,7 +2512,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Transmission Type'
+                    label='Transmission Type*'
                     name='transmissionType'
                     rules={[
     { required: true, message: 'Please select transmission type!' },
@@ -2383,36 +2568,69 @@ const handleImageUpload = async (images) => {
                 </Col>
               <Col xs={24} md={6}>
   <Form.Item
-    className='form-item-label-small'
-    label='Engine CC'
-    name='engineCC'
-  >
-    <Input
-      className='input-font-14'
-      placeholder='Enter Engine CC...'
-      type='tel'
-      inputMode='numeric'
-      pattern='[0-9]*'
-      onChange={(e) => {
-        const digitsOnly = (e.target.value || '').replace(/\D/g, '');
-        form.setFieldsValue({ engineCC: digitsOnly }); // ✅ Correct field updated
-      }}
-      onPaste={(e) => {
-        const pasted = (e.clipboardData?.getData('Text') || '');
-        const digitsOnly = pasted.replace(/\D/g, '');
-        if (digitsOnly !== pasted) {
-          e.preventDefault();
-          const current = form.getFieldValue('engineCC') || ''; // ✅ Correct field
-          form.setFieldsValue({ engineCC: `${current}${digitsOnly}` });
-        }
-      }}
-      onKeyDown={(e) => {
-        const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-        if (allowed.includes(e.key)) return;
-        if (!/^[0-9]$/.test(e.key)) e.preventDefault();
-      }}
-    />
-  </Form.Item>
+  className='form-item-label-small'
+  label='Engine CC'
+  name='engineCC'
+>
+  <Input
+    className='input-font-14'
+    placeholder='Enter Engine CC...'
+    type='text'
+    inputMode='decimal' // Allows numeric + decimal point keyboard on mobile
+    onChange={(e) => {
+      let value = e.target.value;
+
+      // Allow only numbers and a single decimal point
+      value = value.replace(/[^0-9.]/g, '');
+
+      // Prevent multiple decimal points
+      const parts = value.split('.');
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
+      }
+
+      form.setFieldsValue({ engineCC: value });
+    }}
+    onPaste={(e) => {
+      const pasted = (e.clipboardData?.getData('Text') || '');
+
+      // Allow only numbers and a single decimal point
+      let cleanValue = pasted.replace(/[^0-9.]/g, '');
+
+      // Prevent multiple decimal points in pasted value
+      const parts = cleanValue.split('.');
+      if (parts.length > 2) {
+        cleanValue = parts[0] + '.' + parts.slice(1).join('');
+      }
+
+      if (cleanValue !== pasted) {
+        e.preventDefault();
+        const current = form.getFieldValue('engineCC') || '';
+        form.setFieldsValue({ engineCC: `${current}${cleanValue}` });
+      }
+    }}
+    onKeyDown={(e) => {
+      const allowedKeys = [
+        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'
+      ];
+
+      if (allowedKeys.includes(e.key)) return;
+
+      // Allow digits and one decimal point
+      if (!/^[0-9.]$/.test(e.key)) {
+        e.preventDefault();
+      }
+
+      const currentValue = e.currentTarget.value;
+
+      // Prevent multiple decimal points
+      if (e.key === '.' && currentValue.includes('.')) {
+        e.preventDefault();
+      }
+    }}
+  />
+</Form.Item>
+
 </Col>
 
  <Col xs={24} md={6}>
@@ -2481,7 +2699,7 @@ const handleImageUpload = async (images) => {
                      value={selectedInterior || undefined}
                     onChange={(val) => {
                    setSelectedInterior(val);
-                   form.setFieldsValue({ horsepower: val });
+                  //  form.setFieldsValue({ horsepower: val });
                    }}>
                       {updateData?.interiors?.map((int) => (
                         <Option key={int.id} value={int.interior}>
@@ -2492,61 +2710,33 @@ const handleImageUpload = async (images) => {
                   </Form.Item>
                 </Col>
 
-                 <Col xs={24} md={6}>
-                  <Form.Item
-                    className='form-item-label'
-                    label='Interior Color'
-                    name='interiorColor'
-                  >
-                    <InteriorColorInput 
-                      selectedInteriorColor={selectedInteriorColor}
-                      onOpen={() => setColorModalOpenInterior(true)}
-                    />
-                  </Form.Item>
-                  <Modal
-                    open={colorModalOpenInterior}
-                    onCancel={() => setColorModalOpenInterior(false)}
-                    footer={null}
-                    title={
-                      <div className='modal-title-row'>
-                        <span>What is the interior color of your car?</span>
-                      </div>
-                    }
-                    width={500}
-                  >
-                    <Input
-                      prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
-                      value={colorSearch}
-                      onChange={(e) => setColorSearch(e.target.value)}
-                      className='modal-search'
-                    />
-                    <div className='color-modal-grid'>
-                      {filteredColors1?.map((opt) => (
-                        <div
-                          key={opt.colour}
-                          className={`color-option${
-                            selectedInteriorColor === opt.colour ? ' selected' : ''
-                          }`}
-                          onClick={() => {
-                            setSelectedInteriorColor(opt.colour);
-                            setColorModalOpenInterior(false);
-                            form.setFieldsValue({ exteriorColor: opt.colour });
-                          }}
-                        > 
-                          <img
-                              src={`${BASE_URL}${opt.colour_image}`}
-                              alt={opt.value}
-                              className='color-swatch-modal'
-                            />
-                          <span className='color-option-label'>
-                            {opt.colour}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </Modal>
-                </Col>
+                 
+<Col xs={24} md={6}>
+  <Form.Item
+    className='form-item-label'
+    label='Interior Color'
+    name='interiorColor'
+  >
+    <Select
+      placeholder='Select interior color'
+      className='full-width-input'
+      value={selectedInteriorColor || undefined}
+      onChange={(value) => {
+        setSelectedInteriorColor(value);
+        form.setFieldsValue({ interiorColor: value });
+      }}
+      showSearch
+      optionFilterProp="children"
+      filterOption={(input, option) =>
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+      }
+      options={filteredColors1?.map((opt) => ({
+        value: opt.interior_color,
+        label: opt.interior_color,
+      }))}
+    />
+  </Form.Item>
+</Col>
               </Row>
               <Row gutter={16}>
                 <Col xs={24} md={18}>
@@ -2616,13 +2806,6 @@ const handleImageUpload = async (images) => {
                       disabled={loading}
                     >
                       Create
-                    </Button>
-                    <Button
-                      size='small'
-                      className='btn-solid-blue'
-                      type='submit'
-                    >
-                      Create & New
                     </Button>
                   </>
                 )}

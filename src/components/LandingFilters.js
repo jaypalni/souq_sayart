@@ -77,6 +77,13 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
+  const locationAsArray = (loc) => {
+  if (loc && loc !== CORRECT_DEFAULT_LOCATION) {
+    return [loc]; // wrap in array
+  }
+  return []; // default empty array
+};
+
 
   // Auto-search function to update car count on filter changes
   const autoSearchForCount = async () => {
@@ -85,7 +92,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
         model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
         body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
-        location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
+       locations: locationAsArray(location),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
         page: 1,
@@ -94,6 +101,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       };
       console.log('Single API call with params:', apiParams);
       const response = await carAPI.getSearchCars(apiParams);
+      console.log('New APi foure')
       const data = handleApiResponse(response);
 
       if (data?.data?.pagination) {
@@ -296,7 +304,8 @@ const resolveDefaultLocation = (locations, geoData) => {
         make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
         model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
         body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
-        location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
+        // location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
+        locations: locationAsArray(location),
          price_min: cleanedMin,
       price_max: cleanedMax,
         condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
@@ -306,6 +315,7 @@ const resolveDefaultLocation = (locations, geoData) => {
     
 console.log('Add Type5')
       const response = await carAPI.getSearchCars(params);
+      console.log('New APi five')
       const data1 = handleApiResponse(response);
 
       if (data1) {
@@ -320,7 +330,18 @@ console.log('Add Type5')
           setIsModalOpen(true);
         } else {
           navigate('/allcars', {
-            state: { cars: results, pagination: data1?.data?.pagination },
+            state: { 
+              cars: results, 
+              pagination: data1?.data?.pagination,
+              // Pass selected filter values
+              selectedMake: make,
+              selectedModel: model,
+              selectedBodyType: bodyType,
+              selectedLocation: location,
+              selectedNewUsed: newUsed,
+              selectedPriceMin: minPrice,
+              selectedPriceMax: maxPrice
+            },
           });
           localStorage.setItem('searchcardata', JSON.stringify(params));
         }

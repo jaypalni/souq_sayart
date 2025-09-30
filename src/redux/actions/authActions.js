@@ -76,6 +76,13 @@ export const setToken = (token) => {
   }
 };
 
+export const refreshTokenSuccess = (access_token) => {
+  return {
+    type: 'REFRESH_TOKEN_SUCCESS',
+    payload: access_token,
+  };
+};
+
 export const customerDetailsFailure = (error) => ({
   type: CUSTOMER_DETAILS_FAILURE,
   payload: error,

@@ -10,10 +10,12 @@ import PropTypes from 'prop-types';
 import { useLocation, Link } from 'react-router-dom';
 import '../assets/styles/banner.css';
 
-const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
+const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: propSelectedNewUsed }) => {
   const location = useLocation();
+  console.log('New Or Used', propSelectedNewUsed)
 
   const [selectedLocation, setSelectedLocation] = useState(propSelectedLocation || 'Dubai');
+  const [selectedNewUsed, setSelectedNewUsed] = useState(propSelectedNewUsed || 'All');
   const isLoginPage =
     location.pathname === '/' ||
     location.pathname === '/verifyOtp' ||
@@ -36,7 +38,10 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
     if (propSelectedLocation && propSelectedLocation !== selectedLocation) {
       setSelectedLocation(propSelectedLocation);
     }
-  }, [propSelectedLocation, selectedLocation]);
+    if (propSelectedNewUsed && propSelectedNewUsed !== selectedNewUsed) {
+      setSelectedNewUsed(propSelectedNewUsed);
+    }
+  }, [propSelectedLocation, selectedLocation, propSelectedNewUsed]);
 
   // Update selected location when localStorage changes (fallback)
   useEffect(() => {
@@ -128,7 +133,8 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation }) => {
       
       // Special handling for allcars page to show location
       if (segment === 'allcars') {
-        label = `New Cars Sale in ${selectedLocation}`;
+        label = `${selectedNewUsed} Cars Sale in ${selectedLocation}`;
+        console.log('New or used', selectedNewUsed)
       }
       
       const isLast = index === pathSegments.length - 1;
@@ -195,3 +201,6 @@ PlaneBanner.propTypes = {
 };
 
 export default PlaneBanner;
+
+
+

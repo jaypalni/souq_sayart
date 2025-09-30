@@ -320,7 +320,8 @@
 
 .modal-image {
   max-width: 40%;
-  height: auto;
+  height: 150px;
+  width: 150px;
 }
 
 /* Additional styles for converted inline styles */

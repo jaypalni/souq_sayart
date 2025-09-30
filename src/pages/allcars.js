@@ -25,6 +25,7 @@ const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [selectedNewUsed, setSelectedNewUsed] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +33,18 @@ const Allcars = () => {
 
   const location = useLocation();
   const [carType, setCarType] = useState(location.state?.type); // 'featured' or 'recommended'
+
+  // Debug logging for navigation state
+  console.log('Allcars page - location.state:', location.state);
+  console.log('Allcars page - selected values:', {
+    selectedMake: location.state?.selectedMake,
+    selectedModel: location.state?.selectedModel,
+    selectedBodyType: location.state?.selectedBodyType,
+    selectedLocation: location.state?.selectedLocation,
+    selectedNewUsed: location.state?.selectedNewUsed,
+    selectedPriceMin: location.state?.selectedPriceMin,
+    selectedPriceMax: location.state?.selectedPriceMax
+  });
 
   // Update carType when location state changes
   useEffect(() => {
@@ -58,21 +71,42 @@ const Allcars = () => {
   };
 
 
-  // Initialize selectedLocation from localStorage on component mount
+  // Initialize selectedLocation and selectedNewUsed from navigation state or localStorage
   useEffect(() => {
     try {
       const savedSearchData = JSON.parse(localStorage.getItem('searchcardata'));
-      const location = savedSearchData?.location;
-      // Set to 'All Locations' if location is empty, null, or undefined
-      if (location && location !== '') {
-        setSelectedLocation(location);
+      const savedLocation = savedSearchData?.location;
+      
+      // Priority: navigation state > localStorage > default
+      const newUsedValue = location.state?.selectedNewUsed || savedSearchData?.selectedNewUsed;
+      const locationValue = location.state?.selectedLocation || savedLocation;
+
+      console.log('Allcars useEffect - Values:', {
+        navigationNewUsed: location.state?.selectedNewUsed,
+        savedNewUsed: savedSearchData?.selectedNewUsed,
+        finalNewUsed: newUsedValue,
+        navigationLocation: location.state?.selectedLocation,
+        savedLocation: savedLocation,
+        finalLocation: locationValue
+      });
+
+      // Set selected location
+      if (locationValue && locationValue !== '') {
+        setSelectedLocation(locationValue);
       } else {
         setSelectedLocation('All Locations');
       }
+
+      // Set selected New/Used
+      if (newUsedValue && newUsedValue !== '') {
+        setSelectedNewUsed(newUsedValue);
+      } else {
+        setSelectedNewUsed('All');
+      }
     } catch (error) {
-      // Silent error handling
+      console.error('Error in allcars useEffect:', error);
     }
-  }, []);
+  }, [location.state]);
 
   // Clear filtercarsData when loading starts
   useEffect(() => {
@@ -104,9 +138,16 @@ const Allcars = () => {
   };
 
   
+  // Debug logging for PlaneBanner props
+  console.log('Allcars - Passing to PlaneBanner:', {
+    selectedLocation,
+    selectedNewUsed,
+    locationState: location.state
+  });
+
   return (
     <div>
-      <PlaneBanner name={'jdi'} selectedLocation={selectedLocation} />
+      <PlaneBanner name={'jdi'} selectedLocation={selectedLocation} selectedNewUsed={selectedNewUsed} />
       <AllCarFilters
         filtercarsData={filtercarsData}
         setFilterCarsData={setFilterCarsData}
@@ -118,6 +159,14 @@ const Allcars = () => {
         setCurrentPage={setCurrentPage}
         featuredorrecommended={carType}
         onClearFeaturedOrRecommended={(onSearchAfterClear) => handleClearFeaturedOrRecommended(onSearchAfterClear)}
+        // Pass selected values from navigation state
+        selectedMake={location.state?.selectedMake}
+        selectedModel={location.state?.selectedModel}
+        selectedBodyType={location.state?.selectedBodyType}
+        selectedLocation={location.state?.selectedLocation}
+        selectedNewUsed={location.state?.selectedNewUsed}
+        selectedPriceMin={location.state?.selectedPriceMin}
+        selectedPriceMax={location.state?.selectedPriceMax}
       />
       <CarListing
         key={`${renderKey}-${filtercarsData?.cars?.length || 0}`}
@@ -346,7 +395,7 @@ const Removefavcarapi = async (carId) => {
         <span>
           {carsToDisplay?.length === 0 
             ? 'No cars found' 
-            : `Showing 1 - ${carsToDisplay?.length} Cars`}
+            : `Showing 1 - ${carsToDisplay?.length} Cars of ${paginationToDisplay.total} New Cars`}
         </span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button

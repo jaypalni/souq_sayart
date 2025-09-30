@@ -147,14 +147,14 @@ const CreateProfile = () => {
 
   if (!file) return;
 
-  // ✅ Correct validation for allowed file types
-  const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+  // ✅ Correct validation for allowed file types - only PDF documents
+  const allowedTypes = ['application/pdf'];
   const isAllowedType = allowedTypes.includes(file.type);
 
   if (!isAllowedType) {
     messageApi.open({
       type: 'error',
-      content: 'Upload failed. Only .pdf, .png, or .jpeg files are allowed.',
+      content: 'Upload failed. Only .pdf documents are allowed.',
     });
     return;
   }
@@ -214,6 +214,7 @@ const CreateProfile = () => {
     return Upload.LIST_IGNORE;
   }
 
+  // Check file size (5 MB max for profile images)
   const isLt5M = file.size / 1024 / 1024 <= 5;
   if (!isLt5M) {
     messageApi.open({
@@ -477,6 +478,10 @@ const CreateProfile = () => {
                     max: 50,
                     message: 'First name cannot exceed 50 characters',
                   },
+                  {
+      pattern: /^[A-Za-z\s]+$/, 
+      message: 'First name can only contain letters',
+    },
                 ]}
                 style={{ marginBottom: 12 }}
                 required={false}
@@ -500,6 +505,10 @@ const CreateProfile = () => {
                     max: 50,
                     message: 'Last name cannot exceed 50 characters',
                   },
+                  {
+      pattern: /^[A-Za-z\s]+$/, // Allows only letters and spaces
+      message: 'First name can only contain letters',
+    },
                 ]}
                 style={{ marginBottom: 12 }}
                 required={false}
@@ -552,31 +561,49 @@ const CreateProfile = () => {
       required: true,
       message: 'This field is mandatory, please fill it',
     },
+    {
+      validator: (_, value) => {
+        if (!value) {
+          return Promise.resolve(); // Required rule already handles empty state
+        }
+
+        const today = dayjs();
+        const age = today.diff(value, 'year');
+
+        if (age < 18) {
+          return Promise.reject(
+            new Error('You must be at least 18 years old to register on this platform.')
+          );
+        }
+
+        return Promise.resolve();
+      },
+    },
   ]}
   required={false}
   validateStatus={dobError ? 'error' : undefined}
   help={dobError || undefined}
 >
   <DatePicker
-  style={{
-    width: '100%',
-    borderColor: dobError && '#ff4d4f',
-  }}
-  format="DD/MM/YYYY"
-  placeholder="DD / MM / YYYY"
-  size="middle"
-  disabledDate={(current) =>
-    current && current > dayjs().endOf('day')
-  }
-  allowClear
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); 
+    style={{
+      width: '100%',
+      borderColor: dobError && '#ff4d4f',
+    }}
+    format="DD/MM/YYYY"
+    placeholder="DD / MM / YYYY"
+    size="middle"
+    disabledDate={(current) =>
+      current && current > dayjs().endOf('day') // Prevent future dates
     }
-  }}
-/>
-
+    allowClear
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+      }
+    }}
+  />
 </Form.Item>
+
             </div>
           </div>
           <div className="row g-3">
@@ -892,7 +919,7 @@ const CreateProfile = () => {
     size="middle"
     ref={fileInputRef}
     onChange={handleFileChange}
-    accept=".pdf, .png, .jpeg"
+    accept=".pdf"
   />
 </Form.Item>
 
@@ -951,26 +978,35 @@ const CreateProfile = () => {
         </Form>
       </div>
       <Modal
-        title="Terms & Conditions"
-        visible={showModal}
-        onCancel={closeModal}
-        footer={[
-          <Button key="close" onClick={closeModal}>
-            Close
-          </Button>,
-          <Button
-            key="accept"
-            type="primary"
-            onClick={() => {
-              closeModal();
-            }}
-          >
-            Accept
-          </Button>,
-        ]}
-      >
-        <TermsAndconditions />
-      </Modal>
+  title="Terms & Conditions"
+  visible={showModal} // If using AntD v5+, replace 'visible' with 'open'
+  onCancel={closeModal}
+  footer={[
+    <Button key="close" onClick={closeModal}>
+      Close
+    </Button>,
+    <Button
+      key="accept"
+      type="primary"
+      onClick={() => {
+        closeModal();
+      }}
+    >
+      Accept
+    </Button>,
+  ]}
+  style={{
+    top: 50, // Controls distance from the top of the screen
+  }}
+  bodyStyle={{
+    maxHeight: '400px',  // Fixed height for modal content
+    overflowY: 'auto',   // Scroll only inside modal body
+    paddingRight: '12px' // Adds space for scrollbar
+  }}
+>
+  <TermsAndconditions />
+</Modal>
+
     </div>
   );
 };

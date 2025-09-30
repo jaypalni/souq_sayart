@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './redux/store';
 import AppRouter from './router';
+import ErrorBoundary from './components/ErrorBoundary';
 
 /**
  * Root App Component
@@ -18,11 +19,13 @@ import AppRouter from './router';
  */
 function App() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
-        <AppRouter />
-      </PersistGate>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
+          <AppRouter />
+        </PersistGate>
+      </Provider>
+    </ErrorBoundary>
   );
 }
 

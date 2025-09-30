@@ -66,36 +66,61 @@ api.interceptors.request.use(
   (error) => Promise.reject(new Error(error.message || 'Request error')),
 );
 
+// Helper function to show login message and clear all Redux states
+const showLoginMessageAndClearStates = (store) => {
+  try {
+    // Import message dynamically to avoid circular dependency
+    const { message } = require('antd');
+    message.error('Please try to login');
+  } catch (error) {
+    console.error('Failed to show message:', error);
+  }
+  
+  // Clear localStorage
+  localStorage.removeItem('token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('userData');
+  localStorage.removeItem('customerDetails');
+  
+  try {
+    // Dispatch logout action to clear auth Redux state
+    const { logout } = require('../redux/actions/authActions');
+    store.dispatch(logout());
+    
+    // Clear customer details Redux state
+    const { clearCustomerDetails } = require('../redux/actions/authActions');
+    store.dispatch(clearCustomerDetails());
+  } catch (error) {
+    console.error('Failed to clear Redux states:', error);
+  }
+};
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response) {
       const { status } = error.response;
-      console.log('Error News', error.response)
+      
       // Handle authentication errors
       if (status === 401) {
-         console.log('No Token');
-
         // ✅ Dynamically get Redux store to access refresh token
         const store = require('../redux/store').default;
         const state = store.getState();
         const refresh_token = state.auth?.refresh_token;
 
         if (refresh_token) {
-          // Call refresh token API
-          refreshtokenapi();
+          try {
+            // Call refresh token API directly
+            await refreshtokenapi();
+          } catch (refreshError) {
+            console.error('Failed to refresh token:', refreshError.message);
+            // Show login message and clear all Redux states
+            showLoginMessageAndClearStates(store);
+          }
         } else {
-          console.error('Refresh token missing in Redux store');
+          // Show login message and clear all Redux states
+          showLoginMessageAndClearStates(store);
         }
-        // Token may be invalid or expired
-      } else if (status === 422) {
-        // Request data may be invalid or missing required fields
-      } else if (status === HTTP_STATUS.FORBIDDEN) {
-        // Access forbidden
-      } else if (status === HTTP_STATUS.NOT_FOUND) {
-        // Resource not found
-      } else if (status === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
-       //network error
       }
     }
 
@@ -114,14 +139,13 @@ const refreshtokenapi = async () => {
 
     // ✅ Get refresh_token from Redux state
     const refresh_token = state.auth?.refresh_token;
-    console.log('New RT', refresh_token);
 
     if (!refresh_token) {
       throw new Error('Refresh token is missing.');
     }
-
+    
     // ✅ Call refresh token API
-    const response = await axios.get(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {
+    const response = await axios.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {}, {
       baseURL: API_CONFIG.BASE_URL,
       headers: {
         'Content-Type': 'application/json',
@@ -132,14 +156,30 @@ const refreshtokenapi = async () => {
     // ✅ Process response
     const data1 = handleApiResponse(response);
 
-    // ✅ Save new access token
-    localStorage.setItem('token', data1.access_token);
-    console.log('New Token', data1.access_token);
-
-    return data1.access_token;
+    if (data1 && data1.access_token) {
+      // ✅ Dispatch action to update Redux state with new access token
+      const { refreshTokenSuccess } = require('../redux/actions/authActions');
+      store.dispatch(refreshTokenSuccess(data1.access_token));
+      
+      return data1.access_token;
+    } else {
+      throw new Error('Invalid response from refresh token API');
+    }
   } catch (error) {
     const errorData = handleApiError(error);
-    console.error('Error refreshing token:', errorData);
+    
+    // Handle 404 specifically - endpoint might not exist
+    if (errorData.status === 404) {
+      // Show login message and clear all Redux states
+      const store = require('../redux/store').default;
+      showLoginMessageAndClearStates(store);
+      throw new Error('Token refresh not supported. Please login again.');
+    }
+    
+    // Show login message and clear all Redux states
+    const store = require('../redux/store').default;
+    showLoginMessageAndClearStates(store);
+    
     throw errorData;
   }
 };
@@ -179,7 +219,16 @@ export const carAPI = {
   //   api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(filter, page)),
 getMylistingCars: (type, filter, page) =>
   api.get(API_CONFIG.ENDPOINTS.CARS.GET_CAR_MYLISTINGS(type, filter, page)),
-  createCar: (data) => api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, data),
+  createCar: (data) => {
+    console.log('API: createCar called with data:', data);
+    if (data && typeof data === 'object' && 'car_id' in data) {
+      console.log('API: This is an update request');
+      console.log('API: Kilometers field:', data.kilometers);
+    } else {
+      console.log('API: This is a create request (FormData)');
+    }
+    return api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, data);
+  },
   saveDraftCar: () => api.post(API_CONFIG.ENDPOINTS.CARS.SAVE_DRAFT),
   updateCar: (id, data) => api.post(API_CONFIG.ENDPOINTS.CARS.UPDATE(id), data),
   deleteCar: (id) => api.delete(API_CONFIG.ENDPOINTS.CARS.DELETE(id)),

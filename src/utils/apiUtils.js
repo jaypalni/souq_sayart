@@ -11,21 +11,20 @@ export const handleApiResponse = (response) => response?.data ?? null;
 export const handleApiError = (error) => {
   if (error.response) {
     const { status, data } = error.response;
-    console.log('refersh',data,status)
-if(status==401){
-   return {
-      status,
-      message: 'Please login ',
-      errors: data?.errors || [],
     
-    };   
-}else{
-    return {
-      status,
-      message: data?.message || data?.error || 'An error occurred',
-      errors: data?.errors || [],
-    
-    };  }                                                                                                                                                                                                                                                                                                                                                         
+    if(status === 401){
+      return {
+        status,
+        message: 'Please login',
+        errors: data?.errors || [],
+      };   
+    } else {
+      return {
+        status,
+        message: data?.message || data?.error || 'An error occurred',
+        errors: data?.errors || [],
+      };  
+    }                                                                                                                                                                                                                                                                                                                                                         
   } else if (error.request) {
     return {
       status: 0,

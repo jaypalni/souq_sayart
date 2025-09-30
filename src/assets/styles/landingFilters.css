@@ -390,3 +390,10 @@
 .landing-filters-select .ant-select-open .ant-select-selection-placeholder {
   color: #8f8f8f !important;
 }
+
+:where(.css-1m2bkf9).ant-select-single.ant-select-lg .ant-select-selector {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgb(146 135 135 / 88%) !important;
+}

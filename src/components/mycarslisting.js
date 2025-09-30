@@ -266,14 +266,58 @@ const fetchCars = async () => {
       <div className="mylistings-car-list">
         {(() => {
           if (!tokenReady) {
-            return <p>Initializing...</p>;
+            return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        textAlign: 'center',
+      }}
+    >
+      <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
+        Initializing...
+      </p>
+    </div>
+  );
+           
           }
           if (loading) {
-            return <p>Loading cars...</p>;
+              return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        textAlign: 'center',
+      }}
+    >
+      <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
+        Loading Cars...
+      </p>
+    </div>
+  );
           }
-          if (carDetails.length === 0) {
-            return <p>No cars found.</p>;
-          }
+         if (carDetails.length === 0) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        textAlign: 'center',
+      }}
+    >
+      <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
+        No listings posted.
+      </p>
+    </div>
+  );
+}
+
           return (
             <div className="car-grid mylistings-car-grid">
               {carDetails.map((car) => (
@@ -292,21 +336,24 @@ const fetchCars = async () => {
       </div>
 
       {/* Pagination */}
-      <div className="mylistings-pagination">
-        <Pagination
-          className="custom-pagination"
-          current={page}            
-          total={totalCount}        
-          pageSize={limit}          
-          onChange={(newPage) => {
-            console.log('Page Changed To:', newPage);
-            setPage(newPage);
-          }}
-          showSizeChanger={false}   
-          // showQuickJumper            // Show input for quick jump
-          itemRender={renderPaginationItem} // Custom render for < and >
-        />
-      </div>
+     {carDetails.length > 0 && (
+  <div className="mylistings-pagination">
+    <Pagination
+      className="custom-pagination"
+      current={page}            
+      total={totalCount}        
+      pageSize={limit}          
+      onChange={(newPage) => {
+        console.log('Page Changed To:', newPage);
+        setPage(newPage);
+      }}
+      showSizeChanger={false}   
+      // showQuickJumper // Show input for quick jump
+      itemRender={renderPaginationItem} // Custom render for < and >
+    />
+  </div>
+)}
+
 
 {/* Delete Confirmation Modal */}
       <Modal

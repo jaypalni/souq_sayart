@@ -21,6 +21,7 @@ import '../assets/styles/myProfile.css';
 import SavedSearches from '../components/savedSearches';
 import Favorites from '../components/favorites';
 import ChangePhoneNumber from '../components/changephonenumber';
+import Subscriptions from '../components/Subscriptions';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useSelector,useDispatch } from 'react-redux';
@@ -453,6 +454,7 @@ const MyProfile = () => {
                   <Route path="change-phone" element={<ChangePhoneNumber />} />
                   <Route path="searches" element={<SavedSearches />} />
                   <Route path="favorites" element={<Favorites />} />
+                  <Route path="subscriptions" element={<Subscriptions />} />
                 </Routes>
               </>
             )}

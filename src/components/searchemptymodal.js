@@ -14,11 +14,11 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import PropTypes from 'prop-types';
 import '../assets/styles/searchemptymodal.css';
 
-const DEFAULT_ALL_MAKE = 'All';
+const DEFAULT_ALL_MAKE = 'All Make';
 const DEFAULT_ALL_MODELS = 'All Models';
 const DEFAULT_ALL_BODY_TYPES = 'All Body Types';
 const DEFAULT_LOCATION_BAGHDAD = 'All Locations';
-const DEFAULT_CONDITION='New & Used'
+const DEFAULT_CONDITION = 'New & Used';
 // Helper function to build search parameters
 const buildSearchParams = (filterData, props) => {
   const {
@@ -209,15 +209,15 @@ const Searchemptymodal = ({
 };
 
 // Helper function to get filter value
-const getFilterValue = (filterData, propValue, defaultValue) => {
-  return filterData ? filterData[propValue] : propValue;
+const getFilterValue = (filterData, propName, propValue) => {
+  return filterData ? filterData[propName] : propValue;
 };
 
 // Helper function to check if filter should be shown
 const shouldShowFilter = (filterData, propValue, propName, defaultValue) => {
   const value = getFilterValue(filterData, propName, propValue);
-  console.log(filterData,propName,propValue,value,defaultValue)
-  return value && value !== defaultValue && propValue &&propValue!== defaultValue;
+  console.log('shouldShowFilter:', { filterData, propName, propValue, value, defaultValue });
+  return value && value !== defaultValue && propValue && propValue !== defaultValue;
 };
 
 // Helper function to format price range
@@ -282,25 +282,25 @@ const FilterButtons = ({
   <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
     {shouldShowFilter(filterData, make, 'make', DEFAULT_ALL_MAKE) && (
       <FilterButton onClick={() => setMake(DEFAULT_ALL_MAKE)}>
-        {getFilterValue(filterData, make, 'make')}
+        {getFilterValue(filterData, 'make', make)}
       </FilterButton>
     )}
     
     {shouldShowFilter(filterData, model, 'model', DEFAULT_ALL_MODELS) && (
       <FilterButton onClick={() => setModel(DEFAULT_ALL_MODELS)}>
-        {getFilterValue(filterData, model, 'model')}
+        {getFilterValue(filterData, 'model', model)}
       </FilterButton>
     )}
     
     {shouldShowFilter(filterData, bodyType, 'body_type', DEFAULT_ALL_BODY_TYPES) && (
       <FilterButton onClick={() => setBodyType(DEFAULT_ALL_BODY_TYPES)}>
-        {getFilterValue(filterData, bodyType, 'body_type')}
+        {getFilterValue(filterData, 'body_type', bodyType)}
       </FilterButton>
     )}
     
     {shouldShowFilter(filterData, selectedLocation, 'location', DEFAULT_LOCATION_BAGHDAD) && (
       <FilterButton onClick={() => setSelectedLocation(DEFAULT_LOCATION_BAGHDAD)}>
-        {getFilterValue(filterData, selectedLocation, 'location')}
+        {getFilterValue(filterData, 'location', selectedLocation)}
       </FilterButton>
     )}
     
@@ -316,9 +316,9 @@ const FilterButtons = ({
       </FilterButton>
     )}
     
-       {shouldShowFilter(filterData, newUsed, 'condition', DEFAULT_CONDITION) &&  (
+    {shouldShowFilter(filterData, newUsed, 'condition', DEFAULT_CONDITION) && (
       <FilterButton onClick={() => setNewUsed(DEFAULT_CONDITION)}>
-        {getFilterValue(filterData, newUsed, 'condition')}
+        {getFilterValue(filterData, 'condition', newUsed)}
       </FilterButton>
     )}
     

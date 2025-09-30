@@ -86,6 +86,12 @@ const authReducer = (state = initialState, action) => {
         ...state,
         refresh_token: action.payload,
       };
+    case 'REFRESH_TOKEN_SUCCESS':
+      return {
+        ...state,
+        token: action.payload,
+        isAuthenticated: !!action.payload,
+      };
     case 'NO_OP':
       // No operation - return current state unchanged
       return state;

@@ -55,6 +55,7 @@ if (car.approval?.toLowerCase() === 'pending') {
 
 
 
+
  
 
   const CARD_WIDTH = 'auto';

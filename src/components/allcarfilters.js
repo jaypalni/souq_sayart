@@ -387,7 +387,7 @@ const getInitialMaxPrice = () => {
       console.log('autoSearchForCountWithoutType - API params:', apiParams);
       
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi one')
+      console.log('New APi one', newUsed)
       const data = handleApiResponse(response);
 
       // Null checks for pagination data
@@ -434,7 +434,7 @@ const getInitialMaxPrice = () => {
       console.log('autoSearchForCount - API params:', apiParams);
       
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi two')
+      console.log('New APi two', newUsed)
       const data = handleApiResponse(response);
 
       // Null checks for pagination data
@@ -937,7 +937,7 @@ fetchRegionCars()
       
       clearCachedData();
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi three')
+      console.log('New APi three', newUsed)
       const data1 = handleApiResponse(response);
 
       if (data1) {
@@ -945,11 +945,85 @@ fetchRegionCars()
       }
     } catch (error) {
       const errorData = handleApiError(error);
-    if(error?.message==='Network Error' ){ messageApi.open({
-            type: 'error',
-            content:'You’re offline! Please check your network connection and try again.',
-          });
-        }
+      if(error?.message==='Network Error' ){ 
+        messageApi.open({
+          type: 'error',
+          content:'You are offline! Please check your network connection and try again.',
+        });
+      }
+      message.error(errorData.message || 'Failed to search car data');
+      setCarSearch([]);
+    } finally {
+      setLoading(false);
+      
+      if (setIsLoading) {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Search function with specific condition parameter
+  const handleSearchWithCondition = async (selectedCondition) => {
+    console.log('handleSearchWithCondition - Using condition:', selectedCondition);
+    console.log('handleSearchWithCondition - Current state:', {
+      make,
+      model,
+      bodyType,
+      location,
+      minPrice,
+      maxPrice
+    });
+    
+    const sortConfig = getSortParameters(sortedbydata);
+    
+    // Build API params with the selected condition
+    const cleanedMin = minPrice !== null ? minPrice : '';
+    const cleanedMax = maxPrice !== null ? maxPrice : '';
+    
+    const apiParams = {
+      make: make === DEFAULTS.ALL_MAKE ? '' : make,
+      model: model === DEFAULTS.ALL_MODELS ? '' : model,
+      body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+      locations: getLocationsParam(location),
+      price_min: cleanedMin,
+      price_max: cleanedMax,
+      condition: selectedCondition === DEFAULTS.NEW_USED ? '' : selectedCondition,
+      newest_listing: sortConfig.sortbynewlist,
+      oldest_listing: sortConfig.sortbyold,
+      sort_by: sortConfig.sortbypriceormileage,
+      sort_order: sortConfig.sortorder,
+    };
+
+    // Only include type parameter if featuredorrecommended has a value
+    if (featuredorrecommended) {
+      apiParams.type = featuredorrecommended;
+    }
+
+    console.log('handleSearchWithCondition - Final API params being sent:', apiParams);
+
+    try {
+      setLoading(true);
+      
+      if (setIsLoading) {
+        setIsLoading(true);
+      }
+      
+      clearCachedData();
+      const response = await carAPI.getSearchCars(apiParams);
+      console.log('New APi three', selectedCondition)
+      const data1 = handleApiResponse(response);
+
+      if (data1) {
+        handleSearchResults(data1, apiParams);
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      if(error?.message==='Network Error' ){ 
+        messageApi.open({
+          type: 'error',
+          content:'You are offline! Please check your network connection and try again.',
+        });
+      }
       message.error(errorData.message || 'Failed to search car data');
       setCarSearch([]);
     } finally {
@@ -987,6 +1061,16 @@ fetchRegionCars()
               setValue(opt);
               handleChange(getDropdownLabel(type), opt);
               setOpenDropdown(null);
+              
+              // Call API only when condition is selected
+              if (type === DROPDOWN_NEW_USED) {
+                console.log('Condition selected:', opt, '- Calling handleSearch API');
+                // Call handleSearch with the selected condition
+                setTimeout(() => {
+                  console.log('About to call handleSearch, selected condition:', opt);
+                  handleSearchWithCondition(opt);
+                }, 100);
+              }
             }}
           >
             {opt}
@@ -1277,6 +1361,12 @@ fetchRegionCars()
     }
 
     setMinPrice(value ? Number(value) : null);
+    
+    // Call API when price changes
+    console.log('Min price changed:', value ? Number(value) : null, '- Calling handleSearch API');
+    setTimeout(() => {
+      handleSearch();
+    }, 500);
   }}
   onBlur={() => {
     if (minPrice === null) setShowMinInput(false);
@@ -1325,6 +1415,12 @@ fetchRegionCars()
     if (minPrice !== null && numericValue !== null && numericValue <= minPrice) {
       messageApi.error('Maximum price should be greater than Minimum price');
     }
+    
+    // Call API when price changes
+    console.log('Max price changed:', numericValue, '- Calling handleSearch API');
+    setTimeout(() => {
+      handleSearch();
+    }, 500);
   }}
   onBlur={() => {
     if (maxPrice === null) setShowMaxInput(false);

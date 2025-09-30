@@ -39,6 +39,7 @@ import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
+import EmojiPicker from 'emoji-picker-react';
 // const { TextArea } = Input;
 const { Option } = Select;
 // const MAX_LEN = 1000;
@@ -271,6 +272,7 @@ const Sell = () => {
   const [form] = Form.useForm();
   // const [desc, setDesc] = useState(form.getFieldValue('description') || '');
   const [description, setDescription] = useState(form.getFieldValue('description') || '');
+  const [showPicker, setShowPicker] = useState(false);
   const MAX_LEN = 1000;
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalOpenInterior, setColorModalOpenInterior] = useState(false);
@@ -320,6 +322,7 @@ const Sell = () => {
   const populatedRef = useRef(false);
   const { TextArea } = Input;
   const [showModal, setShowModal] = useState(false);
+   const pickerRef = useRef(null);
 
 console.log('extras11',extras)
 
@@ -690,15 +693,55 @@ useEffect(() => {
   populatedRef.current = true;
 }, [extras, form]);
 
-  const handleChange = (e) => {
-  let v = e.target.value || '';
-  if (v.length > MAX_LEN) {
-    v = v.slice(0, MAX_LEN);
-    message.warning(`Description truncated to ${MAX_LEN} characters.`);
+// Auto-select "New" condition when kilometers is 0
+useEffect(() => {
+  const kilometers = form.getFieldValue('kilometers');
+  if (kilometers === '0' || kilometers === 0) {
+    console.log('Auto-selecting "New" condition for 0 kilometers');
+    setSelectedCondition('New');
+    form.setFieldsValue({ condition: 'New' });
   }
-  setDescription(v);
-  form.setFieldsValue({ description: v });
-};
+}, [form.getFieldValue('kilometers')]);
+
+  // your handleChange stays same
+const handleChange = (e) => {
+    let v = e.target.value || '';
+    if (v.length > MAX_LEN) {
+      v = v.slice(0, MAX_LEN);
+      message.warning(`Description truncated to ${MAX_LEN} characters.`);
+    }
+    setDescription(v);
+    form.setFieldsValue({ description: v });
+  };
+
+  // ✅ Emoji click (NO auto-close here)
+  const handleEmojiClick = (emojiData) => {
+    let v = (description || '') + emojiData.emoji;
+    if (v.length > MAX_LEN) {
+      v = v.slice(0, MAX_LEN);
+      message.warning(`Description truncated to ${MAX_LEN} characters.`);
+    }
+    setDescription(v);
+    form.setFieldsValue({ description: v });
+    // ❌ removed: setShowPicker(false)
+  };
+
+  // ✅ Close picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+        setShowPicker(false);
+      }
+    };
+
+    if (showPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPicker]);
 
 
 const handlePaste = (e) => {
@@ -1531,25 +1574,59 @@ const handleImageUpload = async (images) => {
     }}
   />
                 </Form.Item>
-                  <Form.Item
-  className='form-item-label'
-  label='Description'
-  name='description'
+                    <Form.Item
+  className="form-item-label"
+  label="Description"
+  name="description"
 >
-  <div className='description-container'>
+  <div className="description-container" style={{ position: 'relative' }}>
     <TextArea
       rows={4}
-      placeholder='Enter Description...'
-      value={description} // ✅ Controlled by single state
+      placeholder="Enter Description..."
+      value={description}
       onChange={handleChange}
-      onPaste={handlePaste}
     />
-    {/* Live Counter */}
-    <div className={`description-counter ${description.length === MAX_LEN ? 'max-length' : ''}`}>
-      {description.length}/{MAX_LEN}
+
+    {/* Row for emoji button + counter */}
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+      }}
+    >
+      {/* Emoji button */}
+      <Button
+        type="default"
+        size="small"
+        onClick={() => setShowPicker((prev) => !prev)}
+      >
+        😀 Emoji
+      </Button>
+
+      {/* Live Counter */}
+      <div
+        className={`description-counter ${
+          description.length === MAX_LEN ? 'max-length' : ''
+        }`}
+      >
+        {description.length}/{MAX_LEN}
+      </div>
     </div>
+
+    {/* Emoji Picker */}
+    {showPicker && (
+      <div
+        ref={pickerRef}
+        style={{ position: 'absolute', zIndex: 1000, marginTop: 8 }}
+      >
+        <EmojiPicker onEmojiClick={handleEmojiClick} />
+      </div>
+    )}
   </div>
 </Form.Item>
+
 
               </Col>
             </Row>
@@ -1968,6 +2045,15 @@ const handleImageUpload = async (images) => {
             key={opt.car_condition}
             className={`option-box${selectedCondition === opt.car_condition ? ' selected' : ''}`}
             onClick={() => {
+              const currentKilometers = form.getFieldValue('kilometers');
+              
+              // Check if user is changing from "New" to something else while kilometers is 0
+              if (selectedCondition === 'New' && opt.car_condition !== 'New' && (currentKilometers === '0' || currentKilometers === 0)) {
+                console.log('Warning: Changing condition from "New" while kilometers is 0');
+                // You can add a warning message here if needed
+                // message.warning('Cars with 0 kilometers are typically "New". Are you sure?');
+              }
+              
               setSelectedCondition(opt.car_condition);
               form.setFieldsValue({ condition: opt.car_condition });
             }}
@@ -2132,16 +2218,19 @@ const handleImageUpload = async (images) => {
                     label='Kilometers*'
                     name='kilometers'
                     rules={[
-    { required: true, message: 'Please enter kilometers!' },
-    {
-      validator: (_, value) => {
-        if (!value || Number(value) <= 0) {
-          return Promise.reject(new Error('Kilometers must be greater than 0'));
-        }
-        return Promise.resolve();
-      },
+  
+  {
+    validator: (_, value) => {
+      const numberValue = Number(value);
+      if (value === undefined || value === null || value === '') {
+        return Promise.reject(new Error('Please enter kilometers!'));
+      }
+     
+      return Promise.resolve();
     },
-  ]}
+  },
+]}
+
   required={false}
                     validateTrigger='onBlur'
                   >
@@ -2154,11 +2243,18 @@ const handleImageUpload = async (images) => {
     onChange={(e) => {
       const digitsOnly = (e.target.value || '').replace(/\D/g, '');
 
-      // Remove leading zeros to prevent entries like 0001
-      const sanitizedValue = digitsOnly.replace(/^0+/, '');
+      // Remove leading zeros to prevent entries like 0001, but allow single 0
+      const sanitizedValue = digitsOnly === '0' ? '0' : digitsOnly.replace(/^0+/, '');
 
       console.log('Kilometers onChange - original:', e.target.value, 'sanitized:', sanitizedValue);
       form.setFieldsValue({ kilometers: sanitizedValue });
+      
+      // Auto-select "New" condition if kilometers is 0
+      if (sanitizedValue === '0' || sanitizedValue === '') {
+        console.log('Kilometers is 0, auto-selecting "New" condition');
+        setSelectedCondition('New');
+        form.setFieldsValue({ condition: 'New' });
+      }
       
       // Verify the field was set
       setTimeout(() => {

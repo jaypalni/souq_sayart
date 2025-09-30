@@ -36,13 +36,26 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.approval || 'Unknown' };
 };
 
-const displayLabel =
-  car.approval === 'pending' || car.approval === 'Pending'
-    ? 'Approval Pending'
-    : tagProps.label;
+ const tagProps = getTagProps();
+
+const displayLabel = {};
+
+if (car.approval?.toLowerCase() === 'pending') {
+  if (car.draft === 1) {
+    displayLabel.label = '';
+    displayLabel.isVisible = false;
+  } else {
+    displayLabel.label = 'Approval Pending';
+    displayLabel.isVisible = true; 
+  }
+} else {
+  displayLabel.label = car.approval || '';
+  displayLabel.isVisible = true;
+}
 
 
-  const tagProps = getTagProps();
+
+ 
 
   const CARD_WIDTH = 'auto';
 
@@ -94,15 +107,16 @@ const displayLabel =
             {'IQD ' + Number(car.price).toLocaleString()}
           </div>
 
-          <Tag
-            color={tagProps.bg}
-            className="car-card-tag"
-            style={{
-              color: tagProps.color,
-            }}
-          >
-            {displayLabel}
-          </Tag>
+         {displayLabel.isVisible && (
+  <Tag
+    color={tagProps.bg}
+    className="car-card-tag"
+    style={{ color: tagProps.color }}
+  >
+    {displayLabel.label}
+  </Tag>
+)}
+
 
           {value === STATUS_ACTIVE && filterStatus === 'Sport' && (
             <div className="car-card-boost">

@@ -56,7 +56,7 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, setCurrentPage, featuredorrecommended, onClearFeaturedOrRecommended}) => {
+const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, setCurrentPage, featuredorrecommended, onClearFeaturedOrRecommended,setIsnetworkError}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -662,7 +662,7 @@ fetchRegionCars()
     const sortConfig = getSortParameters(sortedbydata);
     const saveParams = buildSaveParams(sortConfig);
     const apiParams = buildApiParams(sortConfig);
-
+setIsnetworkError(false)
     saveFiltersAndUpdateUI(saveParams);
 
     try {
@@ -681,10 +681,12 @@ fetchRegionCars()
       }
     } catch (error) {
       const errorData = handleApiError(error);
-    if(error?.message==='Network Error' ){ messageApi.open({
-            type: 'error',
-            content:'You’re offline! Please check your network connection and try again.',
-          });
+    if(error?.message==='Network Error' ){ 
+      // messageApi.open({
+      //       type: 'error',
+      //       content:'You’re offline! Please check your network connection and try again.',
+      //     });
+      setIsnetworkError(true)
         }
       message.error(errorData.message || 'Failed to search car data');
       setCarSearch([]);
@@ -869,13 +871,20 @@ fetchRegionCars()
             location={location}
             featuredorrecommended={featuredorrecommended}
             newUsed={newUsed}
+            onMakeChange={(newMake) => {
+              setMake(newMake);
+              setModel(DEFAULTS.ALL_MODELS);
+            }}
+            onModelChange={(newModel) => {
+              setModel(newModel);
+            }}
             onSearchResults={(searchResults) => {
               // Null checks for search results
               if (!searchResults || !searchResults.data) {
                 console.warn('Invalid search results received');
                 return;
               }
-              
+
               setFilterCarsData(searchResults.data);
               setFilterVisible(false);
               

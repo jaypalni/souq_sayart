@@ -36,13 +36,11 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.approval || 'Unknown' };
 };
 
-const displayLabel =
-  car.approval === 'pending' || car.approval === 'Pending'
-    ? 'Approval Pending'
-    : tagProps.label;
-
-
   const tagProps = getTagProps();
+
+const displayLabel = car&&(  car?.approval === 'pending' || car?.approval === 'Pending'
+    ? 'Approval Pending'
+    : tagProps?.label);
 
   const CARD_WIDTH = 'auto';
 

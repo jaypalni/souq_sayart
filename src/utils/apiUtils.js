@@ -28,7 +28,7 @@ export const handleApiError = (error) => {
   } else if (error.request) {
     return {
       status: 0,
-      message: 'No response from server',
+      message: 'You’re offline! Please check your network connection and try again.',
       errors: [],
     };
   } else {

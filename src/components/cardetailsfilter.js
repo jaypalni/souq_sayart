@@ -31,10 +31,16 @@ import Backarrowicon from '../assets/images/backarrow_icon.svg';
 import { message } from 'antd';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import Searchemptymodal from './searchemptymodal';
+import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 
 const { Option } = Select;
 
 // Constants moved outside component
+const DEFAULTS = {
+  ALL_MAKE: 'All Make',
+  ALL_MODELS: 'All Models',
+};
+
 const fuelOptions = ['Any', 'Petrol', 'Diesel', 'Hybrid', 'Electric'];
 const transmissionOptions = ['Any', 'Automatic', 'Manual', 'Steptonic'];
 const cylinderOptions = ['3', '4', '5', '6', '8', '12', 'N/A', 'Electric', 'Not Sure'];
@@ -165,11 +171,11 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended, newUsed } = filterParams;
+  const { selectedMake, selectedModel, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended, newUsed } = filterParams;
   
   const apiParams = {
-    make: getFilterValue(make, 'All Make'),
-    model: getFilterValue(model, 'All Models'),
+    make: getFilterValue(selectedMake, 'All Make'),
+    model: getFilterValue(selectedModel, 'All Models'),
     trim: getFilterValue(singleInputs.trimValue, 'Any'),
     year_min: getNumericFilterValue(rangeInputs.yearMin),
     year_max: getNumericFilterValue(rangeInputs.yearMax),
@@ -221,8 +227,8 @@ getNumericFilterValue.propTypes = {
 
 prepareFilterData.propTypes = {
   filterParams: PropTypes.shape({
-    make: PropTypes.string,
-    model: PropTypes.string,
+    selectedMake: PropTypes.string,
+    selectedModel: PropTypes.string,
     bodyType: PropTypes.string,
     location: PropTypes.string,
       singleInputs: PropTypes.object.isRequired,
@@ -507,13 +513,19 @@ ExtraFeaturesDrawer.propTypes = {
   onFeatureToggle: PropTypes.func.isRequired,
 };
 
-const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended, newUsed }) => {
+const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended, newUsed, onMakeChange, onModelChange }) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
   const [value, setValue] = useState('Any');
   const [search, setSearch] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
+
+  // Make and Model state management
+  const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE]);
+  const [carModels, setCarModels] = useState([]);
+  const [selectedMake, setSelectedMake] = useState(make || DEFAULTS.ALL_MAKE);
+  const [selectedModel, setSelectedModel] = useState(model || DEFAULTS.ALL_MODELS);
 
   // Ensure limit and currentPage are valid numbers
   const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
@@ -532,9 +544,37 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
   const handleChange = (e) => setValue(e.target.value);
 
 
+  // Fetch make data on component mount
+  useEffect(() => {
+    fetchMakeCars({ setLoading, setCarMakes });
+  }, []);
+
+  // Fetch model data when make changes
+  useEffect(() => {
+    if (selectedMake && selectedMake !== DEFAULTS.ALL_MAKE) {
+      fetchModelCars({ setLoading, setCarModels, make: selectedMake }).then(() => {
+        // Reset model when make changes
+        setSelectedModel(DEFAULTS.ALL_MODELS);
+      });
+    } else {
+      setCarModels([]);
+      setSelectedModel(DEFAULTS.ALL_MODELS);
+    }
+  }, [selectedMake]);
+
+  // Sync with parent component props
+  useEffect(() => {
+    if (make !== selectedMake) {
+      setSelectedMake(make || DEFAULTS.ALL_MAKE);
+    }
+    if (model !== selectedModel) {
+      setSelectedModel(model || DEFAULTS.ALL_MODELS);
+    }
+  }, [make, model]);
+
   useEffect(() => {
     fetchTrimData()
-  },[make,model])
+  },[selectedMake, selectedModel])
 
    useEffect(() => {
     handleApplyFilters()
@@ -547,7 +587,7 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
   const fetchTrimData = async () => {
   try {
     setLoading(true);
-    const response = await carAPI.trimDetailsFilter(make,model);
+    const response = await carAPI.trimDetailsFilter(selectedMake, selectedModel);
     const data1 = handleApiResponse(response);
 
     if (data1) {
@@ -631,7 +671,7 @@ if (
   const applyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords, currentPage: validCurrentPage, limit: validLimit, featuredorrecommended, newUsed });
+      const filterData = prepareFilterData({ selectedMake, selectedModel, bodyType, location, singleInputs, rangeInputs, filterState, keywords, currentPage: validCurrentPage, limit: validLimit, featuredorrecommended, newUsed });
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
@@ -736,6 +776,33 @@ if (
           paddingRight: '8px',
         }}>
           
+          <SelectInput
+            title="Make"
+            value={selectedMake}
+            onChange={(value) => {
+              const newMake = value || DEFAULTS.ALL_MAKE;
+              setSelectedMake(newMake);
+              setSelectedModel(DEFAULTS.ALL_MODELS);
+              if (onMakeChange) {
+                onMakeChange(newMake);
+              }
+            }}
+            options={carMakes.map(make => ({ value: make?.name || make, label: make?.name || make }))}
+          />
+
+          <SelectInput
+            title="Model"
+            value={selectedModel}
+            onChange={(value) => {
+              const newModel = value || DEFAULTS.ALL_MODELS;
+              setSelectedModel(newModel);
+              if (onModelChange) {
+                onModelChange(newModel);
+              }
+            }}
+            options={carModels.map(model => ({ value: model?.model_name || model, label: model?.model_name || model }))}
+          />
+
           <SelectInputTrimData
             title="Trim"
             value={singleInputs.trimValue}
@@ -986,10 +1053,10 @@ if (
       <Searchemptymodal
         visible={isEmptyModalOpen}
         onClose={() => setIsEmptyModalOpen(false)}
-        make={make}
-        setMake={() => {}} 
-        model={model}
-        setModel={() => {}} // Placeholder - parent component should handle this
+        make={selectedMake}
+        setMake={setSelectedMake} 
+        model={selectedModel}
+        setModel={setSelectedModel}
         bodyType={bodyType}
         setBodyType={() => {}} // Placeholder - parent component should handle this
         selectedLocation={location}
@@ -1008,6 +1075,12 @@ Cardetailsfilter.propTypes = {
   bodyType: PropTypes.string,
   location: PropTypes.string,
   onSearchResults: PropTypes.func,
+  limit: PropTypes.number,
+  currentPage: PropTypes.number,
+  featuredorrecommended: PropTypes.string,
+  newUsed: PropTypes.string,
+  onMakeChange: PropTypes.func,
+  onModelChange: PropTypes.func,
 };
 
 export default Cardetailsfilter;

@@ -16,8 +16,10 @@ const fetchMakeCars = async ({ setLoading, setCarMakes }) => {
     const response = await carAPI.getMakeCars({});
     const data1 = handleApiResponse(response);
 
+    console.log('Make API response:', data1);
     if (data1) {
       setCarMakes(data1?.data);
+      console.log('Set carMakes to:', data1?.data);
     }
 
     message.success(data1.message || 'Fetched successfully');
@@ -36,8 +38,10 @@ const fetchModelCars = async ({ setLoading, setCarModels, make }) => {
     const response = await carAPI.getModelCars(make);
     const data1 = handleApiResponse(response);
 
+    console.log('Model API response:', data1);
     if (data1) {
       setCarModels(data1?.data);
+      console.log('Set carModels to:', data1?.data);
     }
 
     message.success(data1.message || 'Fetched successfully');

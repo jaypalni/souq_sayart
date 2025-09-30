@@ -31,10 +31,7 @@ const TermsAndconditions = () => {
 
       if (data1?.data) {
         setContentData(data1.data);
-        messageApi.open({
-          type: 'success',
-          content: data1?.message || 'Content loaded successfully',
-        });
+
       } else {
         message.error('No content found');
       }
@@ -47,7 +44,7 @@ const TermsAndconditions = () => {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: '2rem' }}>
+    <div style={{ maxWidth: 800, margin: '0 auto' }}>
       {contextHolder}
       <Typography>
         {loading ? (

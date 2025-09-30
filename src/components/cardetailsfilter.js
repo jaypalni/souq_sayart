@@ -31,6 +31,7 @@ import Backarrowicon from '../assets/images/backarrow_icon.svg';
 import { message } from 'antd';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import Searchemptymodal from './searchemptymodal';
+import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 
 const { Option } = Select;
 
@@ -39,6 +40,15 @@ const fuelOptions = ['Any', 'Petrol', 'Diesel', 'Hybrid', 'Electric'];
 const transmissionOptions = ['Any', 'Automatic', 'Manual', 'Steptonic'];
 const cylinderOptions = ['3', '4', '5', '6', '8', '12', 'N/A', 'Electric', 'Not Sure'];
 const numberofdoors = ['Any', '2/3', '4/5'];
+
+
+const yearOptions = [];
+const currentYear = new Date().getFullYear();
+
+for (let year = 1980; year <= currentYear; year++) {
+  yearOptions.push(year);
+}
+
 
 const extraFeaturesData = [
   {
@@ -165,7 +175,31 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended, newUsed } = filterParams;
+  const { make, model, bodyTypes, locations, colors, regionalSpecs, singleInputs, rangeInputs, filterState, keywords, currentPage, limit, featuredorrecommended, newUsed } = filterParams;
+  
+  // Ensure locations is always an array and filter out "All Locations"
+  const ensureArray = (value) => {
+    if (Array.isArray(value)) {
+      // Flatten the array first in case it contains nested arrays
+      const flattened = value.flat();
+      // Filter out "All Locations" from array and any empty/null values
+      return flattened.filter(location => 
+        location && 
+        location !== 'All Locations' && 
+        location !== 'All Location' &&
+        location !== 'All' &&
+        location.trim() !== ''
+      );
+    } else if (typeof value === 'string' && value.trim() !== '') {
+      // Check if string is "All Locations" or variations
+      if (value === 'All Locations' || value === 'All Location' || value === 'All') {
+        return [];
+      }
+      return [value];
+    } else {
+      return [];
+    }
+  };
   
   const apiParams = {
     make: getFilterValue(make, 'All Make'),
@@ -175,21 +209,25 @@ const prepareFilterData = (filterParams) => {
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    location: getFilterValue(location, 'All Locations'),
+    locations: ensureArray(locations),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
-    colour: getFilterValue(singleInputs.colorValue, 'Any'),
-    transmission: getArrayFilterValue(filterState.transmissionselectedValues),
-    regional_specs: getFilterValue(singleInputs.regionalSpecs, 'Any'),
-    body_type: getFilterValue(bodyType, 'All Body Types'),
-    number_of_doors: getArrayFilterValue(filterState.doorselectedValues),
+    colors: colors && colors.length > 0 ? colors : [],
+    transmissions: filterState.transmissionselectedValues.filter(v => v !== 'Any'),
+    regional_specs_list: regionalSpecs && regionalSpecs.length > 0 ? regionalSpecs : [],
+    body_types: bodyTypes && bodyTypes.length > 0 ? bodyTypes : [],
+    doors: filterState.doorselectedValues,
     number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
-    fuel_type: getArrayFilterValue(filterState.selectedValues),
+    fuel_types: filterState.selectedValues.filter(v => v !== 'Any'),
     seller_type: getArrayFilterValue(filterState.ownerType),
     keyword: keywords.length > 0 ? keywords.join(', ') : '',
     page: currentPage,
     limit: limit
   };
+
+  // Debug logging for locations
+  console.log('prepareFilterData - Input locations:', locations, 'Type:', typeof locations, 'Is Array:', Array.isArray(locations));
+  console.log('prepareFilterData - Processed locations:', apiParams.locations, 'Type:', typeof apiParams.locations, 'Is Array:', Array.isArray(apiParams.locations));
 
   // Only include type parameter if featuredorrecommended has a value
   if (featuredorrecommended) {
@@ -223,43 +261,65 @@ prepareFilterData.propTypes = {
   filterParams: PropTypes.shape({
     make: PropTypes.string,
     model: PropTypes.string,
-    bodyType: PropTypes.string,
-    location: PropTypes.string,
-      singleInputs: PropTypes.object.isRequired,
-      rangeInputs: PropTypes.object.isRequired,
-      featuredorrecommended: PropTypes.string,
-      newUsed: PropTypes.string,
-      filterState: PropTypes.object.isRequired,
-      keywords: PropTypes.array.isRequired,
+    bodyTypes: PropTypes.array,
+    locations: PropTypes.array,
+    colors: PropTypes.array,
+    regionalSpecs: PropTypes.array,
+    singleInputs: PropTypes.object.isRequired,
+    rangeInputs: PropTypes.object.isRequired,
+    featuredorrecommended: PropTypes.string,
+    newUsed: PropTypes.string,
+    filterState: PropTypes.object.isRequired,
+    keywords: PropTypes.array.isRequired,
   }).isRequired,
 };
 
 // Extracted components
-const RangeInputGroup = ({ label, minValue, maxValue, onMinChange, onMaxChange, minPlaceholder, maxPlaceholder, onBlurValidation }) => (
+const RangeInputGroup = ({ 
+  label, 
+  minValue, 
+  maxValue, 
+  onMinChange, 
+  onMaxChange, 
+  minPlaceholder, 
+  maxPlaceholder, 
+  onBlurValidation,
+  minComponent,
+  maxComponent
+}) => (
   <div style={{ marginBottom: 16 }}>
     <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
       {label}
     </div>
     <Row gutter={8}>
       <Col span={12}>
-        <Input 
-          placeholder={minPlaceholder || 'Min'} 
-          value={minValue}
-          onChange={(e) => handleNumberInput(e, onMinChange)}
-           onBlur={() => onBlurValidation?.()}
-        />
+        {minComponent ? (
+          minComponent
+        ) : (
+          <Input 
+            placeholder={minPlaceholder || 'Min'} 
+            value={minValue}
+            onChange={(e) => handleNumberInput(e, onMinChange)}
+            onBlur={() => onBlurValidation?.()}
+          />
+        )}
       </Col>
       <Col span={12}>
-        <Input 
-          placeholder={maxPlaceholder || 'Max'} 
-          value={maxValue}
-          onChange={(e) => handleNumberInput(e, onMaxChange)}
-           onBlur={() => onBlurValidation?.()}
-        />
+        {maxComponent ? (
+          maxComponent
+        ) : (
+          <Input 
+            placeholder={maxPlaceholder || 'Max'} 
+            value={maxValue}
+            onChange={(e) => handleNumberInput(e, onMaxChange)}
+            onBlur={() => onBlurValidation?.()}
+          />
+        )}
       </Col>
     </Row>
   </div>
 );
+
 
 const MAX_PRICE = 5000000000;
 
@@ -356,6 +416,71 @@ const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
   </div>
 );
 
+const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption }) => {
+  console.log(`${title} SelectInputMultiAPI:`, { value, optionsLength: options.length, options: options.slice(0, 2), valueField, labelField });
+  
+  // Helper function to get the correct field value with fallbacks
+  const getFieldValue = (option, field) => {
+    // Try multiple possible field names
+    const possibleFields = [
+      field,
+      field.replace('_name', ''),
+      field.replace('_name', '_id'),
+      'name',
+      'id',
+      'title',
+      'label'
+    ];
+    
+    for (const possibleField of possibleFields) {
+      if (option[possibleField] !== undefined) {
+        return option[possibleField];
+      }
+    }
+    
+    // If no field found, return the field name itself
+    return option[field] || field;
+  };
+  
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
+        {title}
+      </div>
+      <Select
+        mode="multiple"
+        value={value}
+        onChange={onChange}
+        placeholder={`Select ${title}`}
+        style={{ width: '100%', marginTop: '10px', ...style }}
+        showSearch
+        filterOption={(input, option) =>
+          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+        }
+        maxTagCount="responsive"
+      >
+        {defaultOption && (
+          <Option key="default" value={defaultOption.value}>
+            {defaultOption.label}
+          </Option>
+        )}
+        {options.map(option => {
+          const displayValue = getFieldValue(option, labelField);
+          const optionValue = getFieldValue(option, labelField);
+          
+          console.log(`${title} option:`, option, 'displayValue:', displayValue, 'optionValue:', optionValue);
+          
+          return (
+            <Option key={option[valueField] || option.id || optionValue} value={optionValue}>
+              {displayValue}
+            </Option>
+          );
+        })}
+      </Select>
+    </div>
+  );
+};
+
 SelectInputTrimData.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.string,
@@ -365,6 +490,97 @@ SelectInputTrimData.propTypes = {
     trim_name: PropTypes.string.isRequired,
   })).isRequired,
   style: PropTypes.object,
+};
+
+SelectInputMultiAPI.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.array,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.array.isRequired,
+  style: PropTypes.object,
+  valueField: PropTypes.string,
+  labelField: PropTypes.string,
+  defaultOption: PropTypes.shape({
+    value: PropTypes.string,
+    label: PropTypes.string,
+  }),
+};
+
+const SelectInputAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption }) => {
+  console.log(`${title} SelectInputAPI:`, { value, optionsLength: options.length, options: options.slice(0, 2), valueField, labelField });
+  
+  // Helper function to get the correct field value with fallbacks
+  const getFieldValue = (option, field) => {
+    // Try multiple possible field names
+    const possibleFields = [
+      field,
+      field.replace('_name', ''),
+      field.replace('_name', '_id'),
+      'name',
+      'id',
+      'title',
+      'label'
+    ];
+    
+    for (const possibleField of possibleFields) {
+      if (option[possibleField] !== undefined) {
+        return option[possibleField];
+      }
+    }
+    
+    // If no field found, return the field name itself
+    return option[field] || field;
+  };
+  
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
+        {title}
+      </div>
+      <Select
+        value={value}
+        onChange={onChange}
+        placeholder={`Select ${title}`}
+        style={{ width: '100%', marginTop: '10px', ...style }}
+        showSearch
+        filterOption={(input, option) =>
+          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+        }
+      >
+        {defaultOption && (
+          <Option key="default" value={defaultOption.value}>
+            {defaultOption.label}
+          </Option>
+        )}
+        {options.map(option => {
+          const displayValue = getFieldValue(option, labelField);
+          const optionValue = getFieldValue(option, labelField); // Use same value for both display and storage
+          
+          console.log(`${title} option:`, option, 'displayValue:', displayValue, 'optionValue:', optionValue);
+          
+          return (
+            <Option key={option[valueField] || option.id || optionValue} value={optionValue}>
+              {displayValue}
+            </Option>
+          );
+        })}
+      </Select>
+    </div>
+  );
+};
+
+SelectInputAPI.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.array.isRequired,
+  style: PropTypes.object,
+  valueField: PropTypes.string,
+  labelField: PropTypes.string,
+  defaultOption: PropTypes.shape({
+    value: PropTypes.string,
+    label: PropTypes.string,
+  }),
 };
 
 SelectInput.propTypes = {
@@ -507,7 +723,27 @@ ExtraFeaturesDrawer.propTypes = {
   onFeatureToggle: PropTypes.func.isRequired,
 };
 
-const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended, newUsed }) => {
+const Cardetailsfilter = ({ 
+  make, 
+  model, 
+  bodyType, 
+  location, 
+  onSearchResults,
+  limit,
+  currentPage, 
+  featuredorrecommended, 
+  newUsed,
+  // Additional props for selected values from LandingFilters
+  selectedMake: propSelectedMake,
+  selectedModel: propSelectedModel,
+  selectedBodyType: propSelectedBodyType,
+  selectedLocation: propSelectedLocation,
+  selectedNewUsed: propSelectedNewUsed,
+  selectedPriceMin: propSelectedPriceMin,
+  selectedPriceMax: propSelectedPriceMax,
+  // Callback to update main filter fields
+  onFilterChange
+}) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
@@ -525,16 +761,189 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
   const [emptySearchData, setEmptySearchData] = useState(null);
   const [regionalSpecsOptions, setRegionalSpecsOptions] = useState([]);
 
+  // New Changes for API'S
+const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
+
+  const [carMakes, setCarMakes] = useState([]);
+const [carModels, setCarModels] = useState([]);
+const [carBodyTypes, setCarBodyTypes] = useState([]);
+const [carLocations, setCarLocations] = useState([]);
+const [searchBodyType, setSearchBodyType] = useState('');
+
+
+
+
+// Selected values for dropdowns - initialize from props
+const [selectedMake, setSelectedMake] = useState(propSelectedMake || 'Any');
+const [selectedModel, setSelectedModel] = useState(propSelectedModel || 'Any');
+const [selectedBodyType, setSelectedBodyType] = useState(propSelectedBodyType || []);
+const [selectedLocation, setSelectedLocation] = useState(() => {
+  // Filter out "All Locations" from initial prop values
+  if (propSelectedLocation) {
+    return Array.isArray(propSelectedLocation) 
+      ? propSelectedLocation.filter(loc => loc !== 'All Locations' && loc !== 'All Location' && loc !== 'All')
+      : propSelectedLocation !== 'All Locations' && propSelectedLocation !== 'All Location' && propSelectedLocation !== 'All'
+        ? [propSelectedLocation] 
+        : [];
+  }
+  return [];
+});
+const [selectedColors, setSelectedColors] = useState([]);
+const [selectedRegionalSpecs, setSelectedRegionalSpecs] = useState([]);
+
+// Debug logging
+console.log('Cardetailsfilter - Received props:', { 
+  propSelectedMake, 
+  propSelectedModel, 
+  propSelectedBodyType, 
+  propSelectedLocation, 
+  propSelectedNewUsed, 
+  propSelectedPriceMin, 
+  propSelectedPriceMax 
+});
+console.log('Cardetailsfilter - Current state:', { selectedMake, selectedModel, selectedBodyType, selectedLocation, selectedColors, selectedRegionalSpecs });
+console.log('API data counts:', { carMakes: carMakes.length, carModels: carModels.length, carBodyTypes: carBodyTypes.length, carLocations: carLocations.length });
+
+
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
 
+  // Update state when props change
+  useEffect(() => {
+    if (propSelectedMake && propSelectedMake !== selectedMake) {
+      console.log('Cardetailsfilter - Updating make from prop:', propSelectedMake);
+      setSelectedMake(propSelectedMake);
+    }
+  }, [propSelectedMake]);
+
+  useEffect(() => {
+    if (propSelectedModel && propSelectedModel !== selectedModel) {
+      console.log('Cardetailsfilter - Updating model from prop:', propSelectedModel);
+      console.log('Cardetailsfilter - Available models:', carModels);
+      setSelectedModel(propSelectedModel);
+    }
+  }, [propSelectedModel]);
+
+  useEffect(() => {
+    if (propSelectedBodyType && propSelectedBodyType !== selectedBodyType) {
+      console.log('Cardetailsfilter - Updating bodyType from prop:', propSelectedBodyType);
+      setSelectedBodyType(propSelectedBodyType);
+    }
+  }, [propSelectedBodyType]);
+
+  useEffect(() => {
+    if (propSelectedLocation && propSelectedLocation !== selectedLocation) {
+      console.log('Cardetailsfilter - Updating location from prop:', propSelectedLocation);
+      // Filter out "All Locations" from prop values
+      const filteredLocation = Array.isArray(propSelectedLocation) 
+        ? propSelectedLocation.filter(loc => loc !== 'All Locations' && loc !== 'All Location' && loc !== 'All')
+        : propSelectedLocation !== 'All Locations' && propSelectedLocation !== 'All Location' && propSelectedLocation !== 'All'
+          ? [propSelectedLocation] 
+          : [];
+      setSelectedLocation(filteredLocation);
+    }
+  }, [propSelectedLocation]);
+
+  // Fetch models when component initializes with a selected make from props
+  useEffect(() => {
+    if (propSelectedMake && propSelectedMake !== 'Any' && carMakes.length > 0) {
+      console.log('Cardetailsfilter - Fetching models for prop make:', propSelectedMake);
+      fetchModelCars({ setLoading, setCarModels, make: propSelectedMake });
+    }
+  }, [propSelectedMake, carMakes.length]);
+
   const handleChange = (e) => setValue(e.target.value);
 
 
+  // New API'S For make model Bodytype and location
+
+   useEffect(() => {
+      fetchMakeCars({ setLoading, setCarMakes });
+      fetchBodyTypeCars();
+      fetchRegionCars();
+    }, []);
+  
   useEffect(() => {
-    fetchTrimData()
-  },[make,model])
+    if (selectedMake && selectedMake !== 'Any') {
+      console.log('Make changed, fetching models for:', selectedMake);
+      console.log('propSelectedModel:', propSelectedModel);
+      fetchModelCars({ setLoading, setCarModels, make: selectedMake });
+      // Only reset model if it's not being set from props
+      if (!propSelectedModel) {
+        console.log('Resetting model to Any because no prop model');
+        setSelectedModel('Any');
+      } else {
+        console.log('Keeping model from props:', propSelectedModel);
+      }
+    } else {
+      setCarModels([]);
+      // Only reset model if it's not being set from props
+      if (!propSelectedModel) {
+        setSelectedModel('Any');
+      }
+    }
+  }, [selectedMake]);
+  
+    useEffect(() => {
+      if (selectedModel && selectedModel !== 'Any') {
+        console.log('Model changed, fetching trim for:', selectedMake, selectedModel);
+        fetchTrimData();
+      } else {
+        setTrimData([]);
+      }
+    }, [selectedModel, selectedMake]);
+  
+  
+    useEffect(() => {
+  if (searchBodyType) {
+    setSelectedBodyType([searchBodyType]);
+  } else {
+    setSelectedBodyType([]);
+  }
+}, [searchBodyType]);
+
+  
+     const fetchBodyTypeCars = async () => {
+       try {
+         setLoading(true);
+         const response = await carAPI.getBodyCars({});
+         const data1 = handleApiResponse(response);
+   
+         console.log('Body Type API response:', data1);
+         if (data1) {
+           setCarBodyTypes(data1?.data);
+           console.log('Set carBodyTypes to:', data1?.data);
+         }
+   
+         message.success(data1.message || 'Fetched successfully');
+       } catch (error) {
+         const errorData = handleApiError(error);
+         message.error(errorData.message || 'Failed to Make car data');
+         setCarBodyTypes([]);
+       } finally {
+         setLoading(false);
+       }
+     };
+  
+  const fetchRegionCars = async () => {
+  try {
+    setLoading(true);
+    const res = await carAPI.getLocationCars();
+    const data = handleApiResponse(res);
+    
+    console.log('Location API response:', data);
+    setCarLocations(data?.data || []); // ✅ fixed
+    console.log('Set carLocations to:', data?.data);
+  } catch (err) {
+    const errorData = handleApiError(err);
+    message.error(errorData.message || 'Failed to fetch locations');
+    setCarLocations([]); // ✅ fixed
+  } finally {
+    setLoading(false);
+  }
+};
+
 
    useEffect(() => {
     handleApplyFilters()
@@ -547,7 +956,8 @@ const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,lim
   const fetchTrimData = async () => {
   try {
     setLoading(true);
-    const response = await carAPI.trimDetailsFilter(make,model);
+    console.log('Fetching trim data for:', selectedMake, selectedModel);
+    const response = await carAPI.trimDetailsFilter(selectedMake, selectedModel);
     const data1 = handleApiResponse(response);
 
     if (data1) {
@@ -631,7 +1041,42 @@ if (
   const applyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData({ make, model, bodyType, location, singleInputs, rangeInputs, filterState, keywords, currentPage: validCurrentPage, limit: validLimit, featuredorrecommended, newUsed });
+      const filterData = prepareFilterData({ 
+        make: selectedMake !== 'Any' ? selectedMake : '', 
+        model: selectedModel !== 'Any' ? selectedModel : '', 
+        bodyTypes: selectedBodyType, 
+        locations: selectedLocation, 
+        colors: selectedColors,
+        regionalSpecs: selectedRegionalSpecs,
+        singleInputs, 
+        rangeInputs, 
+        filterState, 
+        keywords, 
+        currentPage: validCurrentPage, 
+        limit: validLimit, 
+        featuredorrecommended, 
+        newUsed 
+      });
+      
+      console.log('Cardetailsfilter - Applying filters with data:', filterData);
+      console.log('Cardetailsfilter - Locations being sent to API:', filterData.locations, 'Type:', typeof filterData.locations, 'Is Array:', Array.isArray(filterData.locations));
+      console.log('Cardetailsfilter - Original selectedLocation:', selectedLocation, 'Processed locations:', filterData.locations);
+      
+      // Call onFilterChange callback to update main filter fields
+      if (onFilterChange) {
+        const filterChangeData = {
+          make: selectedMake !== 'Any' ? selectedMake : '',
+          model: selectedModel !== 'Any' ? selectedModel : '',
+          bodyType: selectedBodyType,
+          location: selectedLocation,
+          newUsed: newUsed,
+          priceMin: rangeInputs.priceMin,
+          priceMax: rangeInputs.priceMax
+        };
+        console.log('Cardetailsfilter - Calling onFilterChange with:', filterChangeData);
+        onFilterChange(filterChangeData);
+      }
+      
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
@@ -696,6 +1141,14 @@ if (
     setKeywords([]);
     setSelectedFeatures([]);
 
+    // Reset selected values
+    setSelectedMake('Any');
+    setSelectedModel('Any');
+    setSelectedBodyType([]);
+    setSelectedLocation([]);
+    setSelectedColors([]);
+    setSelectedRegionalSpecs([]);
+
     setValue('Any');
 
     message.success('Filters have been reset!');
@@ -735,12 +1188,54 @@ if (
           overflowY: 'auto',
           paddingRight: '8px',
         }}>
+
+          <SelectInputAPI
+            title="Make"
+            value={selectedMake}
+            onChange={(value) => setSelectedMake(value)}
+            options={carMakes}
+            valueField="id"
+            labelField="make_name"
+            defaultOption={{ value: 'Any', label: 'Any Make' }}
+          />
+
+          <SelectInputAPI
+            title="Model"
+            value={selectedModel}
+            onChange={(value) => setSelectedModel(value)}
+            options={carModels}
+            valueField="id"
+            labelField="model_name"
+            defaultOption={{ value: 'Any', label: 'Any Model' }}
+          />
           
           <SelectInputTrimData
             title="Trim"
             value={singleInputs.trimValue}
             onChange={singleInputs.setTrimValue}
             options={trimData}
+          />
+
+          <SelectInputMultiAPI
+            title="Body Type"
+            value={selectedBodyType}
+            onChange={(value) => setSelectedBodyType(value)}
+            options={carBodyTypes}
+            valueField="id"
+            labelField="body_type"
+          />
+
+          <SelectInputMultiAPI
+            title="Location"
+            value={selectedLocation.filter(loc => loc !== 'All Locations')}
+            onChange={(value) => {
+              // Filter out "All Locations" from the new value
+              const filteredValue = value.filter(loc => loc !== 'All Locations');
+              setSelectedLocation(filteredValue);
+            }}
+            options={carLocations.filter(location => location.location !== 'All Locations')}
+            valueField="id"
+            labelField="location"
           />
 
           <div style={{ marginBottom: 16 }}>
@@ -810,25 +1305,52 @@ if (
   }}
           />
 
-          <RangeInputGroup
-            label="Year"
-            minValue={rangeInputs.yearMin}
-            maxValue={rangeInputs.yearMax}
-            onMinChange={(e) => rangeInputs.setYearMin(e.target.value)}
-            onMaxChange={(e) => rangeInputs.setYearMax(e.target.value)}
-            onBlurValidation={() => {
-    const min = parseInt(rangeInputs.yearMin, 10);
-    const max = parseInt(rangeInputs.yearMax, 10);
-
-    if (!isNaN(min) && !isNaN(max) && min > max) {
-        messageApi.open({
-                type: 'error',
-                content: 'Minimum Year cannot be greater than maximum Year',
-              });
-    
-    }
-  }}
-          />
+          
+<RangeInputGroup
+  label="Year"
+  minComponent={
+    <Select
+      placeholder="Min Year"
+      value={rangeInputs.yearMin || undefined}
+      style={{ width: '100%' }}
+      onChange={(value) => rangeInputs.setYearMin(value)}
+      onBlur={() => {
+        const min = parseInt(rangeInputs.yearMin, 10);
+        const max = parseInt(rangeInputs.yearMax, 10);
+        if (!isNaN(min) && !isNaN(max) && min > max) {
+          message.error('Minimum Year cannot be greater than Maximum Year');
+        }
+      }}
+    >
+      {yearOptions.map((year) => (
+        <Option key={year} value={year}>
+          {year}
+        </Option>
+      ))}
+    </Select>
+  }
+  maxComponent={
+    <Select
+      placeholder="Max Year"
+      value={rangeInputs.yearMax || undefined}
+      style={{ width: '100%' }}
+      onChange={(value) => rangeInputs.setYearMax(value)}
+      onBlur={() => {
+        const min = parseInt(rangeInputs.yearMin, 10);
+        const max = parseInt(rangeInputs.yearMax, 10);
+        if (!isNaN(min) && !isNaN(max) && min > max) {
+          message.error('Minimum Year cannot be greater than Maximum Year');
+        }
+      }}
+    >
+      {yearOptions.map((year) => (
+        <Option key={year} value={year}>
+          {year}
+        </Option>
+      ))}
+    </Select>
+  }
+/>
 
           <RangeInputGroup
             label="Price (Range)"
@@ -850,12 +1372,11 @@ if (
   }}
           />
 
-          <CheckboxGroup
+          <SelectInputMultiAPI
             title="Fuel Type"
-            options={fuelOptions}
-            selectedValues={filterState.selectedValues}
-            onChange={handleCheckboxChange}
-            setSelectedValues={filterState.setSelectedValues}
+            value={filterState.selectedValues.filter(v => v !== 'Any')}
+            onChange={(value) => filterState.setSelectedValues(value.length > 0 ? value : ['Any'])}
+            options={fuelOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
           />
 
           <CheckboxGroup
@@ -866,12 +1387,11 @@ if (
             setSelectedValues={filterState.setCondition}
           />
 
-          <CheckboxGroup
+          <SelectInputMultiAPI
             title="Transmission"
-            options={transmissionOptions}
-            selectedValues={filterState.transmissionselectedValues}
-            onChange={handleCheckboxChange}
-            setSelectedValues={filterState.settransmissionselectedValues}
+            value={filterState.transmissionselectedValues.filter(v => v !== 'Any')}
+            onChange={(value) => filterState.settransmissionselectedValues(value.length > 0 ? value : ['Any'])}
+            options={transmissionOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
           />
 
           <CheckboxGroup
@@ -881,19 +1401,18 @@ if (
             onChange={handleCheckboxChange}
             setSelectedValues={filterState.setcylinderselectedValues}
           />
-          <SelectInput
+          <SelectInputMultiAPI
             title="Color"
-            value={singleInputs.colorValue}
-            onChange={singleInputs.setColorValue}
-            options={['Any', 'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple']}
+            value={selectedColors}
+            onChange={(value) => setSelectedColors(value)}
+            options={['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Silver', 'Gray', 'Brown'].map(option => ({ value: option, label: option }))}
           />
 
-          <CheckboxGroup
+          <SelectInputMultiAPI
             title="Number of Doors"
-            options={numberofdoors}
-            selectedValues={filterState.doorselectedValues}
-            onChange={handleCheckboxChange}
-            setSelectedValues={filterState.setdoorselectedValues}
+            value={filterState.doorselectedValues}
+            onChange={(value) => filterState.setdoorselectedValues(value)}
+            options={numberofdoors.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
           />
 
           {/* <SelectInput
@@ -911,18 +1430,15 @@ if (
             style={{ marginTop: '3px' }}
           /> */}
 
-          <SelectInput
-  title="Regional Specs"
-  value={singleInputs.regionalSpecs}
-  onChange={singleInputs.setRegionalSpecs}
-  options={[
-    { value: 'Any', label: 'Any' }, // Default option
-    ...regionalSpecsOptions.map(spec => ({
-      value: spec.regional_spec, // or spec.regional_spec if you prefer
-      label: spec.regional_spec
-    }))
-  ]}
-/>
+          <SelectInputMultiAPI
+            title="Regional Specs"
+            value={selectedRegionalSpecs}
+            onChange={(value) => setSelectedRegionalSpecs(value)}
+            options={regionalSpecsOptions.map(spec => ({
+              value: spec.regional_spec,
+              label: spec.regional_spec
+            }))}
+          />
 
 
           <div style={{ marginBottom: 16 }}>
@@ -1008,6 +1524,20 @@ Cardetailsfilter.propTypes = {
   bodyType: PropTypes.string,
   location: PropTypes.string,
   onSearchResults: PropTypes.func,
+  limit: PropTypes.number,
+  currentPage: PropTypes.number,
+  featuredorrecommended: PropTypes.string,
+  newUsed: PropTypes.string,
+  // Additional props for selected values from LandingFilters
+  selectedMake: PropTypes.string,
+  selectedModel: PropTypes.string,
+  selectedBodyType: PropTypes.array,
+  selectedLocation: PropTypes.array,
+  selectedNewUsed: PropTypes.string,
+  selectedPriceMin: PropTypes.number,
+  selectedPriceMax: PropTypes.number,
+  // Callback to update main filter fields
+  onFilterChange: PropTypes.func,
 };
 
 export default Cardetailsfilter;

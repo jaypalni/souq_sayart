@@ -513,6 +513,10 @@ const ProfileForm = ({
                     max: 50,
                     message: 'First name cannot exceed 50 characters',
                   },
+                  {
+                        pattern: /^[A-Za-z\s]+$/, 
+                        message: 'First name can only contain letters',
+                      },
                 ]}
             >
               <Input
@@ -546,6 +550,10 @@ const ProfileForm = ({
                     max: 50,
                     message: 'Last name cannot exceed 50 characters',
                   },
+                  {
+                        pattern: /^[A-Za-z\s]+$/, 
+                        message: 'First name can only contain letters',
+                      },
                 ]}
             >
               <Input

@@ -57,7 +57,26 @@ const priceMinOptions = [DEFAULTS.PRICE_MIN, ...PRICE_MIN_VALUES];
 const priceMaxOptions = [DEFAULTS.PRICE_MAX, ...PRICE_MAX_VALUES];
 const DEFAULT_CAR_COUNT = 0;
 
-const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, sortedbydata, setSelectedLocation, setIsLoading ,limit,currentPage, setCurrentPage, featuredorrecommended, onClearFeaturedOrRecommended,setIsnetworkError}) => {
+const LandingFilters = ({ 
+  setFilterCarsData, 
+  filtercarsData: _filtercarsData, 
+  sortedbydata, 
+  setSelectedLocation, 
+  setIsLoading,
+  limit,
+  currentPage, 
+  setCurrentPage, 
+  featuredorrecommended, 
+  onClearFeaturedOrRecommended,
+  setIsnetworkError,
+  selectedMake: propSelectedMake,
+  selectedModel: propSelectedModel,
+  selectedBodyType: propSelectedBodyType,
+  selectedLocation: propSelectedLocation,
+  selectedNewUsed: propSelectedNewUsed,
+  selectedPriceMin: propSelectedPriceMin,
+  selectedPriceMax: propSelectedPriceMax
+}) => {
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
@@ -69,12 +88,12 @@ const LandingFilters = ({ setFilterCarsData, filtercarsData: _filtercarsData, so
 
 // Initialize make from props or localStorage if available
 const getInitialMake = () => {
-  console.log('getInitialMake - selectedMake prop:', selectedMake);
+  console.log('getInitialMake - selectedMake prop:', propSelectedMake);
   
   // First check if prop is provided
-  if (selectedMake && selectedMake !== '') {
-    console.log('getInitialMake - Using prop value:', selectedMake);
-    return selectedMake;
+  if (propSelectedMake && propSelectedMake !== '') {
+    console.log('getInitialMake - Using prop value:', propSelectedMake);
+    return propSelectedMake;
   }
   
   try {
@@ -98,12 +117,12 @@ console.log('Initial make state:', make);
 
 // Initialize model from props or localStorage if available
 const getInitialModel = () => {
-  console.log('getInitialModel - selectedModel prop:', selectedModel);
+  console.log('getInitialModel - selectedModel prop:', propSelectedModel);
   
   // First check if prop is provided
-  if (selectedModel && selectedModel !== '') {
-    console.log('getInitialModel - Using prop value:', selectedModel);
-    return selectedModel;
+  if (propSelectedModel && propSelectedModel !== '') {
+    console.log('getInitialModel - Using prop value:', propSelectedModel);
+    return propSelectedModel;
   }
   
   try {
@@ -127,12 +146,12 @@ console.log('Initial model state:', model);
 
 // Initialize bodyType from props or localStorage if available
 const getInitialBodyType = () => {
-  console.log('getInitialBodyType - selectedBodyType prop:', selectedBodyType);
+  console.log('getInitialBodyType - selectedBodyType prop:', propSelectedBodyType);
   
   // First check if prop is provided
-  if (selectedBodyType && selectedBodyType !== '') {
-    console.log('getInitialBodyType - Using prop value:', selectedBodyType);
-    return selectedBodyType;
+  if (propSelectedBodyType && propSelectedBodyType !== '') {
+    console.log('getInitialBodyType - Using prop value:', propSelectedBodyType);
+    return propSelectedBodyType;
   }
   
   try {
@@ -158,12 +177,12 @@ console.log('Initial bodyType state:', bodyType);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
 // Initialize location from props or localStorage if available
 const getInitialLocation = () => {
-  console.log('getInitialLocation - selectedLocation prop:', selectedLocation);
+  console.log('getInitialLocation - selectedLocation prop:', propSelectedLocation);
   
   // First check if prop is provided
-  if (selectedLocation && selectedLocation !== '') {
-    console.log('getInitialLocation - Using prop value:', selectedLocation);
-    return selectedLocation;
+  if (propSelectedLocation && propSelectedLocation !== '') {
+    console.log('getInitialLocation - Using prop value:', propSelectedLocation);
+    return propSelectedLocation;
   }
   
   try {
@@ -188,8 +207,8 @@ console.log('Initial location state:', location);
 // Initialize newUsed from props or localStorage if available
 const getInitialNewUsed = () => {
   // First check if prop is provided
-  if (selectedNewUsed && selectedNewUsed !== '') {
-    return selectedNewUsed;
+  if (propSelectedNewUsed && propSelectedNewUsed !== '') {
+    return propSelectedNewUsed;
   }
   
   try {
@@ -206,8 +225,8 @@ const getInitialNewUsed = () => {
 // Initialize priceMin from props or localStorage if available
 const getInitialPriceMin = () => {
   // First check if prop is provided
-  if (selectedPriceMin !== null && selectedPriceMin !== undefined) {
-    return selectedPriceMin;
+  if (propSelectedPriceMin !== null && propSelectedPriceMin !== undefined) {
+    return propSelectedPriceMin;
   }
   
   try {
@@ -224,8 +243,8 @@ const getInitialPriceMin = () => {
 // Initialize priceMax from props or localStorage if available
 const getInitialPriceMax = () => {
   // First check if prop is provided
-  if (selectedPriceMax !== null && selectedPriceMax !== undefined) {
-    return selectedPriceMax;
+  if (propSelectedPriceMax !== null && propSelectedPriceMax !== undefined) {
+    return propSelectedPriceMax;
   }
   
   try {
@@ -251,8 +270,8 @@ const getInitialPriceMax = () => {
 // Initialize minPrice and maxPrice from props or localStorage if available
 const getInitialMinPrice = () => {
   // First check if prop is provided
-  if (selectedPriceMin !== null && selectedPriceMin !== undefined) {
-    return selectedPriceMin;
+  if (propSelectedPriceMin !== null && propSelectedPriceMin !== undefined) {
+    return propSelectedPriceMin;
   }
   
   try {
@@ -268,8 +287,8 @@ const getInitialMinPrice = () => {
 
 const getInitialMaxPrice = () => {
   // First check if prop is provided
-  if (selectedPriceMax !== null && selectedPriceMax !== undefined) {
-    return selectedPriceMax;
+  if (propSelectedPriceMax !== null && propSelectedPriceMax !== undefined) {
+    return propSelectedPriceMax;
   }
   
   try {
@@ -414,8 +433,8 @@ const getInitialMaxPrice = () => {
 
 useEffect(() => {
   // Only run this effect if no prop is provided
-  if (selectedLocation) {
-    console.log('Location useEffect - Skipping localStorage check because prop is provided:', selectedLocation);
+  if (propSelectedLocation) {
+    console.log('Location useEffect - Skipping localStorage check because prop is provided:', propSelectedLocation);
     return;
   }
   
@@ -437,7 +456,7 @@ useEffect(() => {
     console.log('Location useEffect - Error, setting default location');
     setLocation(DEFAULTS.ALL_LOCATIONS);
   }
-}, [setSelectedLocation, selectedLocation]);
+}, [setSelectedLocation, propSelectedLocation]);
 
 // Note: Removed handleSearch() call on mount to prevent multiple API calls
 // The autoSearchForCount() in the combined useEffect will handle the count display
@@ -489,7 +508,7 @@ fetchRegionCars()
   useEffect(() => {
     if (carMakes.length > 0 && !hasInitialSearch.current) {
       // If no props are provided, process immediately
-      if (!selectedMake && !selectedModel && !selectedBodyType && !selectedLocation) {
+      if (!propSelectedMake && !propSelectedModel && !propSelectedBodyType && !propSelectedLocation) {
         console.log('No props provided, processing immediately');
         setPropsProcessed(true);
       }
@@ -532,13 +551,13 @@ fetchRegionCars()
   // Debug effect to track prop changes
   useEffect(() => {
     console.log('Props changed - Current props:', {
-      selectedMake,
-      selectedModel,
-      selectedBodyType,
-      selectedLocation,
-      selectedNewUsed,
-      selectedPriceMin,
-      selectedPriceMax
+      propSelectedMake,
+      propSelectedModel,
+      propSelectedBodyType,
+      propSelectedLocation,
+      propSelectedNewUsed,
+      propSelectedPriceMin,
+      propSelectedPriceMax
     });
     
     // Mark props as processed after a short delay
@@ -548,57 +567,57 @@ fetchRegionCars()
     }, 50);
     
     return () => clearTimeout(timer);
-  }, [selectedMake, selectedModel, selectedBodyType, selectedLocation, selectedNewUsed, selectedPriceMin, selectedPriceMax]);
+  }, [propSelectedMake, propSelectedModel, propSelectedBodyType, propSelectedLocation, propSelectedNewUsed, propSelectedPriceMin, propSelectedPriceMax]);
 
   // Update state when props change
   useEffect(() => {
-    if (selectedMake && selectedMake !== make) {
-      console.log('Updating make from prop:', selectedMake);
-      setMake(selectedMake);
+    if (propSelectedMake && propSelectedMake !== make) {
+      console.log('Updating make from prop:', propSelectedMake);
+      setMake(propSelectedMake);
     }
-  }, [selectedMake]);
+  }, [propSelectedMake]);
 
   useEffect(() => {
-    if (selectedModel && selectedModel !== model) {
-      console.log('Updating model from prop:', selectedModel);
-      setModel(selectedModel);
+    if (propSelectedModel && propSelectedModel !== model) {
+      console.log('Updating model from prop:', propSelectedModel);
+      setModel(propSelectedModel);
     }
-  }, [selectedModel]);
+  }, [propSelectedModel]);
 
   useEffect(() => {
-    if (selectedBodyType && selectedBodyType !== bodyType) {
-      console.log('Updating bodyType from prop:', selectedBodyType);
-      setBodyType(selectedBodyType);
+    if (propSelectedBodyType && propSelectedBodyType !== bodyType) {
+      console.log('Updating bodyType from prop:', propSelectedBodyType);
+      setBodyType(propSelectedBodyType);
     }
-  }, [selectedBodyType]);
+  }, [propSelectedBodyType]);
 
   useEffect(() => {
-    if (selectedLocation && selectedLocation !== location) {
-      console.log('Updating location from prop:', selectedLocation);
-      setLocation(selectedLocation);
+    if (propSelectedLocation && propSelectedLocation !== location) {
+      console.log('Updating location from prop:', propSelectedLocation);
+      setLocation(propSelectedLocation);
     }
-  }, [selectedLocation]);
+  }, [propSelectedLocation]);
 
   useEffect(() => {
-    if (selectedNewUsed && selectedNewUsed !== newUsed) {
-      console.log('Updating newUsed from prop:', selectedNewUsed);
-      setNewUsed(selectedNewUsed);
+    if (propSelectedNewUsed && propSelectedNewUsed !== newUsed) {
+      console.log('Updating newUsed from prop:', propSelectedNewUsed);
+      setNewUsed(propSelectedNewUsed);
     }
-  }, [selectedNewUsed]);
+  }, [propSelectedNewUsed]);
 
   useEffect(() => {
-    if (selectedPriceMin !== null && selectedPriceMin !== undefined && selectedPriceMin !== minPrice) {
-      console.log('Updating minPrice from prop:', selectedPriceMin);
-      setMinPrice(selectedPriceMin);
+    if (propSelectedPriceMin !== null && propSelectedPriceMin !== undefined && propSelectedPriceMin !== minPrice) {
+      console.log('Updating minPrice from prop:', propSelectedPriceMin);
+      setMinPrice(propSelectedPriceMin);
     }
-  }, [selectedPriceMin]);
+  }, [propSelectedPriceMin]);
 
   useEffect(() => {
-    if (selectedPriceMax !== null && selectedPriceMax !== undefined && selectedPriceMax !== maxPrice) {
-      console.log('Updating maxPrice from prop:', selectedPriceMax);
-      setMaxPrice(selectedPriceMax);
+    if (propSelectedPriceMax !== null && propSelectedPriceMax !== undefined && propSelectedPriceMax !== maxPrice) {
+      console.log('Updating maxPrice from prop:', propSelectedPriceMax);
+      setMaxPrice(propSelectedPriceMax);
     }
-  }, [selectedPriceMax]);
+  }, [propSelectedPriceMax]);
 
   const toggleDropdown = (type) => {
     if (openDropdown === type) {
@@ -865,6 +884,14 @@ fetchRegionCars()
       }
       window.dispatchEvent(new CustomEvent('searchDataUpdated'));
     }
+  };
+
+  // Helper function to handle search with condition
+  const handleSearchWithCondition = async (condition) => {
+    console.log('handleSearchWithCondition called with condition:', condition);
+    // Update the condition state and trigger search
+    setNewUsed(condition);
+    // The search will be triggered by the useEffect watching filter state changes
   };
 
   // Main search function

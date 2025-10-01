@@ -167,6 +167,16 @@ const handleKeywordsChange = (keywords, setKeywords) => (value) => {
 };
 
 // Helper functions for filter data preparation
+const ensureArray = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value && value !== 'All Locations' && value !== 'All Location' && value !== '') {
+    return [value];
+  }
+  return [];
+};
+
 const getFilterValue = (value, defaultValue = '') => {
   return value !== defaultValue ? value : '';
 };
@@ -180,7 +190,23 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { selectedMake, selectedModel, bodyType, location, singleInputs, rangeInputs, filterState, keywords,currentPage,limit, featuredorrecommended, newUsed } = filterParams;
+  const { 
+    selectedMake, 
+    selectedModel, 
+    bodyType, 
+    location, 
+    singleInputs, 
+    rangeInputs, 
+    filterState, 
+    keywords,
+    currentPage,
+    limit, 
+    featuredorrecommended, 
+    newUsed,
+    selectedColors = [],
+    selectedRegionalSpecs = [],
+    selectedBodyType = []
+  } = filterParams;
   
   const apiParams = {
     make: getFilterValue(selectedMake, 'All Make'),
@@ -190,13 +216,13 @@ const prepareFilterData = (filterParams) => {
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    locations: ensureArray(locations),
+    locations: ensureArray(location),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
-    colors: colors && colors.length > 0 ? colors : [],
+    colors: selectedColors && selectedColors.length > 0 ? selectedColors : [],
     transmissions: filterState.transmissionselectedValues.filter(v => v !== 'Any'),
-    regional_specs_list: regionalSpecs && regionalSpecs.length > 0 ? regionalSpecs : [],
-    body_types: bodyTypes && bodyTypes.length > 0 ? bodyTypes : [],
+    regional_specs_list: selectedRegionalSpecs && selectedRegionalSpecs.length > 0 ? selectedRegionalSpecs : [],
+    body_types: selectedBodyType && selectedBodyType.length > 0 ? selectedBodyType : [],
     doors: filterState.doorselectedValues,
     number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
     fuel_types: filterState.selectedValues.filter(v => v !== 'Any'),
@@ -207,7 +233,7 @@ const prepareFilterData = (filterParams) => {
   };
 
   // Debug logging for locations
-  console.log('prepareFilterData - Input locations:', locations, 'Type:', typeof locations, 'Is Array:', Array.isArray(locations));
+  console.log('prepareFilterData - Input location:', location, 'Type:', typeof location, 'Is Array:', Array.isArray(location));
   console.log('prepareFilterData - Processed locations:', apiParams.locations, 'Type:', typeof apiParams.locations, 'Is Array:', Array.isArray(apiParams.locations));
 
   // Only include type parameter if featuredorrecommended has a value
@@ -702,7 +728,26 @@ ExtraFeaturesDrawer.propTypes = {
   onFeatureToggle: PropTypes.func.isRequired,
 };
 
-const Cardetailsfilter = ({ make, model, bodyType, location, onSearchResults,limit,currentPage, featuredorrecommended, newUsed, onMakeChange, onModelChange }) => {
+const Cardetailsfilter = ({ 
+  make, 
+  model, 
+  bodyType, 
+  location, 
+  onSearchResults,
+  limit,
+  currentPage, 
+  featuredorrecommended, 
+  newUsed, 
+  onMakeChange, 
+  onModelChange,
+  selectedMake: propSelectedMake,
+  selectedModel: propSelectedModel,
+  selectedBodyType: propSelectedBodyType,
+  selectedLocation: propSelectedLocation,
+  selectedNewUsed: propSelectedNewUsed,
+  selectedPriceMin: propSelectedPriceMin,
+  selectedPriceMax: propSelectedPriceMax
+}) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
@@ -944,7 +989,23 @@ if (
   const applyFilters = async () => {
     try {
       setLoading(true);
-      const filterData = prepareFilterData({ selectedMake, selectedModel, bodyType, location, singleInputs, rangeInputs, filterState, keywords, currentPage: validCurrentPage, limit: validLimit, featuredorrecommended, newUsed });
+      const filterData = prepareFilterData({ 
+        selectedMake, 
+        selectedModel, 
+        bodyType, 
+        location, 
+        singleInputs, 
+        rangeInputs, 
+        filterState, 
+        keywords, 
+        currentPage: validCurrentPage, 
+        limit: validLimit, 
+        featuredorrecommended, 
+        newUsed,
+        selectedColors,
+        selectedRegionalSpecs,
+        selectedBodyType
+      });
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
@@ -1425,6 +1486,13 @@ Cardetailsfilter.propTypes = {
   newUsed: PropTypes.string,
   onMakeChange: PropTypes.func,
   onModelChange: PropTypes.func,
+  selectedMake: PropTypes.string,
+  selectedModel: PropTypes.string,
+  selectedBodyType: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+  selectedLocation: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+  selectedNewUsed: PropTypes.string,
+  selectedPriceMin: PropTypes.number,
+  selectedPriceMax: PropTypes.number,
 };
 
 export default Cardetailsfilter;

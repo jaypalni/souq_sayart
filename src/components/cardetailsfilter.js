@@ -36,6 +36,11 @@ import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 const { Option } = Select;
 
 // Constants moved outside component
+const DEFAULTS = {
+  ALL_MAKE: 'All Make',
+  ALL_MODELS: 'All Models',
+};
+
 const fuelOptions = ['Any', 'Petrol', 'Diesel', 'Hybrid', 'Electric'];
 const transmissionOptions = ['Any', 'Automatic', 'Manual', 'Steptonic'];
 const cylinderOptions = ['3', '4', '5', '6', '8', '12', 'N/A', 'Electric', 'Not Sure'];
@@ -162,6 +167,16 @@ const handleKeywordsChange = (keywords, setKeywords) => (value) => {
 };
 
 // Helper functions for filter data preparation
+const ensureArray = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value && value !== 'All Locations' && value !== 'All Location' && value !== '') {
+    return [value];
+  }
+  return [];
+};
+
 const getFilterValue = (value, defaultValue = '') => {
   return value !== defaultValue ? value : '';
 };
@@ -175,47 +190,39 @@ const getNumericFilterValue = (value) => {
 };
 
 const prepareFilterData = (filterParams) => {
-  const { make, model, bodyTypes, locations, colors, regionalSpecs, singleInputs, rangeInputs, filterState, keywords, currentPage, limit, featuredorrecommended, newUsed } = filterParams;
-  
-  // Ensure locations is always an array and filter out "All Locations"
-  const ensureArray = (value) => {
-    if (Array.isArray(value)) {
-      // Flatten the array first in case it contains nested arrays
-      const flattened = value.flat();
-      // Filter out "All Locations" from array and any empty/null values
-      return flattened.filter(location => 
-        location && 
-        location !== 'All Locations' && 
-        location !== 'All Location' &&
-        location !== 'All' &&
-        location.trim() !== ''
-      );
-    } else if (typeof value === 'string' && value.trim() !== '') {
-      // Check if string is "All Locations" or variations
-      if (value === 'All Locations' || value === 'All Location' || value === 'All') {
-        return [];
-      }
-      return [value];
-    } else {
-      return [];
-    }
-  };
+  const { 
+    selectedMake, 
+    selectedModel, 
+    bodyType, 
+    location, 
+    singleInputs, 
+    rangeInputs, 
+    filterState, 
+    keywords,
+    currentPage,
+    limit, 
+    featuredorrecommended, 
+    newUsed,
+    selectedColors = [],
+    selectedRegionalSpecs = [],
+    selectedBodyType = []
+  } = filterParams;
   
   const apiParams = {
-    make: getFilterValue(make, 'All Make'),
-    model: getFilterValue(model, 'All Models'),
+    make: getFilterValue(selectedMake, 'All Make'),
+    model: getFilterValue(selectedModel, 'All Models'),
     trim: getFilterValue(singleInputs.trimValue, 'Any'),
     year_min: getNumericFilterValue(rangeInputs.yearMin),
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    locations: ensureArray(locations),
+    locations: ensureArray(location),
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
-    colors: colors && colors.length > 0 ? colors : [],
+    colors: selectedColors && selectedColors.length > 0 ? selectedColors : [],
     transmissions: filterState.transmissionselectedValues.filter(v => v !== 'Any'),
-    regional_specs_list: regionalSpecs && regionalSpecs.length > 0 ? regionalSpecs : [],
-    body_types: bodyTypes && bodyTypes.length > 0 ? bodyTypes : [],
+    regional_specs_list: selectedRegionalSpecs && selectedRegionalSpecs.length > 0 ? selectedRegionalSpecs : [],
+    body_types: selectedBodyType && selectedBodyType.length > 0 ? selectedBodyType : [],
     doors: filterState.doorselectedValues,
     number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
     fuel_types: filterState.selectedValues.filter(v => v !== 'Any'),
@@ -226,7 +233,7 @@ const prepareFilterData = (filterParams) => {
   };
 
   // Debug logging for locations
-  console.log('prepareFilterData - Input locations:', locations, 'Type:', typeof locations, 'Is Array:', Array.isArray(locations));
+  console.log('prepareFilterData - Input location:', location, 'Type:', typeof location, 'Is Array:', Array.isArray(location));
   console.log('prepareFilterData - Processed locations:', apiParams.locations, 'Type:', typeof apiParams.locations, 'Is Array:', Array.isArray(apiParams.locations));
 
   // Only include type parameter if featuredorrecommended has a value
@@ -259,18 +266,16 @@ getNumericFilterValue.propTypes = {
 
 prepareFilterData.propTypes = {
   filterParams: PropTypes.shape({
-    make: PropTypes.string,
-    model: PropTypes.string,
-    bodyTypes: PropTypes.array,
-    locations: PropTypes.array,
-    colors: PropTypes.array,
-    regionalSpecs: PropTypes.array,
-    singleInputs: PropTypes.object.isRequired,
-    rangeInputs: PropTypes.object.isRequired,
-    featuredorrecommended: PropTypes.string,
-    newUsed: PropTypes.string,
-    filterState: PropTypes.object.isRequired,
-    keywords: PropTypes.array.isRequired,
+    selectedMake: PropTypes.string,
+    selectedModel: PropTypes.string,
+    bodyType: PropTypes.string,
+    location: PropTypes.string,
+      singleInputs: PropTypes.object.isRequired,
+      rangeInputs: PropTypes.object.isRequired,
+      featuredorrecommended: PropTypes.string,
+      newUsed: PropTypes.string,
+      filterState: PropTypes.object.isRequired,
+      keywords: PropTypes.array.isRequired,
   }).isRequired,
 };
 
@@ -732,17 +737,16 @@ const Cardetailsfilter = ({
   limit,
   currentPage, 
   featuredorrecommended, 
-  newUsed,
-  // Additional props for selected values from LandingFilters
+  newUsed, 
+  onMakeChange, 
+  onModelChange,
   selectedMake: propSelectedMake,
   selectedModel: propSelectedModel,
   selectedBodyType: propSelectedBodyType,
   selectedLocation: propSelectedLocation,
   selectedNewUsed: propSelectedNewUsed,
   selectedPriceMin: propSelectedPriceMin,
-  selectedPriceMax: propSelectedPriceMax,
-  // Callback to update main filter fields
-  onFilterChange
+  selectedPriceMax: propSelectedPriceMax
 }) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -750,6 +754,12 @@ const Cardetailsfilter = ({
   const [value, setValue] = useState('Any');
   const [search, setSearch] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
+
+  // Make and Model state management
+  const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE]);
+  const [carModels, setCarModels] = useState([]);
+  const [selectedMake, setSelectedMake] = useState(make || DEFAULTS.ALL_MAKE);
+  const [selectedModel, setSelectedModel] = useState(model || DEFAULTS.ALL_MODELS);
 
   // Ensure limit and currentPage are valid numbers
   const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
@@ -764,8 +774,6 @@ const Cardetailsfilter = ({
   // New Changes for API'S
 const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
 
-  const [carMakes, setCarMakes] = useState([]);
-const [carModels, setCarModels] = useState([]);
 const [carBodyTypes, setCarBodyTypes] = useState([]);
 const [carLocations, setCarLocations] = useState([]);
 const [searchBodyType, setSearchBodyType] = useState('');
@@ -774,8 +782,6 @@ const [searchBodyType, setSearchBodyType] = useState('');
 
 
 // Selected values for dropdowns - initialize from props
-const [selectedMake, setSelectedMake] = useState(propSelectedMake || 'Any');
-const [selectedModel, setSelectedModel] = useState(propSelectedModel || 'Any');
 const [selectedBodyType, setSelectedBodyType] = useState(propSelectedBodyType || []);
 const [selectedLocation, setSelectedLocation] = useState(() => {
   // Filter out "All Locations" from initial prop values
@@ -856,94 +862,37 @@ console.log('API data counts:', { carMakes: carMakes.length, carModels: carModel
   const handleChange = (e) => setValue(e.target.value);
 
 
-  // New API'S For make model Bodytype and location
-
-   useEffect(() => {
-      fetchMakeCars({ setLoading, setCarMakes });
-      fetchBodyTypeCars();
-      fetchRegionCars();
-    }, []);
-  
+  // Fetch make data on component mount
   useEffect(() => {
-    if (selectedMake && selectedMake !== 'Any') {
-      console.log('Make changed, fetching models for:', selectedMake);
-      console.log('propSelectedModel:', propSelectedModel);
-      fetchModelCars({ setLoading, setCarModels, make: selectedMake });
-      // Only reset model if it's not being set from props
-      if (!propSelectedModel) {
-        console.log('Resetting model to Any because no prop model');
-        setSelectedModel('Any');
-      } else {
-        console.log('Keeping model from props:', propSelectedModel);
-      }
+    fetchMakeCars({ setLoading, setCarMakes });
+  }, []);
+
+  // Fetch model data when make changes
+  useEffect(() => {
+    if (selectedMake && selectedMake !== DEFAULTS.ALL_MAKE) {
+      fetchModelCars({ setLoading, setCarModels, make: selectedMake }).then(() => {
+        // Reset model when make changes
+        setSelectedModel(DEFAULTS.ALL_MODELS);
+      });
     } else {
       setCarModels([]);
-      // Only reset model if it's not being set from props
-      if (!propSelectedModel) {
-        setSelectedModel('Any');
-      }
+      setSelectedModel(DEFAULTS.ALL_MODELS);
     }
   }, [selectedMake]);
-  
-    useEffect(() => {
-      if (selectedModel && selectedModel !== 'Any') {
-        console.log('Model changed, fetching trim for:', selectedMake, selectedModel);
-        fetchTrimData();
-      } else {
-        setTrimData([]);
-      }
-    }, [selectedModel, selectedMake]);
-  
-  
-    useEffect(() => {
-  if (searchBodyType) {
-    setSelectedBodyType([searchBodyType]);
-  } else {
-    setSelectedBodyType([]);
-  }
-}, [searchBodyType]);
 
-  
-     const fetchBodyTypeCars = async () => {
-       try {
-         setLoading(true);
-         const response = await carAPI.getBodyCars({});
-         const data1 = handleApiResponse(response);
-   
-         console.log('Body Type API response:', data1);
-         if (data1) {
-           setCarBodyTypes(data1?.data);
-           console.log('Set carBodyTypes to:', data1?.data);
-         }
-   
-         message.success(data1.message || 'Fetched successfully');
-       } catch (error) {
-         const errorData = handleApiError(error);
-         message.error(errorData.message || 'Failed to Make car data');
-         setCarBodyTypes([]);
-       } finally {
-         setLoading(false);
-       }
-     };
-  
-  const fetchRegionCars = async () => {
-  try {
-    setLoading(true);
-    const res = await carAPI.getLocationCars();
-    const data = handleApiResponse(res);
-    
-    console.log('Location API response:', data);
-    setCarLocations(data?.data || []); // ✅ fixed
-    console.log('Set carLocations to:', data?.data);
-  } catch (err) {
-    const errorData = handleApiError(err);
-    message.error(errorData.message || 'Failed to fetch locations');
-    setCarLocations([]); // ✅ fixed
-  } finally {
-    setLoading(false);
-  }
-};
+  // Sync with parent component props
+  useEffect(() => {
+    if (make !== selectedMake) {
+      setSelectedMake(make || DEFAULTS.ALL_MAKE);
+    }
+    if (model !== selectedModel) {
+      setSelectedModel(model || DEFAULTS.ALL_MODELS);
+    }
+  }, [make, model]);
 
+  useEffect(() => {
+    fetchTrimData()
+  },[selectedMake, selectedModel])
 
    useEffect(() => {
     handleApplyFilters()
@@ -956,7 +905,6 @@ console.log('API data counts:', { carMakes: carMakes.length, carModels: carModel
   const fetchTrimData = async () => {
   try {
     setLoading(true);
-    console.log('Fetching trim data for:', selectedMake, selectedModel);
     const response = await carAPI.trimDetailsFilter(selectedMake, selectedModel);
     const data1 = handleApiResponse(response);
 
@@ -1042,12 +990,10 @@ if (
     try {
       setLoading(true);
       const filterData = prepareFilterData({ 
-        make: selectedMake !== 'Any' ? selectedMake : '', 
-        model: selectedModel !== 'Any' ? selectedModel : '', 
-        bodyTypes: selectedBodyType, 
-        locations: selectedLocation, 
-        colors: selectedColors,
-        regionalSpecs: selectedRegionalSpecs,
+        selectedMake, 
+        selectedModel, 
+        bodyType, 
+        location, 
         singleInputs, 
         rangeInputs, 
         filterState, 
@@ -1055,28 +1001,11 @@ if (
         currentPage: validCurrentPage, 
         limit: validLimit, 
         featuredorrecommended, 
-        newUsed 
+        newUsed,
+        selectedColors,
+        selectedRegionalSpecs,
+        selectedBodyType
       });
-      
-      console.log('Cardetailsfilter - Applying filters with data:', filterData);
-      console.log('Cardetailsfilter - Locations being sent to API:', filterData.locations, 'Type:', typeof filterData.locations, 'Is Array:', Array.isArray(filterData.locations));
-      console.log('Cardetailsfilter - Original selectedLocation:', selectedLocation, 'Processed locations:', filterData.locations);
-      
-      // Call onFilterChange callback to update main filter fields
-      if (onFilterChange) {
-        const filterChangeData = {
-          make: selectedMake !== 'Any' ? selectedMake : '',
-          model: selectedModel !== 'Any' ? selectedModel : '',
-          bodyType: selectedBodyType,
-          location: selectedLocation,
-          newUsed: newUsed,
-          priceMin: rangeInputs.priceMin,
-          priceMax: rangeInputs.priceMax
-        };
-        console.log('Cardetailsfilter - Calling onFilterChange with:', filterChangeData);
-        onFilterChange(filterChangeData);
-      }
-      
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
@@ -1189,7 +1118,7 @@ if (
           paddingRight: '8px',
         }}>
 
-          <SelectInputAPI
+          {/* <SelectInputAPI
             title="Make"
             value={selectedMake}
             onChange={(value) => setSelectedMake(value)}
@@ -1207,8 +1136,35 @@ if (
             valueField="id"
             labelField="model_name"
             defaultOption={{ value: 'Any', label: 'Any Model' }}
-          />
+          /> */}
           
+          <SelectInput
+            title="Make"
+            value={selectedMake}
+            onChange={(value) => {
+              const newMake = value || DEFAULTS.ALL_MAKE;
+              setSelectedMake(newMake);
+              setSelectedModel(DEFAULTS.ALL_MODELS);
+              if (onMakeChange) {
+                onMakeChange(newMake);
+              }
+            }}
+            options={carMakes.map(make => ({ value: make?.name || make, label: make?.name || make }))}
+          />
+
+          <SelectInput
+            title="Model"
+            value={selectedModel}
+            onChange={(value) => {
+              const newModel = value || DEFAULTS.ALL_MODELS;
+              setSelectedModel(newModel);
+              if (onModelChange) {
+                onModelChange(newModel);
+              }
+            }}
+            options={carModels.map(model => ({ value: model?.model_name || model, label: model?.model_name || model }))}
+          />
+
           <SelectInputTrimData
             title="Trim"
             value={singleInputs.trimValue}
@@ -1502,10 +1458,10 @@ if (
       <Searchemptymodal
         visible={isEmptyModalOpen}
         onClose={() => setIsEmptyModalOpen(false)}
-        make={make}
-        setMake={() => {}} 
-        model={model}
-        setModel={() => {}} // Placeholder - parent component should handle this
+        make={selectedMake}
+        setMake={setSelectedMake} 
+        model={selectedModel}
+        setModel={setSelectedModel}
         bodyType={bodyType}
         setBodyType={() => {}} // Placeholder - parent component should handle this
         selectedLocation={location}
@@ -1528,16 +1484,15 @@ Cardetailsfilter.propTypes = {
   currentPage: PropTypes.number,
   featuredorrecommended: PropTypes.string,
   newUsed: PropTypes.string,
-  // Additional props for selected values from LandingFilters
+  onMakeChange: PropTypes.func,
+  onModelChange: PropTypes.func,
   selectedMake: PropTypes.string,
   selectedModel: PropTypes.string,
-  selectedBodyType: PropTypes.array,
-  selectedLocation: PropTypes.array,
+  selectedBodyType: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+  selectedLocation: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   selectedNewUsed: PropTypes.string,
   selectedPriceMin: PropTypes.number,
   selectedPriceMax: PropTypes.number,
-  // Callback to update main filter fields
-  onFilterChange: PropTypes.func,
 };
 
 export default Cardetailsfilter;

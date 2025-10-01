@@ -36,27 +36,11 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.approval || 'Unknown' };
 };
 
- const tagProps = getTagProps();
+  const tagProps = getTagProps();
 
-const displayLabel = {};
-
-if (car.approval?.toLowerCase() === 'pending') {
-  if (car.draft === 1) {
-    displayLabel.label = '';
-    displayLabel.isVisible = false;
-  } else {
-    displayLabel.label = 'Approval Pending';
-    displayLabel.isVisible = true; 
-  }
-} else {
-  displayLabel.label = car.approval || '';
-  displayLabel.isVisible = true;
-}
-
-
-
-
- 
+const displayLabel = car&&(  car?.approval === 'pending' || car?.approval === 'Pending'
+    ? 'Approval Pending'
+    : tagProps?.label);
 
   const CARD_WIDTH = 'auto';
 

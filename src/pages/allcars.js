@@ -24,6 +24,8 @@ import { useLocation, Link } from 'react-router-dom';
 const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('');
+  const [isnetworkError,setIsnetworkError]= useState(false);
+    const [networkError,setNetworkError]= useState('');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [selectedNewUsed, setSelectedNewUsed] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
@@ -112,12 +114,10 @@ const Allcars = () => {
   useEffect(() => {
     if (isLoading) {
       setFilterCarsData({ cars: [], pagination: {} });
-      // Force clear any cached data
       setRenderKey(prev => prev + 1);
     }
   }, [isLoading]);
 
-  // Initialize component state on mount
   useEffect(() => {
     setFilterCarsData({ cars: [], pagination: {} });
     setSortedbyData('');
@@ -155,6 +155,7 @@ const Allcars = () => {
         setSelectedLocation={setSelectedLocation}
         setIsLoading={debugSetIsLoading}
         limit={limit}
+        setIsnetworkError={setIsnetworkError}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         featuredorrecommended={carType}
@@ -175,6 +176,7 @@ const Allcars = () => {
         title="Search Results"
         sortedbydata={sortedbydata}
         setSortedbyData={setSortedbyData}
+        isnetworkError={isnetworkError}
         isLoading={isLoading}
         setCurrentPage={setCurrentPage}
         setLimit={setLimit}
@@ -184,7 +186,7 @@ const Allcars = () => {
   );
 };
 
-const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading ,setLimit,setCurrentPage}) => {
+const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading ,setLimit,setCurrentPage,isnetworkError}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -475,7 +477,7 @@ const Removefavcarapi = async (carId) => {
       </div>
       
       {/* Empty state message - only show when not loading */}
-      {!isLoading && carsToDisplay && carsToDisplay.length === 0 && (
+      {!isnetworkError&&!isLoading && carsToDisplay && carsToDisplay.length === 0 && (
         <div style={{ 
           textAlign: 'center', 
           padding: '40px 20px',
@@ -488,6 +490,20 @@ const Removefavcarapi = async (carId) => {
           </p>
         </div>
       )}
+      {
+        isnetworkError &&
+        (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          color: '#666',
+          fontSize: '16px'
+        }}>
+          <p>You’re offline! Please check your network connection and try again.</p>
+         
+        </div>
+      )
+      }
       
       <div className="row">
         {isLoading ? (

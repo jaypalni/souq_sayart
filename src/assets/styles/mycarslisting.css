@@ -326,7 +326,7 @@
 }
 
 .car-card-price {
-  color: #008AD5;
+  color: #D67900;
   font-weight: 700;
   font-size: 14px;
   margin-top: 4px;
@@ -343,7 +343,7 @@
 .car-card-boost {
   display: flex;
   gap: 10px;
-  background-color: #008AD5;
+  background-color: #D67900;
   border-radius: 14px;
   height: 30px;
   margin-top: 10px;
@@ -394,4 +394,20 @@
   background-color: #008AD5;
   color: #fff;
   border-color: #008AD5;
+}
+.car-card-stats-row {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.car-card-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #003958; /* apply color to icon + text */
+}
+
+.car-card-stat svg {
+  color: #003958; /* force icons to same color */
 }

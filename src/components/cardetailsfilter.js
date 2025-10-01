@@ -1118,7 +1118,7 @@ if (
           paddingRight: '8px',
         }}>
 
-          <SelectInputAPI
+          {/* <SelectInputAPI
             title="Make"
             value={selectedMake}
             onChange={(value) => setSelectedMake(value)}
@@ -1136,7 +1136,7 @@ if (
             valueField="id"
             labelField="model_name"
             defaultOption={{ value: 'Any', label: 'Any Model' }}
-          />
+          /> */}
           
           <SelectInput
             title="Make"

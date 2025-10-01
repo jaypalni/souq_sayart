@@ -220,13 +220,13 @@ if (car.approval?.toLowerCase() === 'pending') {
   {car.approval?.toLowerCase() === 'approved' ? (
     <div className="car-card-stats-row">
       <span className="car-card-stat">
-        <PiChatDotsLight size={16} /> {car.chat_count || 0} Chats
+        <PiChatDotsLight size={14} /> {car.chat_count || 0} Chats
       </span>
       <span className="car-card-stat">
-        <FaRegHeart size={16} /> {car.like_count || 0} Likes
+        <FaRegHeart size={14} /> {car.like_count || 0} Likes
       </span>
       <span className="car-card-stat">
-        <LuEye size={16} /> {car.view_count || 0} Views
+        <LuEye size={14} /> {car.views || 0} Views
       </span>
     </div>
   ) : (

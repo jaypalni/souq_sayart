@@ -226,6 +226,20 @@ getMylistingCars: (type, filter, page) =>
       console.log('API: Kilometers field:', data.kilometers);
     } else {
       console.log('API: This is a create request (FormData)');
+      // Handle FormData with proper boolean values
+      if (data instanceof FormData) {
+        // Convert string boolean values back to actual booleans
+        const formDataObj = {};
+        for (let [key, value] of data.entries()) {
+          if (key === 'draft') {
+            formDataObj[key] = value === 'true';
+          } else {
+            formDataObj[key] = value;
+          }
+        }
+        console.log('API: Converted FormData to object with boolean draft:', formDataObj);
+        return api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, formDataObj);
+      }
     }
     return api.post(API_CONFIG.ENDPOINTS.CARS.CREATE, data);
   },

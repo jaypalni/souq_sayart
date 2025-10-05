@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Button, Avatar, message, Tooltip } from 'antd';
@@ -32,6 +32,7 @@ import { useSelector } from 'react-redux';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import CarListing from '../components/carListing';
 import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
+import PlaneBanner from '../components/planeBanner';
 
 // Helpers
 const openWhatsApp = (phoneNumber) => {
@@ -742,7 +743,11 @@ SimilarCarsSection.propTypes = {
 
 const CarDetails = () => {
   const { id } = useParams();
+  const location = useLocation();
   const BASE_URL = process.env.REACT_APP_API_URL;
+  
+  // Get previous page from location state or default to "All Cars"
+  const previousPage = location.state?.previousPage || 'All Cars';
   
   const { carDetails, loading, messageApi, contextHolder } = useCarDetails(id);
     const { user } = useSelector((state) => state.auth);
@@ -756,9 +761,11 @@ const CarDetails = () => {
 
   const { images, carInfo, additionalDetails } = processCarData(carDetails, BASE_URL);
   return (
-    <div className="container py-4 car-details-page">
-      {contextHolder}
-      <div className="row">
+    <div className="car-details-page">
+      <PlaneBanner carDetails={carDetails} previousPage={previousPage} />
+      <div className="container py-4">
+        {contextHolder}
+        <div className="row">
         <CarDetailsMain 
           carDetails={carDetails} 
           BASE_URL={BASE_URL} 
@@ -776,6 +783,7 @@ const CarDetails = () => {
 
    { user?.id!=  carDetails?.seller?.id &&    <SimilarCarsSection carDetails={carDetails} />
     }
+      </div>
     </div>
   );
 };

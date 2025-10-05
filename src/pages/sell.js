@@ -2004,17 +2004,35 @@ const handleImageUpload = async (images) => {
                               selectedBrand === opt.name ? ' selected' : ''
                             }`}
                             onClick={() => {
+                              // Check if user is changing make after selecting both make and model
+                              if (selectedBrand && selectedModel && selectedBrand !== opt.name) {
+                                messageApi.open({
+                                  type: 'warning',
+                                  content: 'Changing make will clear the selected model',
+                                });
+                                // Clear model and trim when changing make
+                                setSelectedModel(undefined);
+                                setModalName(undefined);
+                                setSelectedTrim(undefined);
+                                form.setFieldsValue({ 
+                                  brand: opt.name,
+                                  brandImage: opt.image,
+                                  trim: undefined
+                                });
+                              } else {
+                                // Normal flow - update brand field with current model and trim
+                                const parts = [opt.name];
+                                if (selectedModel) parts.push(selectedModel);
+                                if (selectedTrim) parts.push(selectedTrim);
+                                form.setFieldsValue({ 
+                                  brand: parts.join(' - '),
+                                  brandImage: opt.image,
+                                });
+                              }
+                              
                               setSelectedBrand(opt.name);
                               setMake(opt.name);  
                               setBrandModalOpen(false);
-                              // Update brand field with current model and trim
-                              const parts = [opt.name];
-                              if (selectedModel) parts.push(selectedModel);
-                              if (selectedTrim) parts.push(selectedTrim);
-                              form.setFieldsValue({ 
-                                brand: parts.join(' - '),
-                                brandImage: opt.image,
-                              });
                               setSelectedBrandImage(opt.image);
                               setBrandNameOpen(true);
                             }}

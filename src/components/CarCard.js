@@ -99,7 +99,9 @@ if (car.approval?.toLowerCase() === 'pending') {
   };
 
    const handleCardClick = () => {
-    navigate(`/carDetails/${car.id}`);
+    navigate(`/carDetails/${car.id}`, { 
+      state: { previousPage: 'My Listings' } 
+    });
   };
 
 
@@ -218,6 +220,7 @@ if (car.approval?.toLowerCase() === 'pending') {
         </div>
         <div className="car-card-actions">
   {car.approval?.toLowerCase() === 'approved' ? (
+    // ✅ Approved cars: show stats row
     <div className="car-card-stats-row">
       <span className="car-card-stat">
         <PiChatDotsLight size={14} /> {car.chat_count || 0} Chats
@@ -239,16 +242,20 @@ if (car.approval?.toLowerCase() === 'pending') {
         Delete
       </Button>
 
-      <Button
-        type="primary"
-        onClick={() => navigate('/sell', { state: { extras: car } })}
-        className="car-card-edit-btn"
-      >
-        Edit
-      </Button>
+      {/* ✅ Hide Edit if Active tab + Pending */}
+      {!(value === 'Active' && car.approval?.toLowerCase() === 'pending') && (
+        <Button
+          type="primary"
+          onClick={() => navigate('/sell', { state: { extras: car } })}
+          className="car-card-edit-btn"
+        >
+          Edit
+        </Button>
+      )}
     </>
   )}
 </div>
+
 
 
 

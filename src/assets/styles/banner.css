@@ -250,3 +250,20 @@
     font-size: 28px !important;
   }
 }
+
+/* Car Details page specific breadcrumb styling */
+.car-details-breadcrumb {
+  margin-left: -770px !important;
+  text-align: left !important;
+}
+
+/* Car Details page specific banner height reduction */
+.car-details-banner {
+  height: 60px !important;
+  min-height: 60px !important;
+}
+
+.car-details-banner .breadcrumb-container {
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+}

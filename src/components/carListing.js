@@ -67,11 +67,19 @@ const CarListing = ({ title, cardata }) => {
         });
       }
     } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.message || 'Failed to add to favorites',
-      });
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+        // Network/offline error -> show user-friendly message
+        messageApi.open({ 
+          type: 'error', 
+          content: 'You\'re offline! Please check your network connection and try again.' 
+        });
+      } else {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message || 'Failed to add to favorites',
+        });
+      }
     } finally {
       setLoading(null);
     }
@@ -95,11 +103,19 @@ const CarListing = ({ title, cardata }) => {
         });
       }
     } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.message || 'Failed to remove from favorites',
-      });
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+        // Network/offline error -> show user-friendly message
+        messageApi.open({ 
+          type: 'error', 
+          content: 'You\'re offline! Please check your network connection and try again.' 
+        });
+      } else {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message || 'Failed to remove from favorites',
+        });
+      }
     } finally {
       setLoading(null);
     }

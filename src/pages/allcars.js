@@ -37,16 +37,6 @@ const Allcars = () => {
   const [carType, setCarType] = useState(location.state?.type); // 'featured' or 'recommended'
 
   // Debug logging for navigation state
-  console.log('Allcars page - location.state:', location.state);
-  console.log('Allcars page - selected values:', {
-    selectedMake: location.state?.selectedMake,
-    selectedModel: location.state?.selectedModel,
-    selectedBodyType: location.state?.selectedBodyType,
-    selectedLocation: location.state?.selectedLocation,
-    selectedNewUsed: location.state?.selectedNewUsed,
-    selectedPriceMin: location.state?.selectedPriceMin,
-    selectedPriceMax: location.state?.selectedPriceMax
-  });
 
   // Update carType when location state changes
   useEffect(() => {
@@ -83,14 +73,6 @@ const Allcars = () => {
       const newUsedValue = location.state?.selectedNewUsed || savedSearchData?.selectedNewUsed;
       const locationValue = location.state?.selectedLocation || savedLocation;
 
-      console.log('Allcars useEffect - Values:', {
-        navigationNewUsed: location.state?.selectedNewUsed,
-        savedNewUsed: savedSearchData?.selectedNewUsed,
-        finalNewUsed: newUsedValue,
-        navigationLocation: location.state?.selectedLocation,
-        savedLocation: savedLocation,
-        finalLocation: locationValue
-      });
 
       // Set selected location
       if (locationValue && locationValue !== '') {
@@ -106,7 +88,6 @@ const Allcars = () => {
         setSelectedNewUsed('All');
       }
     } catch (error) {
-      console.error('Error in allcars useEffect:', error);
     }
   }, [location.state]);
 
@@ -139,11 +120,6 @@ const Allcars = () => {
 
   
   // Debug logging for PlaneBanner props
-  console.log('Allcars - Passing to PlaneBanner:', {
-    selectedLocation,
-    selectedNewUsed,
-    locationState: location.state
-  });
 
   return (
     <div>
@@ -238,12 +214,19 @@ const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, ti
         content: data?.message || 'Car added to favorites',
       });
     } else {
-      console.log('error11',data)
       message.error(data.message || 'Something went wrong');
     }
   } catch (error) {
-    const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to add car to favorites.');
+    if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      // Network/offline error -> show user-friendly message
+      messageApi.open({ 
+        type: 'error', 
+        content: 'You\'re offline! Please check your network connection and try again.' 
+      });
+    } else {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to add car to favorites.');
+    }
   } finally {
     setLoading(null);
   }
@@ -275,8 +258,16 @@ const Removefavcarapi = async (carId) => {
       });
     }
   } catch (error) {
-    const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to remove car from favorites.');
+    if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      // Network/offline error -> show user-friendly message
+      messageApi.open({ 
+        type: 'error', 
+        content: 'You\'re offline! Please check your network connection and try again.' 
+      });
+    } else {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to remove car from favorites.');
+    }
   } finally {
     setLoading(null);
   }
@@ -397,7 +388,14 @@ const Removefavcarapi = async (carId) => {
         <span>
           {carsToDisplay?.length === 0 
             ? 'No cars found' 
-            : `Showing 1 - ${carsToDisplay?.length} Cars of ${paginationToDisplay.total} New Cars`}
+            : (() => {
+                const currentPage = paginationToDisplay?.page || 1;
+                const limit = paginationToDisplay?.limit || 20;
+                const total = paginationToDisplay?.total || 0;
+                const startNum = (currentPage - 1) * limit + 1;
+                const endNum = Math.min(currentPage * limit, total);
+                return `Showing ${startNum} - ${endNum} Cars of ${total} Cars`;
+              })()}
         </span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button

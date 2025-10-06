@@ -322,6 +322,8 @@ export const userAPI = {
     return await api.get(API_CONFIG.ENDPOINTS.USER.GET_SAVEDSEARCHES(page, limit));
   },
   getsubscriptions: () => api.get(API_CONFIG.ENDPOINTS.USER.GET_SUBSCRIPTIONS),
+  getPackageDetails: (packageId) => api.get(`/api/subscriptions/packages/${packageId}`),
+  subscribe: (subscriptionData) => api.post(API_CONFIG.ENDPOINTS.USER.SUBSCRIBE, subscriptionData),
   getDelete: () => api.post(API_CONFIG.ENDPOINTS.USER.GET_DELETE),
   getDeleteOtp: (credentials) => api.post(API_CONFIG.ENDPOINTS.USER.POST_DEELETE_OTP, credentials),
   changephonenumber: (credentials) =>

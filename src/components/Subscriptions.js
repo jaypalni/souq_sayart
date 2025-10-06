@@ -9,54 +9,7 @@ import { userAPI } from '../services/api';
 
 
 const plansData = {
-  Individual: [
-    {
-      id: 1,
-      title: 'Freemium +',
-      price: 5,
-      duration: '15 Days',
-      features: ['Price Model Per Car', '1 Posts Allowed', '10 Photos Allowed'],
-      details: {
-        price: 'USD 5',
-        priceModel: 'Per Car',
-        postsAllowed: 1,
-        photosAllowed: 10,
-        videosAllowed: '-',
-        postDuration: '15 Days',
-        featured: '-',
-        banner: '-',
-        analytics: '-',
-        additionalCar: '-',
-        emailNewsletter: '-',
-        sponsoredContent: '-',
-      },
-      highlight: true,
-      current: true,
-    },
-    {
-      id: 2,
-      title: 'Freemium',
-      price: 5,
-      duration: '15 Days',
-      features: ['Price Model Per Car', '1 Posts Allowed', '10 Photos Allowed'],
-      details: {
-        price: 'USD 5',
-        priceModel: 'Per Car',
-        postsAllowed: 1,
-        photosAllowed: 10,
-        videosAllowed: '-',
-        postDuration: '15 Days',
-        featured: '-',
-        banner: '-',
-        analytics: '-',
-        additionalCar: '-',
-        emailNewsletter: '-',
-        sponsoredContent: '-',
-      },
-      highlight: false,
-      current: false,
-    },
-  ],
+  Individual:[],
   Dealer: [],
 };
 
@@ -67,17 +20,21 @@ const EmptyState = () => (
   </div>
 );
 
-const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
+const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading }) => (
   <div className="subscription-details-main">
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
       <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} style={{ marginRight: 8 }} />
       <div className="subscriptions-header" style={{ marginBottom: 0 }}>Subcriptions</div>
     </div>
     <div className="subscription-details-card" style={{ background: isCurrent ? '#0091ea' : '#e3e8ef', borderRadius: 12, padding: 24, color: isCurrent ? '#fff' : '#222', marginBottom: 24 }}>
-      {isCurrent && <div style={{ background: '#ffa726', color: '#fff', borderRadius: 6, padding: '2px 12px', display: 'inline-block', marginBottom: 8 }}>Current</div>}
+      {isCurrent && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+          <div style={{ background: '#ffa726', color: '#fff', borderRadius: 6, padding: '2px 12px', display: 'inline-block' }}>Current</div>
+        </div>
+      )}
       <div style={{ fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{plan.title}</div>
       <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 4 }}>
-        ${plan.price} <span style={{ fontSize: 16, fontWeight: 400, color: isCurrent ? '#e3e8ef' : '#888' }}>{plan.duration}</span>
+        IQD  {plan.price} <span style={{ fontSize: 16, fontWeight: 400, color: isCurrent ? '#e3e8ef' : '#888' }}>{plan.duration}</span>
       </div>
     </div>
     <table style={{ width: '100%', background: '#fff', borderRadius: 12, marginBottom: 24 }}>
@@ -97,9 +54,12 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, isCurrent }) => (
       </tbody>
     </table>
     {isCurrent ? (
-      <Button type="primary" danger style={{ width: 220, borderRadius: 24 }} onClick={onCancel}>Cancel Subscription</Button>
+      // <Button type="primary" danger style={{ width: 220, borderRadius: 24 }} onClick={onCancel}>Cancel Subscription</Button>
+     <div></div>
     ) : (
-      <Button type="primary" style={{ width: 220, borderRadius: 24 }}>Subscribe</Button>
+      <Button type="primary" style={{ width: 220, borderRadius: 24 }} onClick={() => onSubscribe(plan.id)} loading={loading}>
+        {loading ? 'Subscribing...' : 'Subscribe'}
+      </Button>
     )}
   </div>
 );
@@ -120,7 +80,94 @@ const Subscriptions = () => {
 
   const [newplansData, setNewPlansData] = useState(plansData);
 
+  // Subscribe functionality
+  const handleSubscribe = async (packageId) => {
+    try {
+      setLoading(true);
+      
+      // Generate payment merchant and payment_id (you may want to integrate with actual payment gateway)
+      const paymentMerchant = 'FIjbkcjasgc,agc,B'; // This should come from payment gateway
+      const paymentId = `adskfjsahdfk-sadfsajdfjasdhkfdfghjkl;lkjh-${Date.now()}`; // This should come from payment gateway
+      
+      const subscriptionData = {
+        package_id: packageId,
+        payment_merchant: paymentMerchant,
+        payment_id: paymentId,
+        payment_status: 'success'
+      };
 
+      const response = await userAPI.subscribe(subscriptionData);
+      const result = handleApiResponse(response);
+      
+      if (result.success) {
+        message.success('Subscription successful!');
+        // Optionally refresh the plans data to show updated subscription status
+        fetchPlans();
+      } else {
+        message.error(result.message || 'Subscription failed. Please try again.');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch package details when a card is selected
+  const fetchPackageDetails = async (packageId) => {
+    try {
+      console.log('Fetching package details for ID:', packageId);
+      setLoading(true);
+      
+      const response = await userAPI.getPackageDetails(packageId);
+      console.log('Package details API response:', response);
+      
+      const result = handleApiResponse(response);
+      console.log('Package details processed result:', result);
+      
+      if (result.success) {
+        console.log('Package details data:', result.data);
+        console.log('is_subscribed value:', result.data.is_subscribed);
+        // Update the selected plan with detailed information
+        setSelectedPlan(prevPlan => ({
+          ...prevPlan,
+          ...result.data,
+          // Map API response to our expected format
+          id: result.data.id || prevPlan.id,
+          title: result.data.name || result.data.title || prevPlan.title,
+          price: parseFloat(result.data.price) || prevPlan.price,
+          duration: `${result.data.duration_days || result.data.duration} Days`,
+          details: {
+            price: `IQD ${result.data.price}`,
+            priceModel: result.data.price_model || 'Per Car',
+            postsAllowed: result.data.listing_limit || result.data.posts_allowed,
+            photosAllowed: result.data.photo_limit || result.data.photos_allowed || 10,
+            videosAllowed: result.data.video_limit || result.data.videos_allowed || '-',
+            postDuration: `${result.data.duration_days || result.data.duration} Days`,
+            featured: result.data.featured || '-',
+            banner: result.data.banner || '-',
+            analytics: result.data.analytics || '-',
+            additionalCar: result.data.additional_car || '-',
+            emailNewsletter: result.data.email_newsletter || '-',
+            sponsoredContent: result.data.sponsored_content || '-',
+          },
+          highlight: result.data.highlight || false,
+          current: result.data.current || false,
+          is_subscribed: result.data.is_subscribed || 0,
+        }));
+      } else {
+        console.error('Failed to fetch package details:', result.message);
+        message.error(result.message || 'Failed to fetch package details.');
+      }
+    } catch (error) {
+      console.error('Error fetching package details:', error);
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to fetch package details. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // OTP timer effect
   React.useEffect(() => {
@@ -318,7 +365,7 @@ const Subscriptions = () => {
                `${item.photo_limit || 10} Photos Allowed`,
              ],
              details: {
-               price: `USD ${item.price}`,
+               price: `IQD ${item.price}`,
                priceModel: 'Per Car',
                postsAllowed: item.listing_limit,
                photosAllowed: item.photo_limit || 10,
@@ -333,6 +380,7 @@ const Subscriptions = () => {
              },
              highlight: item.highlight || false,
              current: item.current || false,
+             is_subscribed: item.is_subscribed || 0,
            }));
 
          setNewPlansData({
@@ -343,9 +391,11 @@ const Subscriptions = () => {
          message.error('Failed to fetch plans.');
        }
      } catch (error) {
-       handleApiError(error);
+       const errorData = handleApiError(error);
+       message.error(errorData.message || 'Failed to fetch subscription plans. Please try again.');
      }
    };
+             
   return (
     <div className="subscriptions-main">
       {!selectedPlan ? (
@@ -419,7 +469,11 @@ const Subscriptions = () => {
                 <div
                   key={plan.id}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => setSelectedPlan(plan)}
+                  onClick={() => {
+                    console.log('Card clicked for plan:', plan);
+                    setSelectedPlan(plan);
+                    fetchPackageDetails(plan.id);
+                  }}
                 >
                   <SubscriptionCard {...plan} />
                 </div>
@@ -430,9 +484,11 @@ const Subscriptions = () => {
       ) : (
         <SubscriptionDetails
           plan={selectedPlan}
-          isCurrent={selectedPlan.current}
+          isCurrent={selectedPlan.is_subscribed === 1}
           onBack={() => setSelectedPlan(null)}
           onCancel={() => setCancelStep('confirm')}
+          onSubscribe={handleSubscribe}
+          loading={loading}
         />
       )}
       <Modal

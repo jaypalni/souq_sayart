@@ -32,7 +32,6 @@ const MyFavoritesCars = () => {
   useEffect(() => {
     if (effectRan.current === false) {
       fetchFavorites();
-      console.log('API called only once');
       effectRan.current = true;
     }
   }, []);
@@ -73,14 +72,21 @@ const MyFavoritesCars = () => {
           content: data.message,
         });
         fetchFavorites();
-        console.log('Api Call Fav')
       }
     } catch (error) {
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.message || 'Something went wrong',
-      });
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+        // Network/offline error -> show user-friendly message
+        messageApi.open({ 
+          type: 'error', 
+          content: 'You\'re offline! Please check your network connection and try again.' 
+        });
+      } else {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content: errorData?.message || 'Something went wrong',
+        });
+      }
     } finally {
       setLoading(false);
     }

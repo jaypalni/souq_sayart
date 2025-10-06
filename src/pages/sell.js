@@ -319,12 +319,12 @@ const Sell = () => {
   const [selectedInterior, setSelectedInterior] = useState([]);
   const { state } = useLocation();
   const extras = state?.extras ?? [];
+  console.log('Extras from state:', extras);
   const populatedRef = useRef(false);
   const { TextArea } = Input;
   const [showModal, setShowModal] = useState(false);
    const pickerRef = useRef(null);
 
-console.log('extras11',extras)
 
 const handleAddNew = () => {
   // Reset form fields
@@ -410,11 +410,17 @@ const handleAddNew = () => {
 
  // Helper function to validate and extract data
 const validateAndExtractData = (extras) => {
+  console.log('validateAndExtractData - Input extras:', extras);
   if (!extras || (Array.isArray(extras) && extras.length === 0)) {
+    console.log('validateAndExtractData - No valid extras data found');
     return null;
   }
   const data = Array.isArray(extras) ? extras[0] : extras;
-  if (!data || typeof data !== 'object') return null;
+  console.log('validateAndExtractData - Extracted data:', data);
+  if (!data || typeof data !== 'object') {
+    console.log('validateAndExtractData - Data is not a valid object');
+    return null;
+  }
   return data;
 };
 
@@ -455,10 +461,14 @@ const buildFormValues = (data) => ({
   doors: data.number_of_doors ?? data.no_of_doors ?? '',
   seats: data.number_of_seats ?? data.no_of_seats ?? '',
   extraFeatures: (() => {
+    console.log('buildFormValues - Processing extraFeatures from data:', data.extra_features);
     if (Array.isArray(data.extra_features)) {
+      console.log('buildFormValues - extraFeatures is array:', data.extra_features);
       return data.extra_features;
     }
-    return data.extra_features ? [data.extra_features] : [];
+    const result = data.extra_features ? [data.extra_features] : [];
+    console.log('buildFormValues - extraFeatures converted to array:', result);
+    return result;
   })(),
   badges: (() => {
     if (Array.isArray(data.badges)) {
@@ -478,7 +488,7 @@ const setMediaFiles = (data, setMediaFileList, form) => {
     try {
       imagePath = JSON.parse(imagePath);
     } catch (e) {
-      console.warn('Failed to parse image_url JSON:', e);
+      // Failed to parse image_url JSON - continue with original value
     }
   }
   
@@ -600,11 +610,14 @@ const setDetailedVehicleState = (data, setters) => {
 
 // Main effect function
 useEffect(() => {
+  console.log('useEffect - Processing extras:', extras);
   const data = validateAndExtractData(extras);
   if (!data) {
+    console.log('useEffect - No data extracted, setting populatedRef to false');
     populatedRef.current = false;
     return;
   }
+  console.log('useEffect - Data extracted successfully:', data);
   
   if (populatedRef.current) return;
 
@@ -615,6 +628,8 @@ useEffect(() => {
   
   // Set form values
   const formValues = buildFormValues(data);
+  console.log('useEffect - Built form values:', formValues);
+  console.log('useEffect - Extra features in form values:', formValues.extraFeatures);
   form.setFieldsValue(formValues);
   
   // Set ad title state from extras data
@@ -697,7 +712,6 @@ useEffect(() => {
 useEffect(() => {
   const kilometers = form.getFieldValue('kilometers');
   if (kilometers === '0' || kilometers === 0) {
-    console.log('Auto-selecting "New" condition for 0 kilometers');
     setSelectedCondition('New');
     form.setFieldsValue({ condition: 'New' });
   }
@@ -920,7 +934,6 @@ useEffect(() => {
 
 const handleBeforeUpload = async (files, mode, valuesParam = null) => {
   if (!files || files.length === 0) {
-    console.error('No files provided to handleBeforeUpload');
     return Upload.LIST_IGNORE;
   }
 
@@ -949,7 +962,6 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
       return Upload.LIST_IGNORE;
     }
   } catch (error) {
-    console.error('Upload error:', error);
     const errorData = handleApiError(error);
     messageApi.open({
       type: 'error',
@@ -1010,14 +1022,15 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     
     // Append arrays as JSON strings
     if (values?.extraFeatures && values.extraFeatures.length > 0) {
+      console.log('handlePostData - Extra features being sent:', values.extraFeatures);
       formData.append('extra_features', JSON.stringify(values.extraFeatures));
+    } else {
+      console.log('handlePostData - No extra features to send');
     }
     
     // Append images (convert to relative paths)
     if (uploadedImages && uploadedImages.length > 0) {
       const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
-      console.log('Create - Original image URLs:', uploadedImages);
-      console.log('Create - Converted to relative paths:', relativeImagePaths);
       relativeImagePaths.forEach((imagePath, index) => {
         formData.append(`car_images[${index}]`, imagePath);
       });
@@ -1043,16 +1056,15 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     if (text === '1') {
       // navigate('/landing');
       setShowModal(true); 
-        console.log('Added Success');
     } else {
       form.resetFields();
     }
   } catch (error) {
     const errorData = handleApiError(error);
-    const messageText = typeof errorData === 'object' 
-      ? JSON.stringify(errorData) 
-      : (errorData || 'An error occurred');
-    messageApi.open({ type: 'error', content: messageText });
+    messageApi.open({ 
+      type: 'error', 
+      content: errorData.message || 'An error occurred' 
+    });
     setAddData([]);
   } finally {
     setLoading(false);
@@ -1105,7 +1117,6 @@ const handleFinish = async (mode) => {
     const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
     const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
     
-    console.log('Form submission - New images:', newImages.length, 'Existing images:', existingImages.length);
 
     if (newImages.length === 0 && existingImages.length === 0) {
       message.error('Please upload at least one image.');
@@ -1136,15 +1147,13 @@ const handleFinish = async (mode) => {
       await handlePostData(existingImages, '1', false, values);
     }
   } catch (err) {
-    console.log('s22',err)
     if (err?.errorFields) {
       // Ant validation error object -> show a concise message
       messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
     } else {
-      const errText = typeof err === 'object' 
-        ? JSON.stringify(err) 
-        : String(err);
-      messageApi.open({ type: 'error', content: errText });
+      // All other errors (including network errors) -> use handleApiError for consistent error handling
+      const errorData = handleApiError(err);
+      messageApi.open({ type: 'error', content: errorData.message || 'An error occurred. Please try again.' });
     }
   }
 };
@@ -1155,21 +1164,14 @@ const handleUpdateCar = async () => {
     
     // Get form values without validation first to see what's available
     const allFormValues = form.getFieldsValue();
-    console.log('All form values (before validation):', allFormValues);
-    console.log('Kilometers from getFieldsValue:', allFormValues?.kilometers);
     
     const values = await form.validateFields();
     
-    console.log('Form values for update (after validation):', values);
-    console.log('Kilometers value (after validation):', values?.kilometers);
-    console.log('Extras data:', extras);
-    console.log('Extras kilometers:', extras?.kilometers, 'Extras mileage:', extras?.mileage);
     
     // Separate new uploads from existing server images
     const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
     const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
     
-    console.log('Update - New images:', newImages.length, 'Existing images:', existingImages.length);
 
     if (newImages.length === 0 && existingImages.length === 0) {
       message.error('Please upload at least one image.');
@@ -1185,8 +1187,6 @@ const handleUpdateCar = async () => {
     
     // Convert image URLs to relative paths for API payload
     const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
-    console.log('Original image URLs:', uploadedImages);
-    console.log('Converted to relative paths:', relativeImagePaths);
     
     const updateData = {
       car_id: parseInt(extras.id),
@@ -1220,12 +1220,14 @@ const handleUpdateCar = async () => {
       horse_power: values?.horsepower || '',
       payment_option: '',
       draft: false,
-      extra_features: values?.extraFeatures || [],
+      extra_features: (() => {
+        const extraFeatures = values?.extraFeatures || [];
+        console.log('handleUpdateCar - Extra features being sent:', extraFeatures);
+        return extraFeatures;
+      })(),
       car_images: relativeImagePaths || []
     };
     
-    console.log('Update data:', updateData);
-    console.log('Final kilometers value being sent:', updateData.kilometers);
     // Use same API as create but with JSON data for update
     const response = await carAPI.createCar(updateData);
     const data = handleApiResponse(response);
@@ -1240,7 +1242,6 @@ const handleUpdateCar = async () => {
       navigate('/myListings');
     }
   } catch (err) {
-    console.log('s22',err)
     if (err?.errorFields) {
       messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
     } else {
@@ -1325,7 +1326,6 @@ const handleImageUpload = async (images) => {
   };
 
   const handleMediaChange = ({ fileList: newFileList }) => {
-    console.log('Media change:', { newFileList, currentMediaFileList: mediaFileList });
     
     // Filter out files that are too large (only for new uploads)
     const filteredList = newFileList?.filter((file) => {
@@ -1334,15 +1334,12 @@ const handleImageUpload = async (images) => {
       return (file.size || file.originFileObj?.size) / 1024 / 1024 < 5;
     }) || [];
     
-    console.log('Filtered list:', filteredList);
     setMediaFileList(filteredList);
     form.setFieldsValue({ media: filteredList });
   };
 
   const handleMediaRemove = (file) => {
-    console.log('Removing file:', file);
     const newFileList = mediaFileList.filter(item => item.uid !== file.uid);
-    console.log('New file list after removal:', newFileList);
     setMediaFileList(newFileList);
     form.setFieldsValue({ media: newFileList });
     return true; // Allow removal
@@ -1644,7 +1641,6 @@ const handleImageUpload = async (images) => {
   rules={[
     {
       validator: (_, value) => {
-        console.log('Car Information validation:', { selectedBrand, selectedModel, value });
         // Check if we have at least brand selected
         if (!selectedBrand) {
           return Promise.reject(new Error('Please select the car brand'));
@@ -2049,7 +2045,6 @@ const handleImageUpload = async (images) => {
               
               // Check if user is changing from "New" to something else while kilometers is 0
               if (selectedCondition === 'New' && opt.car_condition !== 'New' && (currentKilometers === '0' || currentKilometers === 0)) {
-                console.log('Warning: Changing condition from "New" while kilometers is 0');
                 // You can add a warning message here if needed
                 // message.warning('Cars with 0 kilometers are typically "New". Are you sure?');
               }
@@ -2246,12 +2241,10 @@ const handleImageUpload = async (images) => {
       // Remove leading zeros to prevent entries like 0001, but allow single 0
       const sanitizedValue = digitsOnly === '0' ? '0' : digitsOnly.replace(/^0+/, '');
 
-      console.log('Kilometers onChange - original:', e.target.value, 'sanitized:', sanitizedValue);
       form.setFieldsValue({ kilometers: sanitizedValue });
       
       // Auto-select "New" condition if kilometers is 0
       if (sanitizedValue === '0' || sanitizedValue === '') {
-        console.log('Kilometers is 0, auto-selecting "New" condition');
         setSelectedCondition('New');
         form.setFieldsValue({ condition: 'New' });
       }
@@ -2259,7 +2252,6 @@ const handleImageUpload = async (images) => {
       // Verify the field was set
       setTimeout(() => {
         const currentValue = form.getFieldValue('kilometers');
-        console.log('Kilometers field value after setFieldsValue:', currentValue);
       }, 100);
     }}
   />

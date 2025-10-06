@@ -88,121 +88,93 @@ const LandingFilters = ({
 
 // Initialize make from props or localStorage if available
 const getInitialMake = () => {
-  console.log('getInitialMake - selectedMake prop:', propSelectedMake);
   
   // First check if prop is provided
   if (propSelectedMake && propSelectedMake !== '') {
-    console.log('getInitialMake - Using prop value:', propSelectedMake);
     return propSelectedMake;
   }
   
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    console.log('getInitialMake - localStorage saved:', saved);
     if (saved?.make && saved.make !== '') {
-      console.log('getInitialMake - Using localStorage value:', saved.make);
       return saved.make;
     }
   } catch (e) {
-    console.log('getInitialMake - localStorage error:', e);
     // Silent error handling
   }
   
-  console.log('getInitialMake - Using default value:', DEFAULTS.ALL_MAKE);
   return DEFAULTS.ALL_MAKE;
 };
 
 const [make, setMake] = useState(getInitialMake);
-console.log('Initial make state:', make);
 
 // Initialize model from props or localStorage if available
 const getInitialModel = () => {
-  console.log('getInitialModel - selectedModel prop:', propSelectedModel);
   
   // First check if prop is provided
   if (propSelectedModel && propSelectedModel !== '') {
-    console.log('getInitialModel - Using prop value:', propSelectedModel);
     return propSelectedModel;
   }
   
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    console.log('getInitialModel - localStorage saved:', saved);
     if (saved?.model && saved.model !== '') {
-      console.log('getInitialModel - Using localStorage value:', saved.model);
       return saved.model;
     }
   } catch (e) {
-    console.log('getInitialModel - localStorage error:', e);
     // Silent error handling
   }
   
-  console.log('getInitialModel - Using default value:', DEFAULTS.ALL_MODELS);
   return DEFAULTS.ALL_MODELS;
 };
 
   const [model, setModel] = useState(getInitialModel);
-console.log('Initial model state:', model);
 
 // Initialize bodyType from props or localStorage if available
 const getInitialBodyType = () => {
-  console.log('getInitialBodyType - selectedBodyType prop:', propSelectedBodyType);
   
   // First check if prop is provided
   if (propSelectedBodyType && propSelectedBodyType !== '') {
-    console.log('getInitialBodyType - Using prop value:', propSelectedBodyType);
     return propSelectedBodyType;
   }
   
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    console.log('getInitialBodyType - localStorage saved:', saved);
     if (saved?.body_type && saved.body_type !== '') {
-      console.log('getInitialBodyType - Using localStorage value:', saved.body_type);
       return saved.body_type;
     }
   } catch (e) {
-    console.log('getInitialBodyType - localStorage error:', e);
     // Silent error handling
   }
   
-  console.log('getInitialBodyType - Using default value:', DEFAULTS.ALL_BODY_TYPES);
   return DEFAULTS.ALL_BODY_TYPES;
 };
 
   const [bodyType, setBodyType] = useState(getInitialBodyType);
-console.log('Initial bodyType state:', bodyType);
 
    const [carModels, setCarModels] = useState([]);
     const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
 // Initialize location from props or localStorage if available
 const getInitialLocation = () => {
-  console.log('getInitialLocation - selectedLocation prop:', propSelectedLocation);
   
   // First check if prop is provided
   if (propSelectedLocation && propSelectedLocation !== '') {
-    console.log('getInitialLocation - Using prop value:', propSelectedLocation);
     return propSelectedLocation;
   }
   
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    console.log('getInitialLocation - localStorage saved:', saved);
     if (saved?.location && saved.location !== '') {
-      console.log('getInitialLocation - Using localStorage value:', saved.location);
       return saved.location;
     }
   } catch (e) {
-    console.log('getInitialLocation - localStorage error:', e);
     // Silent error handling
   }
   
-  console.log('getInitialLocation - Using default value:', DEFAULTS.ALL_LOCATIONS);
   return DEFAULTS.ALL_LOCATIONS;
 };
 
   const [location, setLocation] = useState(getInitialLocation);
-console.log('Initial location state:', location);
 
 // Initialize newUsed from props or localStorage if available
 const getInitialNewUsed = () => {
@@ -361,11 +333,8 @@ const getInitialMaxPrice = () => {
         // Note: No type parameter included
       };
       
-      console.log('autoSearchForCountWithoutType - Current state:', { make, model, bodyType, location, newUsed, minPrice, maxPrice });
-      console.log('autoSearchForCountWithoutType - API params:', apiParams);
       
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi one', newUsed)
       const data = handleApiResponse(response);
 
       // Null checks for pagination data
@@ -374,7 +343,6 @@ const getInitialMaxPrice = () => {
       }
     } catch (error) {
       // Silent error handling for auto-search
-      console.warn('Auto-search for count failed:', error);
     }
   };
 
@@ -400,19 +368,8 @@ const getInitialMaxPrice = () => {
         apiParams.type = featuredorrecommended;
       }
       
-      console.log('autoSearchForCount - Current state values:', {
-        make,
-        model,
-        bodyType,
-        location,
-        newUsed,
-        minPrice,
-        maxPrice
-      });
-      console.log('autoSearchForCount - API params:', apiParams);
       
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi two', newUsed)
       const data = handleApiResponse(response);
 
       // Null checks for pagination data
@@ -421,7 +378,6 @@ const getInitialMaxPrice = () => {
       }
     } catch (error) {
       // Silent error handling for auto-search
-      console.warn('Auto-search for count failed:', error);
     }
   };
 
@@ -434,26 +390,21 @@ const getInitialMaxPrice = () => {
 useEffect(() => {
   // Only run this effect if no prop is provided
   if (propSelectedLocation) {
-    console.log('Location useEffect - Skipping localStorage check because prop is provided:', propSelectedLocation);
     return;
   }
   
   try {
     const saved = JSON.parse(localStorage.getItem('searchcardata'));
-    console.log('Location useEffect - localStorage saved:', saved);
     
     if (saved?.location && saved.location !== '') {
-      console.log('Location useEffect - Setting location from localStorage:', saved.location);
       setLocation(saved.location);
       if (setSelectedLocation) {
         setSelectedLocation(saved.location);
       }
     } else {
-      console.log('Location useEffect - Setting default location');
       setLocation(DEFAULTS.ALL_LOCATIONS);
     }
   } catch (e) {
-    console.log('Location useEffect - Error, setting default location');
     setLocation(DEFAULTS.ALL_LOCATIONS);
   }
 }, [setSelectedLocation, propSelectedLocation]);
@@ -509,7 +460,6 @@ fetchRegionCars()
     if (carMakes.length > 0 && !hasInitialSearch.current) {
       // If no props are provided, process immediately
       if (!propSelectedMake && !propSelectedModel && !propSelectedBodyType && !propSelectedLocation) {
-        console.log('No props provided, processing immediately');
         setPropsProcessed(true);
       }
       
@@ -517,7 +467,6 @@ fetchRegionCars()
         hasInitialSearch.current = true;
         setIsInitialized(true);
         
-        console.log('Initial handleSearch called after props processed');
         handleSearch();
       }
     }
@@ -550,20 +499,10 @@ fetchRegionCars()
 
   // Debug effect to track prop changes
   useEffect(() => {
-    console.log('Props changed - Current props:', {
-      propSelectedMake,
-      propSelectedModel,
-      propSelectedBodyType,
-      propSelectedLocation,
-      propSelectedNewUsed,
-      propSelectedPriceMin,
-      propSelectedPriceMax
-    });
     
     // Mark props as processed after a short delay
     const timer = setTimeout(() => {
       setPropsProcessed(true);
-      console.log('Props processing completed');
     }, 50);
     
     return () => clearTimeout(timer);
@@ -572,49 +511,42 @@ fetchRegionCars()
   // Update state when props change
   useEffect(() => {
     if (propSelectedMake && propSelectedMake !== make) {
-      console.log('Updating make from prop:', propSelectedMake);
       setMake(propSelectedMake);
     }
   }, [propSelectedMake]);
 
   useEffect(() => {
     if (propSelectedModel && propSelectedModel !== model) {
-      console.log('Updating model from prop:', propSelectedModel);
       setModel(propSelectedModel);
     }
   }, [propSelectedModel]);
 
   useEffect(() => {
     if (propSelectedBodyType && propSelectedBodyType !== bodyType) {
-      console.log('Updating bodyType from prop:', propSelectedBodyType);
       setBodyType(propSelectedBodyType);
     }
   }, [propSelectedBodyType]);
 
   useEffect(() => {
     if (propSelectedLocation && propSelectedLocation !== location) {
-      console.log('Updating location from prop:', propSelectedLocation);
       setLocation(propSelectedLocation);
     }
   }, [propSelectedLocation]);
 
   useEffect(() => {
     if (propSelectedNewUsed && propSelectedNewUsed !== newUsed) {
-      console.log('Updating newUsed from prop:', propSelectedNewUsed);
       setNewUsed(propSelectedNewUsed);
     }
   }, [propSelectedNewUsed]);
 
   useEffect(() => {
     if (propSelectedPriceMin !== null && propSelectedPriceMin !== undefined && propSelectedPriceMin !== minPrice) {
-      console.log('Updating minPrice from prop:', propSelectedPriceMin);
       setMinPrice(propSelectedPriceMin);
     }
   }, [propSelectedPriceMin]);
 
   useEffect(() => {
     if (propSelectedPriceMax !== null && propSelectedPriceMax !== undefined && propSelectedPriceMax !== maxPrice) {
-      console.log('Updating maxPrice from prop:', propSelectedPriceMax);
       setMaxPrice(propSelectedPriceMax);
     }
   }, [propSelectedPriceMax]);
@@ -806,16 +738,6 @@ fetchRegionCars()
       apiParams.type = featuredorrecommended;
     }
 
-    console.log('buildApiParams - Current state values:', {
-      make,
-      model,
-      bodyType,
-      location,
-      newUsed,
-      minPrice,
-      maxPrice
-    });
-    console.log('buildApiParams - Final API params:', apiParams);
     return apiParams;
   };
 
@@ -844,7 +766,6 @@ fetchRegionCars()
   const handleSearchResults = (data1, apiParams) => {
     // Null checks for data structure
     if (!data1 || !data1.data) {
-      console.warn('Invalid data structure received');
       return;
     }
 
@@ -875,7 +796,6 @@ fetchRegionCars()
         try {
           localStorage.setItem('searchcardata', JSON.stringify(apiParams));
         } catch (error) {
-          console.warn('Failed to save search data to localStorage:', error);
         }
       }
       
@@ -888,7 +808,6 @@ fetchRegionCars()
 
   // Helper function to handle search with condition
   const handleSearchWithCondition = async (condition) => {
-    console.log('handleSearchWithCondition called with condition:', condition);
     // Update the condition state and trigger search
     setNewUsed(condition);
     // The search will be triggered by the useEffect watching filter state changes
@@ -896,15 +815,6 @@ fetchRegionCars()
 
   // Main search function
   const handleSearch = async () => {
-    console.log('handleSearch - Current state before API call:', {
-      make,
-      model,
-      bodyType,
-      location,
-      newUsed,
-      minPrice,
-      maxPrice
-    });
     
     const sortConfig = getSortParameters(sortedbydata);
     const saveParams = buildSaveParams(sortConfig);
@@ -921,7 +831,6 @@ setIsnetworkError(false)
       
       clearCachedData();
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi three', newUsed)
       const data1 = handleApiResponse(response);
 
       if (data1) {
@@ -930,13 +839,14 @@ setIsnetworkError(false)
     } catch (error) {
       const errorData = handleApiError(error);
     if(error?.message==='Network Error' ){ 
-      // messageApi.open({
-      //       type: 'error',
-      //       content:'You’re offline! Please check your network connection and try again.',
-      //     });
+      messageApi.open({
+            type: 'error',
+            content: 'You\'re offline! Please check your network connection and try again.',
+          });
       setIsnetworkError(true)
-        }
+        } else {
       message.error(errorData.message || 'Failed to search car data');
+        }
       setCarSearch([]);
     } finally {
       setLoading(false);
@@ -976,10 +886,8 @@ setIsnetworkError(false)
               
               // Call API only when condition is selected
               if (type === DROPDOWN_NEW_USED) {
-                console.log('Condition selected:', opt, '- Calling handleSearch API');
                 // Call handleSearch with the selected condition
                 setTimeout(() => {
-                  console.log('About to call handleSearch, selected condition:', opt);
                   handleSearchWithCondition(opt);
                 }, 100);
               }
@@ -1136,10 +1044,23 @@ setIsnetworkError(false)
             onModelChange={(newModel) => {
               setModel(newModel);
             }}
+            onBodyTypeChange={(newBodyType) => {
+              if (newBodyType && newBodyType.length > 0) {
+                setBodyType(newBodyType[0]);
+              } else {
+                setBodyType(DEFAULTS.ALL_BODY_TYPES);
+              }
+            }}
+            onLocationChange={(newLocation) => {
+              if (newLocation && newLocation.length > 0) {
+                setLocation(newLocation[0]);
+              } else {
+                setLocation(DEFAULTS.ALL_LOCATIONS);
+              }
+            }}
             onSearchResults={(searchResults) => {
               // Null checks for search results
               if (!searchResults || !searchResults.data) {
-                console.warn('Invalid search results received');
                 return;
               }
 
@@ -1150,9 +1071,25 @@ setIsnetworkError(false)
               if (setCurrentPage && searchResults.data.pagination && typeof searchResults.data.pagination.page === 'number') {
                 setCurrentPage(searchResults.data.pagination.page);
               }
+              
+              // Update car count from pagination with null checks
+              if (searchResults.data.pagination && typeof searchResults.data.pagination.total === 'number') {
+                setCarCount(searchResults.data.pagination.total);
+              } else if (searchResults.carCount !== undefined) {
+                // Fallback to carCount property if passed directly
+                setCarCount(searchResults.carCount);
+              }
             }}
             limit={validLimit}
             currentPage={validCurrentPage}
+            selectedMake={make}
+            selectedModel={model}
+            selectedBodyType={bodyType}
+            selectedLocation={location}
+            selectedNewUsed={newUsed}
+            selectedPriceMin={minPrice}
+            selectedPriceMax={maxPrice}
+            sortedbydata={sortedbydata}
           />
 
           <div className="allcars-filters-col allcars-filters-btn-col">
@@ -1222,7 +1159,6 @@ setIsnetworkError(false)
     setMinPrice(value ? Number(value) : null);
     
     // Call API when price changes
-    console.log('Min price changed:', value ? Number(value) : null, '- Calling handleSearch API');
     setTimeout(() => {
       handleSearch();
     }, 500);
@@ -1276,7 +1212,6 @@ setIsnetworkError(false)
     }
     
     // Call API when price changes
-    console.log('Max price changed:', numericValue, '- Calling handleSearch API');
     setTimeout(() => {
       handleSearch();
     }, 500);

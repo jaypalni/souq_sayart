@@ -5,7 +5,7 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FilterIcon from '../assets/images/filter_icon.svg';
 import { carAPI } from '../services/api';
@@ -124,7 +124,7 @@ const useRangeInputs = () => {
 
 // Custom hook for single value inputs
 const useSingleInputs = () => {
-  const [trimValue, setTrimValue] = useState('Any');
+  const [trimValue, setTrimValue] = useState([]);
   const [colorValue, setColorValue] = useState('Any');
   const [interiorValue, setInteriorValue] = useState('Any');
   const [paymentOptions, setPaymentOptions] = useState('Any');
@@ -142,11 +142,11 @@ const useSingleInputs = () => {
 // Helper functions
 const handleCheckboxChange = (option, selectedValues, setSelectedValues) => {
   if (selectedValues.includes(option)) {
-    
-     setSelectedValues([]);
+    // Remove the option from the array
+    setSelectedValues(selectedValues.filter(item => item !== option));
   } else {
-    
-    setSelectedValues([option]);
+    // Add the option to the array
+    setSelectedValues([...selectedValues, option]);
   }
 };
 
@@ -189,6 +189,45 @@ const getNumericFilterValue = (value) => {
   return value ? String(parseInt(value)) : '';
 };
 
+// Helper function to determine sort parameters
+const getSortParameters = (sortedbydata) => {
+  const sortConfig = {
+    sortbynewlist: false,
+    sortbyold: false,
+    sortbypriceormileage: '',
+    sortorder: ''
+  };
+
+  switch (sortedbydata) {
+    case 'Newest Listing':
+      sortConfig.sortbynewlist = true;
+      break;
+    case 'Oldest Listing':
+      sortConfig.sortbyold = true;
+      break;
+    case 'Price : Low to High':
+      sortConfig.sortbypriceormileage = 'price';
+      sortConfig.sortorder = 'asc';
+      break;
+    case 'Price : High to Low':
+      sortConfig.sortbypriceormileage = 'price';
+      sortConfig.sortorder = 'desc';
+      break;
+    case 'Mileage: Low to High':
+      sortConfig.sortbypriceormileage = 'mileage';
+      sortConfig.sortorder = 'asc';
+      break;
+    case 'Mileage: High to Low':
+      sortConfig.sortbypriceormileage = 'mileage';
+      sortConfig.sortorder = 'desc';
+      break;
+    default:
+      break;
+  }
+
+  return sortConfig;
+};
+
 const prepareFilterData = (filterParams) => {
   const { 
     selectedMake, 
@@ -205,18 +244,21 @@ const prepareFilterData = (filterParams) => {
     newUsed,
     selectedColors = [],
     selectedRegionalSpecs = [],
-    selectedBodyType = []
+    selectedBodyType = [],
+    sortedbydata
   } = filterParams;
+  
+  const sortConfig = getSortParameters(sortedbydata);
   
   const apiParams = {
     make: getFilterValue(selectedMake, 'All Make'),
     model: getFilterValue(selectedModel, 'All Models'),
-    trim: getFilterValue(singleInputs.trimValue, 'Any'),
+    trim: singleInputs.trimValue.length > 0 ? singleInputs.trimValue : [],
     year_min: getNumericFilterValue(rangeInputs.yearMin),
     year_max: getNumericFilterValue(rangeInputs.yearMax),
     price_min: getNumericFilterValue(rangeInputs.priceMin),
     price_max: getNumericFilterValue(rangeInputs.priceMax),
-    locations: ensureArray(location),
+    locations: location && location.length > 0 ? location : [],
     min_kilometers: getNumericFilterValue(rangeInputs.kilometersMin),
     max_kilometers: getNumericFilterValue(rangeInputs.kilometersMax),
     colors: selectedColors && selectedColors.length > 0 ? selectedColors : [],
@@ -226,24 +268,23 @@ const prepareFilterData = (filterParams) => {
     doors: filterState.doorselectedValues,
     number_of_cylinders: getArrayFilterValue(filterState.cylinderselectedValues),
     fuel_types: filterState.selectedValues.filter(v => v !== 'Any'),
-    seller_type: getArrayFilterValue(filterState.ownerType),
+    seller_type: filterState.ownerType.filter(v => v !== 'Any'),
+    condition: filterState.condition.includes('Any') ? ['Used', 'New'] : filterState.condition.filter(v => v !== 'Any'),
     keyword: keywords.length > 0 ? keywords.join(', ') : '',
     page: currentPage,
-    limit: limit
+    limit: limit,
+    // Add sorting parameters
+    newest_listing: sortConfig.sortbynewlist,
+    oldest_listing: sortConfig.sortbyold,
+    sort_by: sortConfig.sortbypriceormileage,
+    sort_order: sortConfig.sortorder
   };
 
   // Debug logging for locations
-  console.log('prepareFilterData - Input location:', location, 'Type:', typeof location, 'Is Array:', Array.isArray(location));
-  console.log('prepareFilterData - Processed locations:', apiParams.locations, 'Type:', typeof apiParams.locations, 'Is Array:', Array.isArray(apiParams.locations));
 
   // Only include type parameter if featuredorrecommended has a value
   if (featuredorrecommended) {
     apiParams.type = featuredorrecommended;
-  }
-
-  // Only include condition parameter if newUsed has a value and is not default
-  if (newUsed && newUsed !== 'New & Used') {
-    apiParams.condition = newUsed;
   }
 
   return apiParams;
@@ -408,9 +449,16 @@ const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
       {title}
     </div>
     <Select
+      mode="multiple"
       value={value}
       onChange={onChange}
+      placeholder={`Select ${title}`}
       style={{ width: '100%', marginTop: '10px', ...style }}
+      showSearch
+      filterOption={(input, option) =>
+        (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+      }
+      maxTagCount="responsive"
     >
       {options.map(option => (
         <Option key={option.id} value={option.trim_name}>
@@ -422,7 +470,6 @@ const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
 );
 
 const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption }) => {
-  console.log(`${title} SelectInputMultiAPI:`, { value, optionsLength: options.length, options: options.slice(0, 2), valueField, labelField });
   
   // Helper function to get the correct field value with fallbacks
   const getFieldValue = (option, field) => {
@@ -473,7 +520,6 @@ const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueFiel
           const displayValue = getFieldValue(option, labelField);
           const optionValue = getFieldValue(option, labelField);
           
-          console.log(`${title} option:`, option, 'displayValue:', displayValue, 'optionValue:', optionValue);
           
           return (
             <Option key={option[valueField] || option.id || optionValue} value={optionValue}>
@@ -488,7 +534,7 @@ const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueFiel
 
 SelectInputTrimData.propTypes = {
   title: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.array,
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -512,7 +558,6 @@ SelectInputMultiAPI.propTypes = {
 };
 
 const SelectInputAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption }) => {
-  console.log(`${title} SelectInputAPI:`, { value, optionsLength: options.length, options: options.slice(0, 2), valueField, labelField });
   
   // Helper function to get the correct field value with fallbacks
   const getFieldValue = (option, field) => {
@@ -561,7 +606,6 @@ const SelectInputAPI = ({ title, value, onChange, options, style, valueField = '
           const displayValue = getFieldValue(option, labelField);
           const optionValue = getFieldValue(option, labelField); // Use same value for both display and storage
           
-          console.log(`${title} option:`, option, 'displayValue:', displayValue, 'optionValue:', optionValue);
           
           return (
             <Option key={option[valueField] || option.id || optionValue} value={optionValue}>
@@ -740,13 +784,16 @@ const Cardetailsfilter = ({
   newUsed, 
   onMakeChange, 
   onModelChange,
+  onBodyTypeChange,
+  onLocationChange,
   selectedMake: propSelectedMake,
   selectedModel: propSelectedModel,
   selectedBodyType: propSelectedBodyType,
   selectedLocation: propSelectedLocation,
   selectedNewUsed: propSelectedNewUsed,
   selectedPriceMin: propSelectedPriceMin,
-  selectedPriceMax: propSelectedPriceMax
+  selectedPriceMax: propSelectedPriceMax,
+  sortedbydata
 }) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -774,15 +821,36 @@ const Cardetailsfilter = ({
   // New Changes for API'S
 const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
 
-const [carBodyTypes, setCarBodyTypes] = useState([]);
-const [carLocations, setCarLocations] = useState([]);
+// Initialize with static data like allcarfilters.js
+const bodyTypes = [
+  'All Body Types',
+  'Sedan',
+  'SUV',
+  'Hatchback',
+  'Coupe',
+  'Convertible',
+];
+const locations = ['All Locations', 'Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cairo'];
+
+const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
+const [carLocation, setCarLocation] = useState(locations);
 const [searchBodyType, setSearchBodyType] = useState('');
 
 
 
 
 // Selected values for dropdowns - initialize from props
-const [selectedBodyType, setSelectedBodyType] = useState(propSelectedBodyType || []);
+const [selectedBodyType, setSelectedBodyType] = useState(() => {
+  if (propSelectedBodyType) {
+    // Handle both string and array formats
+    if (Array.isArray(propSelectedBodyType)) {
+      return propSelectedBodyType;
+    } else if (propSelectedBodyType !== 'All Body Types' && propSelectedBodyType !== '') {
+      return [propSelectedBodyType];
+    }
+  }
+  return [];
+});
 const [selectedLocation, setSelectedLocation] = useState(() => {
   // Filter out "All Locations" from initial prop values
   if (propSelectedLocation) {
@@ -797,20 +865,6 @@ const [selectedLocation, setSelectedLocation] = useState(() => {
 const [selectedColors, setSelectedColors] = useState([]);
 const [selectedRegionalSpecs, setSelectedRegionalSpecs] = useState([]);
 
-// Debug logging
-console.log('Cardetailsfilter - Received props:', { 
-  propSelectedMake, 
-  propSelectedModel, 
-  propSelectedBodyType, 
-  propSelectedLocation, 
-  propSelectedNewUsed, 
-  propSelectedPriceMin, 
-  propSelectedPriceMax 
-});
-console.log('Cardetailsfilter - Current state:', { selectedMake, selectedModel, selectedBodyType, selectedLocation, selectedColors, selectedRegionalSpecs });
-console.log('API data counts:', { carMakes: carMakes.length, carModels: carModels.length, carBodyTypes: carBodyTypes.length, carLocations: carLocations.length });
-
-
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
@@ -818,29 +872,31 @@ console.log('API data counts:', { carMakes: carMakes.length, carModels: carModel
   // Update state when props change
   useEffect(() => {
     if (propSelectedMake && propSelectedMake !== selectedMake) {
-      console.log('Cardetailsfilter - Updating make from prop:', propSelectedMake);
       setSelectedMake(propSelectedMake);
     }
   }, [propSelectedMake]);
 
   useEffect(() => {
     if (propSelectedModel && propSelectedModel !== selectedModel) {
-      console.log('Cardetailsfilter - Updating model from prop:', propSelectedModel);
-      console.log('Cardetailsfilter - Available models:', carModels);
       setSelectedModel(propSelectedModel);
     }
   }, [propSelectedModel]);
 
   useEffect(() => {
-    if (propSelectedBodyType && propSelectedBodyType !== selectedBodyType) {
-      console.log('Cardetailsfilter - Updating bodyType from prop:', propSelectedBodyType);
-      setSelectedBodyType(propSelectedBodyType);
+    if (propSelectedBodyType) {
+      // Handle both string and array formats
+      if (Array.isArray(propSelectedBodyType)) {
+        setSelectedBodyType(propSelectedBodyType);
+      } else if (propSelectedBodyType !== 'All Body Types' && propSelectedBodyType !== '') {
+        setSelectedBodyType([propSelectedBodyType]);
+      } else {
+        setSelectedBodyType([]);
+      }
     }
   }, [propSelectedBodyType]);
 
   useEffect(() => {
-    if (propSelectedLocation && propSelectedLocation !== selectedLocation) {
-      console.log('Cardetailsfilter - Updating location from prop:', propSelectedLocation);
+    if (propSelectedLocation) {
       // Filter out "All Locations" from prop values
       const filteredLocation = Array.isArray(propSelectedLocation) 
         ? propSelectedLocation.filter(loc => loc !== 'All Locations' && loc !== 'All Location' && loc !== 'All')
@@ -854,17 +910,63 @@ console.log('API data counts:', { carMakes: carMakes.length, carModels: carModel
   // Fetch models when component initializes with a selected make from props
   useEffect(() => {
     if (propSelectedMake && propSelectedMake !== 'Any' && carMakes.length > 0) {
-      console.log('Cardetailsfilter - Fetching models for prop make:', propSelectedMake);
       fetchModelCars({ setLoading, setCarModels, make: propSelectedMake });
     }
   }, [propSelectedMake, carMakes.length]);
 
   const handleChange = (e) => setValue(e.target.value);
 
+  // Fetch body types data
+  const fetchBodyTypeCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getBodyCars({});
+      const data1 = handleApiResponse(response);
+
+      if (data1 && data1.data) {
+        // Convert API response to string array like allcarfilters.js
+        const bodyTypeStrings = data1.data.map(item => item.body_type);
+        setCarBodyTypes(bodyTypeStrings);
+      }
+
+      message.success(data1.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to fetch body type data');
+      // Keep the static data on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch locations data
+  const fetchRegionCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getLocationCars({});
+      const data1 = handleApiResponse(response);
+
+      if (data1 && data1.data) {
+        // Convert API response to string array like allcarfilters.js
+        const locationStrings = data1.data.map(item => item.location);
+        setCarLocation(locationStrings);
+      }
+
+      message.success(data1?.message || 'Fetched successfully');
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to fetch location data');
+      // Keep the static data on error
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch make data on component mount
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
+    fetchBodyTypeCars();
+    fetchRegionCars();
   }, []);
 
   // Fetch model data when make changes
@@ -993,7 +1095,7 @@ if (
         selectedMake, 
         selectedModel, 
         bodyType, 
-        location, 
+        location: selectedLocation, 
         singleInputs, 
         rangeInputs, 
         filterState, 
@@ -1004,14 +1106,20 @@ if (
         newUsed,
         selectedColors,
         selectedRegionalSpecs,
-        selectedBodyType
+        selectedBodyType,
+        sortedbydata
       });
       const response = await carAPI.searchCars(filterData);      
       if (response.data) {
         const results = response.data.cars || response.data || [];
         
+        // Update car count from pagination if available and call parent callback
         if (onSearchResults) {
-          onSearchResults(response.data);
+          const resultsWithCount = {
+            ...response.data,
+            carCount: response?.data?.pagination?.total || 0
+          };
+          onSearchResults(resultsWithCount);
         }
         
         if (response?.data?.data?.cars.length === 0) {
@@ -1025,7 +1133,6 @@ if (
       
       setVisible(false);
     } catch (error) {
-      console.error('Search API Error:', error);
       
       // Still try to call onSearchResults with empty data to reset the state
       if (onSearchResults) {
@@ -1062,7 +1169,7 @@ if (
     filterState.setOwnerType(['Any']);
 
     // Reset single inputs
-    singleInputs.setTrimValue('Any');
+    singleInputs.setTrimValue([]);
     singleInputs.setColorValue('Any');
     singleInputs.setInteriorValue('Any');
     singleInputs.setPaymentOptions('Any');
@@ -1175,25 +1282,29 @@ if (
           <SelectInputMultiAPI
             title="Body Type"
             value={selectedBodyType}
-            onChange={(value) => setSelectedBodyType(value)}
-            options={carBodyTypes}
-            valueField="id"
-            labelField="body_type"
+            onChange={(value) => {
+              setSelectedBodyType(value);
+              // Call parent callback with selected values
+              if (onBodyTypeChange) {
+                onBodyTypeChange(value);
+              }
+            }}
+            options={carBodyTypes.map(bodyType => ({ value: bodyType, label: bodyType }))}
           />
 
           <SelectInputMultiAPI
             title="Location"
-            value={selectedLocation.filter(loc => loc !== 'All Locations')}
+            value={selectedLocation}
             onChange={(value) => {
-              // Filter out "All Locations" from the new value
-              const filteredValue = value.filter(loc => loc !== 'All Locations');
-              setSelectedLocation(filteredValue);
+              setSelectedLocation(value);
+              // Call parent callback with selected values
+              if (onLocationChange) {
+                onLocationChange(value);
+              }
             }}
-            options={carLocations.filter(location => location.location !== 'All Locations')}
-            valueField="id"
-            labelField="location"
+            options={carLocation.map(location => ({ value: location, label: location }))}
           />
-
+{/* 
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
               Verified
@@ -1238,7 +1349,7 @@ if (
                 Available
               </Radio.Button>
             </Radio.Group>
-          </div>
+          </div> */}
 
           <RangeInputGroup
             label="Kilometers"
@@ -1247,7 +1358,6 @@ if (
             onMinChange={(e) => rangeInputs.setKilometersMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setKilometersMax(e.target.value)}
              onBlurValidation={() => {
-              console.log('s33',rangeInputs.kilometersMax,rangeInputs.kilometersMin)
     const min = parseInt(rangeInputs.kilometersMin, 10);
     const max = parseInt(rangeInputs.kilometersMax, 10);
 
@@ -1350,13 +1460,13 @@ if (
             options={transmissionOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
           />
 
-          <CheckboxGroup
+          {/* <CheckboxGroup
             title="Number of Cylinders"
             options={cylinderOptions}
             selectedValues={filterState.cylinderselectedValues}
             onChange={handleCheckboxChange}
             setSelectedValues={filterState.setcylinderselectedValues}
-          />
+          /> */}
           <SelectInputMultiAPI
             title="Color"
             value={selectedColors}
@@ -1486,6 +1596,8 @@ Cardetailsfilter.propTypes = {
   newUsed: PropTypes.string,
   onMakeChange: PropTypes.func,
   onModelChange: PropTypes.func,
+  onBodyTypeChange: PropTypes.func,
+  onLocationChange: PropTypes.func,
   selectedMake: PropTypes.string,
   selectedModel: PropTypes.string,
   selectedBodyType: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
@@ -1493,6 +1605,7 @@ Cardetailsfilter.propTypes = {
   selectedNewUsed: PropTypes.string,
   selectedPriceMin: PropTypes.number,
   selectedPriceMax: PropTypes.number,
+  sortedbydata: PropTypes.string,
 };
 
 export default Cardetailsfilter;

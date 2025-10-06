@@ -16,6 +16,7 @@ import { message } from 'antd';
 import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 import { useNavigate } from 'react-router-dom';
 import Searchemptymodal from '../components/searchemptymodal';
+import Cardetailsfilter from '../components/cardetailsfilter';
 import { useDispatch } from 'react-redux';
 import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
 import {
@@ -77,6 +78,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
+  const [filterVisible, setFilterVisible] = useState(false);
   const locationAsArray = (loc) => {
   if (loc && loc !== CORRECT_DEFAULT_LOCATION) {
     return [loc]; // wrap in array
@@ -99,9 +101,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         limit: 1, // We only need the count, so limit to 1 for efficiency
         ...(newUsed !== DEFAULT_NEW_USED && { condition: newUsed })
       };
-      console.log('Single API call with params:', apiParams);
       const response = await carAPI.getSearchCars(apiParams);
-      console.log('New APi foure')
       const data = handleApiResponse(response);
 
       if (data?.data?.pagination) {
@@ -259,7 +259,6 @@ const resolveDefaultLocation = (locations, geoData) => {
   };
 
   const handleChange = (field, value) => {
-    console.log(`LandingFilters - handleChange called with field: ${field}, value: ${value}`);
     // This function can be used for additional logic if needed
   };
 
@@ -313,9 +312,7 @@ const resolveDefaultLocation = (locations, geoData) => {
 
 
     
-console.log('Add Type5')
       const response = await carAPI.getSearchCars(params);
-      console.log('New APi five')
       const data1 = handleApiResponse(response);
 
       if (data1) {
@@ -478,7 +475,6 @@ console.log('Add Type5')
   id="make-select"
   value={make}
   onChange={(value) => {
-    console.log('LandingFilters - Make selection changed to:', value);
     setMake(value);
     setModel('All Models');
     handleChange('Make', value);
@@ -494,7 +490,6 @@ console.log('Add Type5')
   }
   onClear={() => {
     setMake(CORRECT_DEFAULT_MAKE);
-    console.log('Make cleared');
   }}
 >
   {carMakes.map((m) => (
@@ -526,7 +521,6 @@ console.log('Add Type5')
   }
   onClear={() => {
     setModel(CORRECT_DEFAULT_MODEL);
-    console.log('Model cleared');
   }}
 >
   {carModels?.map((m) => (
@@ -557,7 +551,6 @@ console.log('Add Type5')
   }
   onClear={() => {
     setBodyType(CORRECT_DEFAULT_BODY_TYPE);
-    console.log('Body Type cleared');
   }}
 >
   {carBodyTypes.map((b) => (
@@ -588,7 +581,6 @@ console.log('Add Type5')
   }
   onClear={() => {
     setLocation(CORRECT_DEFAULT_LOCATION);
-    console.log('Location cleared');
   }}
 >
   <Option key="all-locations" value="All Locations">
@@ -602,6 +594,56 @@ console.log('Add Type5')
 </Select>
 
           </div>
+
+          {/* <Cardetailsfilter
+            visible={filterVisible}
+            onClose={() => setFilterVisible(false)}
+            make={make}
+            model={model}
+            bodyType={bodyType}
+            location={location}
+            onMakeChange={(newMake) => {
+              setMake(newMake);
+              setModel(CORRECT_DEFAULT_MODEL);
+            }}
+            onModelChange={(newModel) => {
+              setModel(newModel);
+            }}
+            onBodyTypeChange={(newBodyType) => {
+              if (newBodyType && newBodyType.length > 0) {
+                setBodyType(newBodyType[0]);
+              } else {
+                setBodyType(CORRECT_DEFAULT_BODY_TYPE);
+              }
+            }}
+            onLocationChange={(newLocation) => {
+              if (newLocation && newLocation.length > 0) {
+                setLocation(newLocation[0]);
+              } else {
+                setLocation(CORRECT_DEFAULT_LOCATION);
+              }
+            }}
+            onSearchResults={(searchResults) => {
+              // Handle search results from detailed filter
+              if (searchResults && searchResults.data) {
+                const results = searchResults.data.cars || [];
+                if (results.length === 0) {
+                  setIsModalOpen(true);
+                } 
+              }
+              setFilterVisible(false);
+            }}
+            limit={20}
+            currentPage={1}
+            selectedMake={make}
+            selectedModel={model}
+            selectedBodyType={bodyType}
+            selectedLocation={location}
+            selectedNewUsed={newUsed}
+            selectedPriceMin={minPrice}
+            selectedPriceMax={maxPrice}
+          /> */}
+
           <div className="landing-filters-col landing-filters-btn-col">
             <Button
   type="primary"

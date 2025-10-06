@@ -73,6 +73,7 @@ const API_CONFIG = {
       GET_SAVEDSEARCHES: (page, limit) =>
         `/api/users/saved-searches?page=${page}&limit=${limit}`,
       GET_SUBSCRIPTIONS: '/api/subscriptions/packages',
+      SUBSCRIBE: '/api/subscriptions/subscribe',
       GET_DELETE: '/api/users/delete',
       POST_DEELETE_OTP: '/api/users/delete/otp_verification',
       POST_CHANGE_PHONENUMBER: '/api/users/send-change-phone-otp',

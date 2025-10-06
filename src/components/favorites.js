@@ -141,6 +141,7 @@ const MyFavoritesCars = () => {
           <div className="car-listing-card" key={car.car_id}>
             <Link
               to={`/carDetails/${car.car_id}`}
+              state={{ previousPage: 'Favorites' }}
               style={car.featured ? { cursor: 'pointer' } : {}}
             >
               <div className="car-listing-image-wrapper">
@@ -162,21 +163,23 @@ const MyFavoritesCars = () => {
               </div>
             </Link>
 
-            <div className="car-listing-fav">
+            <div className="car-listing-fav" style={{ backgroundColor: '#008ad5' }}>
               {car.is_favorite ? (
-                <FaHeart
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    removeFavorite(car.car_id);
-                  }}
-                  style={{
-                    backgroundColor: '#ffffff',
-                    color: '#008ad5',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                />
+               <FaRegHeart
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    removeFavorite(car.car_id);
+  }}
+  style={{
+       color: '#ffffff',
+    
+    
+    // padding: '6px',
+    cursor: 'pointer',
+    backgroundColor: 'transparent',
+  }}
+/>
               ) : (
                 <FaRegHeart
                   onClick={(e) => {

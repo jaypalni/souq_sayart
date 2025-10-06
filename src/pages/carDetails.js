@@ -5,10 +5,10 @@
  * via any medium is strictly prohibited unless explicitly authorized.
  */
 
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Button, Avatar, message } from 'antd';
+import { Card, Button, Avatar, message, Tooltip } from 'antd';
 import {
   FaWhatsapp,
   FaPhoneAlt,
@@ -32,6 +32,7 @@ import { useSelector } from 'react-redux';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import CarListing from '../components/carListing';
 import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
+import PlaneBanner from '../components/planeBanner';
 
 // Helpers
 const openWhatsApp = (phoneNumber) => {
@@ -482,14 +483,40 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
     <Card className="seller-info-card">
       <div className="d-flex justify-content-between align-items-center">
         <div>
-         <div className="seller-info-header">
-          <h5 className="mb-0 text-truncate seller-info-title">
-            {carDetails.ad_title}
-          </h5>
+         <div className="seller-info-header" style={{ 
+           display: 'flex', 
+           alignItems: 'center',
+           width: '100%',
+           minWidth: 0 // Important for flexbox truncation
+         }}>
+          <Tooltip 
+            title={carDetails.ad_title} 
+            placement="top"
+            mouseEnterDelay={0.5}
+            mouseLeaveDelay={0.1}
+          >
+            <h5 className="mb-0 seller-info-title" style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: 1,
+              minWidth: 0, // Important for flexbox truncation
+              marginRight: '8px',
+              marginBottom: 0,
+              cursor: 'help'
+            }}>
+              {carDetails.ad_title}
+            </h5>
+          </Tooltip>
 
           <ShareAltOutlined
             className="share-icon"
             onClick={copyToClipboard}
+            style={{
+              flexShrink: 0,
+              cursor: 'pointer',
+              marginLeft: 'auto'
+            }}
           />
          </div>
           <div className="car-price">
@@ -525,9 +552,10 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
             </div>
           </div>
 
-          <div className="mt-2 text-muted seller-info-listed-text">
-            Listed by Private User
-          </div>
+          <div className='mt-2 text-muted seller-info-listed-text'>
+  Listed by {carDetails?.seller?.is_dealer === 'true' ? 'Dealer' : 'Owner'}
+</div>
+
           <div className="d-flex align-items-center gap-2 mt-2">
             <Avatar icon={<UserOutlined />} alt="User Avatar" />
             <div>
@@ -564,18 +592,29 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
         </Button>
 
         {/* Call Button */}
-        <Button
-          icon={<FaPhoneAlt className="call-button-icon" />}
-          className="w-100 no-hover-bg call-button"
-          onClick={() => {
-            messageApi.open({
-              type: 'success',
-              content: carDetails.seller.phone_number,
-            });
-          }}
-        >
-          Call
-        </Button>
+       <Button
+  icon={<FaPhoneAlt className="call-button-icon" />}
+  className="w-100 no-hover-bg call-button"
+  onClick={() => {
+    navigator.clipboard.writeText(carDetails.seller.phone_number)
+      .then(() => {
+        messageApi.open({
+          type: 'success',
+          content: `${carDetails.seller.phone_number} (copied!)`,
+        });
+      })
+      .catch(() => {
+        messageApi.open({
+          type: 'error',
+          content: 'Failed to copy number',
+        });
+      });
+  }}
+>
+  Call
+</Button>
+
+
       </div>
     </Card>
   );
@@ -704,7 +743,11 @@ SimilarCarsSection.propTypes = {
 
 const CarDetails = () => {
   const { id } = useParams();
+  const location = useLocation();
   const BASE_URL = process.env.REACT_APP_API_URL;
+  
+  // Get previous page from location state or default to "All Cars"
+  const previousPage = location.state?.previousPage || 'All Cars';
   
   const { carDetails, loading, messageApi, contextHolder } = useCarDetails(id);
     const { user } = useSelector((state) => state.auth);
@@ -718,9 +761,11 @@ const CarDetails = () => {
 
   const { images, carInfo, additionalDetails } = processCarData(carDetails, BASE_URL);
   return (
-    <div className="container py-4 car-details-page">
-      {contextHolder}
-      <div className="row">
+    <div className="car-details-page">
+      <PlaneBanner carDetails={carDetails} previousPage={previousPage} />
+      <div className="container py-4">
+        {contextHolder}
+        <div className="row">
         <CarDetailsMain 
           carDetails={carDetails} 
           BASE_URL={BASE_URL} 
@@ -738,6 +783,7 @@ const CarDetails = () => {
 
    { user?.id!=  carDetails?.seller?.id &&    <SimilarCarsSection carDetails={carDetails} />
     }
+      </div>
     </div>
   );
 };

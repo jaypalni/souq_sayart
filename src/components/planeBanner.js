@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import { useLocation, Link } from 'react-router-dom';
 import '../assets/styles/banner.css';
 
-const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: propSelectedNewUsed }) => {
+const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: propSelectedNewUsed, carDetails, previousPage }) => {
   const location = useLocation();
   console.log('New Or Used', propSelectedNewUsed)
 
@@ -137,6 +137,60 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
         console.log('New or used', selectedNewUsed)
       }
       
+      // Special handling for car details page
+      if (segment === 'carDetails' && carDetails) {
+        // Create breadcrumb: Home > Previous Page > Make > Model > Listing
+        const make = carDetails.make || 'Car';
+        const model = carDetails.model || '';
+        const year = carDetails.year || '';
+        
+        // Add previous page breadcrumb (default to "All Cars" if not provided)
+        const prevPage = previousPage || 'All Cars';
+        let prevPagePath = '/allcars';
+        
+        if (previousPage === 'My Listings') {
+          prevPagePath = '/myListings';
+        } else if (previousPage === 'Featured Cars') {
+          prevPagePath = '/';
+        } else if (previousPage === 'Recommended Cars') {
+          prevPagePath = '/';
+        } else if (previousPage === 'Favorites') {
+          prevPagePath = '/favorites';
+        }
+        
+        breadcrumbItems.push({
+          label: prevPage,
+          path: prevPagePath,
+          isClickable: true
+        });
+        
+        // Add Make breadcrumb (non-clickable)
+        breadcrumbItems.push({
+          label: make,
+          path: `${prevPagePath}?make=${make}`,
+          isClickable: false
+        });
+        
+        // Add Model breadcrumb (if model exists, non-clickable)
+        if (model) {
+          breadcrumbItems.push({
+            label: model,
+            path: `${prevPagePath}?make=${make}&model=${model}`,
+            isClickable: false
+          });
+        }
+        
+        // Add Listing breadcrumb (current page - not clickable)
+        const listingTitle = year ? `${year} ${make} ${model}` : `${make} ${model}`;
+        breadcrumbItems.push({
+          label: listingTitle || 'Listing',
+          path: currentPath,
+          isClickable: false
+        });
+        
+        return breadcrumbItems; // Return early for car details
+      }
+      
       const isLast = index === pathSegments.length - 1;
       
       breadcrumbItems.push({
@@ -163,8 +217,8 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
           </div>
         </div>
       )}
-      <div className="plane-banner-main">
-        <div className="breadcrumb-container">
+      <div className={`plane-banner-main ${location.pathname.includes('/carDetails') ? 'car-details-banner' : ''}`}>
+        <div className={`breadcrumb-container ${location.pathname.includes('/carDetails') ? 'car-details-breadcrumb' : ''}`}>
           {breadcrumbItems.map((item, index) => (
             <React.Fragment key={`${item.path}-${index}`}>
               {item.isClickable ? (
@@ -198,6 +252,13 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
 
 PlaneBanner.propTypes = {
   selectedLocation: PropTypes.string,
+  selectedNewUsed: PropTypes.string,
+  carDetails: PropTypes.shape({
+    make: PropTypes.string,
+    model: PropTypes.string,
+    year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
+  previousPage: PropTypes.string,
 };
 
 export default PlaneBanner;

@@ -1058,6 +1058,30 @@ setIsnetworkError(false)
                 setLocation(DEFAULTS.ALL_LOCATIONS);
               }
             }}
+            onFilterChange={(filterData) => {
+              // Update main filter values when changed in modal
+              if (filterData.make) {
+                setMake(filterData.make);
+              }
+              if (filterData.model) {
+                setModel(filterData.model);
+              }
+              if (filterData.bodyType && filterData.bodyType.length > 0) {
+                setBodyType(filterData.bodyType[0]);
+              }
+              if (filterData.location && filterData.location.length > 0) {
+                setLocation(filterData.location[0]);
+              }
+              if (filterData.newUsed) {
+                setNewUsed(filterData.newUsed);
+              }
+              if (filterData.priceMin) {
+                setMinPrice(filterData.priceMin);
+              }
+              if (filterData.priceMax) {
+                setMaxPrice(filterData.priceMax);
+              }
+            }}
             onSearchResults={(searchResults) => {
               // Null checks for search results
               if (!searchResults || !searchResults.data) {

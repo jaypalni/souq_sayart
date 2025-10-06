@@ -26,6 +26,7 @@ const STATUS = {
 const FILTER = {
   BASE: 'Base',
   SPORT: 'Sport',
+  REJECT: 'Reject',
 };
 
 const renderPaginationItem = (page, type, originalElement) => {
@@ -127,6 +128,8 @@ const fetchCars = async () => {
         filterParam = 'pending';
       } else if (filterStatus === FILTER.SPORT) {
         filterParam = 'approved';
+      } else if (filterStatus === FILTER.REJECT) {
+        filterParam = 'rejected';
       } else {
         filterParam = 'all'; // Default to 'all'
       }
@@ -258,6 +261,7 @@ const fetchCars = async () => {
             <Option value="Any">All</Option>
             <Option value="Base">Pending Approval</Option>
             <Option value="Sport">Approved</Option>
+            <Option value="Reject">Rejected</Option>
           </Select>
         )}
       </div>
@@ -303,18 +307,37 @@ const fetchCars = async () => {
          if (carDetails.length === 0) {
   return (
     <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        textAlign: 'center',
-      }}
-    >
-      <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
-        No listings posted.
-      </p>
-    </div>
+  style={{
+    display: 'flex',
+    flexDirection: 'column', // ✅ Stack vertically
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    textAlign: 'center',
+    gap: '12px', // ✅ Adds spacing between text & button
+  }}
+>
+  <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
+    No listings posted.
+  </p>
+
+  <Button
+    type="primary"
+    style={{
+      backgroundColor: '#008AD5',
+      borderColor: '#008AD5',
+      color: 'white',
+      fontSize: '16px',
+      fontWeight: 600,
+      padding: '6px 20px',
+      borderRadius: '6px',
+    }}
+    onClick={() => navigate('/sell')} // ✅ Update route if needed
+  >
+    Create a New Listing
+  </Button>
+</div>
+
   );
 }
 

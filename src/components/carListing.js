@@ -160,6 +160,7 @@ const CarListing = ({ title, cardata }) => {
           <div className="car-listing-card" key={car.car_id}>
             <Link
               to={`/carDetails/${car.car_id}`}
+              state={{ previousPage: title === 'Featured Car' ? 'Featured Cars' : title === 'Recommended Cars' ? 'Recommended Cars' : 'All Cars' }}
               style={car.featured ? { cursor: 'pointer' } : {}}
             >
               <div className="car-listing-image-wrapper">

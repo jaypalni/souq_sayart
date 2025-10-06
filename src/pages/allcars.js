@@ -296,7 +296,7 @@ const Removefavcarapi = async (carId) => {
     return carsToDisplay.map((car) => {
       return (
         <div className="col-3 col-lg-3 col-xl-3  col-md-6 col-sm-6 p-0" key={car.id || `${car.ad_title}-${car.price}`}>
-          <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`}>
+          <Link className="allcars-listing-card" to={`/carDetails/${car.car_id}`} state={{ previousPage: 'All Cars' }}>
             <div className="car-listing-image-wrapper">
               <img
                 src={`${BASE_URL}${car.car_image}`}

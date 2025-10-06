@@ -213,6 +213,25 @@ if (loading) {
   // Number of seats
   search.search_params.number_of_seats &&
     `Number of seats: ${search.search_params.number_of_seats}`,
+
+     // Fuel types (array)
+    search.search_params.fuel_types && search.search_params.fuel_types.length > 0 &&
+      `Fuel: ${search.search_params.fuel_types.join(', ')}`,
+
+    // Transmissions (array)
+    search.search_params.transmissions && search.search_params.transmissions.length > 0 &&
+      `Transmission: ${search.search_params.transmissions.join(', ')}`,
+
+    // Regional specs (array)
+    search.search_params.regional_specs_list && search.search_params.regional_specs_list.length > 0 &&
+      `Regional Specs: ${search.search_params.regional_specs_list.join(', ')}`,
+
+    // Colors (array)
+    search.search_params.colors && search.search_params.colors.length > 0 &&
+      `Color: ${search.search_params.colors.join(', ')}`,
+
+    // Owner type
+    search.search_params.seller_type && `Owner Type: ${search.search_params.seller_type}`,
 ]
   .filter(Boolean) 
   .join(' • ')}    

@@ -26,6 +26,7 @@ const STATUS = {
 const FILTER = {
   BASE: 'Base',
   SPORT: 'Sport',
+  REJECT: 'Reject',
 };
 
 const renderPaginationItem = (page, type, originalElement) => {
@@ -127,6 +128,8 @@ const fetchCars = async () => {
         filterParam = 'pending';
       } else if (filterStatus === FILTER.SPORT) {
         filterParam = 'approved';
+      } else if (filterStatus === FILTER.REJECT) {
+        filterParam = 'rejected';
       } else {
         filterParam = 'all'; // Default to 'all'
       }
@@ -258,6 +261,7 @@ const fetchCars = async () => {
             <Option value="Any">All</Option>
             <Option value="Base">Pending Approval</Option>
             <Option value="Sport">Approved</Option>
+            <Option value="Reject">Rejected</Option>
           </Select>
         )}
       </div>

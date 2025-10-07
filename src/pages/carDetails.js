@@ -489,7 +489,9 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
            width: '100%',
            minWidth: 0 // Important for flexbox truncation
          }}>
-          <Tooltip 
+          <div className='row'>
+            <div className='col-10'>
+   <Tooltip 
             title={carDetails.ad_title} 
             placement="top"
             mouseEnterDelay={0.5}
@@ -508,8 +510,9 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
               {carDetails.ad_title}
             </h5>
           </Tooltip>
-
-          <ShareAltOutlined
+            </div>
+             <div className='col-2'>
+               <ShareAltOutlined
             className="share-icon"
             onClick={copyToClipboard}
             style={{
@@ -518,6 +521,11 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi 
               marginLeft: 'auto'
             }}
           />
+            </div>
+          </div>
+       
+
+         
          </div>
           <div className="car-price">
             {'IQD ' + Number(carDetails.price).toLocaleString()}

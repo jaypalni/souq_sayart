@@ -321,21 +321,24 @@ const fetchCars = async () => {
     No listings posted.
   </p>
 
-  <Button
-    type="primary"
-    style={{
-      backgroundColor: '#008AD5',
-      borderColor: '#008AD5',
-      color: 'white',
-      fontSize: '16px',
-      fontWeight: 600,
-      padding: '6px 20px',
-      borderRadius: '6px',
-    }}
-    onClick={() => navigate('/sell')} // ✅ Update route if needed
-  >
-    Create a New Listing
-  </Button>
+ {/* Show Create Button only for Active & Drafts */}
+      {(value === STATUS.ACTIVE || value === STATUS.DRAFTS) && (
+        <Button
+          type='primary'
+          style={{
+            backgroundColor: '#008AD5',
+            borderColor: '#008AD5',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: 600,
+            padding: '6px 20px',
+            borderRadius: '6px',
+          }}
+          onClick={() => navigate('/sell')}
+        >
+          Create a New Listing
+        </Button>
+      )}
 </div>
 
   );

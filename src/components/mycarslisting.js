@@ -354,6 +354,7 @@ const fetchCars = async () => {
                   filterStatus={filterStatus}
                   handleDelete={() => openDeleteModal(car.id)}
                   navigate={navigate}
+                  onRefresh={fetchCars}
                 />
               ))}
             </div>

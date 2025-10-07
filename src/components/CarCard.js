@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tag, Dropdown, Menu, Modal } from 'antd';
+import { Button, Tag, Dropdown, Menu, Modal, message } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { COLORS } from '../utils/constants';
 import boost_icon from '../assets/images/boost_icon.svg';
@@ -9,14 +9,18 @@ import { PiChatDotsLight } from 'react-icons/pi';
 import { FaRegHeart } from 'react-icons/fa';
 import { LuEye } from 'react-icons/lu';
 import '../assets/styles/mycarslisting.css';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 const STATUS_ACTIVE = 'Active';
 const STATUS_SOLD = 'Sold';
 
-const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
+const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }) => {
   const [activeDropdownId, setActiveDropdownId] = useState(null);
   const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
+  const [messageApi, contextHolder] = message.useMessage();
 
   const getTagProps = () => {
     const mapping = {
@@ -38,7 +42,10 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
   // ✅ Status label logic
   let displayLabel = { label: '', isVisible: true, bg: '', color: '' };
 
-  if (car.approval?.toLowerCase() === 'pending') {
+  // If in Sold tab, show "Sold" status
+  if (value === STATUS_SOLD) {
+    displayLabel = { label: 'Sold', isVisible: true, bg: '#D5F0FF', color: '#008AD5' };
+  } else if (car.approval?.toLowerCase() === 'pending') {
     if (car.draft === 1) {
       displayLabel = { label: '', isVisible: false, bg: '', color: '' };
     } else {
@@ -63,10 +70,40 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
     navigate(`/carDetails/${car.id}`, { state: { previousPage: 'My Listings' } });
   };
 
+  const handlemarkassoldMethod = async (carId) => {
+  try {
+    setLoading(true);
+    const response = await carAPI.markassold(carId);
+    const cardetail = handleApiResponse(response);
+    if (cardetail.status_code === 200) {
+       messageApi.open({
+          type: 'success',
+          content: cardetail?.message || 'Car Sold successfully',
+        });
+       // Reload the data after successful mark as sold
+       if (onRefresh) {
+         setTimeout(() => {
+           onRefresh();
+         }, 500);
+       }
+    } else {
+      message.error(cardetail.message || 'Failed to mark as sold');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to mark car as sold');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
   return (
     <>
       {/* 🚘 Car Card */}
       <div className="car-card">
+        {contextHolder}
         <div className="car-card-content clickable-area" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
           <img src={imageSrc} alt="car" className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`} />
           <div className="car-card-details">
@@ -99,13 +136,18 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
                         Edit Listing
                       </Menu.Item>
 
-                      <Menu.Item
-                        key="sold"
-                        onClick={(e) => e.domEvent.stopPropagation()}
-                        style={{ color: '#0A0A0B', fontSize: '16px', fontWeight: '500' }}
-                      >
-                        Mark As Sold
-                      </Menu.Item>
+                     <Menu.Item
+  key="sold"
+  onClick={(e) => {
+    e.domEvent.stopPropagation();
+    handlemarkassoldMethod(car.id) // ✅ correct inside Menu.Item
+  }}
+  style={{ color: '#0A0A0B', fontSize: '16px', fontWeight: '500' }}
+>
+  Mark As Sold
+</Menu.Item>
+
+
                     </Menu>
                   }
                   trigger={['click']}
@@ -159,7 +201,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate }) => {
             )}
 
             {/* ✅ Boost Button */}
-            {car.approval?.toLowerCase() === 'approved' && (
+            {car.approval?.toLowerCase() === 'approved' && value !== STATUS_SOLD && (
               <div
                 className="car-card-boost"
                 onClick={(e) => e.stopPropagation()}
@@ -254,6 +296,7 @@ CarCard.propTypes = {
   filterStatus: PropTypes.string.isRequired,
   handleDelete: PropTypes.func.isRequired,
   navigate: PropTypes.func.isRequired,
+  onRefresh: PropTypes.func,
 };
 
 export default CarCard;

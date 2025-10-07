@@ -30,6 +30,7 @@ const API_CONFIG = {
       SAVE_DRAFT: '/api/cars/draft',
       UPDATE: (id) => `/api/cars/update/${id}`,
       DELETE: (id) => `/api/cars/delete/${id}`,
+      MARKASSOLD: (id) => `/api/cars/${id}/mark-as-sold`,
       UPLOAD_IMAGES: '/cars/upload-images',
       GET_CAR_OPTIONS: '/cars/options',
       GET_CAR_FEATURES: '/api/cars/featured',

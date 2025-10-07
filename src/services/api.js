@@ -246,6 +246,7 @@ getMylistingCars: (type, filter, page) =>
   saveDraftCar: () => api.post(API_CONFIG.ENDPOINTS.CARS.SAVE_DRAFT),
   updateCar: (id, data) => api.post(API_CONFIG.ENDPOINTS.CARS.UPDATE(id), data),
   deleteCar: (id) => api.delete(API_CONFIG.ENDPOINTS.CARS.DELETE(id)),
+  markassold: (id) => api.post(API_CONFIG.ENDPOINTS.CARS.MARKASSOLD(id)),
   uploadOptionDetails: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.UPLOAD_OPTION_DETAILS),
   trimDetails: (make, modalName, yearData) =>

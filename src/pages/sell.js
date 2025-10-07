@@ -40,9 +40,7 @@ import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
 import EmojiPicker from 'emoji-picker-react';
-// const { TextArea } = Input;
 const { Option } = Select;
-// const MAX_LEN = 1000;
 
 const ExteriorColorInput = ({
   selectedColor,
@@ -270,7 +268,6 @@ const Sell = () => {
   const [,setAddData] = useState();
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
-  // const [desc, setDesc] = useState(form.getFieldValue('description') || '');
   const [description, setDescription] = useState(form.getFieldValue('description') || '');
   const [showPicker, setShowPicker] = useState(false);
   const MAX_LEN = 1000;
@@ -3101,7 +3098,6 @@ const handleImageUpload = async (images) => {
                     Update Car
                   </Button>
                 ) : (
-                  // Create mode - show original buttons
                   <>
                     <Button
                       size='small'

@@ -599,55 +599,6 @@ const resolveDefaultLocation = (locations, geoData) => {
 
           </div>
 
-          {/* <Cardetailsfilter
-            visible={filterVisible}
-            onClose={() => setFilterVisible(false)}
-            make={make}
-            model={model}
-            bodyType={bodyType}
-            location={location}
-            onMakeChange={(newMake) => {
-              setMake(newMake);
-              setModel(CORRECT_DEFAULT_MODEL);
-            }}
-            onModelChange={(newModel) => {
-              setModel(newModel);
-            }}
-            onBodyTypeChange={(newBodyType) => {
-              if (newBodyType && newBodyType.length > 0) {
-                setBodyType(newBodyType[0]);
-              } else {
-                setBodyType(CORRECT_DEFAULT_BODY_TYPE);
-              }
-            }}
-            onLocationChange={(newLocation) => {
-              if (newLocation && newLocation.length > 0) {
-                setLocation(newLocation[0]);
-              } else {
-                setLocation(CORRECT_DEFAULT_LOCATION);
-              }
-            }}
-            onSearchResults={(searchResults) => {
-              // Handle search results from detailed filter
-              if (searchResults && searchResults.data) {
-                const results = searchResults.data.cars || [];
-                if (results.length === 0) {
-                  setIsModalOpen(true);
-                } 
-              }
-              setFilterVisible(false);
-            }}
-            limit={20}
-            currentPage={1}
-            selectedMake={make}
-            selectedModel={model}
-            selectedBodyType={bodyType}
-            selectedLocation={location}
-            selectedNewUsed={newUsed}
-            selectedPriceMin={minPrice}
-            selectedPriceMax={maxPrice}
-          /> */}
-
           <div className="landing-filters-col landing-filters-btn-col">
             <Button
   type="primary"

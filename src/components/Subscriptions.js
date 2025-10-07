@@ -51,6 +51,111 @@ const mapPlanData = (items) =>
     is_subscribed: item.is_subscribed || 0,
   }));
 
+// Helper function to map package details - extracted to reduce component complexity
+const mapPackageDetailsData = (data, prevPlan) => ({
+  ...prevPlan,
+  ...data,
+  id: data.id || prevPlan.id,
+  title: data.name || data.title || prevPlan.title,
+  price: parseFloat(data.price) || prevPlan.price,
+  duration: `${data.duration_days || data.duration} Days`,
+  details: {
+    price: `IQD ${data.price}`,
+    priceModel: data.price_model || 'Per Car',
+    postsAllowed: data.listing_limit || data.posts_allowed,
+    photosAllowed: data.photo_limit || data.photos_allowed || 10,
+    videosAllowed: data.video_limit || data.videos_allowed || '-',
+    postDuration: `${data.duration_days || data.duration} Days`,
+    featured: data.featured || '-',
+    banner: data.banner || '-',
+    analytics: data.analytics || '-',
+    additionalCar: data.additional_car || '-',
+    emailNewsletter: data.email_newsletter || '-',
+    sponsoredContent: data.sponsored_content || '-',
+  },
+  highlight: data.highlight || false,
+  current: data.current || false,
+  is_subscribed: data.is_subscribed || 0,
+});
+
+// Cancel confirmation step component - extracted to reduce component complexity
+const CancelConfirmStepComponent = ({ onNo, onYes }) => (
+  <>
+    <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 24 }}>
+      Are You Sure You Want To Cancel This Subscription?
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+      <Button onClick={onNo} style={{ width: 100 }}>No</Button>
+      <Button type="primary" danger style={{ width: 100 }} onClick={onYes}>Yes</Button>
+    </div>
+  </>
+);
+
+// Phone number step component - extracted to reduce component complexity
+const PhoneNumberStepComponent = ({ phone, onPhoneChange, onContinue }) => (
+  <>
+    <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
+      Enter Number To Cancel Subscriptions
+    </div>
+    <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
+      Enter Your New Phone Number to change
+    </div>
+    <Input
+      addonBefore={<span style={{ fontWeight: 600 }}>+961</span>}
+      placeholder="71 000 000"
+      value={phone}
+      onChange={onPhoneChange}
+      style={{ marginBottom: 16, width: '100%' }}
+      maxLength={8}
+    />
+    <Button type="primary" style={{ width: '100%' }} onClick={onContinue}>
+      Continue
+    </Button>
+  </>
+);
+
+// OTP step component - extracted to reduce component complexity
+const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => (
+  <>
+    <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
+      Enter OTP Sent To Cancel Subscriptions
+    </div>
+    <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
+      Enter Your New Phone Number to change
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+      {otp.map((digit, idx) => (
+        <Input
+          key={idx}
+          value={digit}
+          onChange={(e) => onOtpChange(e, idx)}
+          id={`otp-input-${idx}`}
+          style={{ width: 40, height: 40, textAlign: 'center', fontSize: 20 }}
+          maxLength={1}
+        />
+      ))}
+    </div>
+    <div style={{ textAlign: 'center', marginBottom: 16, color: '#039be5' }}>
+      Resend in {otpTimer}s
+    </div>
+    <Button type="primary" style={{ width: '100%' }} onClick={onContinue}>
+      Continue
+    </Button>
+  </>
+);
+
+// Done step component - extracted to reduce component complexity
+const DoneStepComponent = ({ onDone }) => (
+  <>
+    <div style={{ fontWeight: 600, fontSize: 20, textAlign: 'center', marginBottom: 24 }}>
+      Subscription Cancelled
+    </div>
+    <Button type="primary" style={{ width: '100%' }} onClick={onDone}>
+      Done
+    </Button>
+  </>
+);
+
 const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading }) => (
   <div className="subscription-details-main">
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
@@ -148,33 +253,6 @@ const Subscriptions = () => {
     }
   };
 
-  // Helper function to map package details
-  const mapPackageDetails = (data, prevPlan) => ({
-    ...prevPlan,
-    ...data,
-    id: data.id || prevPlan.id,
-    title: data.name || data.title || prevPlan.title,
-    price: parseFloat(data.price) || prevPlan.price,
-    duration: `${data.duration_days || data.duration} Days`,
-    details: {
-      price: `IQD ${data.price}`,
-      priceModel: data.price_model || 'Per Car',
-      postsAllowed: data.listing_limit || data.posts_allowed,
-      photosAllowed: data.photo_limit || data.photos_allowed || 10,
-      videosAllowed: data.video_limit || data.videos_allowed || '-',
-      postDuration: `${data.duration_days || data.duration} Days`,
-      featured: data.featured || '-',
-      banner: data.banner || '-',
-      analytics: data.analytics || '-',
-      additionalCar: data.additional_car || '-',
-      emailNewsletter: data.email_newsletter || '-',
-      sponsoredContent: data.sponsored_content || '-',
-    },
-    highlight: data.highlight || false,
-    current: data.current || false,
-    is_subscribed: data.is_subscribed || 0,
-  });
-
   // Fetch package details when a card is selected
   const fetchPackageDetails = async (packageId) => {
     try {
@@ -183,7 +261,7 @@ const Subscriptions = () => {
       const result = handleApiResponse(response);
       
       if (result.success) {
-        setSelectedPlan(prevPlan => mapPackageDetails(result.data, prevPlan));
+        setSelectedPlan(prevPlan => mapPackageDetailsData(result.data, prevPlan));
       } else {
         messageApi.error(result.message || 'Failed to fetch package details.');
       }
@@ -217,102 +295,22 @@ const Subscriptions = () => {
     }
   };
 
-  // Helper: Render confirm cancel step
-  const renderConfirmStep = () => (
-    <>
-      <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 24 }}>
-        Are You Sure You Want To Cancel This Subscription?
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-        <Button onClick={() => setCancelStep(null)} style={{ width: 100 }}>No</Button>
-        <Button type="primary" danger style={{ width: 100 }} onClick={() => setCancelStep('number')}>Yes</Button>
-      </div>
-    </>
-  );
+  // Helper: Handle cancel done
+  const handleCancelDone = () => {
+    setCancelStep(null);
+    setSelectedPlan(null);
+  };
 
-  // Helper: Render phone number step
-  const renderPhoneStep = () => (
-    <>
-      <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
-        Enter Number To Cancel Subscriptions
-      </div>
-      <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
-        Enter Your New Phone Number to change
-      </div>
-      <Input
-        addonBefore={<span style={{ fontWeight: 600 }}>+961</span>}
-        placeholder="71 000 000"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        style={{ marginBottom: 16, width: '100%' }}
-        maxLength={8}
-      />
-      <Button type="primary" style={{ width: '100%' }} onClick={() => setCancelStep('otp')}>
-        Continue
-      </Button>
-    </>
-  );
-
-  // Helper: Render OTP step
-  const renderOtpStep = () => (
-    <>
-      <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
-        Enter OTP Sent To Cancel Subscriptions
-      </div>
-      <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
-        Enter Your New Phone Number to change
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
-        {otp.map((digit, idx) => (
-          <Input
-            key={idx}
-            value={digit}
-            onChange={(e) => handleOtpInputChange(e, idx)}
-            id={`otp-input-${idx}`}
-            style={{ width: 40, height: 40, textAlign: 'center', fontSize: 20 }}
-            maxLength={1}
-          />
-        ))}
-      </div>
-      <div style={{ textAlign: 'center', marginBottom: 16, color: '#039be5' }}>
-        Resend in {otpTimer}s
-      </div>
-      <Button type="primary" style={{ width: '100%' }} onClick={() => setCancelStep('done')}>
-        Continue
-      </Button>
-    </>
-  );
-
-  // Helper: Render done step
-  const renderDoneStep = () => (
-    <>
-      <div style={{ fontWeight: 600, fontSize: 20, textAlign: 'center', marginBottom: 24 }}>
-        Subscription Cancelled
-      </div>
-      <Button
-        type="primary"
-        style={{ width: '100%' }}
-        onClick={() => {
-          setCancelStep(null);
-          setSelectedPlan(null);
-        }}
-      >
-        Done
-      </Button>
-    </>
-  );
-
-  // Modal content for cancel flow - simplified with lookup
+  // Modal content for cancel flow - using extracted components
   const renderCancelModal = () => {
     const modalSteps = {
-      confirm: renderConfirmStep,
-      number: renderPhoneStep,
-      otp: renderOtpStep,
-      done: renderDoneStep,
+      confirm: <CancelConfirmStepComponent onNo={() => setCancelStep(null)} onYes={() => setCancelStep('number')} />,
+      number: <PhoneNumberStepComponent phone={phone} onPhoneChange={(e) => setPhone(e.target.value)} onContinue={() => setCancelStep('otp')} />,
+      otp: <OtpStepComponent otp={otp} onOtpChange={handleOtpInputChange} otpTimer={otpTimer} onContinue={() => setCancelStep('done')} />,
+      done: <DoneStepComponent onDone={handleCancelDone} />,
     };
     
-    const renderFunction = modalSteps[cancelStep];
-    return renderFunction ? renderFunction() : null;
+    return modalSteps[cancelStep] || null;
   };
 
   // API CALL

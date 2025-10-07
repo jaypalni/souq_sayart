@@ -317,13 +317,22 @@ const getInitialMaxPrice = () => {
     }
   };
 
+  // Helper function to handle body_types parameter consistently (returns array like locations)
+  const getBodyTypesParam = (currentBodyType) => {
+    // Always return an array
+    if (currentBodyType && currentBodyType !== '' && currentBodyType !== DEFAULTS.ALL_BODY_TYPES) {
+      return [currentBodyType];
+    }
+    return [];
+  };
+
   // Auto-search function without type parameter (for after clearing)
   const autoSearchForCountWithoutType = async () => {
     try {
       const apiParams = {
         make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
         model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
-        body_type: valueOrEmpty(bodyType, DEFAULTS.ALL_BODY_TYPES),
+        body_types: getBodyTypesParam(bodyType),
         locations: getLocationsParam(location),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
@@ -352,7 +361,7 @@ const getInitialMaxPrice = () => {
       const apiParams = {
         make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
         model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
-        body_type: valueOrEmpty(bodyType, DEFAULTS.ALL_BODY_TYPES),
+        body_types: getBodyTypesParam(bodyType),
         locations: getLocationsParam(location),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
@@ -539,6 +548,7 @@ fetchRegionCars()
     }
   }, [propSelectedNewUsed]);
 
+
   useEffect(() => {
     if (propSelectedPriceMin !== null && propSelectedPriceMin !== undefined && propSelectedPriceMin !== minPrice) {
       setMinPrice(propSelectedPriceMin);
@@ -703,7 +713,7 @@ fetchRegionCars()
   const buildSaveParams = (sortConfig) => ({
     make: make === DEFAULTS.ALL_MAKE ? '' : make,
     model: model === DEFAULTS.ALL_MODELS ? '' : model,
-    body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+    body_types: getBodyTypesParam(bodyType),
     locations: getLocationsParam(location),
     condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
     priceMin,
@@ -722,7 +732,7 @@ fetchRegionCars()
     const apiParams = {
       make: make === DEFAULTS.ALL_MAKE ? '' : make,
       model: model === DEFAULTS.ALL_MODELS ? '' : model,
-      body_type: bodyType === DEFAULTS.ALL_BODY_TYPES ? '' : bodyType,
+      body_types: getBodyTypesParam(bodyType),
       locations: getLocationsParam(location),
       price_min: cleanedMin,
       price_max: cleanedMax,
@@ -1057,6 +1067,19 @@ setIsnetworkError(false)
               } else {
                 setLocation(DEFAULTS.ALL_LOCATIONS);
               }
+            }}
+            onConditionChange={(newCondition) => {
+              setNewUsed(newCondition);
+            }}
+            onResetFilters={() => {
+              // Reset all filter values in allcarfilters
+              setMake(DEFAULTS.ALL_MAKE);
+              setModel(DEFAULTS.ALL_MODELS);
+              setBodyType(DEFAULTS.ALL_BODY_TYPES);
+              setLocation(DEFAULTS.ALL_LOCATIONS);
+              setNewUsed(DEFAULTS.NEW_USED);
+              setMinPrice(null);
+              setMaxPrice(null);
             }}
             onFilterChange={(filterData) => {
               // Update main filter values when changed in modal

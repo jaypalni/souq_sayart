@@ -319,13 +319,14 @@ const Sell = () => {
   const [selectedInterior, setSelectedInterior] = useState([]);
   const { state } = useLocation();
   const extras = state?.extras ?? [];
-  console.log('Extras from state:', extras);
   const populatedRef = useRef(false);
   const { TextArea } = Input;
   const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState('create'); // 'create' or 'draft'
    const pickerRef = useRef(null);
   const [carId, setCarId] = useState('');
   const autoSaveIntervalRef = useRef(null);
+  const lastSavedDataRef = useRef(null); // Track last saved data to detect changes
 
 
 const handleAddNew = () => {
@@ -373,6 +374,9 @@ const handleAddNew = () => {
 
   // Reset car_id for new car
   setCarId('');
+  
+  // Reset last saved data ref
+  lastSavedDataRef.current = null;
 
   // Finally close the modal
   setShowModal(false);
@@ -415,15 +419,11 @@ const handleAddNew = () => {
 
  // Helper function to validate and extract data
 const validateAndExtractData = (extras) => {
-  console.log('validateAndExtractData - Input extras:', extras);
   if (!extras || (Array.isArray(extras) && extras.length === 0)) {
-    console.log('validateAndExtractData - No valid extras data found');
     return null;
   }
   const data = Array.isArray(extras) ? extras[0] : extras;
-  console.log('validateAndExtractData - Extracted data:', data);
   if (!data || typeof data !== 'object') {
-    console.log('validateAndExtractData - Data is not a valid object');
     return null;
   }
   return data;
@@ -466,13 +466,10 @@ const buildFormValues = (data) => ({
   doors: data.number_of_doors ?? data.no_of_doors ?? '',
   seats: data.number_of_seats ?? data.no_of_seats ?? '',
   extraFeatures: (() => {
-    console.log('buildFormValues - Processing extraFeatures from data:', data.extra_features);
     if (Array.isArray(data.extra_features)) {
-      console.log('buildFormValues - extraFeatures is array:', data.extra_features);
       return data.extra_features;
     }
     const result = data.extra_features ? [data.extra_features] : [];
-    console.log('buildFormValues - extraFeatures converted to array:', result);
     return result;
   })(),
   badges: (() => {
@@ -615,14 +612,11 @@ const setDetailedVehicleState = (data, setters) => {
 
 // Main effect function
 useEffect(() => {
-  console.log('useEffect - Processing extras:', extras);
   const data = validateAndExtractData(extras);
   if (!data) {
-    console.log('useEffect - No data extracted, setting populatedRef to false');
     populatedRef.current = false;
     return;
   }
-  console.log('useEffect - Data extracted successfully:', data);
   
   if (populatedRef.current) return;
 
@@ -633,8 +627,6 @@ useEffect(() => {
   
   // Set form values
   const formValues = buildFormValues(data);
-  console.log('useEffect - Built form values:', formValues);
-  console.log('useEffect - Extra features in form values:', formValues.extraFeatures);
   form.setFieldsValue(formValues);
   
   // Set ad title state from extras data
@@ -806,6 +798,43 @@ const handlePaste = (e) => {
 
   // Auto-save functionality - runs every 20 seconds
   useEffect(() => {
+    // Helper function to build current form data snapshot for comparison
+    const buildFormDataSnapshot = (values) => {
+      return JSON.stringify({
+        adTitle: values.adTitle || '',
+        description: values.description || '',
+        make: make || '',
+        model: selectedModel || modalName || '',
+        year: selectedYear || '',
+        price: values.price || '',
+        kilometers: values.kilometers || '',
+        exteriorColor: selectedColor || '',
+        interiorColor: selectedInteriorColor || '',
+        trim: selectedTrim || '',
+        condition: values.condition || '',
+        bodyType: values.bodyType || '',
+        vehicletype: values.vehicletype || '',
+        region: selectedRegion || '',
+        regionalSpecs: selectedRegionalSpecs || '',
+        seats: values.seats || '',
+        doors: values.doors || '',
+        fuelType: values.fuelType || '',
+        transmissionType: values.transmissionType || '',
+        driveType: values.driveType || '',
+        cylinders: values.cylinders || '',
+        engineCC: values.engineCC || '',
+        consumption: values.consumption || '',
+        horsepower: values.horsepower || '',
+        interior: values.interior || '',
+        accidentHistory: values.accidentHistory || '',
+        warrantyDate: values.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '',
+        extraFeatures: JSON.stringify(values.extraFeatures || []),
+        badges: JSON.stringify(values.badges || []),
+        mediaCount: values.media?.length || 0,
+        mediaUrls: values.media?.filter(f => !f.originFileObj && f.url).map(f => f.url).sort().join(',') || '',
+      });
+    };
+
     const startAutoSave = () => {
       // Clear any existing interval
       if (autoSaveIntervalRef.current) {
@@ -850,15 +879,27 @@ const handlePaste = (e) => {
             (values.media && values.media.length > 0);
           
           if (hasApiData) {
-            console.log('Auto-saving draft...');
+            // Build current form data snapshot
+            const currentDataSnapshot = buildFormDataSnapshot(values);
             
+            console.log('Auto-save check - Last saved:', lastSavedDataRef.current ? 'exists' : 'null');
+            console.log('Auto-save check - Current data:', currentDataSnapshot ? 'exists' : 'null');
+            
+            // Compare with last saved data
+            if (lastSavedDataRef.current === currentDataSnapshot) {
+              // No changes detected, skip API call
+              console.log('Auto-save SKIPPED - No changes detected');
+              return;
+            }
+            
+            console.log('Auto-save PROCEEDING - Changes detected');
+            // Data has changed, proceed with auto-save
             // Separate new uploads from existing server images
             const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
             const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
             
             // If there are new images, upload them first
             if (newImages.length > 0) {
-              console.log('Uploading new images for auto-save...');
               try {
                 const formData = new FormData();
                 // Send images as a single array
@@ -874,12 +915,10 @@ const handlePaste = (e) => {
                   const allImages = [...existingImages, ...uploadResult.attachment_url];
                   await handleCreateCar(allImages, true, values, true);
                 } else {
-                  console.error('Image upload failed for auto-save:', uploadResult.message);
                   // Still call createCar with existing images only
                   await handleCreateCar(existingImages, true, values, true);
                 }
               } catch (uploadError) {
-                console.error('Image upload error for auto-save:', uploadError);
                 // Still call createCar with existing images only
                 await handleCreateCar(existingImages, true, values, true);
               }
@@ -887,9 +926,12 @@ const handlePaste = (e) => {
               // No new images, call createCar directly with existing images
               await handleCreateCar(existingImages, true, values, true);
             }
+            
+            // Update last saved data snapshot after successful auto-save
+            lastSavedDataRef.current = currentDataSnapshot;
           }
         } catch (error) {
-          console.error('Auto-save failed:', error);
+          // Silent error handling for auto-save
         }
       }, 20000); // 20 seconds
     };
@@ -1051,12 +1093,12 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
   try {
     const response = await carAPI.postuploadcarimages(formData, 'car');
     const userdoc = handleApiResponse(response);
-
     if (userdoc?.attachment_url?.length > 0) {
-
+      const messageContent = userdoc.message || 'All images uploaded successfully';
+      console.log('Message:', messageContent);
       messageApi.open({
         type: 'success',
-        content: userdoc.message || 'All images uploaded successfully',
+        content: messageContent,
       });
 
       // Pass valuesParam to avoid re-validating in handlePostData if provided
@@ -1069,9 +1111,11 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     }
   } catch (error) {
     const errorData = handleApiError(error);
+    const messageContent = errorData.message || 'Upload failed';
+    console.log('Message:', messageContent);
     messageApi.open({
       type: 'error',
-      content: errorData.message || 'Upload failed',
+      content: messageContent,
     });
     return Upload.LIST_IGNORE;
   }
@@ -1119,7 +1163,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     formData.append('trim', selectedTrim || '');
     formData.append('regional_specs', selectedRegionalSpecs || '');
     formData.append('badges', values?.badges || '');
-    formData.append('warranty_date', values?.warrantyDate || '');
+    formData.append('warranty_date', values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '');
     formData.append('accident_history', values?.accidentHistory || '');
     formData.append('number_of_seats', values?.seats || '');
     formData.append('number_of_doors', values?.doors || '');
@@ -1133,10 +1177,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     
     // Append arrays as JSON strings
     if (values?.extraFeatures && values.extraFeatures.length > 0) {
-      console.log('handlePostData - Extra features being sent:', values.extraFeatures);
       formData.append('extra_features', JSON.stringify(values.extraFeatures));
-    } else {
-      console.log('handlePostData - No extra features to send');
     }
     
     // Append images as single array (convert to relative paths)
@@ -1157,7 +1198,6 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
       
       // If this is a draft save and we get a car_id back, store it for future auto-saves
       if (isDraft && data1?.data?.car_id && !carId) {
-        console.log('Setting car_id from draft response:', data1.data.car_id);
         setCarId(data1.data.car_id.toString());
       }
     }
@@ -1165,6 +1205,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     const messageContent = typeof data1.message === 'object' 
       ? JSON.stringify(data1.message) 
       : data1.message;
+    console.log('Message:', messageContent);
     messageApi.open({
       type: 'success',
       content: messageContent,
@@ -1183,7 +1224,7 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     const messageText = typeof errorData === 'object' 
       ? JSON.stringify(errorData) 
       : (errorData || 'An error occurred');
-    
+    console.log('Message:', messageText);
     // Only show error messages for non-draft saves
     if (!isDraft) {
       messageApi.open({ type: 'error', content: messageText });
@@ -1228,7 +1269,7 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
     formData.append('trim', selectedTrim || '');
     formData.append('regional_specs', selectedRegionalSpecs || '');
     formData.append('badges', values?.badges || '');
-    formData.append('warranty_date', values?.warrantyDate || '');
+    formData.append('warranty_date', values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '');
     formData.append('accident_history', values?.accidentHistory || '');
     formData.append('number_of_seats', values?.seats || '');
     formData.append('number_of_doors', values?.doors || '');
@@ -1248,8 +1289,6 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
     // Append images as single array (convert to relative paths)
     if (uploadedImages && uploadedImages.length > 0) {
       const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
-      console.log('CreateCar - Original image URLs:', uploadedImages);
-      console.log('CreateCar - Converted to relative paths:', relativeImagePaths);
       formData.append('car_images', JSON.stringify(relativeImagePaths));
     }
 
@@ -1263,7 +1302,6 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
       
       // If this is a draft save and we get a car_id back, store it for future auto-saves
       if (isDraft && data1?.data?.car_id && !carId) {
-        console.log('Setting car_id from draft response:', data1.data.car_id);
         setCarId(data1.data.car_id.toString());
       }
     }
@@ -1282,8 +1320,18 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
 
     // Show modal for manual Create and Save as Draft button clicks (not auto-save)
     if (!isAutoSave) {
-      setShowModal(true); 
-      console.log('Added Success');
+        // Stop auto-save when Create or Save as Draft is successful
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current);
+        autoSaveIntervalRef.current = null;
+        console.log('Auto-save stopped after successful Create/Draft save');
+      }
+      
+      // Reset last saved data ref after manual save
+      lastSavedDataRef.current = null;
+      
+      setModalMode(isDraft ? 'draft' : 'create');
+      setShowModal(true);
       
       // Clear fields only for Create button clicks (not for Save as Draft)
       if (!isDraft) {
@@ -1294,9 +1342,10 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
   } catch (error) {
     const errorData = handleApiError(error);
     const messageText = typeof errorData === 'object' 
-      ? JSON.stringify(errorData) 
+      ? errorData?.message
       : (errorData || 'An error occurred');
     
+    console.log('Message:', messageText);
     // Show error messages only for manual saves (not auto-save)
     if (!isAutoSave) {
       messageApi.open({ type: 'error', content: messageText });
@@ -1310,11 +1359,10 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
 const handleFinish = async (mode) => {
   try {
     // Stop auto-save when user manually clicks Create or Save as draft
-    if (autoSaveIntervalRef.current) {
-      clearInterval(autoSaveIntervalRef.current);
-      autoSaveIntervalRef.current = null;
-      console.log('Auto-save stopped due to manual action');
-    }
+    // if (autoSaveIntervalRef.current) {
+    //   clearInterval(autoSaveIntervalRef.current);
+    //   autoSaveIntervalRef.current = null;
+    // }
 
     if (mode === 'draft') {
       const values = form.getFieldsValue(); 
@@ -1324,9 +1372,7 @@ const handleFinish = async (mode) => {
       const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
 
       if (newImages.length === 0 && existingImages.length === 0) {
-        // First call handlePostData
-        await handlePostData([], '', true, values);
-        // Then call createCar
+        // Call createCar without images for draft save
         await handleCreateCar([], true, values);
         return;
       }
@@ -1345,9 +1391,7 @@ const handleFinish = async (mode) => {
         if (uploadResult?.attachment_url?.length > 0) {
           // Combine new uploaded images with existing ones
           const allImages = [...existingImages, ...uploadResult.attachment_url];
-          // First call handlePostData
-          await handlePostData(allImages, '', true, values);
-          // Then call createCar
+          // Call createCar with all images
           await handleCreateCar(allImages, true, values);
         } else {
           message.error(uploadResult.message || 'Upload failed');
@@ -1355,9 +1399,6 @@ const handleFinish = async (mode) => {
         }
       } else {
         // If only existing images, submit directly with existing image URLs
-        // First call handlePostData
-        await handlePostData(existingImages, '', true, values);
-        // Then call createCar
         await handleCreateCar(existingImages, true, values);
       }
       return;
@@ -1370,8 +1411,6 @@ const handleFinish = async (mode) => {
       const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
       const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
       
-      console.log('Create submission - New images:', newImages.length, 'Existing images:', existingImages.length);
-
       if (newImages.length === 0 && existingImages.length === 0) {
         message.error('Please upload at least one image.');
         return;
@@ -1391,9 +1430,7 @@ const handleFinish = async (mode) => {
         if (uploadResult?.attachment_url?.length > 0) {
           // Combine new uploaded images with existing ones
           const allImages = [...existingImages, ...uploadResult.attachment_url];
-          // First call handlePostData
-          await handlePostData(allImages, '', false, values);
-          // Then call createCar
+          // Call createCar with all images
           await handleCreateCar(allImages, false, values);
         } else {
           message.error(uploadResult.message || 'Upload failed');
@@ -1401,57 +1438,20 @@ const handleFinish = async (mode) => {
         }
       } else {
         // If only existing images, submit directly with existing image URLs
-        // First call handlePostData
-        await handlePostData(existingImages, '', false, values);
-        // Then call createCar
         await handleCreateCar(existingImages, false, values);
       }
       return;
     }
 
-    const values = await form.validateFields();
-    
-    // Separate new uploads from existing server images
-    const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-    const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
-    
-
-    if (newImages.length === 0 && existingImages.length === 0) {
-      message.error('Please upload at least one image.');
-      return;
-    }
-
-    // If there are new images, upload them first, then combine with existing ones
-    if (newImages.length > 0) {
-      // Upload new images and get their URLs
-      const formData = new FormData();
-      newImages.forEach((file) => {
-        formData.append('attachment', file);
-      });
-      
-      const response = await carAPI.postuploadcarimages(formData, 'car');
-      const uploadResult = handleApiResponse(response);
-      
-      if (uploadResult?.attachment_url?.length > 0) {
-        // Combine new uploaded images with existing ones
-        const allImages = [...existingImages, ...uploadResult.attachment_url];
-        await handlePostData(allImages, '1', false, values);
-      } else {
-        message.error(uploadResult.message || 'Upload failed');
-        return;
-      }
-    } else {
-      // If only existing images, submit directly with existing image URLs
-      await handlePostData(existingImages, '1', false, values);
-    }
+    // This fallback case is not needed anymore - all cases are handled above
   } catch (err) {
     if (err?.errorFields) {
-      // Ant validation error object -> show a concise message
-      messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
+      const messageContent = 'Please fill required fields before submitting.';
+      messageApi.open({ type: 'error', content: messageContent });
     } else {
-      // All other errors (including network errors) -> use handleApiError for consistent error handling
       const errorData = handleApiError(err);
-      messageApi.open({ type: 'error', content: errorData.message || 'An error occurred. Please try again.' });
+      const messageContent = errorData.message || 'An error occurred. Please try again.';
+      messageApi.open({ type: 'error', content: messageContent });
     }
   }
 };
@@ -1507,7 +1507,7 @@ const handleUpdateCar = async () => {
       trim: selectedTrim || '',
       regional_specs: selectedRegionalSpecs || '',
       badges: values?.badges || '',
-      warranty_date: values?.warrantyDate || '',
+      warranty_date: values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '',
       accident_history: values?.accidentHistory || '',
       number_of_seats: values?.seats || '',
       number_of_doors: values?.doors || '',
@@ -1520,7 +1520,6 @@ const handleUpdateCar = async () => {
       draft: false,
       extra_features: (() => {
         const extraFeatures = values?.extraFeatures || [];
-        console.log('handleUpdateCar - Extra features being sent:', extraFeatures);
         return extraFeatures;
       })(),
       car_images: relativeImagePaths || []
@@ -1531,9 +1530,11 @@ const handleUpdateCar = async () => {
     const data = handleApiResponse(response);
 
     if (data) {
+      const messageContent = data.message || 'Car updated successfully';
+      console.log('Message:', messageContent);
       messageApi.open({
         type: 'success',
-        content: data.message || 'Car updated successfully',
+        content: messageContent,
       });
       
       // Navigate back to my listings
@@ -1541,10 +1542,12 @@ const handleUpdateCar = async () => {
     }
   } catch (err) {
     if (err?.errorFields) {
-      messageApi.open({ type: 'error', content: 'Please fill required fields before submitting.' });
+      const messageContent = 'Please fill required fields before submitting.';
+      messageApi.open({ type: 'error', content: messageContent });
     } else {
       const errorData = handleApiError(err);
-      messageApi.open({ type: 'error', content: errorData.message || 'Failed to update car' });
+      const messageContent = errorData.message || 'Failed to update car';
+      messageApi.open({ type: 'error', content: messageContent });
     }
   } finally {
     setLoading(false);
@@ -1601,9 +1604,11 @@ const handleImageUpload = async (images) => {
 
 
   const handleEvaluateCar = () => {
+     const messageContent = 'Coming soon';
+     console.log('Message:', messageContent);
      messageApi.open({
         type: 'success',
-        content: 'Coming soon',
+        content: messageContent,
       });
   };
 
@@ -2008,9 +2013,11 @@ const handleImageUpload = async (images) => {
                             onClick={() => {
                               // Check if user is changing make after selecting both make and model
                               if (selectedBrand && selectedModel && selectedBrand !== opt.name) {
+                                const messageContent = 'Changing make will clear the selected model';
+                                console.log('Message:', messageContent);
                                 messageApi.open({
                                   type: 'warning',
-                                  content: 'Changing make will clear the selected model',
+                                  content: messageContent,
                                 });
                                 // Clear model and trim when changing make
                                 setSelectedModel(undefined);
@@ -2327,9 +2334,10 @@ const handleImageUpload = async (images) => {
             onClick={() => {
               // Check if Vehicle Type is Bike or Truck
               if (selectedVehicleType === 'Bike' || selectedVehicleType === 'Truck') {
+                const messageContent = 'Please select Vehicle Type Car';
                 messageApi.open({
                   type: 'warning',
-                  content: 'Please select Vehicle Type Car',
+                  content: messageContent,
                 });
                 return; // Prevent selection
               }
@@ -2584,14 +2592,14 @@ const handleImageUpload = async (images) => {
 
       // Remove leading zeros to prevent entries like 0001, but allow single 0
       const sanitizedValue = digitsOnly === '0' ? '0' : digitsOnly.replace(/^0+/, '');
-
-      console.log('Kilometers onChange - original:', e.target.value, 'sanitized:', sanitizedValue);
       
       // Check if user is trying to enter 0 while condition is "Used"
       if (sanitizedValue === '0' && selectedCondition === 'Used') {
+        const messageContent = 'Please enter kilometers more than 0 for used cars';
+        console.log('Message:', messageContent);
         messageApi.open({
           type: 'warning',
-          content: 'Please enter kilometers more than 0 for used cars',
+          content: messageContent,
         });
         return; // Prevent setting the value
       }
@@ -2600,7 +2608,6 @@ const handleImageUpload = async (images) => {
       
       // Auto-select "New" condition if kilometers is 0 and no condition is selected
       if ((sanitizedValue === '0' || sanitizedValue === '') && !selectedCondition) {
-        console.log('Kilometers is 0, auto-selecting "New" condition');
         setSelectedCondition('New');
         form.setFieldsValue({ condition: 'New' });
       }
@@ -3163,6 +3170,7 @@ const handleImageUpload = async (images) => {
         </Card>
         {/* Conditionally render the modal */}
       {showModal && <CarPostingModal onClose={() => setShowModal(false)} handleAddNew={handleAddNew} />}
+      {showModal && <CarPostingModal onClose={() => setShowModal(false)} handleAddNew={handleAddNew} mode={modalMode} />}
       </div>
     </>
   );

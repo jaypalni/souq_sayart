@@ -72,6 +72,7 @@ const Subscriptions = () => {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(60);
   const [loading, setLoading] = useState(false); // loading spinner
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [value, setValue] = useState('Individual');
 
@@ -100,15 +101,17 @@ const Subscriptions = () => {
       const result = handleApiResponse(response);
       
       if (result.success) {
-        message.success('Subscription successful!');
+        // Show message from API response
+        messageApi.success(result.message || 'Subscription successful!');
         // Optionally refresh the plans data to show updated subscription status
-        fetchPlans();
+        fetchPackageDetails(selectedPlan?.id);
       } else {
-        message.error(result.message || 'Subscription failed. Please try again.');
+        fetchPackageDetails(selectedPlan?.id);
+                messageApi.success(result.message || 'Subscription failed. Please try again.');
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to subscribe. Please try again.');
+      messageApi.error(errorData.message || 'Failed to subscribe. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -117,23 +120,16 @@ const Subscriptions = () => {
   // Fetch package details when a card is selected
   const fetchPackageDetails = async (packageId) => {
     try {
-      console.log('Fetching package details for ID:', packageId);
       setLoading(true);
       
       const response = await userAPI.getPackageDetails(packageId);
-      console.log('Package details API response:', response);
-      
       const result = handleApiResponse(response);
-      console.log('Package details processed result:', result);
       
       if (result.success) {
-        console.log('Package details data:', result.data);
-        console.log('is_subscribed value:', result.data.is_subscribed);
-        // Update the selected plan with detailed information
+       
         setSelectedPlan(prevPlan => ({
           ...prevPlan,
           ...result.data,
-          // Map API response to our expected format
           id: result.data.id || prevPlan.id,
           title: result.data.name || result.data.title || prevPlan.title,
           price: parseFloat(result.data.price) || prevPlan.price,
@@ -157,13 +153,11 @@ const Subscriptions = () => {
           is_subscribed: result.data.is_subscribed || 0,
         }));
       } else {
-        console.error('Failed to fetch package details:', result.message);
-        message.error(result.message || 'Failed to fetch package details.');
+        messageApi.error(result.message || 'Failed to fetch package details.');
       }
     } catch (error) {
-      console.error('Error fetching package details:', error);
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to fetch package details. Please try again.');
+      messageApi.error(errorData.message || 'Failed to fetch package details. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -387,17 +381,18 @@ const Subscriptions = () => {
            Individual: mapPlanData(individual_packages),
            Dealer: mapPlanData(dealer_packages),
          });
-       } else {
-         message.error('Failed to fetch plans.');
+         
+       
        }
      } catch (error) {
        const errorData = handleApiError(error);
-       message.error(errorData.message || 'Failed to fetch subscription plans. Please try again.');
+       messageApi.error(errorData.message || 'Failed to fetch subscription plans. Please try again.');
      }
    };
              
   return (
     <div className="subscriptions-main">
+      {contextHolder}
       {!selectedPlan ? (
         <>
           <div className="subscriptions-header">Subcriptions</div>
@@ -470,7 +465,6 @@ const Subscriptions = () => {
                   key={plan.id}
                   style={{ cursor: 'pointer' }}
                   onClick={() => {
-                    console.log('Card clicked for plan:', plan);
                     setSelectedPlan(plan);
                     fetchPackageDetails(plan.id);
                   }}

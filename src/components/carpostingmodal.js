@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import '../assets/styles/usersavedsearches.css';
 import posting from '../assets/images/posting.gif';
 
-const CarPostingModal = ({ onClose, handleAddNew}) => {
+const CarPostingModal = ({ onClose, handleAddNew, mode = 'create'}) => {
   const navigate = useNavigate();
 
   const handleViewPost = () => {
@@ -24,15 +24,22 @@ const CarPostingModal = ({ onClose, handleAddNew}) => {
     onClose();
   };
 
+  // Determine content based on mode
+  const isDraft = mode === 'draft';
+  const modalTitle = isDraft ? 'Your post is saved as Drafts' : 'Thank You For Posting';
+  const modalSubtitle = isDraft
+    ? 'You can view and edit your draft from My Listings page.'
+    : 'We will review your post and let you know when it\'s approved.';
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <img src={posting} alt="Diamond" className="modal-image" />
         
-        <p className="modal-title-text">Thank You For Posting</p>
+        <p className="modal-title-text">{modalTitle}</p>
         
         <p className="modal-subtitle-text">
-          We will review your post and let you know when it's approved.
+          {modalSubtitle}
         </p>
         
       <div style={{ display: 'flex', gap: '10px', padding: '12px', width: '100%' }}>
@@ -69,6 +76,8 @@ const CarPostingModal = ({ onClose, handleAddNew}) => {
 
 CarPostingModal.propTypes = {
   onClose: PropTypes.func.isRequired,
+  handleAddNew: PropTypes.func.isRequired,
+  mode: PropTypes.oneOf(['create', 'draft']),
 };
 
 export default CarPostingModal;

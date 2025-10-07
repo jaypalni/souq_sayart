@@ -85,7 +85,12 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   }
   return []; // default empty array
 };
-
+ const bodyTypeAsArray = (loc) => {
+  if (loc && loc !== CORRECT_DEFAULT_BODY_TYPE) {
+    return [loc]; // wrap in array
+  }
+  return []; // default empty array
+};
 
   // Auto-search function to update car count on filter changes
   const autoSearchForCount = async () => {
@@ -93,7 +98,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       const apiParams = {
         make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
         model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
-        body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
+        body_types: bodyTypeAsArray(bodyType),
        locations: locationAsArray(location),
         price_min: minPrice !== null ? minPrice : '',
         price_max: maxPrice !== null ? maxPrice : '',
@@ -109,7 +114,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
       }
     } catch (error) {
       // Silent error handling for auto-search
-      console.warn('Auto-search for count failed:', error);
     }
   };
 
@@ -302,7 +306,7 @@ const resolveDefaultLocation = (locations, geoData) => {
       const params = {
         make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
         model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
-        body_type: valueOrEmpty(bodyType, CORRECT_DEFAULT_BODY_TYPE),
+        body_types: bodyTypeAsArray(bodyType),
         // location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
         locations: locationAsArray(location),
          price_min: cleanedMin,

@@ -1660,6 +1660,18 @@ const handleKeywordsChange = (keywords, setKeywords) => (value) => {
   }
 };
 
+// Helper function to convert newUsed string to condition array
+const convertNewUsedToCondition = (newUsed) => {
+  if (newUsed === 'New & Used') {
+    return ['Used', 'New']; // Select both when "New & Used" is selected
+  } else if (newUsed === 'New') {
+    return ['New'];
+  } else if (newUsed === 'Used') {
+    return ['Used'];
+  }
+  return ['Used', 'New']; // Default to both
+};
+
 // Helper functions for filter data preparation
 const getFilterValue = (value, defaultValue = '') => {
   return value !== defaultValue ? value : '';
@@ -2272,6 +2284,8 @@ const Cardetailsfilter = ({
   onModelChange,
   onBodyTypeChange,
   onLocationChange,
+  onConditionChange,
+  onResetFilters,
   selectedMake: propSelectedMake,
   selectedModel: propSelectedModel,
   selectedBodyType: propSelectedBodyType,
@@ -2355,6 +2369,13 @@ const [carModels, setCarModels] = useState([]);
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
+  
+  // Initialize condition state from newUsed prop on mount
+  useEffect(() => {
+    const initialCondition = convertNewUsedToCondition(newUsed);
+    filterState.setCondition(initialCondition);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Update state when props change
   useEffect(() => {
@@ -2368,6 +2389,20 @@ const [carModels, setCarModels] = useState([]);
       setSelectedModel(propSelectedModel);
     }
   }, [propSelectedModel]);
+
+  // Sync condition state when newUsed prop changes (after mount)
+  useEffect(() => {
+    if (newUsed) {
+      const newCondition = convertNewUsedToCondition(newUsed);
+      
+      const currentConditionStr = JSON.stringify([...filterState.condition].sort());
+      const newConditionStr = JSON.stringify([...newCondition].sort());
+      
+      if (currentConditionStr !== newConditionStr) {
+        filterState.setCondition(newCondition);
+      }
+    }
+  }, [newUsed]);
 
   useEffect(() => {
     if (propSelectedBodyType) {
@@ -2459,15 +2494,10 @@ const [carModels, setCarModels] = useState([]);
    
   useEffect(() => {
     if (selectedMake && selectedMake !== 'Any') {
-      console.log('Make changed, fetching models for:', selectedMake);
-      console.log('propSelectedModel:', propSelectedModel);
       fetchModelCars({ setLoading, setCarModels, make: selectedMake });
       // Only reset model if it's not being set from props
       if (!propSelectedModel) {
-        console.log('Resetting model to Any because no prop model');
         setSelectedModel('Any');
-      } else {
-        console.log('Keeping model from props:', propSelectedModel);
       }
     } else {
       setCarModels([]);
@@ -2480,7 +2510,6 @@ const [carModels, setCarModels] = useState([]);
   
     useEffect(() => {
       if (selectedModel && selectedModel !== 'Any') {
-        console.log('Model changed, fetching trim for:', selectedMake, selectedModel);
         fetchTrimData();
       } else {
         setTrimData([]);
@@ -2549,7 +2578,6 @@ const [carModels, setCarModels] = useState([]);
   const fetchTrimData = async () => {
   try {
     setLoading(true);
-    console.log('Fetching trim data for:', selectedMake, selectedModel);
     const response = await carAPI.trimDetailsFilter(selectedMake, selectedModel);
     const data1 = handleApiResponse(response);
 
@@ -2653,10 +2681,6 @@ if (
         sortedbydata
       });
       
-      console.log('Cardetailsfilter - Applying filters with data:', filterData);
-      console.log('Cardetailsfilter - Locations being sent to API:', filterData.locations, 'Type:', typeof filterData.locations, 'Is Array:', Array.isArray(filterData.locations));
-      console.log('Cardetailsfilter - Original selectedLocation:', selectedLocation, 'Processed locations:', filterData.locations);
-      
       // Call onFilterChange callback to update main filter fields
       if (onFilterChange) {
         const filterChangeData = {
@@ -2668,7 +2692,6 @@ if (
           priceMin: rangeInputs.priceMin,
           priceMax: rangeInputs.priceMax
         };
-        console.log('Cardetailsfilter - Calling onFilterChange with:', filterChangeData);
         onFilterChange(filterChangeData);
       }
       
@@ -2728,7 +2751,7 @@ if (
     filterState.settransmissionselectedValues(['Any']);
     filterState.setcylinderselectedValues([]);
     filterState.setdoorselectedValues([]);
-    filterState.setCondition(['Any']);
+    filterState.setCondition(['Used', 'New']); // Reset to both (New & Used)
     filterState.setOwnerType(['Any']);
 
     // Reset single inputs
@@ -2741,14 +2764,19 @@ if (
     setSelectedFeatures([]);
 
     // Reset selected values
-    setSelectedMake('Any');
-    setSelectedModel('Any');
+    setSelectedMake('');
+    setSelectedModel('');
     setSelectedBodyType([]);
     setSelectedLocation([]);
     setSelectedColors([]);
     setSelectedRegionalSpecs([]);
 
     setValue('Any');
+
+    // Call the callback to reset filters in allcarfilters.js
+    if (onResetFilters) {
+      onResetFilters();
+    }
 
     message.success('Filters have been reset!');
   };
@@ -3035,9 +3063,38 @@ if (
 
           <CheckboxGroup
             title="Condition"
-            options={['Any', 'Used', 'New']}
+            options={['Used', 'New']}
             selectedValues={filterState.condition}
-            onChange={handleCheckboxChange}
+            onChange={(option, selectedValues, setSelectedValues) => {
+              // Calculate the new values after the change
+              let newValues;
+              if (selectedValues.includes(option)) {
+                newValues = selectedValues.filter(item => item !== option);
+              } else {
+                newValues = [...selectedValues, option];
+              }
+              
+              // Call the original handler to update the state
+              handleCheckboxChange(option, selectedValues, setSelectedValues);
+              
+              // Convert condition array to newUsed format for allcarfilters
+              let newUsedValue = 'New & Used'; // Default value
+              if (newValues.length === 0) {
+                // If no values selected, default to both
+                newUsedValue = 'New & Used';
+              } else if (newValues.length === 1) {
+                // If only one value selected, use that value
+                newUsedValue = newValues[0];
+              } else if (newValues.length === 2) {
+                // If both 'Used' and 'New' are selected
+                newUsedValue = 'New & Used';
+              }
+              
+              // Call the callback to update allcarfilters
+              if (onConditionChange) {
+                onConditionChange(newUsedValue);
+              }
+            }}
             setSelectedValues={filterState.setCondition}
           />
 
@@ -3109,7 +3166,7 @@ if (
 
           <CheckboxGroup
             title="Owner Type"
-            options={['Any', 'Individual', 'Dealer']}
+            options={[ 'Individual', 'Dealer']}
             selectedValues={filterState.ownerType}
             onChange={handleCheckboxChange}
             setSelectedValues={filterState.setOwnerType}
@@ -3186,6 +3243,8 @@ Cardetailsfilter.propTypes = {
   onModelChange: PropTypes.func,
   onBodyTypeChange: PropTypes.func,
   onLocationChange: PropTypes.func,
+  onConditionChange: PropTypes.func,
+  onResetFilters: PropTypes.func,
   selectedMake: PropTypes.string,
   selectedModel: PropTypes.string,
   selectedBodyType: PropTypes.array,
@@ -3194,6 +3253,7 @@ Cardetailsfilter.propTypes = {
   selectedPriceMin: PropTypes.number,
   selectedPriceMax: PropTypes.number,
   sortedbydata: PropTypes.string,
+  onFilterChange: PropTypes.func,
 };
 
 export default Cardetailsfilter;

@@ -243,7 +243,7 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
         return (
           <SignupBox
             onClick={() => navigate('/login')}
-            title="Sign up searches"
+            title="Sign up for saved searches"
             buttonText="Sign up / log in"
           />
         );

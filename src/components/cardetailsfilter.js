@@ -164,7 +164,7 @@ const handleKeywordsChange = (keywords, setKeywords) => (value) => {
 // Helper function to convert newUsed string to condition array
 const convertNewUsedToCondition = (newUsed) => {
   if (newUsed === 'New & Used') {
-    return ['Used', 'New']; // Select both when "New & Used" is selected
+    return []; // Select both when "New & Used" is selected
   } else if (newUsed === 'New') {
     return ['New'];
   } else if (newUsed === 'Used') {

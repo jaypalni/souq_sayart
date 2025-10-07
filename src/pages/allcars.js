@@ -168,14 +168,10 @@ const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, ti
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   // Initialize sortOption from localStorage or prop
-  const getInitialSortOption = () => {
-    try {
-      const saved = localStorage.getItem('sortOption');
-      return saved || sortedbydata || 'Newest Listing';
-    } catch (e) {
-      return sortedbydata || 'Newest Listing';
-    }
-  };
+const getInitialSortOption = () => {
+  return sortedbydata || 'Newest Listing';
+};
+
 
   const [sortOption, setSortOption] = useState(getInitialSortOption);
   const toggleDropdown = () => setIsOpen(!isOpen);

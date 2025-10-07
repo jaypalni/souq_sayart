@@ -322,7 +322,7 @@ const fetchCars = async () => {
   </p>
 
  {/* Show Create Button only for Active & Drafts */}
-      {(value === STATUS.ACTIVE || value === STATUS.DRAFTS) && (
+      {(value === STATUS.ACTIVE && filterStatus !== 'Reject' || value === STATUS.DRAFTS) && (
         <Button
           type='primary'
           style={{

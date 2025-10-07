@@ -20,6 +20,37 @@ const EmptyState = () => (
   </div>
 );
 
+// Helper function to map plan data - extracted to reduce component complexity
+const mapPlanData = (items) =>
+  items.map((item) => ({
+    id: item.id,
+    title: item.name,
+    price: parseFloat(item.price),
+    duration: `${item.duration_days} Days`,
+    features: [
+      'Price Model: Per Car',
+      `${item.listing_limit} Posts Allowed`,
+      `${item.photo_limit || 10} Photos Allowed`,
+    ],
+    details: {
+      price: `IQD ${item.price}`,
+      priceModel: 'Per Car',
+      postsAllowed: item.listing_limit,
+      photosAllowed: item.photo_limit || 10,
+      videosAllowed: item.video_limit || '-',
+      postDuration: `${item.duration_days} Days`,
+      featured: item.featured || '-',
+      banner: item.banner || '-',
+      analytics: item.analytics || '-',
+      additionalCar: item.additional_car || '-',
+      emailNewsletter: item.email_newsletter || '-',
+      sponsoredContent: item.sponsored_content || '-',
+    },
+    highlight: item.highlight || false,
+    current: item.current || false,
+    is_subscribed: item.is_subscribed || 0,
+  }));
+
 const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading }) => (
   <div className="subscription-details-main">
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
@@ -299,42 +330,10 @@ const Subscriptions = () => {
        if (result.success) {
          const { individual_packages = [], dealer_packages = [] } = result.data;
 
-         const mapPlanData = (items) =>
-           items.map((item) => ({
-             id: item.id,
-             title: item.name,
-             price: parseFloat(item.price),
-             duration: `${item.duration_days} Days`,
-             features: [
-               'Price Model: Per Car',
-               `${item.listing_limit} Posts Allowed`,
-               `${item.photo_limit || 10} Photos Allowed`,
-             ],
-             details: {
-               price: `IQD ${item.price}`,
-               priceModel: 'Per Car',
-               postsAllowed: item.listing_limit,
-               photosAllowed: item.photo_limit || 10,
-               videosAllowed: item.video_limit || '-',
-               postDuration: `${item.duration_days} Days`,
-               featured: item.featured || '-',
-               banner: item.banner || '-',
-               analytics: item.analytics || '-',
-               additionalCar: item.additional_car || '-',
-               emailNewsletter: item.email_newsletter || '-',
-               sponsoredContent: item.sponsored_content || '-',
-             },
-             highlight: item.highlight || false,
-             current: item.current || false,
-             is_subscribed: item.is_subscribed || 0,
-           }));
-
          setNewPlansData({
            Individual: mapPlanData(individual_packages),
            Dealer: mapPlanData(dealer_packages),
          });
-         
-       
        }
      } catch (error) {
        const errorData = handleApiError(error);

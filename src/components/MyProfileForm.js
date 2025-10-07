@@ -801,7 +801,13 @@ const MyProfileForm = () => {
         reg: '',
         facebook: '',
         instagram: '',
+        uploadDocuments: undefined,
       });
+      // Clear the uploaded document URL and file input
+      setUploadedDocUrl('');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } else {
       form.setFieldsValue({
         company: profile.company,

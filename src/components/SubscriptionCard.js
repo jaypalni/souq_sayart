@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import { userAPI } from '../services/api';
 import lightbluetick from '../assets/images/lightbluetick_icon.svg'
 
-const SubscriptionCard = ({ title, price, duration, features, details,currency }) => (
+const SubscriptionCard = ({ title, price, duration, features, details, currency, is_subscribed }) => (
   <div
     className='subscription-card'
     style={{
@@ -26,8 +26,26 @@ const SubscriptionCard = ({ title, price, duration, features, details,currency }
           padding: '12px',
           height: 160,
           padding: '12px',
+          position: 'relative',
         }}
       >
+        {is_subscribed === 1 && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              background: '#ffa726',
+              color: '#fff',
+              borderRadius: 6,
+              padding: '2px 12px',
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Current
+          </div>
+        )}
         <div
           style={{
             fontWeight: 600,

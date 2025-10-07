@@ -156,6 +156,76 @@ const DoneStepComponent = ({ onDone }) => (
   </>
 );
 
+// Radio button tab component - extracted to reduce component complexity
+const RadioButtonTab = ({ value, label, activeTab }) => {
+  const isActive = activeTab === value;
+  return (
+    <Radio.Button
+      value={value}
+      className="custom-radio-button"
+      style={{
+        textAlign: 'center',
+        marginRight: value === 'Individual' ? '10px' : 0,
+        borderRadius: '4px',
+        color: isActive ? '#D67900' : '#000',
+        fontSize: '14px',
+        fontWeight: isActive ? '700' : '400',
+        borderLeft: value === 'Dealer' ? '1px solid #D67900' : undefined,
+        borderColor: isActive ? '#FFEDD5' : '#ffffff',
+        backgroundColor: isActive ? '#FFEDD5' : undefined,
+      }}
+    >
+      {label}
+    </Radio.Button>
+  );
+};
+
+// Subscription list view component - extracted to reduce component complexity
+const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) => (
+  <>
+    <div className="subscriptions-header">Subcriptions</div>
+    <div
+      className="subscriptions-desc"
+      style={{ fontSize: 16, fontWeight: 400, color: '#0A0A0B' }}
+    >
+      Lorem ipsum dolor sit amet consectetur. Leo vitae tellus turpis
+      adipiscing in. Eget in vehicula ut egestas risus sit lacus. Sit et
+      ut ac vulputate. Scelerisque euismod phasellus dignissim ut.
+    </div>
+    <div style={{ marginBottom: 16, marginLeft: 24 }}>
+      <Radio.Group
+        onChange={onTabChange}
+        value={activeTab}
+        style={{
+          display: 'flex',
+          gap: '1px',
+        }}
+      >
+        <RadioButtonTab value="Individual" label="Individual" activeTab={activeTab} />
+        <RadioButtonTab value="Dealer" label="Dealer" activeTab={activeTab} />
+      </Radio.Group>
+    </div>
+    <div
+      className="subscriptions-list"
+      style={{ display: 'flex', gap: 24, marginTop: 24 }}
+    >
+      {plans.length === 0 ? (
+        <EmptyState />
+      ) : (
+        plans.map((plan) => (
+          <div
+            key={plan.id}
+            style={{ cursor: 'pointer' }}
+            onClick={() => onSelectPlan(plan)}
+          >
+            <SubscriptionCard {...plan} />
+          </div>
+        ))
+      )}
+    </div>
+  </>
+);
+
 const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading }) => (
   <div className="subscription-details-main">
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
@@ -203,48 +273,43 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, l
 const Subscriptions = () => {
   const [activeTab, setActiveTab] = useState('Individual');
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [cancelStep, setCancelStep] = useState(null); // null | 'number' | 'otp' | 'done' | 'confirm'
+  const [cancelStep, setCancelStep] = useState(null);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(60);
-  const [loading, setLoading] = useState(false); // loading spinner
+  const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-
-  const [value, setValue] = useState('Individual');
-
-  
-
-
   const [newplansData, setNewPlansData] = useState(plansData);
+
+  const plans = newplansData[activeTab];
+
+  // Helper: Handle subscription response
+  const handleSubscriptionResponse = (result) => {
+    if (result.success) {
+      messageApi.success(result.message || 'Subscription successful!');
+      fetchPackageDetails(selectedPlan?.id);
+    } else {
+      fetchPackageDetails(selectedPlan?.id);
+      messageApi.success(result.message || 'Subscription failed. Please try again.');
+    }
+  };
 
   // Subscribe functionality
   const handleSubscribe = async (packageId) => {
     try {
       setLoading(true);
       
-      // Generate payment merchant and payment_id (you may want to integrate with actual payment gateway)
-      const paymentMerchant = 'FIjbkcjasgc,agc,B'; // This should come from payment gateway
-      const paymentId = `adskfjsahdfk-sadfsajdfjasdhkfdfghjkl;lkjh-${Date.now()}`; // This should come from payment gateway
-      
       const subscriptionData = {
         package_id: packageId,
-        payment_merchant: paymentMerchant,
-        payment_id: paymentId,
+        payment_merchant: 'FIjbkcjasgc,agc,B',
+        payment_id: `adskfjsahdfk-sadfsajdfjasdhkfdfghjkl;lkjh-${Date.now()}`,
         payment_status: 'success'
       };
 
       const response = await userAPI.subscribe(subscriptionData);
       const result = handleApiResponse(response);
       
-      if (result.success) {
-        // Show message from API response
-        messageApi.success(result.message || 'Subscription successful!');
-        // Optionally refresh the plans data to show updated subscription status
-        fetchPackageDetails(selectedPlan?.id);
-      } else {
-        fetchPackageDetails(selectedPlan?.id);
-                messageApi.success(result.message || 'Subscription failed. Please try again.');
-      }
+      handleSubscriptionResponse(result);
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.error(errorData.message || 'Failed to subscribe. Please try again.');
@@ -273,16 +338,31 @@ const Subscriptions = () => {
     }
   };
 
-  // OTP timer effect
-  React.useEffect(() => {
-    let timer;
-    if (cancelStep === 'otp' && otpTimer > 0) {
-      timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [cancelStep, otpTimer]);
+  // Fetch plans from API
+  const fetchPlans = async () => {
+    try {
+      const res = await userAPI.getsubscriptions();
+      const result = res.data;
 
-  const plans = newplansData[activeTab]; // ✅ uses fetched plans
+      if (result.success) {
+        const { individual_packages = [], dealer_packages = [] } = result.data;
+
+        setNewPlansData({
+          Individual: mapPlanData(individual_packages),
+          Dealer: mapPlanData(dealer_packages),
+        });
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      messageApi.error(errorData.message || 'Failed to fetch subscription plans. Please try again.');
+    }
+  };
+
+  // Helper: Handle plan selection
+  const handlePlanSelect = (plan) => {
+    setSelectedPlan(plan);
+    fetchPackageDetails(plan.id);
+  };
 
   // Helper: Handle OTP input change
   const handleOtpInputChange = (e, idx) => {
@@ -301,7 +381,7 @@ const Subscriptions = () => {
     setSelectedPlan(null);
   };
 
-  // Modal content for cancel flow - using extracted components
+  // Modal content for cancel flow
   const renderCancelModal = () => {
     const modalSteps = {
       confirm: <CancelConfirmStepComponent onNo={() => setCancelStep(null)} onYes={() => setCancelStep('number')} />,
@@ -313,117 +393,30 @@ const Subscriptions = () => {
     return modalSteps[cancelStep] || null;
   };
 
-  // API CALL
+  // OTP timer effect
+  useEffect(() => {
+    let timer;
+    if (cancelStep === 'otp' && otpTimer > 0) {
+      timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cancelStep, otpTimer]);
 
- useEffect(() => {
- 
-
-   fetchPlans();
- }, []);
-  const fetchPlans = async () => {
-     try {
-       const res = await userAPI.getsubscriptions(); 
-       const result = res.data; 
-
-       if (result.success) {
-         const { individual_packages = [], dealer_packages = [] } = result.data;
-
-         setNewPlansData({
-           Individual: mapPlanData(individual_packages),
-           Dealer: mapPlanData(dealer_packages),
-         });
-       }
-     } catch (error) {
-       const errorData = handleApiError(error);
-       messageApi.error(errorData.message || 'Failed to fetch subscription plans. Please try again.');
-     }
-   };
+  // Fetch plans on mount
+  useEffect(() => {
+    fetchPlans();
+  }, []);
              
   return (
     <div className="subscriptions-main">
       {contextHolder}
       {!selectedPlan ? (
-        <>
-          <div className="subscriptions-header">Subcriptions</div>
-          <div
-            className="subscriptions-desc"
-            style={{ fontSize: 16, fontWeight: 400, color: '#0A0A0B' }}
-          >
-            Lorem ipsum dolor sit amet consectetur. Leo vitae tellus turpis
-            adipiscing in. Eget in vehicula ut egestas risus sit lacus. Sit et
-            ut ac vulputate. Scelerisque euismod phasellus dignissim ut.
-          </div>
-          <div style={{ marginBottom: 16, marginLeft: 24 }}>
-            <Radio.Group
-              onChange={(e) => setActiveTab(e.target.value)}
-              value={activeTab} // activeTab controls selected radio
-              style={{
-                display: 'flex', // buttons side by side
-                gap: '1px', // spacing
-              }}
-            >
-              <Radio.Button
-                value='Individual'
-                className="custom-radio-button"
-                style={{
-                  // width: '10%',
-                  textAlign: 'center',
-                  marginRight: '10px',
-                  borderRadius: '4px',
-                  color: activeTab === 'Individual' ? '#D67900' : '#000',
-                  fontSize: activeTab === 'Individual' ? '14px' : '14px', // You can simplify this, both are 14px
-                  fontWeight: activeTab === 'Individual' ? '700' : '400',
-                  borderColor:
-                    activeTab === 'Individual' ? '#FFEDD5' : '#ffffff',
-                  backgroundColor:
-                    activeTab === 'Individual' ? '#FFEDD5' : undefined,
-                }}
-              >
-                Individual
-              </Radio.Button>
-
-              <Radio.Button
-                value='Dealer'
-                className="custom-radio-button"
-                style={{
-                  // width: '7%',
-                  textAlign: 'center',
-                  borderRadius: '4px',
-                  color: activeTab === 'Dealer' ? '#D67900' : '#000',
-                  fontSize: '14px',
-                  fontWeight: activeTab === 'Dealer' ? '700' : '400',
-                  borderLeft: '1px solid #D67900',
-                  borderColor: activeTab === 'Dealer' ? '#FFEDD5' : '#ffffff',
-                  backgroundColor:
-                    activeTab === 'Dealer' ? '#FFEDD5' : undefined,
-                }}
-              >
-                Dealer
-              </Radio.Button>
-            </Radio.Group>
-          </div>
-          <div
-            className="subscriptions-list"
-            style={{ display: 'flex', gap: 24, marginTop: 24 }}
-          >
-            {plans.length === 0 ? (
-              <EmptyState />
-            ) : (
-              plans.map((plan) => (
-                <div
-                  key={plan.id}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedPlan(plan);
-                    fetchPackageDetails(plan.id);
-                  }}
-                >
-                  <SubscriptionCard {...plan} />
-                </div>
-              ))
-            )}
-          </div>
-        </>
+        <SubscriptionListView
+          activeTab={activeTab}
+          plans={plans}
+          onSelectPlan={handlePlanSelect}
+          onTabChange={(e) => setActiveTab(e.target.value)}
+        />
       ) : (
         <SubscriptionDetails
           plan={selectedPlan}

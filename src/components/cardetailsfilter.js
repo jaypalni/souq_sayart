@@ -2395,8 +2395,8 @@ const [carModels, setCarModels] = useState([]);
     if (newUsed) {
       const newCondition = convertNewUsedToCondition(newUsed);
       
-      const currentConditionStr = JSON.stringify([...filterState.condition].sort());
-      const newConditionStr = JSON.stringify([...newCondition].sort());
+      const currentConditionStr = JSON.stringify([...filterState.condition].sort((a, b) => a.localeCompare(b)));
+      const newConditionStr = JSON.stringify([...newCondition].sort((a, b) => a.localeCompare(b)));
       
       if (currentConditionStr !== newConditionStr) {
         filterState.setCondition(newCondition);

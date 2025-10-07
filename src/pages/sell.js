@@ -796,150 +796,128 @@ const handlePaste = (e) => {
     fetchHorsePower();
   }, []);
 
+  // Helper function to build current form data snapshot for comparison
+  const buildFormDataSnapshot = (values) => {
+    return JSON.stringify({
+      adTitle: values.adTitle || '',
+      description: values.description || '',
+      make: make || '',
+      model: selectedModel || modalName || '',
+      year: selectedYear || '',
+      price: values.price || '',
+      kilometers: values.kilometers || '',
+      exteriorColor: selectedColor || '',
+      interiorColor: selectedInteriorColor || '',
+      trim: selectedTrim || '',
+      condition: values.condition || '',
+      bodyType: values.bodyType || '',
+      vehicletype: values.vehicletype || '',
+      region: selectedRegion || '',
+      regionalSpecs: selectedRegionalSpecs || '',
+      seats: values.seats || '',
+      doors: values.doors || '',
+      fuelType: values.fuelType || '',
+      transmissionType: values.transmissionType || '',
+      driveType: values.driveType || '',
+      cylinders: values.cylinders || '',
+      engineCC: values.engineCC || '',
+      consumption: values.consumption || '',
+      horsepower: values.horsepower || '',
+      interior: values.interior || '',
+      accidentHistory: values.accidentHistory || '',
+      warrantyDate: values.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '',
+      extraFeatures: JSON.stringify(values.extraFeatures || []),
+      badges: JSON.stringify(values.badges || []),
+      mediaCount: values.media?.length || 0,
+      mediaUrls: values.media?.filter(f => !f.originFileObj && f.url).map(f => f.url).sort().join(',') || '',
+    });
+  };
+
+  // Helper function to check if form has API-relevant data
+  const hasFormData = (values) => {
+    return values.adTitle || values.description || make || 
+      (selectedModel || modalName) || selectedYear || values.price ||
+      values.kilometers || selectedColor || selectedInteriorColor ||
+      selectedTrim || values.condition || values.bodyType ||
+      values.vehicletype || selectedRegion || selectedRegionalSpecs ||
+      values.seats || values.doors || values.fuelType ||
+      values.transmissionType || values.driveType || values.cylinders ||
+      values.engineCC || values.consumption || values.horsepower ||
+      values.interior || values.accidentHistory || values.warrantyDate ||
+      (values.extraFeatures && values.extraFeatures.length > 0) ||
+      (values.badges && values.badges.length > 0) ||
+      (values.media && values.media.length > 0);
+  };
+
+  // Helper function to upload new images for auto-save
+  const uploadNewImagesForAutoSave = async (newImages) => {
+    const formData = new FormData();
+    newImages.forEach((file) => {
+      formData.append('attachment', file);
+    });
+    
+    const response = await carAPI.postuploadcarimages(formData, 'car');
+    return handleApiResponse(response);
+  };
+
+  // Helper function to handle auto-save with images
+  const performAutoSaveWithImages = async (values, newImages, existingImages) => {
+    try {
+      const uploadResult = await uploadNewImagesForAutoSave(newImages);
+      const allImages = uploadResult?.attachment_url?.length > 0 
+        ? [...existingImages, ...uploadResult.attachment_url]
+        : existingImages;
+      await handleCreateCar(allImages, true, values, true);
+    } catch (uploadError) {
+      await handleCreateCar(existingImages, true, values, true);
+    }
+  };
+
+  // Helper function to perform auto-save
+  const performAutoSave = async () => {
+    const values = form.getFieldsValue();
+    
+    if (!hasFormData(values)) return;
+
+    const currentDataSnapshot = buildFormDataSnapshot(values);
+    
+    if (lastSavedDataRef.current === currentDataSnapshot) {
+      console.log('Auto-save SKIPPED - No changes detected');
+      return;
+    }
+    
+    console.log('Auto-save PROCEEDING - Changes detected');
+    
+    const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
+    const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
+    
+    if (newImages.length > 0) {
+      await performAutoSaveWithImages(values, newImages, existingImages);
+    } else {
+      await handleCreateCar(existingImages, true, values, true);
+    }
+    
+    lastSavedDataRef.current = currentDataSnapshot;
+  };
+
   // Auto-save functionality - runs every 20 seconds
   useEffect(() => {
-    // Helper function to build current form data snapshot for comparison
-    const buildFormDataSnapshot = (values) => {
-      return JSON.stringify({
-        adTitle: values.adTitle || '',
-        description: values.description || '',
-        make: make || '',
-        model: selectedModel || modalName || '',
-        year: selectedYear || '',
-        price: values.price || '',
-        kilometers: values.kilometers || '',
-        exteriorColor: selectedColor || '',
-        interiorColor: selectedInteriorColor || '',
-        trim: selectedTrim || '',
-        condition: values.condition || '',
-        bodyType: values.bodyType || '',
-        vehicletype: values.vehicletype || '',
-        region: selectedRegion || '',
-        regionalSpecs: selectedRegionalSpecs || '',
-        seats: values.seats || '',
-        doors: values.doors || '',
-        fuelType: values.fuelType || '',
-        transmissionType: values.transmissionType || '',
-        driveType: values.driveType || '',
-        cylinders: values.cylinders || '',
-        engineCC: values.engineCC || '',
-        consumption: values.consumption || '',
-        horsepower: values.horsepower || '',
-        interior: values.interior || '',
-        accidentHistory: values.accidentHistory || '',
-        warrantyDate: values.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '',
-        extraFeatures: JSON.stringify(values.extraFeatures || []),
-        badges: JSON.stringify(values.badges || []),
-        mediaCount: values.media?.length || 0,
-        mediaUrls: values.media?.filter(f => !f.originFileObj && f.url).map(f => f.url).sort().join(',') || '',
-      });
-    };
-
     const startAutoSave = () => {
-      // Clear any existing interval
       if (autoSaveIntervalRef.current) {
         clearInterval(autoSaveIntervalRef.current);
       }
 
-      // Start new interval
       autoSaveIntervalRef.current = setInterval(async () => {
         try {
-          // Check if ANY field that is sent to API has data
-          const values = form.getFieldsValue();
-          const hasApiData = 
-            values.adTitle || 
-            values.description || 
-            make || 
-            (selectedModel || modalName) || 
-            selectedYear || 
-            values.price ||
-            values.kilometers ||
-            selectedColor ||
-            selectedInteriorColor ||
-            selectedTrim ||
-            values.condition ||
-            values.bodyType ||
-            values.vehicletype ||
-            selectedRegion ||
-            selectedRegionalSpecs ||
-            values.seats ||
-            values.doors ||
-            values.fuelType ||
-            values.transmissionType ||
-            values.driveType ||
-            values.cylinders ||
-            values.engineCC ||
-            values.consumption ||
-            values.horsepower ||
-            values.interior ||
-            values.accidentHistory ||
-            values.warrantyDate ||
-            (values.extraFeatures && values.extraFeatures.length > 0) ||
-            (values.badges && values.badges.length > 0) ||
-            (values.media && values.media.length > 0);
-          
-          if (hasApiData) {
-            // Build current form data snapshot
-            const currentDataSnapshot = buildFormDataSnapshot(values);
-            
-            console.log('Auto-save check - Last saved:', lastSavedDataRef.current ? 'exists' : 'null');
-            console.log('Auto-save check - Current data:', currentDataSnapshot ? 'exists' : 'null');
-            
-            // Compare with last saved data
-            if (lastSavedDataRef.current === currentDataSnapshot) {
-              // No changes detected, skip API call
-              console.log('Auto-save SKIPPED - No changes detected');
-              return;
-            }
-            
-            console.log('Auto-save PROCEEDING - Changes detected');
-            // Data has changed, proceed with auto-save
-            // Separate new uploads from existing server images
-            const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-            const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
-            
-            // If there are new images, upload them first
-            if (newImages.length > 0) {
-              try {
-                const formData = new FormData();
-                // Send images as a single array
-                newImages.forEach((file) => {
-                  formData.append('attachment', file);
-                });
-                
-                const response = await carAPI.postuploadcarimages(formData, 'car');
-                const uploadResult = handleApiResponse(response);
-                
-                if (uploadResult?.attachment_url?.length > 0) {
-                  // Combine new uploaded images with existing ones
-                  const allImages = [...existingImages, ...uploadResult.attachment_url];
-                  await handleCreateCar(allImages, true, values, true);
-                } else {
-                  // Still call createCar with existing images only
-                  await handleCreateCar(existingImages, true, values, true);
-                }
-              } catch (uploadError) {
-                // Still call createCar with existing images only
-                await handleCreateCar(existingImages, true, values, true);
-              }
-            } else {
-              // No new images, call createCar directly with existing images
-              await handleCreateCar(existingImages, true, values, true);
-            }
-            
-            // Update last saved data snapshot after successful auto-save
-            lastSavedDataRef.current = currentDataSnapshot;
-          }
+          await performAutoSave();
         } catch (error) {
           // Silent error handling for auto-save
         }
-      }, 20000); // 20 seconds
+      }, 20000);
     };
 
-    // Start auto-save when component mounts
     startAutoSave();
 
-    // Cleanup interval on unmount
     return () => {
       if (autoSaveIntervalRef.current) {
         clearInterval(autoSaveIntervalRef.current);
@@ -1128,104 +1106,107 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     return e?.fileList;
   };
 
+// Helper function to build FormData for car creation/update
+const buildCarFormData = (values, uploadedImages, isDraft) => {
+  const cleanPrice = values.price ? values.price.replace(/,/g, '') : '';
+  const formData = new FormData();
+  
+  // Append car_id only if it's not empty
+  if (carId && carId !== '') {
+    formData.append('car_id', carId);
+  }
+  
+  // Append all form fields
+  formData.append('make', make || '');
+  formData.append('model', selectedModel || modalName || '');
+  formData.append('year', selectedYear || '');
+  formData.append('price', cleanPrice || '');
+  formData.append('description', values?.description || '');
+  formData.append('ad_title', values?.adTitle || '');
+  formData.append('exterior_color', selectedColor || '');
+  formData.append('interior_color', selectedInteriorColor || '');
+  formData.append('mileage', values?.kilometers || '');
+  formData.append('fuel_type', values?.fuelType || '');
+  formData.append('transmission_type', values?.transmissionType || '');
+  formData.append('body_type', values?.bodyType || '');
+  formData.append('vechile_type', values?.vehicletype || '');
+  formData.append('condition', values?.condition || '');
+  formData.append('location', selectedRegion || '');
+  formData.append('interior', values?.interior || '');
+  formData.append('trim', selectedTrim || '');
+  formData.append('regional_specs', selectedRegionalSpecs || '');
+  formData.append('badges', values?.badges || '');
+  formData.append('warranty_date', values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '');
+  formData.append('accident_history', values?.accidentHistory || '');
+  formData.append('number_of_seats', values?.seats || '');
+  formData.append('number_of_doors', values?.doors || '');
+  formData.append('drive_type', values?.driveType || '');
+  formData.append('engine_cc', values?.engineCC || '');
+  formData.append('consumption', values?.consumption || '');
+  formData.append('no_of_cylinders', values?.cylinders || '');
+  formData.append('horse_power', values?.horsepower || '');
+  formData.append('payment_option', '');
+  formData.append('draft', isDraft);
+  
+  // Append arrays as JSON strings
+  if (values?.extraFeatures && values.extraFeatures.length > 0) {
+    formData.append('extra_features', JSON.stringify(values.extraFeatures));
+  }
+  
+  // Append images
+  if (uploadedImages && uploadedImages.length > 0) {
+    const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
+    relativeImagePaths.forEach((imagePath, index) => {
+      formData.append(`car_images[${index}]`, imagePath);
+    });
+  }
+  
+  return formData;
+};
+
+// Helper function to handle post data success response
+const handlePostDataSuccess = (data1, isDraft, text) => {
+  setAddData(data1?.data);
+  
+  if (isDraft && data1?.data?.car_id && !carId) {
+    setCarId(data1.data.car_id.toString());
+  }
+
+  const messageContent = typeof data1.message === 'object' 
+    ? JSON.stringify(data1.message) 
+    : data1.message;
+  console.log('Message:', messageContent);
+  messageApi.open({
+    type: 'success',
+    content: messageContent,
+  });
+
+  if (text === '1') {
+    setShowModal(true); 
+  } else {
+    form.resetFields();
+  }
+};
+
 const handlePostData = async (uploadedImages = [], text = '', isDraft = false, valuesParam = null) => {
   try {
     const values = valuesParam ?? (await form.validateFields());
-
-    const cleanPrice = values.price ? values.price.replace(/,/g, '') : '';
-
-    // Create FormData instead of JSON payload
-    const formData = new FormData();
-    
-    // Append car_id only if it's not empty
-    if (carId && carId !== '') {
-      formData.append('car_id', carId);
-    }
-    
-    // Append all form fields
-    formData.append('make', make || '');
-    formData.append('model', selectedModel || modalName || '');
-    formData.append('year', selectedYear || '');
-    // formData.append('price', values.price || '');
-    formData.append('price', cleanPrice || '')
-    formData.append('description', values?.description || '');
-    formData.append('ad_title', values?.adTitle || '');
-    formData.append('exterior_color', selectedColor || '');
-    formData.append('interior_color', selectedInteriorColor || '');
-    formData.append('mileage', values?.kilometers || '');
-    formData.append('fuel_type', values?.fuelType || '');
-    formData.append('transmission_type', values?.transmissionType || '');
-    formData.append('body_type', values?.bodyType || '');
-    formData.append('vechile_type', values?.vehicletype || '');
-    formData.append('condition', values?.condition || '');
-    formData.append('location', selectedRegion || '');
-    formData.append('interior', values?.interior || '');
-    formData.append('trim', selectedTrim || '');
-    formData.append('regional_specs', selectedRegionalSpecs || '');
-    formData.append('badges', values?.badges || '');
-    formData.append('warranty_date', values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '');
-    formData.append('accident_history', values?.accidentHistory || '');
-    formData.append('number_of_seats', values?.seats || '');
-    formData.append('number_of_doors', values?.doors || '');
-    formData.append('drive_type', values?.driveType || '');
-    formData.append('engine_cc', values?.engineCC || '');
-    formData.append('consumption', values?.consumption || '');
-    formData.append('no_of_cylinders', values?.cylinders || '');
-    formData.append('horse_power', values?.horsepower || '');
-    formData.append('payment_option', '');
-    formData.append('draft', isDraft);
-    
-    // Append arrays as JSON strings
-    if (values?.extraFeatures && values.extraFeatures.length > 0) {
-      formData.append('extra_features', JSON.stringify(values.extraFeatures));
-    }
-    
-    // Append images as single array (convert to relative paths)
-    if (uploadedImages && uploadedImages.length > 0) {
-      const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
-      relativeImagePaths.forEach((imagePath, index) => {
-        formData.append(`car_images[${index}]`, imagePath);
-      });
-    }
+    const formData = buildCarFormData(values, uploadedImages, isDraft);
 
     setLoading(true);
-
-    const response = await carAPI.createCar(formData); // Send FormData instead of JSON
+    const response = await carAPI.createCar(formData);
     const data1 = handleApiResponse(response);
 
     if (data1) {
-      setAddData(data1?.data);
-      
-      // If this is a draft save and we get a car_id back, store it for future auto-saves
-      if (isDraft && data1?.data?.car_id && !carId) {
-        setCarId(data1.data.car_id.toString());
-      }
+      handlePostDataSuccess(data1, isDraft, text);
     }
-
-    const messageContent = typeof data1.message === 'object' 
-      ? JSON.stringify(data1.message) 
-      : data1.message;
-    console.log('Message:', messageContent);
-    messageApi.open({
-      type: 'success',
-      content: messageContent,
-    });
-
-    if (text === '1') {
-      // navigate('/landing');
-      setShowModal(true); 
-    } else {
-      form.resetFields();
-    }
-
-    // Don't show modal or clear fields in handlePostData - this will be handled in handleCreateCar
   } catch (error) {
     const errorData = handleApiError(error);
     const messageText = typeof errorData === 'object' 
       ? JSON.stringify(errorData) 
       : (errorData || 'An error occurred');
     console.log('Message:', messageText);
-    // Only show error messages for non-draft saves
+    
     if (!isDraft) {
       messageApi.open({ type: 'error', content: messageText });
     }
@@ -1235,110 +1216,110 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
   }
 };
 
+// Helper function to build FormData for handleCreateCar (with JSON images)
+const buildCreateCarFormData = (values, uploadedImages, isDraft) => {
+  const cleanPrice = values.price ? values.price.replace(/,/g, '') : '';
+  const formData = new FormData();
+  
+  if (carId && carId !== '') {
+    formData.append('car_id', carId);
+  }
+  
+  formData.append('make', make || '');
+  formData.append('model', selectedModel || modalName || '');
+  formData.append('year', selectedYear || '');
+  formData.append('price', cleanPrice || '');
+  formData.append('description', values?.description || '');
+  formData.append('ad_title', values?.adTitle || '');
+  formData.append('exterior_color', selectedColor || '');
+  formData.append('interior_color', selectedInteriorColor || '');
+  formData.append('mileage', values?.kilometers || '');
+  formData.append('fuel_type', values?.fuelType || '');
+  formData.append('transmission_type', values?.transmissionType || '');
+  formData.append('body_type', values?.bodyType || '');
+  formData.append('vechile_type', values?.vehicletype || '');
+  formData.append('condition', values?.condition || '');
+  formData.append('location', selectedRegion || '');
+  formData.append('interior', values?.interior || '');
+  formData.append('trim', selectedTrim || '');
+  formData.append('regional_specs', selectedRegionalSpecs || '');
+  formData.append('badges', values?.badges || '');
+  formData.append('warranty_date', values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '');
+  formData.append('accident_history', values?.accidentHistory || '');
+  formData.append('number_of_seats', values?.seats || '');
+  formData.append('number_of_doors', values?.doors || '');
+  formData.append('drive_type', values?.driveType || '');
+  formData.append('engine_cc', values?.engineCC || '');
+  formData.append('consumption', values?.consumption || '');
+  formData.append('no_of_cylinders', values?.cylinders || '');
+  formData.append('horse_power', values?.horsepower || '');
+  formData.append('payment_option', '');
+  formData.append('draft', isDraft);
+  
+  if (values?.extraFeatures && values.extraFeatures.length > 0) {
+    formData.append('extra_features', JSON.stringify(values.extraFeatures));
+  }
+  
+  if (uploadedImages && uploadedImages.length > 0) {
+    const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
+    formData.append('car_images', JSON.stringify(relativeImagePaths));
+  }
+  
+  return formData;
+};
+
+// Helper function to handle create car success
+const handleCreateCarSuccess = (data1, isDraft, isAutoSave) => {
+  setAddData(data1?.data);
+  
+  if (isDraft && data1?.data?.car_id && !carId) {
+    setCarId(data1.data.car_id.toString());
+  }
+
+  const messageContent = typeof data1.message === 'object' 
+    ? JSON.stringify(data1.message) 
+    : data1.message;
+  
+  if (!isAutoSave) {
+    messageApi.open({
+      type: 'success',
+      content: messageContent,
+    });
+  }
+};
+
+// Helper function to handle post-creation actions
+const handlePostCreationActions = (isDraft, isAutoSave) => {
+  if (isAutoSave) return;
+
+  if (autoSaveIntervalRef.current) {
+    clearInterval(autoSaveIntervalRef.current);
+    autoSaveIntervalRef.current = null;
+    console.log('Auto-save stopped after successful Create/Draft save');
+  }
+  
+  lastSavedDataRef.current = null;
+  setModalMode(isDraft ? 'draft' : 'create');
+  setShowModal(true);
+  
+  if (!isDraft) {
+    form.resetFields();
+  }
+};
+
 const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam = null, isAutoSave = false) => {
   try {
     const values = valuesParam ?? (await form.validateFields());
-
-    const cleanPrice = values.price ? values.price.replace(/,/g, '') : '';
-
-    // Create FormData instead of JSON payload
-    const formData = new FormData();
-    
-    // Append car_id only if it's not empty
-    if (carId && carId !== '') {
-      formData.append('car_id', carId);
-    }
-    
-    // Append all form fields
-    formData.append('make', make || '');
-    formData.append('model', selectedModel || modalName || '');
-    formData.append('year', selectedYear || '');
-    formData.append('price', cleanPrice || '')
-    formData.append('description', values?.description || '');
-    formData.append('ad_title', values?.adTitle || '');
-    formData.append('exterior_color', selectedColor || '');
-    formData.append('interior_color', selectedInteriorColor || '');
-    formData.append('mileage', values?.kilometers || '');
-    formData.append('fuel_type', values?.fuelType || '');
-    formData.append('transmission_type', values?.transmissionType || '');
-    formData.append('body_type', values?.bodyType || '');
-    formData.append('vechile_type', values?.vehicletype || '');
-    formData.append('condition', values?.condition || '');
-    formData.append('location', selectedRegion || '');
-    formData.append('interior', values?.interior || '');
-    formData.append('trim', selectedTrim || '');
-    formData.append('regional_specs', selectedRegionalSpecs || '');
-    formData.append('badges', values?.badges || '');
-    formData.append('warranty_date', values?.warrantyDate ? moment(values.warrantyDate).format('YYYY-MM-DD') : '');
-    formData.append('accident_history', values?.accidentHistory || '');
-    formData.append('number_of_seats', values?.seats || '');
-    formData.append('number_of_doors', values?.doors || '');
-    formData.append('drive_type', values?.driveType || '');
-    formData.append('engine_cc', values?.engineCC || '');
-    formData.append('consumption', values?.consumption || '');
-    formData.append('no_of_cylinders', values?.cylinders || '');
-    formData.append('horse_power', values?.horsepower || '');
-    formData.append('payment_option', '');
-    formData.append('draft', isDraft);
-    
-    // Append arrays as JSON strings
-    if (values?.extraFeatures && values.extraFeatures.length > 0) {
-      formData.append('extra_features', JSON.stringify(values.extraFeatures));
-    }
-    
-    // Append images as single array (convert to relative paths)
-    if (uploadedImages && uploadedImages.length > 0) {
-      const relativeImagePaths = uploadedImages.map(url => convertToRelativePath(url));
-      formData.append('car_images', JSON.stringify(relativeImagePaths));
-    }
+    const formData = buildCreateCarFormData(values, uploadedImages, isDraft);
 
     setLoading(true);
-
-    const response = await carAPI.createCar(formData); // Send FormData instead of JSON
+    const response = await carAPI.createCar(formData);
     const data1 = handleApiResponse(response);
 
     if (data1) {
-      setAddData(data1?.data);
-      
-      // If this is a draft save and we get a car_id back, store it for future auto-saves
-      if (isDraft && data1?.data?.car_id && !carId) {
-        setCarId(data1.data.car_id.toString());
-      }
+      handleCreateCarSuccess(data1, isDraft, isAutoSave);
+      handlePostCreationActions(isDraft, isAutoSave);
     }
-
-    const messageContent = typeof data1.message === 'object' 
-      ? JSON.stringify(data1.message) 
-      : data1.message;
-    
-    // Show success message only for manual saves (not auto-save)
-    if (!isAutoSave) {
-      messageApi.open({
-        type: 'success',
-        content: messageContent,
-      });
-    }
-
-    // Show modal for manual Create and Save as Draft button clicks (not auto-save)
-    if (!isAutoSave) {
-        // Stop auto-save when Create or Save as Draft is successful
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-        autoSaveIntervalRef.current = null;
-        console.log('Auto-save stopped after successful Create/Draft save');
-      }
-      
-      // Reset last saved data ref after manual save
-      lastSavedDataRef.current = null;
-      
-      setModalMode(isDraft ? 'draft' : 'create');
-      setShowModal(true);
-      
-      // Clear fields only for Create button clicks (not for Save as Draft)
-      if (!isDraft) {
-        form.resetFields();
-      }
-    }
-    // For auto-save, don't show modal and don't clear any fields
   } catch (error) {
     const errorData = handleApiError(error);
     const messageText = typeof errorData === 'object' 
@@ -1346,7 +1327,7 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
       : (errorData || 'An error occurred');
     
     console.log('Message:', messageText);
-    // Show error messages only for manual saves (not auto-save)
+    
     if (!isAutoSave) {
       messageApi.open({ type: 'error', content: messageText });
     }
@@ -1356,103 +1337,89 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
   }
 };
 
+// Helper function to separate images into new and existing
+const separateImages = (media) => {
+  const newImages = media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
+  const existingImages = media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
+  return { newImages, existingImages };
+};
+
+// Helper function to upload images and get URLs
+const uploadImagesAndGetUrls = async (newImages) => {
+  const formData = new FormData();
+  newImages.forEach((file) => {
+    formData.append('attachment', file);
+  });
+  
+  const response = await carAPI.postuploadcarimages(formData, 'car');
+  return handleApiResponse(response);
+};
+
+// Helper function to handle draft save
+const handleDraftSave = async (values) => {
+  const { newImages, existingImages } = separateImages(values.media);
+
+  if (newImages.length === 0 && existingImages.length === 0) {
+    await handleCreateCar([], true, values);
+    return;
+  }
+  
+  if (newImages.length > 0) {
+    const uploadResult = await uploadImagesAndGetUrls(newImages);
+    
+    if (uploadResult?.attachment_url?.length > 0) {
+      const allImages = [...existingImages, ...uploadResult.attachment_url];
+      await handleCreateCar(allImages, true, values);
+    } else {
+      message.error(uploadResult.message || 'Upload failed');
+    }
+  } else {
+    await handleCreateCar(existingImages, true, values);
+  }
+};
+
+// Helper function to handle create save
+const handleCreateSave = async (values) => {
+  const { newImages, existingImages } = separateImages(values.media);
+  
+  if (newImages.length === 0 && existingImages.length === 0) {
+    message.error('Please upload at least one image.');
+    return;
+  }
+
+  if (newImages.length > 0) {
+    const uploadResult = await uploadImagesAndGetUrls(newImages);
+    
+    if (uploadResult?.attachment_url?.length > 0) {
+      const allImages = [...existingImages, ...uploadResult.attachment_url];
+      await handleCreateCar(allImages, false, values);
+    } else {
+      message.error(uploadResult.message || 'Upload failed');
+    }
+  } else {
+    await handleCreateCar(existingImages, false, values);
+  }
+};
+
 const handleFinish = async (mode) => {
   try {
-    // Stop auto-save when user manually clicks Create or Save as draft
-    // if (autoSaveIntervalRef.current) {
-    //   clearInterval(autoSaveIntervalRef.current);
-    //   autoSaveIntervalRef.current = null;
-    // }
-
     if (mode === 'draft') {
-      const values = form.getFieldsValue(); 
-      
-      // Separate new uploads from existing server images
-      const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-      const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
-
-      if (newImages.length === 0 && existingImages.length === 0) {
-        // Call createCar without images for draft save
-        await handleCreateCar([], true, values);
-        return;
-      }
-      
-      // If there are new images, upload them first, then combine with existing ones
-      if (newImages.length > 0) {
-        // Upload new images and get their URLs
-        const formData = new FormData();
-        newImages.forEach((file) => {
-          formData.append('attachment', file);
-        });
-        
-        const response = await carAPI.postuploadcarimages(formData, 'car');
-        const uploadResult = handleApiResponse(response);
-        
-        if (uploadResult?.attachment_url?.length > 0) {
-          // Combine new uploaded images with existing ones
-          const allImages = [...existingImages, ...uploadResult.attachment_url];
-          // Call createCar with all images
-          await handleCreateCar(allImages, true, values);
-        } else {
-          message.error(uploadResult.message || 'Upload failed');
-          return;
-        }
-      } else {
-        // If only existing images, submit directly with existing image URLs
-        await handleCreateCar(existingImages, true, values);
-      }
+      const values = form.getFieldsValue();
+      await handleDraftSave(values);
       return;
     }
 
     if (mode === 'create') {
       const values = await form.validateFields();
-      
-      // Separate new uploads from existing server images
-      const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-      const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
-      
-      if (newImages.length === 0 && existingImages.length === 0) {
-        message.error('Please upload at least one image.');
-        return;
-      }
-
-      // If there are new images, upload them first, then combine with existing ones
-      if (newImages.length > 0) {
-        // Upload new images and get their URLs
-        const formData = new FormData();
-        newImages.forEach((file) => {
-          formData.append('attachment', file);
-        });
-        
-        const response = await carAPI.postuploadcarimages(formData, 'car');
-        const uploadResult = handleApiResponse(response);
-        
-        if (uploadResult?.attachment_url?.length > 0) {
-          // Combine new uploaded images with existing ones
-          const allImages = [...existingImages, ...uploadResult.attachment_url];
-          // Call createCar with all images
-          await handleCreateCar(allImages, false, values);
-        } else {
-          message.error(uploadResult.message || 'Upload failed');
-          return;
-        }
-      } else {
-        // If only existing images, submit directly with existing image URLs
-        await handleCreateCar(existingImages, false, values);
-      }
+      await handleCreateSave(values);
       return;
     }
-
-    // This fallback case is not needed anymore - all cases are handled above
   } catch (err) {
-    if (err?.errorFields) {
-      const messageContent = 'Please fill required fields before submitting.';
-      messageApi.open({ type: 'error', content: messageContent });
-    } else {
-      const errorData = handleApiError(err);
-      const messageContent = errorData.message || 'An error occurred. Please try again.';
-      messageApi.open({ type: 'error', content: messageContent });
-    }
+    const messageContent = err?.errorFields 
+      ? 'Please fill required fields before submitting.'
+      : handleApiError(err).message || 'An error occurred. Please try again.';
+    
+    messageApi.open({ type: 'error', content: messageContent });
   }
 };
 
@@ -3169,7 +3136,6 @@ const handleImageUpload = async (images) => {
           </Form>
         </Card>
         {/* Conditionally render the modal */}
-      {showModal && <CarPostingModal onClose={() => setShowModal(false)} handleAddNew={handleAddNew} />}
       {showModal && <CarPostingModal onClose={() => setShowModal(false)} handleAddNew={handleAddNew} mode={modalMode} />}
       </div>
     </>

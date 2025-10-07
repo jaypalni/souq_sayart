@@ -153,7 +153,7 @@
 
 /* Filters Styles */
 .mylistings-filters {
-  margin-top: 35px;
+  
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
@@ -263,7 +263,6 @@
 .mylistings-pagination {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
   width: 100%;
   max-width: 1200px;
   margin: 20px auto 0 auto;

@@ -772,58 +772,68 @@ fetchRegionCars()
     cacheKeys.forEach(key => localStorage.removeItem(key));
   };
 
-  // Helper function to handle search results
+  // Helper function to update pagination data
+  const updatePaginationData = (pagination) => {
+    if (pagination && typeof pagination.total === 'number') {
+      setCarCount(pagination.total);
+    }
+    if (setCurrentPage && pagination && typeof pagination.page === 'number') {
+      setCurrentPage(pagination.page);
+    }
+  };
+
+  // Helper function to save search data
+  const saveSearchData = (apiParams) => {
+    if (apiParams && typeof apiParams === 'object') {
+      try {
+        localStorage.setItem('searchcardata', JSON.stringify(apiParams));
+      } catch (error) {
+        // Silent error handling
+      }
+    }
+  };
+
+  // Helper function to handle empty results
+  const handleEmptyResults = () => {
+    setIsModalOpen(true);
+    setFilterCarsData({ cars: [], pagination: {} });
+  };
+
+  // Helper function to handle successful results
+  const handleSuccessfulResults = (data1, apiParams) => {
+    setFilterCarsData({
+      cars: data1.data.cars || [],
+      pagination: data1.data.pagination || {}
+    });
+    
+    saveSearchData(apiParams);
+    
+    if (setSelectedLocation && location) {
+      setSelectedLocation(location);
+    }
+    window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+  };
+
   const handleSearchResults = (data1, apiParams) => {
-    // Null checks for data structure
     if (!data1 || !data1.data) {
       return;
     }
 
     const results = data1.data.cars || [];
     setCarSearch(results);
-
-    // Update car count from pagination with null checks
-    if (data1.data.pagination && typeof data1.data.pagination.total === 'number') {
-      setCarCount(data1.data.pagination.total);
-    }
-
-    // Update current page with the page value from backend response with null checks
-    if (setCurrentPage && data1.data.pagination && typeof data1.data.pagination.page === 'number') {
-      setCurrentPage(data1.data.pagination.page);
-    }
+    updatePaginationData(data1.data.pagination);
 
     if (results.length === 0) {
-      setIsModalOpen(true);
-      setFilterCarsData({ cars: [], pagination: {} });
+      handleEmptyResults();
     } else {
-      setFilterCarsData({
-        cars: data1.data.cars || [],
-        pagination: data1.data.pagination || {}
-      });
-      
-      // Safe localStorage operation with null check
-      if (apiParams && typeof apiParams === 'object') {
-        try {
-          localStorage.setItem('searchcardata', JSON.stringify(apiParams));
-        } catch (error) {
-        }
-      }
-      
-      if (setSelectedLocation && location) {
-        setSelectedLocation(location);
-      }
-      window.dispatchEvent(new CustomEvent('searchDataUpdated'));
+      handleSuccessfulResults(data1, apiParams);
     }
   };
 
-  // Helper function to handle search with condition
   const handleSearchWithCondition = async (condition) => {
-    // Update the condition state and trigger search
     setNewUsed(condition);
-    // The search will be triggered by the useEffect watching filter state changes
   };
 
-  // Main search function
   const handleSearch = async () => {
     
     const sortConfig = getSortParameters(sortedbydata);
@@ -877,36 +887,39 @@ setIsnetworkError(false)
     return DEFAULTS.PRICE_MAX;
   };
 
+  // Helper function to handle dropdown item click
+  const handleDropdownItemClick = (type, opt, setValue) => {
+    setValue(opt);
+    handleChange(getDropdownLabel(type), opt);
+    setOpenDropdown(null);
+    
+    // Call API only when condition is selected
+    if (type === DROPDOWN_NEW_USED) {
+      setTimeout(() => {
+        handleSearchWithCondition(opt);
+      }, 100);
+    }
+  };
+
+  // Helper function to render a single dropdown item
+  const renderDropdownItem = (opt, value, type, setValue) => {
+    const itemClass = `allcars-filters-dropdown-item${value === opt ? ' selected' : ''}`;
+    
+    return (
+      <button
+        type="button"
+        key={opt}
+        className={itemClass}
+        onClick={() => handleDropdownItemClick(type, opt, setValue)}
+      >
+        {opt}
+      </button>
+    );
+  };
+
   const renderDropdown = (type, options, value, setValue) => (
     <div id={`menu-${type}`} className="allcars-filters-dropdown-menu" ref={dropdownRefs[type]}>
-      {options.map((opt) => {
-        let itemClass = 'allcars-filters-dropdown-item';
-        if (value === opt) {
-          itemClass += ' selected';
-        }
-        return (
-          <button
-            type="button"
-            key={opt}
-            className={itemClass}
-            onClick={() => {
-              setValue(opt);
-              handleChange(getDropdownLabel(type), opt);
-              setOpenDropdown(null);
-              
-              // Call API only when condition is selected
-              if (type === DROPDOWN_NEW_USED) {
-                // Call handleSearch with the selected condition
-                setTimeout(() => {
-                  handleSearchWithCondition(opt);
-                }, 100);
-              }
-            }}
-          >
-            {opt}
-          </button>
-        );
-      })}
+      {options.map((opt) => renderDropdownItem(opt, value, type, setValue))}
     </div>
   );
 

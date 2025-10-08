@@ -262,7 +262,13 @@
   font-weight: 500;
   font-size: 12px;
   border: none;
-  pointer-events: none;
+}
+
+.call-button:hover,
+.call-button:focus {
+  background: #1e2930 !important;
+  color: #fff !important;
+  border: none !important;
 }
 
 .call-button-icon {
@@ -537,7 +543,7 @@ padding: 0px !important;
   margin-top: 2px;
 }
 
-no-hover-bg:hover,
+.no-hover-bg:hover,
 .no-hover-bg:focus {
   background-color: #323F49 !important; 
   border: none !important;              

@@ -8,7 +8,7 @@
 import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Button, Avatar, message, Tooltip } from 'antd';
+import { Card, Button, Avatar, message, Tooltip, Modal } from 'antd';
 import {
   FaWhatsapp,
   FaPhoneAlt,
@@ -480,6 +480,47 @@ CarDetailsMain.propTypes = {
 
 // Extracted SellerInfoCard component
 const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage }) => {
+  const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
+
+  const handleCallClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPhoneModalVisible(true);
+  };
+
+  const copyPhoneNumber = () => {
+    const phoneNumber = carDetails.seller.phone_number;
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(phoneNumber)
+        .then(() => {
+          messageApi.open({ type: 'success', content: 'Phone Number Copied' });
+          setIsPhoneModalVisible(false);
+        })
+        .catch(() => {
+          // Fallback
+          const textarea = document.createElement('textarea');
+          textarea.value = phoneNumber;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          messageApi.open({ type: 'success', content: 'Phone Number Copied' });
+          setIsPhoneModalVisible(false);
+        });
+    } else {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = phoneNumber;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      messageApi.open({ type: 'success', content: 'Phone Number Copied' });
+      setIsPhoneModalVisible(false);
+    }
+  };
+
   // Helper function to render status info
   const renderStatus = () => {
   const { approval, status, reason, comment, boost } = carDetails;
@@ -556,8 +597,6 @@ if (approval === 'approved' && status !== 'sold') {
 
   return null;
 };
-
-
 
   return (
     <Card className="seller-info-card">
@@ -636,21 +675,43 @@ if (approval === 'approved' && status !== 'sold') {
             <Button
               icon={<FaPhoneAlt className="call-button-icon" />}
               className="w-100 no-hover-bg call-button"
-              onClick={() => {
-                navigator.clipboard.writeText(carDetails.seller.phone_number)
-                  .then(() => {
-                    messageApi.open({ type: 'success', content: `${carDetails.seller.phone_number} (copied!)` });
-                  })
-                  .catch(() => {
-                    messageApi.open({ type: 'error', content: 'Failed to copy number' });
-                  });
-              }}
+              onClick={handleCallClick}
             >
               Call
             </Button>
           </>
         )}
       </div>
+
+      {/* Phone Number Modal */}
+      <Modal
+        title="Seller's Phone Number"
+        open={isPhoneModalVisible}
+        onCancel={() => setIsPhoneModalVisible(false)}
+        footer={null}
+        centered
+      >
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <p style={{ fontSize: '18px', fontWeight: 500, marginBottom: '20px' }}>
+            Click the phone number to copy:
+          </p>
+          <div
+            onClick={copyPhoneNumber}
+            style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              color: '#008AD5',
+              cursor: 'pointer',
+              padding: '10px',
+              borderRadius: '8px',
+              backgroundColor: '#f0f8ff',
+              display: 'inline-block',
+            }}
+          >
+            {carDetails.seller.phone_number}
+          </div>
+        </div>
+      </Modal>
     </Card>
   );
 };

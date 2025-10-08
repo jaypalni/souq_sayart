@@ -449,7 +449,10 @@ const buildFormValues = (data) => ({
   bodyType: data.body_type ?? data.bodyType ?? '',
   condition: data.condition ?? '',
   consumption: data.consumption ?? '',
-  kilometers: data.kilometers ?? data.mileage ?? 0,
+  kilometers: (() => {
+    const kmValue = data.kilometers ?? data.mileage ?? 0;
+    return (kmValue === 0 || kmValue === '0') ? undefined : kmValue;
+  })(),
   engineCC: data.engine_cc ?? data.engineCC ?? data.engine ?? '',
   transmissionType: data.transmission_type ?? data.transmission ?? '',
   driveType: data.drive_type ?? data.driveType ?? data.drive_type ?? '',
@@ -461,7 +464,10 @@ const buildFormValues = (data) => ({
   interiorColor: data.interior_color ?? data.interiorColor ?? '',
   cylinders: data.no_of_cylinders ?? data.cylinders ?? '',
   doors: data.number_of_doors ?? data.no_of_doors ?? '',
-  seats: data.number_of_seats ?? data.no_of_seats ?? '',
+  seats: (() => {
+    const seatsValue = data.number_of_seats ?? data.no_of_seats ?? '';
+    return (seatsValue === 0 || seatsValue === '0') ? undefined : seatsValue;
+  })(),
   extraFeatures: (() => {
     if (Array.isArray(data.extra_features)) {
       return data.extra_features;
@@ -517,7 +523,8 @@ const setBrandState = (data, imagePath, setSelectedBrand, setSelectedBrandImage,
     if (typeof setMake === 'function') setMake(brandName);
   }
 };
-
+console.log('extras11',extras)
+console.log('extras11',selectedSeats)
 // Helper function to set color-related state
 const setColorState = (data, setSelectedColor, setSelectedColorImage) => {
   if (typeof setSelectedColor === 'function') {
@@ -595,7 +602,10 @@ const setDetailedVehicleState = (data, setters) => {
     }
     setSelectedBadges(badgesArray);
   }
-  if (typeof setSelectedSeats === 'function') setSelectedSeats(data.number_of_seats ?? data.no_of_seats ?? '');
+  if (typeof setSelectedSeats === 'function') {
+    const seatsValue = data.number_of_seats ?? data.no_of_seats ?? null;
+    setSelectedSeats((seatsValue === 0 || seatsValue === '0') ? undefined : seatsValue);
+  }
   if (typeof setSelectedDoors === 'function') setSelectedDoors(data.number_of_doors ?? data.no_of_doors ?? '');
   if (typeof setSelectedFuelType === 'function') setSelectedFuelType(data.fuel_type ?? '');
   if (typeof setSelectedTransmissionType === 'function') setSelectedTransmissionType(data.transmission_type ?? '');
@@ -616,6 +626,11 @@ useEffect(() => {
   }
   
   if (populatedRef.current) return;
+
+  // Set car_id from extras if it exists
+  if (data.id) {
+    setCarId(data.id.toString());
+  }
 
   const imagePath = data.image_url || data.car_image || '';
   
@@ -864,6 +879,25 @@ const handlePaste = (e) => {
       const allImages = uploadResult?.attachment_url?.length > 0 
         ? [...existingImages, ...uploadResult.attachment_url]
         : existingImages;
+      
+      // Update mediaFileList to replace uploaded images with server URLs
+      if (uploadResult?.attachment_url?.length > 0) {
+        const updatedFileList = [
+          // Keep existing server images (without originFileObj)
+          ...mediaFileList.filter(file => !file.originFileObj),
+          // Add newly uploaded images as server files
+          ...uploadResult.attachment_url.map((url, index) => ({
+            uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+            name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+            status: 'done',
+            url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+            originFileObj: null, // Mark as server file
+          }))
+        ];
+        setMediaFileList(updatedFileList);
+        form.setFieldsValue({ media: updatedFileList });
+      }
+      
       await handleCreateCar(allImages, true, values, true);
     } catch (uploadError) {
       await handleCreateCar(existingImages, true, values, true);
@@ -965,10 +999,10 @@ const handlePaste = (e) => {
 
 // Clear dependent fields when brand changes
 useEffect(()=>{
-setSelectedTrim(null)
+setSelectedTrim(extras?.trim||null)
     setSelectedYear()
-setSelectedBodyType()
-    form.setFieldsValue({ bodyType: undefined });
+setSelectedBodyType(extras?.body_type||'')
+    form.setFieldsValue({ bodyType:extras?.body_type||'' });
 },[selectedBrand])
 
 // Update form field when brand, model, and trim state changes
@@ -986,11 +1020,10 @@ useEffect(() => {
 }, [selectedBrand, selectedModel, selectedTrim, form]);
 // Only clear trim and body type when model changes manually (not during initial data loading)
 useEffect(() => {
-  // Add a small delay to avoid clearing trim during initial data population
   const timer = setTimeout(() => {
-    setSelectedTrim(null);
-    setSelectedBodyType();
-    form.setFieldsValue({ bodyType: undefined });
+    setSelectedTrim(extras?.trim||null);
+    setSelectedBodyType(extras?.body_type||'');
+    form.setFieldsValue({ bodyType: extras?.body_type||'' });
   }, 100);
   
   return () => clearTimeout(timer);
@@ -1366,6 +1399,23 @@ const handleDraftSave = async (values) => {
     
     if (uploadResult?.attachment_url?.length > 0) {
       const allImages = [...existingImages, ...uploadResult.attachment_url];
+      
+      // Update mediaFileList to replace uploaded images with server URLs
+      const updatedFileList = [
+        // Keep existing server images (without originFileObj)
+        ...mediaFileList.filter(file => !file.originFileObj),
+        // Add newly uploaded images as server files
+        ...uploadResult.attachment_url.map((url, index) => ({
+          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+          status: 'done',
+          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+          originFileObj: null, // Mark as server file
+        }))
+      ];
+      setMediaFileList(updatedFileList);
+      form.setFieldsValue({ media: updatedFileList });
+      
       await handleCreateCar(allImages, true, values);
     } else {
       message.error(uploadResult.message || 'Upload failed');
@@ -1389,6 +1439,23 @@ const handleCreateSave = async (values) => {
     
     if (uploadResult?.attachment_url?.length > 0) {
       const allImages = [...existingImages, ...uploadResult.attachment_url];
+      
+      // Update mediaFileList to replace uploaded images with server URLs
+      const updatedFileList = [
+        // Keep existing server images (without originFileObj)
+        ...mediaFileList.filter(file => !file.originFileObj),
+        // Add newly uploaded images as server files
+        ...uploadResult.attachment_url.map((url, index) => ({
+          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+          status: 'done',
+          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+          originFileObj: null, // Mark as server file
+        }))
+      ];
+      setMediaFileList(updatedFileList);
+      form.setFieldsValue({ media: updatedFileList });
+      
       await handleCreateCar(allImages, false, values);
     } else {
       message.error(uploadResult.message || 'Upload failed');
@@ -1445,6 +1512,22 @@ const handleUpdateCar = async () => {
     if (newImages.length > 0) {
       const newUploadedImages = await handleImageUpload(newImages);
       uploadedImages = [...existingImages, ...newUploadedImages]; // Combine existing and new
+      
+      // Update mediaFileList to replace uploaded images with server URLs
+      const updatedFileList = [
+        // Keep existing server images (without originFileObj)
+        ...mediaFileList.filter(file => !file.originFileObj),
+        // Add newly uploaded images as server files
+        ...newUploadedImages.map((url, index) => ({
+          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+          status: 'done',
+          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+          originFileObj: null, // Mark as server file
+        }))
+      ];
+      setMediaFileList(updatedFileList);
+      form.setFieldsValue({ media: updatedFileList });
     }
     
     // Convert image URLs to relative paths for API payload
@@ -2340,16 +2423,13 @@ const handleImageUpload = async (images) => {
             onClick={() => {
               const currentKilometers = form.getFieldValue('kilometers');
               
-              // Check if user is changing from "New" to something else while kilometers is 0
               if (selectedCondition === 'New' && opt.car_condition !== 'New' && (currentKilometers === '0' || currentKilometers === 0)) {
-                // You can add a warning message here if needed
                 // message.warning('Cars with 0 kilometers are typically "New". Are you sure?');
               }
               
               setSelectedCondition(opt.car_condition);
               form.setFieldsValue({ condition: opt.car_condition });
               
-              // Re-validate kilometers field when condition changes
               form.validateFields(['kilometers']);
             }}
           >
@@ -2445,7 +2525,7 @@ const handleImageUpload = async (images) => {
 </Row>
 
               <Row gutter={16}>
-                <Col xs={24} md={12}>
+                {/* <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label'
                     label='Badges'
@@ -2476,7 +2556,7 @@ const handleImageUpload = async (images) => {
                       ))}
                     </div>
                   </Form.Item>
-                </Col>
+                </Col> */}
 
                 <Col xs={24} md={12}>
                   <Form.Item
@@ -3008,7 +3088,7 @@ const handleImageUpload = async (images) => {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col xs={24} md={6}>
+                {/* <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
                     label='Interior'
@@ -3027,7 +3107,7 @@ const handleImageUpload = async (images) => {
                       ))}
                     </Select>
                   </Form.Item>
-                </Col>
+                </Col> */}
 
                  
 <Col xs={24} md={6}>
@@ -3087,7 +3167,24 @@ const handleImageUpload = async (images) => {
             <Form.Item className='form-item-margin-top'>
               <div className='submit-btn-group'>
                 {extras && extras.id ? (
-                  // Update mode - show Update Car button
+                  <>
+                   <Button
+                      size='small'
+                      className='btn-outline-blue'
+                      onClick={handleEvaluateCar}
+                      type='default'
+                    >
+                      Evaluate Car
+                    </Button>
+
+                    <Button
+                      size='small'
+                      className='btn-outline-blue'
+                      onClick={() => handleFinish('draft')}
+                      type='default'
+                    >
+                      Save as draft
+                    </Button>
                   <Button
                     className={`btn-update-car ${loading ? '' : 'enabled'}`}
                     size='small'
@@ -3097,7 +3194,8 @@ const handleImageUpload = async (images) => {
                   >
                     Update Car
                   </Button>
-                ) : (
+                  </>
+                 ) : (
                   <>
                     <Button
                       size='small'

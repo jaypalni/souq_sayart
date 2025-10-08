@@ -380,16 +380,18 @@
 }
 
 .car-card-delete-btn {
-  flex: 1;
-  border-radius: 4px;
-  color: #008AD5;
-  border-color: #008AD5;
-  background-color: #fff;
+flex: 1;
+    border-radius: 16px;
+    color: #008AD5;
+    font-weight: 700;
+    border-color: #008AD5;
+    background-color: #fff;
 }
 
 .car-card-edit-btn {
   flex: 1;
-  border-radius: 4px;
+  border-radius: 16px;
+   font-weight: 700;
   background-color: #008AD5;
   color: #fff;
   border-color: #008AD5;

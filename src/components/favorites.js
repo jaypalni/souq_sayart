@@ -93,13 +93,13 @@ const MyFavoritesCars = () => {
   };
 
   const renderContent = () => {
-    if (loading) {
-      return (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <Spin size="large" />
-        </div>
-      );
-    }
+    // if (loading) {
+    //   return (
+    //     <div style={{ textAlign: 'center', padding: '50px 0' }}>
+    //       <Spin size="large" />
+    //     </div>
+    //   );
+    // }
 
     if (carsData.length === 0) {
       return (

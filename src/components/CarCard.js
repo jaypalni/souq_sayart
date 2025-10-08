@@ -16,55 +16,38 @@ const STATUS_ACTIVE = 'Active';
 const STATUS_SOLD = 'Sold';
 
 const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }) => {
-  const [activeDropdownId, setActiveDropdownId] = useState(null);
   const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [messageApi, contextHolder] = message.useMessage();
 
-  const getTagProps = () => {
-    const mapping = {
-      'Active-Sport': { bg: COLORS.activeTagBg, color: COLORS.activeTagColor, label: 'Active' },
-      'Active-Base': { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: 'Pending Approval' },
-      'Sold': { bg: COLORS.soldTagBg, color: COLORS.soldTagColor, label: 'Sold' },
-    };
-
-    let key;
-    if (value === STATUS_ACTIVE) key = `Active-${filterStatus}`;
-    else if (value === STATUS_SOLD) key = STATUS_SOLD;
-    else key = 'Default';
-
-    return mapping[key] || { bg: COLORS.pendingTagBg, color: COLORS.pendingTagColor, label: car.approval || 'Unknown' };
-  };
-
-  const tagProps = getTagProps();
-
   // ✅ Status label logic
-  let displayLabel = { label: '', isVisible: true, bg: '', color: '' };
-
-  // If in Sold tab, show "Sold" status
-  if (value === STATUS_SOLD) {
-    displayLabel = { label: 'Sold', isVisible: true, bg: '#D5F0FF', color: '#008AD5' };
-  } else if (car.approval?.toLowerCase() === 'pending') {
-    if (car.draft === 1) {
-      displayLabel = { label: '', isVisible: false, bg: '', color: '' };
-    } else {
-      displayLabel = { label: 'Approval Pending', isVisible: true, bg: '#FFEDD5', color: '#D67900' };
+  const getDisplayLabel = () => {
+    // If in Sold tab, show "Sold" status
+    if (value === STATUS_SOLD) {
+      return { label: 'Sold', isVisible: true, bg: '#D5F0FF', color: '#008AD5' };
+    } 
+    
+    if (car.approval?.toLowerCase() === 'pending') {
+      if (car.draft === 1) {
+        return { label: '', isVisible: false, bg: '', color: '' };
+      }
+      return { label: 'Approval Pending', isVisible: true, bg: '#FFEDD5', color: '#D67900' };
     }
-  } else if (car.approval?.toLowerCase() === 'approved') {
-    displayLabel = { label: 'Active', isVisible: true, bg: '#A4F4E7', color: '#0B7B69' };
-  } else if (car.approval?.toLowerCase() === 'rejected') {
-    displayLabel = { label: 'Rejected', isVisible: true, bg: '#FDECEC', color: '#DC3545' };
-  } else {
-    displayLabel = { label: car.approval || 'Unknown', isVisible: true, bg: '#F5F5F5', color: '#333' };
-  }
-
-  const CARD_WIDTH = 'auto';
-  const imageSrc = car.car_image && car.car_image.trim() !== '' ? `${BASE_URL}${car.car_image}` : bluecar_icon;
-
-  const toggleDropdown = (nextId) => {
-    setActiveDropdownId(activeDropdownId === nextId ? null : nextId);
+    
+    if (car.approval?.toLowerCase() === 'approved') {
+      return { label: 'Active', isVisible: true, bg: '#A4F4E7', color: '#0B7B69' };
+    }
+    
+    if (car.approval?.toLowerCase() === 'rejected') {
+      return { label: 'Rejected', isVisible: true, bg: '#FDECEC', color: '#DC3545' };
+    }
+    
+    return { label: car.approval || 'Unknown', isVisible: true, bg: '#F5F5F5', color: '#333' };
   };
+
+  const displayLabel = getDisplayLabel();
+  const imageSrc = car.car_image && car.car_image.trim() !== '' ? `${BASE_URL}${car.car_image}` : bluecar_icon;
 
   const handleCardClick = () => {
     navigate(`/carDetails/${car.id}`, { state: { previousPage: 'My Listings' } });
@@ -104,7 +87,14 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
       {/* 🚘 Car Card */}
       <div className="car-card">
         {contextHolder}
-        <div className="car-card-content clickable-area" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+        <div 
+          className="car-card-content clickable-area" 
+          onClick={handleCardClick} 
+          onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
+          role="button"
+          tabIndex={0}
+          style={{ cursor: 'pointer' }}
+        >
           <img src={imageSrc} alt="car" className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`} />
           <div className="car-card-details">
             <div className="car-card-header">
@@ -186,6 +176,14 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                       e.stopPropagation();
                       setIsReasonModalVisible(true);
                     }}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        setIsReasonModalVisible(true);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     style={{
                       color: '#D67900',
                       fontWeight: 500,
@@ -205,6 +203,13 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
               <div
                 className="car-card-boost"
                 onClick={(e) => e.stopPropagation()}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                  }
+                }}
+                role="button"
+                tabIndex={0}
                 style={{ cursor: 'pointer' }}
               >
                 <span className="car-card-boost-text">Boost</span>
@@ -288,14 +293,20 @@ CarCard.propTypes = {
     car_image: PropTypes.string,
     price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     approval: PropTypes.string,
+    status: PropTypes.string,
+    draft: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     rejection_reason: PropTypes.string,
     admin_rejection_comment: PropTypes.string,
     updated_at: PropTypes.string,
+    chat_count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    like_count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    views: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
   value: PropTypes.string.isRequired,
   filterStatus: PropTypes.string.isRequired,
   handleDelete: PropTypes.func.isRequired,
   navigate: PropTypes.func.isRequired,
+  onRefresh: PropTypes.func,
 };
 
 export default CarCard;

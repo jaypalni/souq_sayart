@@ -523,7 +523,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
 
   // Helper function to render status info
   const renderStatus = () => {
-  const { approval, status, reason, comment, boost } = carDetails;
+  const { approval, status, reason, comment } = carDetails;
 
   const statusStyles = {
     rejected: { background: '#FDECEC', color: '#DC3545' },
@@ -568,6 +568,13 @@ if (approval === 'approved' && status !== 'sold') {
       
     <div
   onClick={(e) => e.stopPropagation()}
+  onKeyPress={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.stopPropagation();
+    }
+  }}
+  role="button"
+  tabIndex={0}
   className="d-flex justify-content-center align-items-center mt-2 p-2 rounded"
   style={{ 
     width: '100%', 
@@ -697,6 +704,13 @@ if (approval === 'approved' && status !== 'sold') {
           </p>
           <div
             onClick={copyPhoneNumber}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                copyPhoneNumber();
+              }
+            }}
+            role="button"
+            tabIndex={0}
             style={{
               fontSize: '24px',
               fontWeight: 600,
@@ -724,16 +738,23 @@ SellerInfoCard.propTypes = {
     transmission_type: PropTypes.string,
     country_code: PropTypes.string,
     kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    approval: PropTypes.string,
+    status: PropTypes.string,
+    reason: PropTypes.string,
+    comment: PropTypes.string,
+    boost: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     seller: PropTypes.shape({
       first_name: PropTypes.string.isRequired,
       member_since: PropTypes.string.isRequired,
       phone_number: PropTypes.string.isRequired,
       whatsapp: PropTypes.string.isRequired,
+      is_dealer: PropTypes.string,
     }).isRequired,
   }).isRequired,
   copyToClipboard: PropTypes.func.isRequired,
   openWhatsApp: PropTypes.func.isRequired,
   messageApi: PropTypes.object.isRequired,
+  previousPage: PropTypes.string,
 };
 
 // Extracted CarDetailsSidebar component
@@ -758,16 +779,23 @@ CarDetailsSidebar.propTypes = {
     transmission_type: PropTypes.string,
     country_code: PropTypes.string,
     kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    approval: PropTypes.string,
+    status: PropTypes.string,
+    reason: PropTypes.string,
+    comment: PropTypes.string,
+    boost: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     seller: PropTypes.shape({
       first_name: PropTypes.string.isRequired,
       member_since: PropTypes.string.isRequired,
       phone_number: PropTypes.string.isRequired,
       whatsapp: PropTypes.string.isRequired,
+      is_dealer: PropTypes.string,
     }).isRequired,
   }).isRequired,
   copyToClipboard: PropTypes.func.isRequired,
   openWhatsApp: PropTypes.func.isRequired,
   messageApi: PropTypes.object.isRequired,
+  previousPage: PropTypes.string,
 };
 
 // Custom hook for car details API logic

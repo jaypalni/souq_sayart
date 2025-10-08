@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Tabs, Modal, Input, Radio } from 'antd';
 import SubscriptionCard from './SubscriptionCard';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -91,6 +92,11 @@ const CancelConfirmStepComponent = ({ onNo, onYes }) => (
   </>
 );
 
+CancelConfirmStepComponent.propTypes = {
+  onNo: PropTypes.func.isRequired,
+  onYes: PropTypes.func.isRequired,
+};
+
 // Phone number step component - extracted to reduce component complexity
 const PhoneNumberStepComponent = ({ phone, onPhoneChange, onContinue }) => (
   <>
@@ -114,6 +120,12 @@ const PhoneNumberStepComponent = ({ phone, onPhoneChange, onContinue }) => (
   </>
 );
 
+PhoneNumberStepComponent.propTypes = {
+  phone: PropTypes.string.isRequired,
+  onPhoneChange: PropTypes.func.isRequired,
+  onContinue: PropTypes.func.isRequired,
+};
+
 // OTP step component - extracted to reduce component complexity
 const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => (
   <>
@@ -126,7 +138,7 @@ const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => (
     <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
       {otp.map((digit, idx) => (
         <Input
-          key={idx}
+          key={`otp-${idx}`}
           value={digit}
           onChange={(e) => onOtpChange(e, idx)}
           id={`otp-input-${idx}`}
@@ -144,6 +156,13 @@ const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => (
   </>
 );
 
+OtpStepComponent.propTypes = {
+  otp: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onOtpChange: PropTypes.func.isRequired,
+  otpTimer: PropTypes.number.isRequired,
+  onContinue: PropTypes.func.isRequired,
+};
+
 // Done step component - extracted to reduce component complexity
 const DoneStepComponent = ({ onDone }) => (
   <>
@@ -155,6 +174,10 @@ const DoneStepComponent = ({ onDone }) => (
     </Button>
   </>
 );
+
+DoneStepComponent.propTypes = {
+  onDone: PropTypes.func.isRequired,
+};
 
 // Radio button tab component - extracted to reduce component complexity
 const RadioButtonTab = ({ value, label, activeTab }) => {
@@ -178,6 +201,12 @@ const RadioButtonTab = ({ value, label, activeTab }) => {
       {label}
     </Radio.Button>
   );
+};
+
+RadioButtonTab.propTypes = {
+  value: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  activeTab: PropTypes.string.isRequired,
 };
 
 // Subscription list view component - extracted to reduce component complexity
@@ -217,6 +246,13 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) =
             key={plan.id}
             style={{ cursor: 'pointer' }}
             onClick={() => onSelectPlan(plan)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                onSelectPlan(plan);
+              }
+            }}
+            role="button"
+            tabIndex={0}
           >
             <SubscriptionCard {...plan} />
           </div>
@@ -225,6 +261,20 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) =
     </div>
   </>
 );
+
+SubscriptionListView.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  plans: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string,
+    price: PropTypes.number,
+    duration: PropTypes.string,
+    features: PropTypes.arrayOf(PropTypes.string),
+    details: PropTypes.object,
+  })).isRequired,
+  onSelectPlan: PropTypes.func.isRequired,
+  onTabChange: PropTypes.func.isRequired,
+};
 
 const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading }) => (
   <div className="subscription-details-main">
@@ -244,6 +294,12 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, l
       </div>
     </div>
     <table style={{ width: '100%', background: '#fff', borderRadius: 12, marginBottom: 24 }}>
+      <thead>
+        <tr>
+          <th style={{ textAlign: 'left', padding: '8px' }}>Feature</th>
+          <th style={{ textAlign: 'right', padding: '8px' }}>Value</th>
+        </tr>
+      </thead>
       <tbody>
         <tr><td>Price</td><td style={{ textAlign: 'right' }}>{plan.details.price}</td></tr>
         <tr><td>Price Model</td><td style={{ textAlign: 'right' }}>{plan.details.priceModel}</td></tr>
@@ -269,6 +325,34 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, l
     )}
   </div>
 );
+
+SubscriptionDetails.propTypes = {
+  plan: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    duration: PropTypes.string.isRequired,
+    details: PropTypes.shape({
+      price: PropTypes.string,
+      priceModel: PropTypes.string,
+      postsAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      photosAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      videosAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      postDuration: PropTypes.string,
+      featured: PropTypes.string,
+      banner: PropTypes.string,
+      analytics: PropTypes.string,
+      additionalCar: PropTypes.string,
+      emailNewsletter: PropTypes.string,
+      sponsoredContent: PropTypes.string,
+    }).isRequired,
+  }).isRequired,
+  onBack: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onSubscribe: PropTypes.func.isRequired,
+  isCurrent: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
 
 const Subscriptions = () => {
   const [activeTab, setActiveTab] = useState('Individual');

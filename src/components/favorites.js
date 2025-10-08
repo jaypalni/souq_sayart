@@ -21,7 +21,7 @@ import speed_code from '../assets/images/speed_dashboard.png';
 const MyFavoritesCars = () => {
   const navigate = useNavigate();
   const [carsData, setCarsData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [page] = useState(1);
@@ -93,13 +93,6 @@ const MyFavoritesCars = () => {
   };
 
   const renderContent = () => {
-    // if (loading) {
-    //   return (
-    //     <div style={{ textAlign: 'center', padding: '50px 0' }}>
-    //       <Spin size="large" />
-    //     </div>
-    //   );
-    // }
 
     if (carsData.length === 0) {
       return (

@@ -602,7 +602,7 @@ if (approval === 'approved' && status !== 'sold') {
     <Card className="seller-info-card">
       <div className="d-flex justify-content-between align-items-center">
         <div>
-          <div className='row'>
+          <div className='row shareCar'>
             <div className='col-10'>
               <Tooltip title={carDetails.ad_title} placement="top">
                 <h5 className="mb-0 seller-info-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

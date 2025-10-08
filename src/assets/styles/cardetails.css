@@ -294,7 +294,10 @@
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 24px 16px;
+  /* padding: 24px 16px; */
+}
+.shareCar{
+  width: 100%;
 }
 .seller-info-card :where(.css-1m2bkf9).ant-card .ant-card-body {
     padding: 0px !important;

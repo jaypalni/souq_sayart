@@ -295,7 +295,10 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   padding: 24px 16px;
 }
-
+.seller-info-card :where(.css-1m2bkf9).ant-card .ant-card-body {
+    padding: 0px !important;
+    border-radius: 0 0 8px 8px;
+}
 .car-price {
   color: #D67900;
   font-size: 18px;
@@ -420,9 +423,9 @@
   color: #222;
 } 
 
-:where(.css-dev-only-do-not-override-1m2bkf9).ant-card .ant-card-body {
+/* :where(.css-dev-only-do-not-override-1m2bkf9).ant-card .ant-card-body {
 padding: 0px !important;
-}
+} */
 
 .car-details-table-card {
   border: none;

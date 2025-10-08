@@ -17,7 +17,6 @@ import {
 } from 'react-icons/fa';
 import { MessageOutlined, UserOutlined,ShareAltOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import '../assets/styles/cardetails.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import redcar_icon from '../assets/images/redcar_icon.jpg';
 import country_code from '../assets/images/country_code.png';
@@ -34,6 +33,7 @@ import CarListing from '../components/carListing';
 import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
 import PlaneBanner from '../components/planeBanner';
 import boost_icon from '../assets/images/boost_icon.svg';
+import '../assets/styles/cardetails.css';
 
 // Helpers
 const openWhatsApp = (phoneNumber) => {

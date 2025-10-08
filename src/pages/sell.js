@@ -40,6 +40,7 @@ import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
 import EmojiPicker from 'emoji-picker-react';
+import Sortable from 'sortablejs';
 const { Option } = Select;
 
 const ExteriorColorInput = ({
@@ -272,7 +273,6 @@ const Sell = () => {
   const [showPicker, setShowPicker] = useState(false);
   const MAX_LEN = 1000;
   const [colorModalOpen, setColorModalOpen] = useState(false);
-  const [colorModalOpenInterior, setColorModalOpenInterior] = useState(false);
   const [colorSearch, setColorSearch] = useState('');
   const [selectedColor, setSelectedColor] = useState();
   const [selectedColorImage, setSelectedColorImage] = useState();
@@ -292,7 +292,7 @@ const Sell = () => {
   const [selectedYear, setSelectedYear] = useState();
   const [selectedCondition, setSelectedCondition] = useState('');
   const [selectedBodyType, setSelectedBodyType] = useState();
-  const [selectedBadges, setSelectedBadges] = useState([]);
+  const [, setSelectedBadges] = useState([]);
   const [selectedVehicleType, setSelectedVehicleType] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
@@ -324,6 +324,7 @@ const Sell = () => {
   const [carId, setCarId] = useState('');
   const autoSaveIntervalRef = useRef(null);
   const lastSavedDataRef = useRef(null); // Track last saved data to detect changes
+  const sortableRef = useRef(null); // Reference to Sortable instance
 
 
 const handleAddNew = () => {
@@ -807,6 +808,80 @@ const handlePaste = (e) => {
   useEffect(() => {
     fetchHorsePower();
   }, []);
+
+  // Helper function to reorder images after drag-drop
+  const reorderImages = (oldIndex, newIndex) => {
+    if (oldIndex === newIndex) return;
+    
+    setMediaFileList((prevList) => {
+      const newList = [...prevList];
+      const [movedItem] = newList.splice(oldIndex, 1);
+      newList.splice(newIndex, 0, movedItem);
+      
+      console.log('✅ Images reordered successfully');
+      form.setFieldsValue({ media: newList });
+      return newList;
+    });
+  };
+
+  // Helper function to handle drag end event
+  const handleDragEnd = (evt) => {
+    const { oldIndex, newIndex } = evt;
+    console.log('🎯 Drag ended. From:', oldIndex, 'To:', newIndex);
+    reorderImages(oldIndex, newIndex);
+  };
+
+  // Helper function to initialize Sortable instance
+  const initializeSortable = (container) => {
+    console.log('🔧 Initializing Sortable with', mediaFileList.length, 'images');
+    
+    // Destroy previous instance if exists
+    if (sortableRef.current) {
+      sortableRef.current.destroy();
+    }
+    
+    // Initialize new Sortable instance
+    sortableRef.current = new Sortable(container, {
+      animation: 200,
+      draggable: '.ant-upload-list-item',
+      handle: '.ant-upload-list-item',
+      ghostClass: 'sortable-ghost-item',
+      chosenClass: 'sortable-chosen-item',
+      dragClass: 'sortable-drag-item',
+      
+      onStart: (evt) => {
+        console.log('🎯 Drag started at index:', evt.oldIndex);
+      },
+      
+      onEnd: handleDragEnd,
+    });
+    
+    console.log('✅ Sortable initialized successfully');
+  };
+
+  // Initialize drag-and-drop for image reordering
+  useEffect(() => {
+    // Wait for DOM to be ready
+    const timer = setTimeout(() => {
+      const container = document.querySelector('.ant-upload-list.ant-upload-list-picture-card');
+      
+      if (container && mediaFileList.length > 1) {
+        initializeSortable(container);
+      } else if (!container) {
+        console.log('⚠️ Upload container not found yet');
+      } else if (mediaFileList.length <= 1) {
+        console.log('ℹ️ Need at least 2 images for drag-drop');
+      }
+    }, 500);
+    
+    return () => {
+      clearTimeout(timer);
+      if (sortableRef.current) {
+        sortableRef.current.destroy();
+        sortableRef.current = null;
+      }
+    };
+  }, [mediaFileList.length, form]);
 
   // Helper function to build current form data snapshot for comparison
   const buildFormDataSnapshot = (values) => {
@@ -1367,11 +1442,23 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
   }
 };
 
-// Helper function to separate images into new and existing
+// Helper function to separate images into new and existing while preserving order
 const separateImages = (media) => {
-  const newImages = media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-  const existingImages = media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
-  return { newImages, existingImages };
+  const newImages = [];
+  const existingImages = [];
+  const orderMap = []; // Track position: {type: 'new'/'existing', index: number}
+  
+  media?.forEach((file) => {
+    if (file.originFileObj) {
+      orderMap.push({ type: 'new', index: newImages.length });
+      newImages.push(file.originFileObj);
+    } else if (file.url) {
+      orderMap.push({ type: 'existing', index: existingImages.length });
+      existingImages.push(file.url);
+    }
+  });
+  
+  return { newImages, existingImages, orderMap };
 };
 
 // Helper function to upload images and get URLs
@@ -1387,7 +1474,7 @@ const uploadImagesAndGetUrls = async (newImages) => {
 
 // Helper function to handle draft save
 const handleDraftSave = async (values) => {
-  const { newImages, existingImages } = separateImages(values.media);
+  const { newImages, existingImages, orderMap } = separateImages(values.media);
 
   if (newImages.length === 0 && existingImages.length === 0) {
     await handleCreateCar([], true, values);
@@ -1398,21 +1485,25 @@ const handleDraftSave = async (values) => {
     const uploadResult = await uploadImagesAndGetUrls(newImages);
     
     if (uploadResult?.attachment_url?.length > 0) {
-      const allImages = [...existingImages, ...uploadResult.attachment_url];
+      const newUploadedUrls = uploadResult.attachment_url;
       
-      // Update mediaFileList to replace uploaded images with server URLs
-      const updatedFileList = [
-        // Keep existing server images (without originFileObj)
-        ...mediaFileList.filter(file => !file.originFileObj),
-        // Add newly uploaded images as server files
-        ...uploadResult.attachment_url.map((url, index) => ({
-          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
-          status: 'done',
-          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
-          originFileObj: null, // Mark as server file
-        }))
-      ];
+      // Reconstruct images in the original drag-drop order
+      const allImages = orderMap.map(item => {
+        if (item.type === 'new') {
+          return newUploadedUrls[item.index];
+        } else {
+          return existingImages[item.index];
+        }
+      });
+      
+      // Update mediaFileList to replace ALL with server URLs in correct order
+      const updatedFileList = allImages.map((url, index) => ({
+        uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+        name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+        status: 'done',
+        url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+        originFileObj: null, // Mark as server file
+      }));
       setMediaFileList(updatedFileList);
       form.setFieldsValue({ media: updatedFileList });
       
@@ -1427,7 +1518,7 @@ const handleDraftSave = async (values) => {
 
 // Helper function to handle create save
 const handleCreateSave = async (values) => {
-  const { newImages, existingImages } = separateImages(values.media);
+  const { newImages, existingImages, orderMap } = separateImages(values.media);
   
   if (newImages.length === 0 && existingImages.length === 0) {
     message.error('Please upload at least one image.');
@@ -1438,21 +1529,25 @@ const handleCreateSave = async (values) => {
     const uploadResult = await uploadImagesAndGetUrls(newImages);
     
     if (uploadResult?.attachment_url?.length > 0) {
-      const allImages = [...existingImages, ...uploadResult.attachment_url];
+      const newUploadedUrls = uploadResult.attachment_url;
       
-      // Update mediaFileList to replace uploaded images with server URLs
-      const updatedFileList = [
-        // Keep existing server images (without originFileObj)
-        ...mediaFileList.filter(file => !file.originFileObj),
-        // Add newly uploaded images as server files
-        ...uploadResult.attachment_url.map((url, index) => ({
-          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
-          status: 'done',
-          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
-          originFileObj: null, // Mark as server file
-        }))
-      ];
+      // Reconstruct images in the original drag-drop order
+      const allImages = orderMap.map(item => {
+        if (item.type === 'new') {
+          return newUploadedUrls[item.index];
+        } else {
+          return existingImages[item.index];
+        }
+      });
+      
+      // Update mediaFileList to replace ALL with server URLs in correct order
+      const updatedFileList = allImages.map((url, index) => ({
+        uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+        name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+        status: 'done',
+        url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+        originFileObj: null, // Mark as server file
+      }));
       setMediaFileList(updatedFileList);
       form.setFieldsValue({ media: updatedFileList });
       
@@ -1497,9 +1592,8 @@ const handleUpdateCar = async () => {
     const values = await form.validateFields();
     
     
-    // Separate new uploads from existing server images
-    const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-    const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
+    // Separate new uploads from existing server images while preserving order
+    const { newImages, existingImages, orderMap } = separateImages(values.media);
     
 
     if (newImages.length === 0 && existingImages.length === 0) {
@@ -1507,25 +1601,28 @@ const handleUpdateCar = async () => {
       return;
     }
 
-    // Upload new images first, then combine with existing ones
-    let uploadedImages = existingImages; // Start with existing images
+    // Upload new images first, then reconstruct in correct order
+    let uploadedImages = existingImages;
     if (newImages.length > 0) {
       const newUploadedImages = await handleImageUpload(newImages);
-      uploadedImages = [...existingImages, ...newUploadedImages]; // Combine existing and new
       
-      // Update mediaFileList to replace uploaded images with server URLs
-      const updatedFileList = [
-        // Keep existing server images (without originFileObj)
-        ...mediaFileList.filter(file => !file.originFileObj),
-        // Add newly uploaded images as server files
-        ...newUploadedImages.map((url, index) => ({
-          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
-          status: 'done',
-          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
-          originFileObj: null, // Mark as server file
-        }))
-      ];
+      // Reconstruct images in the original drag-drop order
+      uploadedImages = orderMap.map(item => {
+        if (item.type === 'new') {
+          return newUploadedImages[item.index];
+        } else {
+          return existingImages[item.index];
+        }
+      });
+      
+      // Update mediaFileList to replace ALL with server URLs in correct order
+      const updatedFileList = uploadedImages.map((url, index) => ({
+        uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+        name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+        status: 'done',
+        url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+        originFileObj: null, // Mark as server file
+      }));
       setMediaFileList(updatedFileList);
       form.setFieldsValue({ media: updatedFileList });
     }
@@ -2337,7 +2434,7 @@ const handleImageUpload = async (images) => {
                             onClick={() => {
                               setSelectedTrim(opt.trim_name);
                               setTrimModalOpen(false);
-                              // Update brand field with current brand, model, and trim
+                              
                               const parts = [];
                               if (selectedBrand) parts.push(selectedBrand);
                               if (selectedModel) parts.push(selectedModel);
@@ -2424,7 +2521,7 @@ const handleImageUpload = async (images) => {
               const currentKilometers = form.getFieldValue('kilometers');
               
               if (selectedCondition === 'New' && opt.car_condition !== 'New' && (currentKilometers === '0' || currentKilometers === 0)) {
-                // message.warning('Cars with 0 kilometers are typically "New". Are you sure?');
+                
               }
               
               setSelectedCondition(opt.car_condition);
@@ -2454,7 +2551,7 @@ const handleImageUpload = async (images) => {
             return Promise.reject(new Error('Minimum price should be more than IQD 1000'));
           }
 
-          // Remove commas before validating
+    
           const numericValue = parseFloat(value.replace(/,/g, ''));
 
           if (isNaN(numericValue)) {

@@ -1,4 +1,5 @@
- import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import { userAPI } from '../services/api';
 import lightbluetick from '../assets/images/lightbluetick_icon.svg';
@@ -134,9 +135,9 @@ const SubscriptionCard = ({ title, price, duration, features, details, currency,
       </div>
 
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-        {features.map((f, i) => (
+        {features.map((f) => (
           <li
-            key={i}
+            key={`feature-${f}`}
             style={{ display: 'flex', alignItems: 'center', margin: '8px 0' }}
           >
             <img
@@ -156,5 +157,27 @@ const SubscriptionCard = ({ title, price, duration, features, details, currency,
   );
 };
 
-export default SubscriptionCard;
+SubscriptionCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  duration: PropTypes.string.isRequired,
+  features: PropTypes.arrayOf(PropTypes.string).isRequired,
+  details: PropTypes.shape({
+    price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    priceModel: PropTypes.string,
+    postsAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    photosAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    videosAllowed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    postDuration: PropTypes.string,
+    featured: PropTypes.string,
+    banner: PropTypes.string,
+    analytics: PropTypes.string,
+    additionalCar: PropTypes.string,
+    emailNewsletter: PropTypes.string,
+    sponsoredContent: PropTypes.string,
+  }),
+  currency: PropTypes.string,
+  is_subscribed: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
 
+export default SubscriptionCard;

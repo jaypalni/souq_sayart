@@ -98,11 +98,15 @@ const showLoginMessageAndClearStates = (store) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const originalRequest = error.config;
+    
     if (error.response) {
       const { status } = error.response;
       
       // Handle authentication errors
-      if (status === 401) {
+      if (status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true; // Mark request as retried to avoid infinite loop
+        
         // ✅ Dynamically get Redux store to access refresh token
         const store = require('../redux/store').default;
         const state = store.getState();
@@ -111,11 +115,18 @@ api.interceptors.response.use(
         if (refresh_token) {
           try {
             // Call refresh token API directly
-            await refreshtokenapi();
+            const newAccessToken = await refreshtokenapi();
+            
+            // ✅ Retry the original request with new token
+            if (newAccessToken) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+              return api(originalRequest);
+            }
           } catch (refreshError) {
             console.error('Failed to refresh token:', refreshError.message);
             // Show login message and clear all Redux states
             showLoginMessageAndClearStates(store);
+            return Promise.reject(refreshError);
           }
         } else {
           // Show login message and clear all Redux states
@@ -162,6 +173,11 @@ const refreshtokenapi = async () => {
       store.dispatch(refreshTokenSuccess(data1.access_token));
       
       return data1.access_token;
+    } else if (data1 && data1.status_code === 200 && data1.message === 'Access token is not expired yet') {
+      // ✅ Token is still valid, return current token from Redux
+      const currentToken = state.auth?.token;
+      console.log('Access token is still valid, using current token');
+      return currentToken;
     } else {
       throw new Error('Invalid response from refresh token API');
     }

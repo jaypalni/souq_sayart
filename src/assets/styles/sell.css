@@ -457,7 +457,7 @@
 
 .option-box {
   border: 1px solid #E7EBEF;
-  /* background: #E7EBEF; */
+  
   color: #0A0A0B;
   border-radius: 6px;
   padding: 0px 10px;
@@ -656,7 +656,7 @@
   display: flex;
   gap: 14px;
   margin-top: 20px;
-  /* justify-content: end; */
+  
 }
 @media (max-width: 768px) {
   .submit-btn-group {

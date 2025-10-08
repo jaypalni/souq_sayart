@@ -188,7 +188,7 @@
   color: #008ad5;
   cursor: pointer;
   flex-shrink: 0;
-  margin-left: 40px;
+  /* margin-left: 40px; */
 }
 
 .seller-info-details {

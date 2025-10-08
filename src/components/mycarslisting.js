@@ -236,9 +236,12 @@ const fetchCars = async () => {
           <h1 className="mylistings-banner-title">
             Subscribe To Our Packages
           </h1>
-          <button className="mylistings-subscribe-btn">
-            Subscribe
-          </button>
+           <button
+      className="mylistings-subscribe-btn"
+      onClick={() => navigate('/myProfile/subscriptions')}
+    >
+      Subscribe
+    </button>
         </div>
       </div>
 

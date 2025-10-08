@@ -33,6 +33,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import CarListing from '../components/carListing';
 import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
 import PlaneBanner from '../components/planeBanner';
+import boost_icon from '../assets/images/boost_icon.svg';
 
 // Helpers
 const openWhatsApp = (phoneNumber) => {
@@ -478,155 +479,182 @@ CarDetailsMain.propTypes = {
 
 
 // Extracted SellerInfoCard component
-const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi }) => {
+const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage }) => {
+  // Helper function to render status info
+  const renderStatus = () => {
+  const { approval, status, reason, comment, boost } = carDetails;
+
+  const statusStyles = {
+    rejected: { background: '#FDECEC', color: '#DC3545' },
+    approved: { background: '#A4F4E7', color: '#0B7B69' },
+    sold: { background: '#D5F0FF', color: '#008AD5' },
+    pending: { background: '#FFEDD5', color: '#D67900' },
+  };
+
+  const commonStyle = {
+    fontWeight: 600,
+    padding: '8px 12px', 
+    borderRadius: '6px',
+    width: '100%',
+    textAlign: 'center',
+    display: 'inline-block',
+  };
+
+  if (approval === 'rejected') {
+    return (
+      <div style={{ ...commonStyle, ...statusStyles.rejected }}>
+        Rejected
+        {reason && <div>Reason: {reason}</div>}
+        {comment && <div>Comment: {comment}</div>}
+      </div>
+    );
+  }
+
+  if (approval === 'approved' && status === 'sold') {
+    return (
+      <div style={{ ...commonStyle, ...statusStyles.sold }}>
+        Sold
+      </div>
+    );
+  }
+
+if (approval === 'approved' && status !== 'sold') {
+  return (
+    <div style={{ display: 'inline-block',  width: '100%', textAlign: 'center' }}> 
+      <div style={{ ...commonStyle, ...statusStyles.approved }}>
+        Active
+      </div>
+      
+    <div
+  onClick={(e) => e.stopPropagation()}
+  className="d-flex justify-content-center align-items-center mt-2 p-2 rounded"
+  style={{ 
+    width: '100%', 
+    cursor: 'pointer', 
+    backgroundColor: '#D67900', 
+    gap: '4px', 
+    textAlign: 'center' 
+  }}
+>
+  <span className="car-card-boost-text text-white">Boost</span>
+  <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
+</div>
+      
+    </div>
+  );
+}
+
+
+
+  if (approval === 'pending') {
+    return (
+      <div style={{ ...commonStyle, ...statusStyles.pending }}>
+        Approval Pending
+      </div>
+    );
+  }
+
+  return null;
+};
+
+
+
   return (
     <Card className="seller-info-card">
       <div className="d-flex justify-content-between align-items-center">
         <div>
-         <div className="seller-info-header" style={{ 
-           display: 'flex', 
-           alignItems: 'center',
-           width: '100%',
-           minWidth: 0 // Important for flexbox truncation
-         }}>
           <div className='row'>
             <div className='col-10'>
-   <Tooltip 
-            title={carDetails.ad_title} 
-            placement="top"
-            mouseEnterDelay={0.5}
-            mouseLeaveDelay={0.1}
-          >
-            <h5 className="mb-0 seller-info-title" style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              flex: 1,
-              minWidth: 0, // Important for flexbox truncation
-              marginRight: '8px',
-              marginBottom: 0,
-              cursor: 'help'
-            }}>
-              {carDetails.ad_title}
-            </h5>
-          </Tooltip>
+              <Tooltip title={carDetails.ad_title} placement="top">
+                <h5 className="mb-0 seller-info-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {carDetails.ad_title}
+                </h5>
+              </Tooltip>
             </div>
-             <div className='col-2'>
-               <ShareAltOutlined
-            className="share-icon"
-            onClick={copyToClipboard}
-            style={{
-              flexShrink: 0,
-              cursor: 'pointer',
-              marginLeft: 'auto'
-            }}
-          />
+            <div className='col-2'>
+              <ShareAltOutlined className="share-icon" onClick={copyToClipboard} />
             </div>
           </div>
-       
 
-         
-         </div>
           <div className="car-price">
             {'IQD ' + Number(carDetails.price).toLocaleString()}
           </div>
+          
           <div className="d-flex align-items-center mt-2 mb-2 seller-info-details">
             <div className="d-flex align-items-center gap-1">
-              <img
-                src={car_type}
-                alt="Car Type"
-                className="seller-info-icon"
-              />
+              <img src={car_type} alt="Car Type" className="seller-info-icon" />
               <span>{carDetails.transmission_type}</span>
             </div>
             <span className="mx-2">|</span>
-
             <div className="d-flex align-items-center gap-1">
-              <img
-                src={country_code}
-                alt="Country"
-                className="seller-info-country-icon"
-              />
+              <img src={country_code} alt="Country" className="seller-info-country-icon" />
               <span>{carDetails.country_code}</span>
             </div>
             <span className="mx-2">|</span>
             <div className="d-flex align-items-center gap-1">
-              <img
-                src={speed_code}
-                alt="Kilometers"
-                className="seller-info-speed-icon"
-              />
+              <img src={speed_code} alt="Kilometers" className="seller-info-speed-icon" />
               <span>{carDetails.kilometers}</span>
             </div>
           </div>
 
           <div className='mt-2 text-muted seller-info-listed-text'>
-  Listed by {carDetails?.seller?.is_dealer === 'true' ? 'Dealer' : 'Owner'}
-</div>
+            Listed by {carDetails?.seller?.is_dealer === 'true' ? 'Dealer' : 'Owner'}
+          </div>
 
           <div className="d-flex align-items-center gap-2 mt-2">
             <Avatar icon={<UserOutlined />} alt="User Avatar" />
             <div>
-              <div className="seller-name">
-                {carDetails.seller.first_name}
-              </div>
-              <div className="text-muted seller-member-since">
-                Member since {carDetails.seller.member_since}
-              </div>
+              <div className="seller-name">{carDetails.seller.first_name}</div>
+              <div className="text-muted seller-member-since">Member since {carDetails.seller.member_since}</div>
               <Link className="car-details-view-profile-link">
-                View Profile{' '}
-                <FaChevronRight className="view-profile-chevron" />
+                View Profile <FaChevronRight className="view-profile-chevron" />
               </Link>
             </div>
           </div>
         </div>
       </div>
+
+      {/* ✅ Conditional Rendering based on previousPage */}
+      
       <div className="d-flex gap-2 mt-3">
-        <Button
-          icon={<MessageOutlined />}
-          className="w-100 message-button"
-        >
-          Message
-        </Button>
-        
-        {/* WhatsApp Button */}
-        <Button
-          onClick={() => openWhatsApp(carDetails.seller.phone_number)}
-          icon={<FaWhatsapp />}
-          className={`w-100 whatsapp-button ${carDetails.seller.whatsapp === 'False' ? 'whatsapp-button-disabled' : 'whatsapp-button-enabled'}`}
-          disabled={carDetails.seller.whatsapp === 'False'}
-        >
-          Whatsapp
-        </Button>
+        {previousPage === 'My Listings' ? (
+          
+          renderStatus()
+        ) : (
+          <>
+            <Button icon={<MessageOutlined />} className="w-100 message-button">Message</Button>
+            
+            <Button
+              onClick={() => openWhatsApp(carDetails.seller.phone_number)}
+              icon={<FaWhatsapp />}
+              className={`w-100 whatsapp-button ${carDetails.seller.whatsapp === 'False' ? 'whatsapp-button-disabled' : 'whatsapp-button-enabled'}`}
+              disabled={carDetails.seller.whatsapp === 'False'}
+            >
+              Whatsapp
+            </Button>
 
-        {/* Call Button */}
-       <Button
-  icon={<FaPhoneAlt className="call-button-icon" />}
-  className="w-100 no-hover-bg call-button"
-  onClick={() => {
-    navigator.clipboard.writeText(carDetails.seller.phone_number)
-      .then(() => {
-        messageApi.open({
-          type: 'success',
-          content: `${carDetails.seller.phone_number} (copied!)`,
-        });
-      })
-      .catch(() => {
-        messageApi.open({
-          type: 'error',
-          content: 'Failed to copy number',
-        });
-      });
-  }}
->
-  Call
-</Button>
-
-
+            <Button
+              icon={<FaPhoneAlt className="call-button-icon" />}
+              className="w-100 no-hover-bg call-button"
+              onClick={() => {
+                navigator.clipboard.writeText(carDetails.seller.phone_number)
+                  .then(() => {
+                    messageApi.open({ type: 'success', content: `${carDetails.seller.phone_number} (copied!)` });
+                  })
+                  .catch(() => {
+                    messageApi.open({ type: 'error', content: 'Failed to copy number' });
+                  });
+              }}
+            >
+              Call
+            </Button>
+          </>
+        )}
       </div>
     </Card>
   );
 };
+
 
 SellerInfoCard.propTypes = {
   carDetails: PropTypes.shape({
@@ -648,7 +676,7 @@ SellerInfoCard.propTypes = {
 };
 
 // Extracted CarDetailsSidebar component
-const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageApi }) => {
+const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage }) => {
   return (
     <div className="col-md-4">
       <SellerInfoCard 
@@ -656,6 +684,7 @@ const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageA
         copyToClipboard={copyToClipboard} 
         openWhatsApp={openWhatsApp} 
         messageApi={messageApi} 
+        previousPage={previousPage}
       />
     </div>
   );
@@ -756,6 +785,8 @@ const CarDetails = () => {
   
   // Get previous page from location state or default to "All Cars"
   const previousPage = location.state?.previousPage || 'All Cars';
+
+  console.log('Perviuspage', previousPage)
   
   const { carDetails, loading, messageApi, contextHolder } = useCarDetails(id);
     const { user } = useSelector((state) => state.auth);
@@ -786,6 +817,7 @@ const CarDetails = () => {
           copyToClipboard={copyToClipboard} 
           openWhatsApp={openWhatsApp} 
           messageApi={messageApi} 
+          previousPage={previousPage} 
         />
       </div>
 

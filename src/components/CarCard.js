@@ -110,7 +110,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
             <div className="car-card-header">
               <h3 className="car-card-title">{car.ad_title}</h3>
 
-              {car.approval?.toLowerCase() === 'approved' && (
+              {car.approval?.toLowerCase() === 'approved' && car.status !== 'sold' && (
                 <Dropdown
                   overlay={
                     <Menu>
@@ -296,7 +296,6 @@ CarCard.propTypes = {
   filterStatus: PropTypes.string.isRequired,
   handleDelete: PropTypes.func.isRequired,
   navigate: PropTypes.func.isRequired,
-  onRefresh: PropTypes.func,
 };
 
 export default CarCard;

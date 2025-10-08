@@ -1,130 +1,160 @@
-import React from 'react';
+ import React, { useRef, useState, useEffect } from 'react';
 import { Button } from 'antd';
 import { userAPI } from '../services/api';
-import lightbluetick from '../assets/images/lightbluetick_icon.svg'
+import lightbluetick from '../assets/images/lightbluetick_icon.svg';
 
-const SubscriptionCard = ({ title, price, duration, features, details, currency, is_subscribed }) => (
-  <div
-    className='subscription-card'
-    style={{
-      background: '#ffffff',
-      borderColor: '#CED7DE',
-      borderRadius: 12,
-      minWidth: 240,
-      boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      height: 340,
-    }}
-  >
-    <div style={{ width: '109%', boxSizing: 'border-box' }}>
-      <div
-        style={{
-          backgroundColor: '#7991A4',
-          borderRadius: 6,
-          padding: '12px',
-          height: 160,
-          padding: '12px',
-          position: 'relative',
-        }}
-      >
-        {is_subscribed === 1 && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              background: '#ffa726',
-              color: '#fff',
-              borderRadius: 6,
-              padding: '2px 12px',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
-            Current
-          </div>
-        )}
+const SubscriptionCard = ({ title, price, duration, features, details, currency, is_subscribed }) => {
+  
+  const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(160);
+
+  useEffect(() => {
+    if (headerRef.current) {
+      const contentHeight = headerRef.current.scrollHeight;
+      if (contentHeight > 160) {
+        setHeaderHeight(200); 
+      } else {
+        setHeaderHeight(160);
+      }
+    }
+  }, [title, details, duration]);
+
+  return (
+    <div
+      className='subscription-card'
+      style={{
+        background: '#ffffff',
+        borderColor: '#CED7DE',
+        borderRadius: 12,
+        minWidth: 240,
+        boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        minHeight: 340,
+        height: 'auto',
+      }}
+    >
+      <div style={{ width: '109%', boxSizing: 'border-box' }}>
         <div
+          ref={headerRef}
           style={{
-            fontWeight: 600,
-            fontSize: 20,
-            marginBottom: 8,
-            color: '#fff',
-            marginBottom: 24,
+            backgroundColor: '#7991A4',
+            borderRadius: 6,
+            padding: '12px',
+            height: headerHeight, 
+            position: 'relative',
           }}
         >
-          {title}
-        </div>
-        <div
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            marginBottom: 4,
-            color: '#fff',
-          }}
-        >
-          {details?.price}
-          <span
-            style={{
-              fontSize: 14,
-              fontWeight: 400,
-              color: '#888',
-              color: '#fff',
-            }}
-          >
-            {duration}
-          </span>
-        </div>
-        <div style={{ width: '100%', padding: '0 10px 10px' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 10,
-            }}
-          >
-            <Button
-              type='primary'
+          {is_subscribed === 1 && (
+            <div
               style={{
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                borderColor: '#fff',
-                borderRadius: 12,
-                marginTop: '12',
-                marginLeft: 5,
-                marginRight: 5,
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                background: '#ffa726',
+                color: '#fff',
+                borderRadius: 6,
+                padding: '2px 12px',
+                fontSize: 12,
+                fontWeight: 600,
               }}
             >
-              Choose This Plan
-            </Button>
+              Current
+            </div>
+          )}
+
+          <div
+            style={{
+              fontWeight: 600,
+              fontSize: 20,
+              marginBottom: 24,
+              color: '#fff',
+            }}
+          >
+            {title}
           </div>
+
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              marginBottom: 4,
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'baseline',
+              flexWrap: 'nowrap',
+            }}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>
+              IQD{' '}
+              {details?.price
+                ? parseFloat(details.price.toString().replace(/[^\d.]/g, '')).toLocaleString()
+                : '0'}
+            </span>
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#fff',
+                marginLeft: 6,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {duration}
+            </span>
+          </div>
+
+          {is_subscribed !== 1 && (
+            <div style={{ width: '100%', padding: '0 10px 10px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: 10,
+                }}
+              >
+                <Button
+                  type='primary'
+                  style={{
+                    color: '#000000',
+                    backgroundColor: '#ffffff',
+                    borderColor: '#fff',
+                    borderRadius: 12,
+                    marginLeft: 5,
+                    marginRight: 5,
+                  }}
+                >
+                  Choose This Plan
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-      {features.map((f, i) => (
-        <li
-          key={i}
-          style={{ display: 'flex', alignItems: 'center', margin: '8px 0' }}
-        >
-          <span style={{ color: '#039be5', fontWeight: 700, marginRight: 8 }}>
+
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
+        {features.map((f, i) => (
+          <li
+            key={i}
+            style={{ display: 'flex', alignItems: 'center', margin: '8px 0' }}
+          >
             <img
               src={lightbluetick}
               alt='tick'
               style={{
                 width: 16,
                 height: 16,
+                marginRight: 8,
               }}
             />
-          </span>{' '}
-          {f}
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+            {f}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
-export default SubscriptionCard; 
+export default SubscriptionCard;
 

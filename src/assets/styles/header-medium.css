@@ -151,11 +151,6 @@
     margin: 0 8px;
   }
 
-  .col-4 .message-icon,
-  .col-4 .notification-icon {
-   
-  }
-
   .col-4 .user-dropdown {
     margin: 0 8px;
   }
@@ -178,11 +173,6 @@
 
   .col-4 .menuLeft {
     margin: 0 6px;
-  }
-
-  .col-4 .message-icon,
-  .col-4 .notification-icon {
-    /* margin: 0 6px; */
   }
 
   .col-4 .user-dropdown {

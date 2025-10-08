@@ -87,13 +87,11 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
       {/* 🚘 Car Card */}
       <div className="car-card">
         {contextHolder}
-        <div 
+        <button 
+          type="button"
           className="car-card-content clickable-area" 
           onClick={handleCardClick} 
-          onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
-          role="button"
-          tabIndex={0}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0, width: '100%', textAlign: 'left' }}
         >
           <img src={imageSrc} alt="car" className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`} />
           <div className="car-card-details">
@@ -171,53 +169,42 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
 
                 {/* ✅ Show Reason button for Rejected status */}
                 {car.approval?.toLowerCase() === 'rejected' && car.rejection_reason && (
-                  <span
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsReasonModalVisible(true);
                     }}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.stopPropagation();
-                        setIsReasonModalVisible(true);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
                     style={{
                       color: '#D67900',
                       fontWeight: 500,
                       cursor: 'pointer',
                       textDecoration: 'underline',
                       fontSize: '14px',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
                     }}
                   >
                     Reason
-                  </span>
+                  </button>
                 )}
               </div>
             )}
 
             {/* ✅ Boost Button */}
             {car.approval?.toLowerCase() === 'approved' && value !== STATUS_SOLD && (
-              <div
+              <button
+                type="button"
                 className="car-card-boost"
                 onClick={(e) => e.stopPropagation()}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.stopPropagation();
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                style={{ cursor: 'pointer' }}
               >
                 <span className="car-card-boost-text">Boost</span>
                 <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
-              </div>
+              </button>
             )}
           </div>
-        </div>
+        </button>
 
         {/* ✅ Footer */}
         <div className="car-card-footer">
@@ -247,14 +234,14 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
               </div>
             ) : (
               <>
-                <Button type="default" onClick={() => handleDelete(car.id)} className="car-card-delete-btn">
+                <Button type="default" onClick={(e) => { e.stopPropagation(); handleDelete(car.id); }} className="car-card-delete-btn">
                   Delete
                 </Button>
 
                 {!(value === 'Active' && car.approval?.toLowerCase() === 'pending') && (
                   <Button
                     type="primary"
-                    onClick={() => navigate('/sell', { state: { extras: car } })}
+                    onClick={(e) => { e.stopPropagation(); navigate('/sell', { state: { extras: car } }); }}
                     className="car-card-edit-btn"
                   >
                     Edit

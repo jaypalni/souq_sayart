@@ -809,6 +809,56 @@ const handlePaste = (e) => {
     fetchHorsePower();
   }, []);
 
+  // Helper function to reorder images after drag-drop
+  const reorderImages = (oldIndex, newIndex) => {
+    if (oldIndex === newIndex) return;
+    
+    setMediaFileList((prevList) => {
+      const newList = [...prevList];
+      const [movedItem] = newList.splice(oldIndex, 1);
+      newList.splice(newIndex, 0, movedItem);
+      
+      console.log('✅ Images reordered successfully');
+      form.setFieldsValue({ media: newList });
+      return newList;
+    });
+  };
+
+  // Helper function to handle drag end event
+  const handleDragEnd = (evt) => {
+    const { oldIndex, newIndex } = evt;
+    console.log('🎯 Drag ended. From:', oldIndex, 'To:', newIndex);
+    reorderImages(oldIndex, newIndex);
+  };
+
+  // Helper function to initialize Sortable instance
+  const initializeSortable = (container) => {
+    console.log('🔧 Initializing Sortable with', mediaFileList.length, 'images');
+    
+    // Destroy previous instance if exists
+    if (sortableRef.current) {
+      sortableRef.current.destroy();
+    }
+    
+    // Initialize new Sortable instance
+    sortableRef.current = new Sortable(container, {
+      animation: 200,
+      draggable: '.ant-upload-list-item',
+      handle: '.ant-upload-list-item',
+      ghostClass: 'sortable-ghost-item',
+      chosenClass: 'sortable-chosen-item',
+      dragClass: 'sortable-drag-item',
+      
+      onStart: (evt) => {
+        console.log('🎯 Drag started at index:', evt.oldIndex);
+      },
+      
+      onEnd: handleDragEnd,
+    });
+    
+    console.log('✅ Sortable initialized successfully');
+  };
+
   // Initialize drag-and-drop for image reordering
   useEffect(() => {
     // Wait for DOM to be ready
@@ -816,45 +866,7 @@ const handlePaste = (e) => {
       const container = document.querySelector('.ant-upload-list.ant-upload-list-picture-card');
       
       if (container && mediaFileList.length > 1) {
-        console.log('🔧 Initializing Sortable with', mediaFileList.length, 'images');
-        
-        // Destroy previous instance if exists
-        if (sortableRef.current) {
-          sortableRef.current.destroy();
-        }
-        
-        // Initialize new Sortable instance
-        sortableRef.current = new Sortable(container, {
-          animation: 200,
-          draggable: '.ant-upload-list-item',
-          handle: '.ant-upload-list-item',
-          ghostClass: 'sortable-ghost-item',
-          chosenClass: 'sortable-chosen-item',
-          dragClass: 'sortable-drag-item',
-          
-          onStart: (evt) => {
-            console.log('🎯 Drag started at index:', evt.oldIndex);
-          },
-          
-          onEnd: (evt) => {
-            const { oldIndex, newIndex } = evt;
-            console.log('🎯 Drag ended. From:', oldIndex, 'To:', newIndex);
-            
-            if (oldIndex !== newIndex) {
-              setMediaFileList((prevList) => {
-                const newList = [...prevList];
-                const [movedItem] = newList.splice(oldIndex, 1);
-                newList.splice(newIndex, 0, movedItem);
-                
-                console.log('✅ Images reordered successfully');
-                form.setFieldsValue({ media: newList });
-                return newList;
-              });
-            }
-          },
-        });
-        
-        console.log('✅ Sortable initialized successfully');
+        initializeSortable(container);
       } else if (!container) {
         console.log('⚠️ Upload container not found yet');
       } else if (mediaFileList.length <= 1) {

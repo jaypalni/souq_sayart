@@ -348,6 +348,10 @@
   margin-top: 10px;
   align-items: center;
   justify-content: center;
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  width: 100%;
 }
 
 .car-card-boost-text {

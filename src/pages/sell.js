@@ -1091,40 +1091,6 @@ useEffect(() => {
 
 
 
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('attachment', file);
-  });
-
-  try {
-    const response = await carAPI.postuploadcarimages(formData, 'car');
-    const userdoc = handleApiResponse(response);
-    if (userdoc?.attachment_url?.length > 0) {
-      const messageContent = userdoc.message || 'All images uploaded successfully';
-      messageApi.open({
-        type: 'success',
-        content: messageContent,
-      });
-
-      // Pass valuesParam to avoid re-validating in handlePostData if provided
-      await handlePostData(userdoc.attachment_url, '1', mode === 'draft', valuesParam);
-
-      return Upload.LIST_IGNORE;
-    } else {
-      message.error(userdoc.message || 'Upload failed');
-      return Upload.LIST_IGNORE;
-    }
-  } catch (error) {
-    const errorData = handleApiError(error);
-    const messageContent = errorData.message || 'Upload failed';
-    messageApi.open({
-      type: 'error',
-      content: messageContent,
-    });
-    return Upload.LIST_IGNORE;
-  }
-};
-
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;

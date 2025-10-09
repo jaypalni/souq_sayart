@@ -2,7 +2,6 @@
 
 /* Hamburger Menu Styles */
 .hamburger-menu {
-  display: none;
   flex-direction: column;
   cursor: pointer;
   padding: 8px;

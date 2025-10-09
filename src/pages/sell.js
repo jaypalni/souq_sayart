@@ -40,7 +40,6 @@ import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
 import EmojiPicker from 'emoji-picker-react';
-import Sortable from 'sortablejs';
 const { Option } = Select;
 
 const ExteriorColorInput = ({
@@ -50,7 +49,6 @@ const ExteriorColorInput = ({
   onOpen,
   BASE_URL,
 }) => {
-  const hasImage = !!selectedColorImage;
 
   let imageSrc = null;
   if (selectedColorImage) {
@@ -67,17 +65,7 @@ const ExteriorColorInput = ({
       className={`exterior-color-input${!selectedColor ? ' placeholder' : ''}`}
       onClick={onOpen}
     >
-      {/* <div className='exterior-color-left'>
-        {hasImage && imageSrc ? (
-          <img
-            src={imageSrc}
-            alt={selectedColor || 'color swatch'}
-            className='color-swatch-input'
-          />
-        ) : (
-          <span className='color-swatch-placeholder' aria-hidden='true' />
-        )}
-      </div> */}
+    
 
       <span className='brand-text'>
         {selectedColor || placeholder}
@@ -137,10 +125,8 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandI
 
   let imageSrc = null;
   if (selectedBrandObj?.img) {
-    // Local brandOptions use full URLs
     imageSrc = selectedBrandObj.img;
   } else if (selectedBrandImage) {
-    // Handle both full URLs and relative paths
     if (selectedBrandImage.startsWith('http')) {
       imageSrc = selectedBrandImage;
     } else {
@@ -292,7 +278,7 @@ const Sell = () => {
   const [selectedYear, setSelectedYear] = useState();
   const [selectedCondition, setSelectedCondition] = useState('');
   const [selectedBodyType, setSelectedBodyType] = useState();
-  const [, setSelectedBadges] = useState([]);
+  const [selectedBadges, setSelectedBadges] = useState([]);
   const [selectedVehicleType, setSelectedVehicleType] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
@@ -313,7 +299,7 @@ const Sell = () => {
   const [mediaFileList, setMediaFileList] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
-  const [selectedInterior, setSelectedInterior] = useState([]);
+  const [, setSelectedInterior] = useState([]);
   const { state } = useLocation();
   const extras = state?.extras ?? [];
   const populatedRef = useRef(false);
@@ -324,7 +310,7 @@ const Sell = () => {
   const [carId, setCarId] = useState('');
   const autoSaveIntervalRef = useRef(null);
   const lastSavedDataRef = useRef(null); // Track last saved data to detect changes
-  const sortableRef = useRef(null); // Reference to Sortable instance
+  const [draggedIndex, setDraggedIndex] = useState(null); // Track which item is being dragged
 
 
 const handleAddNew = () => {
@@ -524,9 +510,7 @@ const setBrandState = (data, imagePath, setSelectedBrand, setSelectedBrandImage,
     if (typeof setMake === 'function') setMake(brandName);
   }
 };
-console.log('extras11',extras)
-console.log('extras11',selectedSeats)
-// Helper function to set color-related state
+
 const setColorState = (data, setSelectedColor, setSelectedColorImage) => {
   if (typeof setSelectedColor === 'function') {
     setSelectedColor(data.exterior_color ?? data.exteriorColor ?? data.color ?? '');
@@ -768,22 +752,6 @@ const handleChange = (e) => {
   }, [showPicker]);
 
 
-const handlePaste = (e) => {
-  const pasted = (e.clipboardData || window.clipboardData).getData('text') || '';
-  const available = MAX_LEN - description.length;
-
-  if (pasted.length > available) {
-    e.preventDefault();
-    const toInsert = pasted.slice(0, Math.max(0, available));
-    const newVal = (description + toInsert).slice(0, MAX_LEN);
-
-    setDescription(newVal);
-    form.setFieldsValue({ description: newVal });
-    message.info(`Pasted content truncated to fit ${MAX_LEN} characters.`);
-  }
-};
-
-
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
   }, []);
@@ -809,79 +777,38 @@ const handlePaste = (e) => {
     fetchHorsePower();
   }, []);
 
-  // Helper function to reorder images after drag-drop
-  const reorderImages = (oldIndex, newIndex) => {
-    if (oldIndex === newIndex) return;
-    
-    setMediaFileList((prevList) => {
-      const newList = [...prevList];
-      const [movedItem] = newList.splice(oldIndex, 1);
-      newList.splice(newIndex, 0, movedItem);
-      
-      console.log('✅ Images reordered successfully');
-      form.setFieldsValue({ media: newList });
-      return newList;
-    });
+  // Drag and drop handlers for image reordering
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.currentTarget.style.opacity = '0.5';
   };
 
-  // Helper function to handle drag end event
-  const handleDragEnd = (evt) => {
-    const { oldIndex, newIndex } = evt;
-    console.log('🎯 Drag ended. From:', oldIndex, 'To:', newIndex);
-    reorderImages(oldIndex, newIndex);
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = '1';
+    setDraggedIndex(null);
   };
 
-  // Helper function to initialize Sortable instance
-  const initializeSortable = (container) => {
-    console.log('🔧 Initializing Sortable with', mediaFileList.length, 'images');
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
     
-    // Destroy previous instance if exists
-    if (sortableRef.current) {
-      sortableRef.current.destroy();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      return;
     }
     
-    // Initialize new Sortable instance
-    sortableRef.current = new Sortable(container, {
-      animation: 200,
-      draggable: '.ant-upload-list-item',
-      handle: '.ant-upload-list-item',
-      ghostClass: 'sortable-ghost-item',
-      chosenClass: 'sortable-chosen-item',
-      dragClass: 'sortable-drag-item',
-      
-      onStart: (evt) => {
-        console.log('🎯 Drag started at index:', evt.oldIndex);
-      },
-      
-      onEnd: handleDragEnd,
-    });
+    const newFileList = [...mediaFileList];
+    const [draggedItem] = newFileList.splice(draggedIndex, 1);
+    newFileList.splice(dropIndex, 0, draggedItem);
     
-    console.log('✅ Sortable initialized successfully');
+    setMediaFileList(newFileList);
+    form.setFieldsValue({ media: newFileList });
+    setDraggedIndex(null);
   };
-
-  // Initialize drag-and-drop for image reordering
-  useEffect(() => {
-    // Wait for DOM to be ready
-    const timer = setTimeout(() => {
-      const container = document.querySelector('.ant-upload-list.ant-upload-list-picture-card');
-      
-      if (container && mediaFileList.length > 1) {
-        initializeSortable(container);
-      } else if (!container) {
-        console.log('⚠️ Upload container not found yet');
-      } else if (mediaFileList.length <= 1) {
-        console.log('ℹ️ Need at least 2 images for drag-drop');
-      }
-    }, 500);
-    
-    return () => {
-      clearTimeout(timer);
-      if (sortableRef.current) {
-        sortableRef.current.destroy();
-        sortableRef.current = null;
-      }
-    };
-  }, [mediaFileList.length, form]);
 
   // Helper function to build current form data snapshot for comparison
   const buildFormDataSnapshot = (values) => {
@@ -988,11 +915,9 @@ const handlePaste = (e) => {
     const currentDataSnapshot = buildFormDataSnapshot(values);
     
     if (lastSavedDataRef.current === currentDataSnapshot) {
-      console.log('Auto-save SKIPPED - No changes detected');
       return;
     }
     
-    console.log('Auto-save PROCEEDING - Changes detected');
     
     const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
     const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
@@ -1093,6 +1018,7 @@ useEffect(() => {
     });
   }
 }, [selectedBrand, selectedModel, selectedTrim, form]);
+
 // Only clear trim and body type when model changes manually (not during initial data loading)
 useEffect(() => {
   const timer = setTimeout(() => {
@@ -1163,10 +1089,7 @@ useEffect(() => {
     }
   };
 
-const handleBeforeUpload = async (files, mode, valuesParam = null) => {
-  if (!files || files.length === 0) {
-    return Upload.LIST_IGNORE;
-  }
+
 
   const formData = new FormData();
   files.forEach((file) => {
@@ -1178,7 +1101,6 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
     const userdoc = handleApiResponse(response);
     if (userdoc?.attachment_url?.length > 0) {
       const messageContent = userdoc.message || 'All images uploaded successfully';
-      console.log('Message:', messageContent);
       messageApi.open({
         type: 'success',
         content: messageContent,
@@ -1195,7 +1117,6 @@ const handleBeforeUpload = async (files, mode, valuesParam = null) => {
   } catch (error) {
     const errorData = handleApiError(error);
     const messageContent = errorData.message || 'Upload failed';
-    console.log('Message:', messageContent);
     messageApi.open({
       type: 'error',
       content: messageContent,
@@ -1280,7 +1201,6 @@ const handlePostDataSuccess = (data1, isDraft, text) => {
   const messageContent = typeof data1.message === 'object' 
     ? JSON.stringify(data1.message) 
     : data1.message;
-  console.log('Message:', messageContent);
   messageApi.open({
     type: 'success',
     content: messageContent,
@@ -1310,7 +1230,6 @@ const handlePostData = async (uploadedImages = [], text = '', isDraft = false, v
     const messageText = typeof errorData === 'object' 
       ? JSON.stringify(errorData) 
       : (errorData || 'An error occurred');
-    console.log('Message:', messageText);
     
     if (!isDraft) {
       messageApi.open({ type: 'error', content: messageText });
@@ -1400,7 +1319,6 @@ const handlePostCreationActions = (isDraft, isAutoSave) => {
   if (autoSaveIntervalRef.current) {
     clearInterval(autoSaveIntervalRef.current);
     autoSaveIntervalRef.current = null;
-    console.log('Auto-save stopped after successful Create/Draft save');
   }
   
   lastSavedDataRef.current = null;
@@ -1431,7 +1349,6 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
       ? errorData?.message
       : (errorData || 'An error occurred');
     
-    console.log('Message:', messageText);
     
     if (!isAutoSave) {
       messageApi.open({ type: 'error', content: messageText });
@@ -1586,9 +1503,7 @@ const handleUpdateCar = async () => {
   try {
     setLoading(true);
     
-    // Get form values without validation first to see what's available
-    const allFormValues = form.getFieldsValue();
-    
+ 
     const values = await form.validateFields();
     
     
@@ -1675,7 +1590,6 @@ const handleUpdateCar = async () => {
 
     if (data) {
       const messageContent = data.message || 'Car updated successfully';
-      console.log('Message:', messageContent);
       messageApi.open({
         type: 'success',
         content: messageContent,
@@ -1707,16 +1621,6 @@ const convertToRelativePath = (url) => {
   return url.replace(baseUrl, '');
 };
 
-const convertToFullUrl = (relativePath) => {
-  if (!relativePath) return relativePath;
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://13.202.75.187:5002';
-  // If it's already a full URL, return as is
-  if (relativePath.startsWith('http')) return relativePath;
-  // If it starts with '/', it's already a relative path
-  if (relativePath.startsWith('/')) return `${baseUrl}${relativePath}`;
-  // Otherwise, add the base URL
-  return `${baseUrl}/${relativePath}`;
-};
 
 const handleImageUpload = async (images) => {
   if (!images || images.length === 0) return [];
@@ -1749,7 +1653,6 @@ const handleImageUpload = async (images) => {
 
   const handleEvaluateCar = () => {
      const messageContent = 'Coming soon';
-     console.log('Message:', messageContent);
      messageApi.open({
         type: 'success',
         content: messageContent,
@@ -1791,14 +1694,7 @@ const handleImageUpload = async (images) => {
     form.setFieldsValue({ media: newFileList });
     return true; // Allow removal
   };
-  const beforeMediaUpload = (file) => {
-    const isLt5M = file.size / 1024 / 1024 < 5;
-    if (!isLt5M) {
-      message.error('File must be smaller than 5MB!');
-      return Promise.reject(new Error('File must be smaller than 5MB!'));
-    }
-    return Promise.resolve(true);
-  };
+ 
   const mediaUploadButton = (
     <button 
       className='media-upload-button'
@@ -1942,6 +1838,21 @@ const handleImageUpload = async (images) => {
   onPreview={handleMediaPreview}
   onChange={handleMediaChange}
   onRemove={handleMediaRemove}
+  itemRender={(originNode, file, fileList) => {
+    const index = fileList.findIndex(f => f.uid === file.uid);
+    return (
+      <div
+        draggable
+        onDragStart={(e) => handleDragStart(e, index)}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDrop={(e) => handleDrop(e, index)}
+        className="draggable-upload-item"
+      >
+        {originNode}
+      </div>
+    );
+  }}
   beforeUpload={(file) => {
     // Check file size
     if (file.size / 1024 / 1024 > 5) {
@@ -2158,7 +2069,6 @@ const handleImageUpload = async (images) => {
                               // Check if user is changing make after selecting both make and model
                               if (selectedBrand && selectedModel && selectedBrand !== opt.name) {
                                 const messageContent = 'Changing make will clear the selected model';
-                                console.log('Message:', messageContent);
                                 messageApi.open({
                                   type: 'warning',
                                   content: messageContent,
@@ -2737,7 +2647,6 @@ const handleImageUpload = async (images) => {
       // Check if user is trying to enter 0 while condition is "Used"
       if (sanitizedValue === '0' && selectedCondition === 'Used') {
         const messageContent = 'Please enter kilometers more than 0 for used cars';
-        console.log('Message:', messageContent);
         messageApi.open({
           type: 'warning',
           content: messageContent,

@@ -17,13 +17,14 @@ const STATUS_SOLD = 'Sold';
 
 const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }) => {
   const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
+  const [isMarkAsSoldModalVisible, setIsMarkAsSoldModalVisible] = useState(false);
   const [, setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [messageApi, contextHolder] = message.useMessage();
 
-  // ✅ Status label logic
+  
   const getDisplayLabel = () => {
-    // If in Sold tab, show "Sold" status
+    
     if (value === STATUS_SOLD) {
       return { label: 'Sold', isVisible: true, bg: '#D5F0FF', color: '#008AD5' };
     } 
@@ -84,7 +85,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
 
   return (
     <>
-      {/* 🚘 Car Card */}
+      
       <div className="car-card">
         {contextHolder}
         <button 
@@ -128,7 +129,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
   key="sold"
   onClick={(e) => {
     e.domEvent.stopPropagation();
-    handlemarkassoldMethod(car.id) // ✅ correct inside Menu.Item
+    setIsMarkAsSoldModalVisible(true);
   }}
   style={{ color: '#0A0A0B', fontSize: '16px', fontWeight: '500' }}
 >
@@ -153,7 +154,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
 
             <div className="car-card-price">{'IQD ' + Number(car.price).toLocaleString()}</div>
 
-            {/* ✅ Status Tag + Reason */}
+            
             {displayLabel.isVisible && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Tag
@@ -167,7 +168,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                   {displayLabel.label}
                 </Tag>
 
-                {/* ✅ Show Reason button for Rejected status */}
+                
                 {car.approval?.toLowerCase() === 'rejected' && car.rejection_reason && (
                   <button
                     type="button"
@@ -192,7 +193,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
               </div>
             )}
 
-            {/* ✅ Boost Button */}
+            
             {car.approval?.toLowerCase() === 'approved' && value !== STATUS_SOLD && (
               <button
                 type="button"
@@ -206,7 +207,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
           </div>
         </button>
 
-        {/* ✅ Footer */}
+        
         <div className="car-card-footer">
           <div className="car-card-date">
             {car.updated_at
@@ -253,7 +254,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
         </div>
       </div>
 
-      {/* ✅ Rejection Reason Modal */}
+     
       <Modal
         title="Rejection Details"
         open={isReasonModalVisible}
@@ -268,6 +269,36 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
             <strong>Admin Comment:</strong> {car.admin_rejection_comment}
           </p>
         )}
+      </Modal>
+
+     
+      <Modal
+        open={isMarkAsSoldModalVisible}
+        onCancel={() => setIsMarkAsSoldModalVisible(false)}
+        footer={[
+          <Button 
+            key="cancel" 
+            onClick={() => setIsMarkAsSoldModalVisible(false)}
+          >
+            Cancel
+          </Button>,
+          <Button 
+            key="confirm" 
+            type="primary" 
+            style={{ backgroundColor: '#008AD5', borderColor: '#008AD5' }}
+            onClick={() => {
+              setIsMarkAsSoldModalVisible(false);
+              handlemarkassoldMethod(car.id);
+            }}
+          >
+            Confirm
+          </Button>,
+        ]}
+        closable={false}
+      >
+        <p style={{ fontSize: '16px', textAlign: 'center' }}>
+          Are you sure you want to mark this car as sold?
+        </p>
       </Modal>
     </>
   );

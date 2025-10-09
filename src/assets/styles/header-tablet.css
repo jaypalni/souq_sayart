@@ -448,11 +448,6 @@
     padding-right: 0;
   }
 
-  /* Show hamburger menu on tablet */
-  .hamburger-menu {
-    display: flex;
-  }
-
   /* Show mobile icons on tablet */
   .header .mobile-icons-left {
     display: flex !important;

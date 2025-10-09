@@ -95,43 +95,60 @@ const showLoginMessageAndClearStates = (store) => {
   }
 };
 
+// Helper function to get refresh token from Redux
+const getRefreshTokenFromRedux = () => {
+  const store = require('../redux/store').default;
+  const state = store.getState();
+  return {
+    store,
+    state,
+    refresh_token: state.auth?.refresh_token,
+  };
+};
+
+// Helper function to handle refresh token flow
+const handleRefreshTokenFlow = async (originalRequest) => {
+  const { store, refresh_token } = getRefreshTokenFromRedux();
+
+  if (!refresh_token) {
+    showLoginMessageAndClearStates(store);
+    return null;
+  }
+
+  try {
+    const newAccessToken = await refreshtokenapi();
+    
+    if (newAccessToken) {
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      return api(originalRequest);
+    }
+    return null;
+  } catch (refreshError) {
+    console.error('Failed to refresh token:', refreshError.message);
+    showLoginMessageAndClearStates(store);
+    return Promise.reject(refreshError);
+  }
+};
+
+// Helper function to handle 401 errors
+const handle401Error = async (originalRequest) => {
+  if (originalRequest._retry) {
+    return null;
+  }
+
+  originalRequest._retry = true;
+  return handleRefreshTokenFlow(originalRequest);
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     
-    if (error.response) {
-      const { status } = error.response;
-      
-      // Handle authentication errors
-      if (status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true; // Mark request as retried to avoid infinite loop
-        
-        // ✅ Dynamically get Redux store to access refresh token
-        const store = require('../redux/store').default;
-        const state = store.getState();
-        const refresh_token = state.auth?.refresh_token;
-
-        if (refresh_token) {
-          try {
-            // Call refresh token API directly
-            const newAccessToken = await refreshtokenapi();
-            
-            // ✅ Retry the original request with new token
-            if (newAccessToken) {
-              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-              return api(originalRequest);
-            }
-          } catch (refreshError) {
-            console.error('Failed to refresh token:', refreshError.message);
-            // Show login message and clear all Redux states
-            showLoginMessageAndClearStates(store);
-            return Promise.reject(refreshError);
-          }
-        } else {
-          // Show login message and clear all Redux states
-          showLoginMessageAndClearStates(store);
-        }
+    if (error.response?.status === 401) {
+      const retryResult = await handle401Error(originalRequest);
+      if (retryResult) {
+        return retryResult;
       }
     }
 

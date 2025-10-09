@@ -75,7 +75,7 @@
   z-index: 999;
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 999;
+  
 }
 
 .mobile-menu-overlay.open {
@@ -273,9 +273,6 @@
 }
 
 
-.mobile-menu-drawer {
-  z-index: 1000;
-}
 
 /* Smooth transitions for all interactive elements */
 .mobile-menu-button,

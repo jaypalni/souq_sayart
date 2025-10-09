@@ -566,27 +566,22 @@ if (approval === 'approved' && status !== 'sold') {
         Active
       </div>
       
-    <div
+    <button
+  type="button"
   onClick={(e) => e.stopPropagation()}
-  onKeyPress={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.stopPropagation();
-    }
-  }}
-  role="button"
-  tabIndex={0}
   className="d-flex justify-content-center align-items-center mt-2 p-2 rounded"
   style={{ 
     width: '100%', 
     cursor: 'pointer', 
     backgroundColor: '#D67900', 
     gap: '4px', 
-    textAlign: 'center' 
+    textAlign: 'center',
+    border: 'none'
   }}
 >
   <span className="car-card-boost-text text-white">Boost</span>
   <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
-</div>
+</button>
       
     </div>
   );
@@ -702,15 +697,9 @@ if (approval === 'approved' && status !== 'sold') {
           <p style={{ fontSize: '18px', fontWeight: 500, marginBottom: '20px' }}>
             Click the phone number to copy:
           </p>
-          <div
+          <button
+            type="button"
             onClick={copyPhoneNumber}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                copyPhoneNumber();
-              }
-            }}
-            role="button"
-            tabIndex={0}
             style={{
               fontSize: '24px',
               fontWeight: 600,
@@ -720,10 +709,11 @@ if (approval === 'approved' && status !== 'sold') {
               borderRadius: '8px',
               backgroundColor: '#f0f8ff',
               display: 'inline-block',
+              border: 'none',
             }}
           >
             {carDetails.seller.phone_number}
-          </div>
+          </button>
         </div>
       </Modal>
     </Card>

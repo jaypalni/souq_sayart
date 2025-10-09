@@ -78,7 +78,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
-  const [filterVisible, setFilterVisible] = useState(false);
   const locationAsArray = (loc) => {
   if (loc && loc !== CORRECT_DEFAULT_LOCATION) {
     return [loc]; // wrap in array

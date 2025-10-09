@@ -127,34 +127,39 @@ PhoneNumberStepComponent.propTypes = {
 };
 
 // OTP step component - extracted to reduce component complexity
-const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => (
-  <>
-    <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
-      Enter OTP Sent To Cancel Subscriptions
-    </div>
-    <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
-      Enter Your New Phone Number to change
-    </div>
-    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
-      {otp.map((digit, idx) => (
-        <Input
-          key={`otp-${idx}`}
-          value={digit}
-          onChange={(e) => onOtpChange(e, idx)}
-          id={`otp-input-${idx}`}
-          style={{ width: 40, height: 40, textAlign: 'center', fontSize: 20 }}
-          maxLength={1}
-        />
-      ))}
-    </div>
-    <div style={{ textAlign: 'center', marginBottom: 16, color: '#039be5' }}>
-      Resend in {otpTimer}s
-    </div>
-    <Button type="primary" style={{ width: '100%' }} onClick={onContinue}>
-      Continue
-    </Button>
-  </>
-);
+const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => {
+  // Use fixed keys for OTP inputs (positions never change)
+  const OTP_KEYS = ['otp-first', 'otp-second', 'otp-third', 'otp-fourth'];
+  
+  return (
+    <>
+      <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
+        Enter OTP Sent To Cancel Subscriptions
+      </div>
+      <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
+        Enter Your New Phone Number to change
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+        {otp.map((digit, idx) => (
+          <Input
+            key={OTP_KEYS[idx]}
+            value={digit}
+            onChange={(e) => onOtpChange(e, idx)}
+            id={`otp-input-${idx}`}
+            style={{ width: 40, height: 40, textAlign: 'center', fontSize: 20 }}
+            maxLength={1}
+          />
+        ))}
+      </div>
+      <div style={{ textAlign: 'center', marginBottom: 16, color: '#039be5' }}>
+        Resend in {otpTimer}s
+      </div>
+      <Button type="primary" style={{ width: '100%' }} onClick={onContinue}>
+        Continue
+      </Button>
+    </>
+  );
+};
 
 OtpStepComponent.propTypes = {
   otp: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -242,20 +247,14 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) =
         <EmptyState />
       ) : (
         plans.map((plan) => (
-          <div
+          <button
             key={plan.id}
-            style={{ cursor: 'pointer' }}
+            type="button"
+            style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
             onClick={() => onSelectPlan(plan)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                onSelectPlan(plan);
-              }
-            }}
-            role="button"
-            tabIndex={0}
           >
             <SubscriptionCard {...plan} />
-          </div>
+          </button>
         ))
       )}
     </div>

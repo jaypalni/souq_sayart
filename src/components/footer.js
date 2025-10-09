@@ -43,7 +43,7 @@ const Footer = () => {
     },
     {
       catogory: 'Account',
-      items: ['My Profile', 'Messages', 'Contact us', 'Payments'],
+      items: ['My Profile', 'Messages', 'Contact Us', 'Payments'],
     },
     {
       catogory: 'Help Center',

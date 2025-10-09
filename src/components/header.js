@@ -345,7 +345,7 @@ dispatch(updateCustomerDetails({
                 }}
                 aria-label="Sign up or Login"
               >
-                Sign up / Login
+                Sign Up / Login
               </button>
             )}
             <div className="menuLeft mx-2">

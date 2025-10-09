@@ -25,7 +25,7 @@ const Allcars = () => {
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('');
   const [isnetworkError,setIsnetworkError]= useState(false);
-    const [networkError,setNetworkError]= useState('');
+  
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [selectedNewUsed, setSelectedNewUsed] = useState('All');
   const [isLoading, setIsLoading] = useState(false);

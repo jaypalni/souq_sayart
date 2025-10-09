@@ -326,16 +326,13 @@ const ProfileForm = ({
       </span>
     }
     name="uploadDocuments"
-    // ✅ Custom validation rule
     rules={[
       {
         validator: (_, value) => {
           if (uploadedDocUrl) {
-            // ✅ If document is already uploaded, no validation error
             return Promise.resolve();
           }
           if (!value || value.fileList?.length === 0) {
-            // ❌ Show error only when no document and no upload
             return Promise.reject(
               new Error('Please upload your company documents')
             );
@@ -739,19 +736,12 @@ const MyProfileForm = () => {
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const { user } = useSelector((state) => state.auth);
   
-  // Debug Redux state
-  console.log('MyProfileForm Redux state:', {
-    customerDetails,
-    user
-  });
-  
   // Helper function to get user data from either source
   const getUserData = () => {
     return customerDetails || user || {};
   };
   
   const userData = getUserData();
-  console.log('MyProfileForm userData:', userData);
 
   const handleConfirm = () => {
       setModalOpen(false);
@@ -803,11 +793,8 @@ const MyProfileForm = () => {
         instagram: '',
         uploadDocuments: undefined,
       });
-      // Clear the uploaded document URL and file input
-      setUploadedDocUrl('');
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      // ✅ Keep the uploaded document - don't clear it
+      // Document stays uploaded even when user selects "No"
     } else {
       form.setFieldsValue({
         company: profile.company,
@@ -829,7 +816,6 @@ const MyProfileForm = () => {
   // Watch for changes in Redux user data
   useEffect(() => {
     if (userData && Object.keys(userData).length > 0) {
-      console.log('Redux user data changed, updating profile:', userData);
       populateUserProfile(userData, 'Profile updated from Redux');
     }
   }, [userData]);
@@ -839,11 +825,9 @@ const MyProfileForm = () => {
 const Userdataapi = async () => {
   try {
     setLoading(true);
-    // If no Redux data, fetch from API
-    console.log('No Redux data, fetching from API');
     const response = await userAPI.getProfile({});
     const users_data = handleApiResponse(response);
-console.log('s224',users_data)
+    
     if (users_data?.data) {
       populateUserProfile(users_data.data, users_data.message);
     }
@@ -862,7 +846,10 @@ const populateUserProfile = (user, successMsg) => {
   form.setFieldsValue(userProfile);
   setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(userProfile.dealer);
+  
+  // ✅ Set document URL from server (will be empty if dealer is "No")
   setUploadedDocUrl(user.document || '');
+  
   message.success(successMsg || MSG_FETCH_SUCCESS);
 };
 
@@ -874,7 +861,7 @@ const mapUserToProfile = (user) => {
     profilePic && !profilePic.startsWith('http')
       ? `${BASE_URL}${profilePic}`
       : profilePic;
-console.log('Profile data', user)
+  
   return {
     first_name: user.first_name || '',
     last_name: user.last_name || '',
@@ -914,6 +901,8 @@ const applyUpdatedUser = (updateParams) => {
   form.setFieldsValue(updatedProfile);
   setAvatarUrl(user.profile_image || user.profile_pic || '');
   setDealerValue(user.is_dealer ? YES : NO);
+  
+  // ✅ Update document URL from server response (will be empty if dealer is "No")
   setUploadedDocUrl(user.document || '');
   
   setEditMode(false);
@@ -1124,6 +1113,8 @@ const handleSubmitError = (error, onFinishFailed) => {
     
     const profilePicUrl = imageUrl || avatarUrl || '';
 
+    // ✅ If user selects "No" for dealer, clear the document
+    const finalDocumentUrl = values.dealer === 'yes' ? uploadedDocUrl : '';
     
     const payload = {
       first_name: values.first_name || '',
@@ -1140,13 +1131,21 @@ const handleSubmitError = (error, onFinishFailed) => {
       instagram_company_profile: values.instagram || '',
       profile_pic: profilePicUrl,
       location: values.address || '',
-      document: uploadedDocUrl
+      document: finalDocumentUrl
     };
    
     const response = await userAPI.updateProfile(payload);
     
     const result = handleApiResponse(response);
-    console.log('s22',result)
+    
+    // ✅ Update uploadedDocUrl with what was actually sent to server
+    setUploadedDocUrl(finalDocumentUrl);
+    
+    // Clear file input if no document was sent
+    if (!finalDocumentUrl && fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
       dispatch(updateCustomerDetails({
           first_name: result?.user?.first_name,
           last_name: result?.user?.last_name,
@@ -1157,7 +1156,7 @@ const handleSubmitError = (error, onFinishFailed) => {
 
         }));
         
-         Userdataapi();
+          Userdataapi();
     if (result?.user) {
       
 
@@ -1165,7 +1164,7 @@ const handleSubmitError = (error, onFinishFailed) => {
         const profileResponse = await userAPI.getProfile({});
         
         const profileResult = handleApiResponse(profileResponse);
-        console.log('s223',profileResult)
+        
         if (profileResult?.data) {
           applyUpdatedUser({
             user: profileResult.data,

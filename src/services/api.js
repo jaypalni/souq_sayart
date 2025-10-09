@@ -126,7 +126,8 @@ const handleRefreshTokenFlow = async (originalRequest) => {
   } catch (refreshError) {
     console.error('Failed to refresh token:', refreshError.message);
     showLoginMessageAndClearStates(store);
-    return Promise.reject(refreshError);
+    const error = refreshError instanceof Error ? refreshError : new Error(String(refreshError));
+    return Promise.reject(error);
   }
 };
 
@@ -184,13 +185,13 @@ const refreshtokenapi = async () => {
     // ✅ Process response
     const data1 = handleApiResponse(response);
 
-    if (data1 && data1.access_token) {
+    if (data1?.access_token) {
       // ✅ Dispatch action to update Redux state with new access token
       const { refreshTokenSuccess } = require('../redux/actions/authActions');
       store.dispatch(refreshTokenSuccess(data1.access_token));
       
       return data1.access_token;
-    } else if (data1 && data1.status_code === 200 && data1.message === 'Access token is not expired yet') {
+    } else if (data1?.status_code === 200 && data1?.message === 'Access token is not expired yet') {
       // ✅ Token is still valid, return current token from Redux
       const currentToken = state.auth?.token;
       console.log('Access token is still valid, using current token');

@@ -283,7 +283,7 @@ const getInitialMaxPrice = () => {
   };
   const [filterVisible, setFilterVisible] = useState(false);
   const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [, setIsInitialized] = useState(false);
   const hasInitialSearch = useRef(false); // Track if initial search has been made
   const [isHovering, setIsHovering] = useState(false); // Track hover state for clear button
   const [propsProcessed, setPropsProcessed] = useState(false); // Track if props have been processed

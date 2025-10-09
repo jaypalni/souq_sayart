@@ -7,7 +7,6 @@ const { Title, Paragraph } = Typography;
 
 const TermsAndconditions = () => {
   const [loading, setLoading] = useState(false);
-  const [messageApi, contextHolder] = message.useMessage();
   const [contentData, setContentData] = useState(null);
 
   useEffect(() => {
@@ -45,7 +44,6 @@ const TermsAndconditions = () => {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
-      {contextHolder}
       <Typography>
         {loading ? (
           <Spin tip="Loading content..." />

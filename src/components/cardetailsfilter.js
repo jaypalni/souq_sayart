@@ -229,7 +229,7 @@ const prepareFilterData = (filterParams) => {
   const { 
     selectedMake, 
     selectedModel, 
-    bodyType, 
+   
     location, 
     singleInputs, 
     rangeInputs, 
@@ -238,7 +238,7 @@ const prepareFilterData = (filterParams) => {
     currentPage,
     limit, 
     featuredorrecommended, 
-    newUsed,
+    
     selectedColors = [],
     selectedRegionalSpecs = [],
     selectedBodyType = [],
@@ -800,7 +800,7 @@ const Cardetailsfilter = ({
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
-  const [value, setValue] = useState('Any');
+  const [, setValue] = useState('Any');
   const [search, setSearch] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -815,7 +815,7 @@ const Cardetailsfilter = ({
   const [regionalSpecsOptions, setRegionalSpecsOptions] = useState([]);
 
   // New Changes for API'S
-const CORRECT_DEFAULT_BODY_TYPE = 'All Body Types';
+
 
 // Initialize with static data like allcarfilters.js
 const bodyTypes = [
@@ -830,7 +830,7 @@ const locations = ['All Locations', 'Baghdad', 'Beirut', 'Dubai', 'Riyadh', 'Cai
 
 const [carBodyTypes, setCarBodyTypes] = useState(bodyTypes);
 const [carLocation, setCarLocation] = useState(locations);
-const [searchBodyType, setSearchBodyType] = useState('');
+const [searchBodyType, ] = useState('');
 
 
 
@@ -937,7 +937,7 @@ const [carModels, setCarModels] = useState([]);
     }
   }, [propSelectedMake, carMakes.length]);
 
-  const handleChange = (e) => setValue(e.target.value);
+  
 
   // Fetch body types data
   const fetchBodyTypeCars = async () => {
@@ -1116,17 +1116,7 @@ const fetchUpdateOptionsData = async () => {
     setLoading(false);
   }
 };
-const validateRange = (label, min, max) => {
-  if (!isNaN(min) && !isNaN(max) && min > max) {
-     messageApi.open({
-                type: 'error',
-                content: `Minimum ${label} cannot be greater than maximum ${label}`,
-              });
-   
-    return false;
-  }
-  return true;
-};
+
 
   const handleApplyFilters = () => {
   const validateRange = (label, min, max) => {

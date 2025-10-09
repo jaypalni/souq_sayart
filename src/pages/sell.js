@@ -278,7 +278,7 @@ const Sell = () => {
   const [selectedYear, setSelectedYear] = useState();
   const [selectedCondition, setSelectedCondition] = useState('');
   const [selectedBodyType, setSelectedBodyType] = useState();
-  const [selectedBadges, setSelectedBadges] = useState([]);
+  const [, setSelectedBadges] = useState([]);
   const [selectedVehicleType, setSelectedVehicleType] = useState([]);
   const [regionModalOpen, setRegionModalOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
@@ -1179,32 +1179,7 @@ const handlePostDataSuccess = (data1, isDraft, text) => {
   }
 };
 
-const handlePostData = async (uploadedImages = [], text = '', isDraft = false, valuesParam = null) => {
-  try {
-    const values = valuesParam ?? (await form.validateFields());
-    const formData = buildCarFormData(values, uploadedImages, isDraft);
 
-    setLoading(true);
-    const response = await carAPI.createCar(formData);
-    const data1 = handleApiResponse(response);
-
-    if (data1) {
-      handlePostDataSuccess(data1, isDraft, text);
-    }
-  } catch (error) {
-    const errorData = handleApiError(error);
-    const messageText = typeof errorData === 'object' 
-      ? JSON.stringify(errorData) 
-      : (errorData || 'An error occurred');
-    
-    if (!isDraft) {
-      messageApi.open({ type: 'error', content: messageText });
-    }
-    setAddData([]);
-  } finally {
-    setLoading(false);
-  }
-};
 
 // Helper function to build FormData for handleCreateCar (with JSON images)
 const buildCreateCarFormData = (values, uploadedImages, isDraft) => {

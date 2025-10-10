@@ -12,8 +12,7 @@ const TermsAndconditions = () => {
   useEffect(() => {
     fetchContentData();
   }, []);
-
-  // Convert emails inside text into clickable mailto links
+  
   const convertEmailsToLinks = (text) => {
     if (!text) return '';
     return text.replace(

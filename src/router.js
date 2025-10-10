@@ -35,6 +35,10 @@ import ChangePhoneNumberPage from './pages/changePhoneNumber';
 import DeleteAccount from './components/deleteaccount';
 import ChangePhoneOtpPage from './pages/changePhoneOtp';
 import ProtectedRoute from './components/ProtectedRoute';
+import TandC from './components/tandc';
+import PrivacyPolicy from './components/privacypolicy';
+import FaqS from './components/faqs';
+import ContactUs from './components/contactus';
 
 
 const ScrollToTop = () => {
@@ -76,6 +80,10 @@ const AppRouterContent = () => {
     '/termsAndconditions',
     '/captchatoken',
     '/deleteaccount-otp',
+    '/tandc',
+    '/privacypolicy',
+    '/faqs',
+    '/contactus',
   ];
 
   const hidefooterList = ['/captchatoken'];
@@ -161,6 +169,38 @@ const AppRouterContent = () => {
           element={
             <ProtectedRoute>
               <DeleteAccount />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tandc" 
+          element={
+            <ProtectedRoute>
+              <TandC />
+            </ProtectedRoute>
+          } 
+        />
+         <Route 
+          path="/privacypolicy" 
+          element={
+            <ProtectedRoute>
+              <PrivacyPolicy />
+            </ProtectedRoute>
+          } 
+        />
+         <Route 
+          path="/faqs" 
+          element={
+            <ProtectedRoute>
+              <FaqS />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/contactus" 
+          element={
+            <ProtectedRoute>
+              <ContactUs />
             </ProtectedRoute>
           } 
         />

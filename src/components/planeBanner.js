@@ -206,34 +206,50 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
   const breadcrumbItems = generateBreadcrumb();
 
   return (
-    <div className="banner-container">
-      {isLoginPage && (
-        <div className="banner-header">
-          <div className="banner-header-content">
-            <h2 className="banner-header-title">My Profile</h2>
-            <p className="banner-header-subtitle">
-              Post Your Listing in just 3 simple steps
-            </p>
-          </div>
+  <div className="banner-container">
+    {isLoginPage && (
+      <div className="banner-header">
+        <div className="banner-header-content">
+          <h2 className="banner-header-title">My Profile</h2>
+          <p className="banner-header-subtitle">
+            Post Your Listing in just 3 simple steps
+          </p>
         </div>
-      )}
-      <div className={`plane-banner-main ${location.pathname.includes('/carDetails') ? 'car-details-banner' : ''}`}>
-        <div className={`breadcrumb-container ${location.pathname.includes('/carDetails') ? 'car-details-breadcrumb' : ''}`}>
+      </div>
+    )}
+
+    <div
+      className={`plane-banner-main ${
+        location.pathname.includes('/carDetails') ? 'car-details-banner' : ''
+      }
+       ${location.pathname.includes('/tandc') ? 'tandc-banner' : ''}
+       ${location.pathname.includes('/privacypolicy') ? 'tandc-banner' : ''}
+       ${location.pathname.includes('/faqs') ? 'tandc-banner' : ''}
+       ${location.pathname.includes('/contactus') ? 'contactus-banner' : ''}
+       `}
+    >
+      {/* ✅ Hide breadcrumb when on Terms & Conditions page */}
+      {!location.pathname.includes('/tandc') || !location.pathname.includes('/privacypolicy') || !location.pathname.includes('/faqs') || !location.pathname.includes('/contactus') && (
+        <div
+          className={`breadcrumb-container ${
+            location.pathname.includes('/carDetails')
+              ? 'car-details-breadcrumb'
+              : ''
+          }`}
+        >
           {breadcrumbItems.map((item, index) => (
             <React.Fragment key={`${item.path}-${index}`}>
               {item.isClickable ? (
-                <Link 
-                  to={item.path} 
+                <Link
+                  to={item.path}
                   className="breadcrumb-link"
-                  onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-                  onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  onMouseEnter={(e) => (e.target.style.opacity = '0.8')}
+                  onMouseLeave={(e) => (e.target.style.opacity = '1')}
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className="breadcrumb-text">
-                  {item.label}
-                </span>
+                <span className="breadcrumb-text">{item.label}</span>
               )}
               {index < breadcrumbItems.length - 1 && (
                 <span className="breadcrumb-separator">&gt;</span>
@@ -241,13 +257,56 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
             </React.Fragment>
           ))}
         </div>
+      )}
 
-        <h1 className="plane-banner-title">
-          {isLoginPage ? 'Welcome To Souq Siyarate' : undefined}
+      {/* Show white title for Terms & Conditions page */}
+      {location.pathname.includes('/tandc') && (
+        <h1
+          className="plane-banner-title"
+          style={{ color: '#fff', marginTop: '20px' }}
+        >
+          Terms & Conditions
         </h1>
-      </div>
+      )}
+
+       {/* Show white title for Privacy Policy page */}
+      {location.pathname.includes('/privacypolicy') && (
+        <h1
+          className="plane-banner-title"
+          style={{ color: '#fff', marginTop: '20px' }}
+        >
+          Privacy & Policy
+        </h1>
+      )}
+
+       {/* Show white title for FAQ'S page */}
+      {location.pathname.includes('/faqs') && (
+        <h1
+          className="plane-banner-title"
+          style={{ color: '#fff', marginTop: '20px' }}
+        >
+          Frequently Asked Questions
+        </h1>
+      )}
+
+        {/* Show white title for Contact Us page */}
+      {location.pathname.includes('/contactus') && (
+        <h1
+          className="plane-banner-title"
+          style={{ color: '#fff', marginTop: '20px' }}
+        >
+          Contact Us
+        </h1>
+      )}
+
+      {/* Default title for Login Page */}
+      {isLoginPage && (
+        <h1 className="plane-banner-title">Welcome To Souq Siyarate</h1>
+      )}
     </div>
-  );
+  </div>
+);
+
 };
 
 PlaneBanner.propTypes = {

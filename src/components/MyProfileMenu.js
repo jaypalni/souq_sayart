@@ -282,7 +282,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Blocked users
+          Blocked Users
         </Link>
       ),
     },

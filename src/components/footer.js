@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import footerLogo from '../assets/images/souqLogo_blue.svg';
 import '../assets/styles/footer.css';
 import fb_icon from '../assets/images/fb_icon.svg';
@@ -14,6 +15,8 @@ import insta_icon from '../assets/images/insta_icon.svg';
 import whatsapp_icon from '../assets/images/whatsapp_icon.svg';
 
 const Footer = () => {
+  const navigate = useNavigate();
+   const location = useLocation();
   const socialIcons = [
     { name: 'Facebook', icon: fb_icon },
     { name: 'X', icon: x_icon },
@@ -51,6 +54,39 @@ const Footer = () => {
     },
   ];
 
+   const handleItemClick = (sub) => {
+    if (sub === 'Terms & Conditions') {
+      navigate('/tandc'); 
+    } else if (sub === 'Privacy Policy') {
+      navigate('/privacypolicy'); 
+    } else if (sub === 'FAQs') {
+      navigate('/faqs'); 
+    } else if (sub === 'Contact Us') {
+      navigate('/contactus'); 
+    } else if (sub === 'My Profile') {
+      navigate('/myProfile'); 
+    } else {
+      console.log(`${sub} clicked`);
+    }
+  };
+
+   const getPathForItem = (sub) => {
+    switch (sub) {
+      case 'Terms & Conditions':
+        return '/tandc';
+      case 'Privacy Policy':
+        return '/privacypolicy';
+      case 'FAQs':
+        return '/faqs';
+      case 'Contact Us':
+        return '/contactus';
+      case 'My Profile':
+        return '/myProfile';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div
       style={{
@@ -67,20 +103,36 @@ const Footer = () => {
             ))}
           </div>
         </div>
+
         <div className="footer-columns-col">
           {footerdata.map((item) => (
             <div className="footer-col-cat" key={item.catogory}>
               <div className="footer-col-cat-data">{item.catogory}</div>
-              {item.items.map((sub) => (
-                <div key={`${item.catogory}-${sub}`} className="footer-cat-map">
-                  {sub}
-                </div>
-              ))}
+
+              {item.items.map((sub) => {
+                const itemPath = getPathForItem(sub);
+                const isActive = location.pathname === itemPath;
+
+                return (
+                  <div
+                    key={`${item.catogory}-${sub}`}
+                    className={`footer-cat-map ${isActive ? 'active-footer-link' : ''}`}
+                    onClick={() => handleItemClick(sub)}
+                    style={{
+                      cursor: ['Terms & Conditions', 'Privacy Policy', 'FAQs', 'Contact Us', 'My Profile'].includes(sub)
+                        ? 'pointer'
+                        : 'default',
+                    }}
+                  >
+                    {sub}
+                  </div>
+                );
+              })}
             </div>
           ))}
+
           <div className="footer-app-col">
             <div className="footer-download">Download Our App on</div>
-
             <div className="footer-app-badge">
               {appBadges.map((badge) => (
                 <a
@@ -96,6 +148,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
       <div className="footer-copyright">
         Souq Sayarat@2025. All Right Reserved.
       </div>

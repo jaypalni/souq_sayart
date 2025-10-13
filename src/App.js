@@ -11,6 +11,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './redux/store';
 import AppRouter from './router';
 import ErrorBoundary from './components/ErrorBoundary';
+import { LanguageProvider } from './contexts/LanguageContext';
+import './assets/styles/rtl.css';
 
 /**
  * Root App Component
@@ -22,7 +24,9 @@ function App() {
     <ErrorBoundary>
       <Provider store={store}>
         <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
-          <AppRouter />
+          <LanguageProvider>
+            <AppRouter />
+          </LanguageProvider>
         </PersistGate>
       </Provider>
     </ErrorBoundary>

@@ -14,10 +14,12 @@ import lamborgini from '../assets/images/lamborghini.png';
 import lottie from '../assets/images/lottie_search.gif';
 import { useNavigate } from 'react-router-dom';
 import deleteIcon from '../assets/images/Delete_icon.png';
+import { useLanguage } from '../contexts/LanguageContext';
+import PropTypes from 'prop-types';
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 
-const EmptyState = () => {
+const EmptyState = ({ translate }) => {
   const navigate = useNavigate();
 
   return (
@@ -33,7 +35,7 @@ const EmptyState = () => {
     >
       <img src={lottie} alt="boost" style={{ width: '90px', height: '90px' }} />
       <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 600 }}>
-        No Saved Searches
+        {translate('savedSearches.NO_SAVED_SEARCHES')}
       </h3>
       <p
         style={{
@@ -48,9 +50,9 @@ const EmptyState = () => {
           fontWeight: 500,
         }}
       >
-        Run your searches again quickly
+        {translate('savedSearches.RUN_SEARCHES_QUICKLY')}
         <br />
-        Get Notified about new cars
+        {translate('savedSearches.GET_NOTIFIED_NEW_CARS')}
       </p>
       <Button
         type="primary"
@@ -65,13 +67,18 @@ const EmptyState = () => {
         }}
         onClick={() => navigate('/')}
       >
-        Start Searching 
+        {translate('savedSearches.START_SEARCHING')}
       </Button>
     </div>
   );
 };
 
+EmptyState.propTypes = {
+  translate: PropTypes.func.isRequired,
+};
+
 const SavedSearches = () => {
+  const { translate } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [searches, setSearches] = useState('');
   const [, setDeleteSaved] = useState('');
@@ -162,13 +169,13 @@ if (loading) {
   }
 
   if (!loading && searches.length === 0) {
-    return <EmptyState />;
+    return <EmptyState translate={translate} />;
   }
 
   return (
     <div className="saved-searches-main">
       {contextHolder}
-      <div className="saved-searches-header">Saved Searches</div>
+      <div className="saved-searches-header">{translate('savedSearches.PAGE_TITLE')}</div>
       <div className="saved-searches-list">
         {searches.map((search) => {
   const { make } = search?.name || {};
@@ -185,7 +192,7 @@ if (loading) {
         />
         <div>
          <div className="saved-search-title">
-  {search?.name || 'All Make - All Modal'}
+  {search?.name || translate('savedSearches.ALL_MAKE_MODEL')}
 </div>
             <div
               className="saved-search-subtitle"
@@ -205,33 +212,33 @@ if (loading) {
     `IQD ${search.search_params.price_to}`,
 
   // Year range
-  search.search_params.year_min && `From ${search.search_params.year_min}`,
+  search.search_params.year_min && `${translate('savedSearches.FROM')} ${search.search_params.year_min}`,
 
   // Max kilometers
-  search.search_params.max_kilometers && `To ${search.search_params.max_kilometers}`,
+  search.search_params.max_kilometers && `${translate('savedSearches.TO')} ${search.search_params.max_kilometers}`,
 
   // Number of seats
   search.search_params.number_of_seats &&
-    `Number of seats: ${search.search_params.number_of_seats}`,
+    `${translate('savedSearches.NUMBER_OF_SEATS')} ${search.search_params.number_of_seats}`,
 
      // Fuel types (array)
     search.search_params.fuel_types && search.search_params.fuel_types.length > 0 &&
-      `Fuel: ${search.search_params.fuel_types.join(', ')}`,
+      `${translate('savedSearches.FUEL')} ${search.search_params.fuel_types.join(', ')}`,
 
     // Transmissions (array)
     search.search_params.transmissions && search.search_params.transmissions.length > 0 &&
-      `Transmission: ${search.search_params.transmissions.join(', ')}`,
+      `${translate('savedSearches.TRANSMISSION')} ${search.search_params.transmissions.join(', ')}`,
 
     // Regional specs (array)
     search.search_params.regional_specs_list && search.search_params.regional_specs_list.length > 0 &&
-      `Regional Specs: ${search.search_params.regional_specs_list.join(', ')}`,
+      `${translate('savedSearches.REGIONAL_SPECS')} ${search.search_params.regional_specs_list.join(', ')}`,
 
     // Colors (array)
     search.search_params.colors && search.search_params.colors.length > 0 &&
-      `Color: ${search.search_params.colors.join(', ')}`,
+      `${translate('savedSearches.COLOR')} ${search.search_params.colors.join(', ')}`,
 
     // Owner type
-    search.search_params.seller_type && `Owner Type: ${search.search_params.seller_type}`,
+    search.search_params.seller_type && `${translate('savedSearches.OWNER_TYPE')} ${search.search_params.seller_type}`,
 ]
   .filter(Boolean) 
   .join(' • ')}    
@@ -245,7 +252,7 @@ if (loading) {
               color: '#0A0A0B',
             }}
           >
-            Get Notified about new offers.
+            {translate('savedSearches.GET_NOTIFIED_NEW_OFFERS')}
           </div>
         </div>
       </div>
@@ -284,7 +291,7 @@ if (loading) {
         open={deleteModalOpen}
         onCancel={() => setDeleteModalOpen(false)}
         footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px', fontWeight: 700}}>Are you sure you want to delete this saved search?</span></div>}
+        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px', fontWeight: 700}}>{translate('savedSearches.DELETE_SEARCH_CONFIRMATION')}</span></div>}
         width={350}
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
@@ -301,7 +308,7 @@ if (loading) {
               borderRadius: '24px',
             }}
           >
-            Cancel
+            {translate('savedSearches.CANCEL')}
           </Button>
           <Button
             type="primary"
@@ -321,7 +328,7 @@ if (loading) {
               borderRadius: '24px',
             }}
           >
-            Yes
+            {translate('savedSearches.YES')}
           </Button>
         </div>
       </Modal>

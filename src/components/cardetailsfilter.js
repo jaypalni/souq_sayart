@@ -32,6 +32,7 @@ import { message } from 'antd';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import Searchemptymodal from './searchemptymodal';
 import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Option } = Select;
 
@@ -50,28 +51,7 @@ for (let year = 1980; year <= currentYear; year++) {
 }
 
 
-const extraFeaturesData = [
-  {
-    title: 'Comfort & Convenience',
-    icon: <img src={Comforticon} alt="Comfort Icon" />,
-    features: ['Heated seats', 'Keyless entry', 'power mirrors'],
-  },
-  {
-    title: 'Entertainment & Media',
-    icon: <img src={Mediaicon} alt="Media Icon" />,
-    features: ['Bluetooth', 'Cd Play', 'Radio'],
-  },
-  {
-    title: 'Extras',
-    icon: <img src={Extrasicon} alt="Extras Icon" />,
-    features: ['Navigation', 'Alloy wheels', 'Power locks'],
-  },
-  {
-    title: 'Safety & Security',
-    icon: <img src={Safetyicon} alt="Safety Icon" />,
-    features: ['Diesel', 'Electric'],
-  },
-];
+// extraFeaturesData will be created inside the component to access translate function
 
 // Custom hook for filter state management
 const useFilterState = () => {
@@ -175,7 +155,11 @@ const convertNewUsedToCondition = (newUsed) => {
 
 // Helper functions for filter data preparation
 const getFilterValue = (value, defaultValue = '') => {
-  return value !== defaultValue ? value : '';
+  // Convert "All Make" and "All Models" to empty strings
+  if (value === 'All Make' || value === 'All Models' || value === defaultValue) {
+    return '';
+  }
+  return value || '';
 };
 
 const getArrayFilterValue = (array, defaultValue = 'Any') => {
@@ -245,11 +229,13 @@ const prepareFilterData = (filterParams) => {
     sortedbydata
   } = filterParams;
   
+  // API parameters prepared with correct default values
+  
   const sortConfig = getSortParameters(sortedbydata);
   
   const apiParams = {
-    make: getFilterValue(selectedMake, 'All Make'),
-    model: getFilterValue(selectedModel, 'All Models'),
+    make: getFilterValue(selectedMake, ''),
+    model: getFilterValue(selectedModel, ''),
     trim: singleInputs.trimValue.length > 0 ? singleInputs.trimValue : [],
     year_min: getNumericFilterValue(rangeInputs.yearMin),
     year_max: getNumericFilterValue(rangeInputs.yearMax),
@@ -284,6 +270,7 @@ const prepareFilterData = (filterParams) => {
     apiParams.type = featuredorrecommended;
   }
 
+  // Final API payload ready for transmission
   return apiParams;
 };
 
@@ -330,7 +317,8 @@ const RangeInputGroup = ({
   maxPlaceholder, 
   onBlurValidation,
   minComponent,
-  maxComponent
+  maxComponent,
+  translate
 }) => (
   <div style={{ marginBottom: 16 }}>
     <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
@@ -342,7 +330,7 @@ const RangeInputGroup = ({
           minComponent
         ) : (
           <Input 
-            placeholder={minPlaceholder || 'Min'} 
+            placeholder={minPlaceholder || (translate ? translate('filters.MIN') : 'Min')} 
             value={minValue}
             onChange={(e) => handleNumberInput(e, onMinChange)}
             onBlur={() => onBlurValidation?.()}
@@ -354,7 +342,7 @@ const RangeInputGroup = ({
           maxComponent
         ) : (
           <Input 
-            placeholder={maxPlaceholder || 'Max'} 
+            placeholder={maxPlaceholder || (translate ? translate('filters.MAX') : 'Max')} 
             value={maxValue}
             onChange={(e) => handleNumberInput(e, onMaxChange)}
             onBlur={() => onBlurValidation?.()}
@@ -390,6 +378,10 @@ RangeInputGroup.propTypes = {
   onMaxChange: PropTypes.func.isRequired,
   minPlaceholder: PropTypes.string,
   maxPlaceholder: PropTypes.string,
+  onBlurValidation: PropTypes.func,
+  minComponent: PropTypes.node,
+  maxComponent: PropTypes.node,
+  translate: PropTypes.func,
 };
 
 const CheckboxGroup = ({ title, options, selectedValues, onChange, setSelectedValues }) => (
@@ -442,33 +434,41 @@ const SelectInput = ({ title, value, onChange, options, style }) => (
   </div>
 );
 
-const SelectInputTrimData = ({ title, value, onChange, options, style }) => (
-  <div style={{ marginBottom: 16 }}>
-    <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
-      {title}
+const SelectInputTrimData = ({ title, value, onChange, options, style, translate }) => {
+  // Generate placeholder based on field type
+  const getPlaceholder = () => {
+    if (!translate) return `Select ${title}`;
+    return `${translate('sell.SELECT')} ${title}`;
+  };
+  
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
+        {title}
+      </div>
+      <Select
+        mode="multiple"
+        value={value}
+        onChange={onChange}
+        placeholder={getPlaceholder()}
+        style={{ width: '100%', marginTop: '10px', ...style }}
+        showSearch
+        filterOption={(input, option) =>
+          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+        }
+        maxTagCount="responsive"
+      >
+        {options.map(option => (
+          <Option key={option.id} value={option.trim_name}>
+            {option.trim_name}
+          </Option>
+        ))}
+      </Select>
     </div>
-    <Select
-      mode="multiple"
-      value={value}
-      onChange={onChange}
-      placeholder={`Select ${title}`}
-      style={{ width: '100%', marginTop: '10px', ...style }}
-      showSearch
-      filterOption={(input, option) =>
-        (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-      }
-      maxTagCount="responsive"
-    >
-      {options.map(option => (
-        <Option key={option.id} value={option.trim_name}>
-          {option.trim_name}
-        </Option>
-      ))}
-    </Select>
-  </div>
-);
+  );
+};
 
-const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption }) => {
+const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption, translate, fieldType }) => {
   
   // Helper function to get the correct field value with fallbacks
   const getFieldValue = (option, field) => {
@@ -493,6 +493,20 @@ const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueFiel
     return option[field] || field;
   };
   
+  // Generate placeholder based on field type
+  const getPlaceholder = () => {
+    if (!translate) return `Select ${title}`;
+    
+    // Use fieldType if provided for explicit field identification
+    if (fieldType === 'bodyType') {
+      return translate('filters.ALL_BODY_TYPES');
+    } else if (fieldType === 'location') {
+      return translate('filters.ALL_LOCATIONS');
+    }
+    
+    return `${translate('sell.SELECT')} ${title}`;
+  };
+  
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
@@ -502,7 +516,7 @@ const SelectInputMultiAPI = ({ title, value, onChange, options, style, valueFiel
         mode="multiple"
         value={value}
         onChange={onChange}
-        placeholder={`Select ${title}`}
+        placeholder={getPlaceholder()}
         style={{ width: '100%', marginTop: '10px', ...style }}
         showSearch
         filterOption={(input, option) =>
@@ -540,6 +554,7 @@ SelectInputTrimData.propTypes = {
     trim_name: PropTypes.string.isRequired,
   })).isRequired,
   style: PropTypes.object,
+  translate: PropTypes.func,
 };
 
 SelectInputMultiAPI.propTypes = {
@@ -554,9 +569,11 @@ SelectInputMultiAPI.propTypes = {
     value: PropTypes.string,
     label: PropTypes.string,
   }),
+  translate: PropTypes.func,
+  fieldType: PropTypes.string,
 };
 
-const SelectInputAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption }) => {
+const SelectInputAPI = ({ title, value, onChange, options, style, valueField = 'id', labelField = 'name', defaultOption, translate }) => {
   
   // Helper function to get the correct field value with fallbacks
   const getFieldValue = (option, field) => {
@@ -581,6 +598,35 @@ const SelectInputAPI = ({ title, value, onChange, options, style, valueField = '
     return option[field] || field;
   };
   
+  // Generate the default option label dynamically based on fieldType
+  const getDefaultLabel = () => {
+    if (!translate || !defaultOption) return defaultOption?.label || '';
+    
+    // Use fieldType if provided for explicit field identification
+    if (defaultOption.fieldType === 'make') {
+      return `${translate('filters.ANY')} ${translate('filters.MAKE')}`;
+    } else if (defaultOption.fieldType === 'model') {
+      return `${translate('filters.ANY')} ${translate('filters.MODEL')}`;
+    }
+    
+    // Fallback to label if no fieldType
+    return defaultOption.label;
+  };
+  
+  // Generate placeholder based on field type
+  const getPlaceholder = () => {
+    if (!translate) return `Select ${title}`;
+    
+    // Use fieldType if provided for explicit field identification
+    if (defaultOption?.fieldType === 'make') {
+      return translate('filters.ALL_MAKE');
+    } else if (defaultOption?.fieldType === 'model') {
+      return translate('filters.ALL_MODELS');
+    }
+    
+    return `${translate('sell.SELECT')} ${title}`;
+  };
+  
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
@@ -589,7 +635,7 @@ const SelectInputAPI = ({ title, value, onChange, options, style, valueField = '
       <Select
         value={value}
         onChange={onChange}
-        placeholder={`Select ${title}`}
+        placeholder={getPlaceholder()}
         style={{ width: '100%', marginTop: '10px', ...style }}
         showSearch
         filterOption={(input, option) =>
@@ -598,7 +644,7 @@ const SelectInputAPI = ({ title, value, onChange, options, style, valueField = '
       >
         {defaultOption && (
           <Option key="default" value={defaultOption.value}>
-            {defaultOption.label}
+            {getDefaultLabel()}
           </Option>
         )}
         {options.map(option => {
@@ -628,7 +674,9 @@ SelectInputAPI.propTypes = {
   defaultOption: PropTypes.shape({
     value: PropTypes.string,
     label: PropTypes.string,
+    fieldType: PropTypes.string,
   }),
+  translate: PropTypes.func,
 };
 
 SelectInput.propTypes = {
@@ -639,7 +687,7 @@ SelectInput.propTypes = {
   style: PropTypes.object,
 };
 
-const ExtraFeaturesDrawer = ({ visible, onClose, search, onSearchChange, selectedFeatures, onFeatureToggle }) => (
+const ExtraFeaturesDrawer = ({ visible, onClose, search, onSearchChange, selectedFeatures, onFeatureToggle, translate, extraFeaturesData }) => (
   <Drawer
     title={null}
     closeIcon={null}
@@ -662,7 +710,7 @@ const ExtraFeaturesDrawer = ({ visible, onClose, search, onSearchChange, selecte
       <button
         type="button"
         onClick={onClose}
-        aria-label="Back to main filters"
+        aria-label={translate('filters.BACK_TO_MAIN_FILTERS')}
         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
       >
         <img
@@ -677,13 +725,13 @@ const ExtraFeaturesDrawer = ({ visible, onClose, search, onSearchChange, selecte
         marginLeft: 16,
         color: '#0A0A0B',
       }}>
-        Extra Features
+        {translate('filters.EXTRA_FEATURES')}
       </span>
     </div>
     
     <div style={{ padding: 16 }}>
       <Input
-        placeholder="Search Here..."
+        placeholder={translate('filters.SEARCH_HERE')}
         value={search}
         onChange={onSearchChange}
         prefix={
@@ -769,6 +817,8 @@ ExtraFeaturesDrawer.propTypes = {
   onSearchChange: PropTypes.func.isRequired,
   selectedFeatures: PropTypes.array.isRequired,
   onFeatureToggle: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
+  extraFeaturesData: PropTypes.array.isRequired,
 };
 
 const Cardetailsfilter = ({ 
@@ -797,6 +847,7 @@ const Cardetailsfilter = ({
   sortedbydata,
   onFilterChange
 }) => {
+  const { translate } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extrafeaturesvisible, setextrafeaturesvisible] = useState(false);
@@ -862,14 +913,72 @@ const [selectedColors, setSelectedColors] = useState([]);
 const [selectedRegionalSpecs, setSelectedRegionalSpecs] = useState([]);
 
 // Missing state variables
-const [selectedMake, setSelectedMake] = useState(propSelectedMake || '');
-const [selectedModel, setSelectedModel] = useState(propSelectedModel || '');
+const [selectedMake, setSelectedMake] = useState(propSelectedMake || 'Any');
+const [selectedModel, setSelectedModel] = useState(propSelectedModel || 'Any');
 const [carMakes, setCarMakes] = useState([]);
 const [carModels, setCarModels] = useState([]);
 
   const filterState = useFilterState();
   const rangeInputs = useRangeInputs();
   const singleInputs = useSingleInputs();
+  
+  // Helper function to translate common filter values
+  const translateFilterValue = (value) => {
+    const filterValueMap = {
+      'Any': translate('filters.ANY'),
+      'New': translate('filters.NEW'),
+      'Used': translate('filters.USED'),
+      'All Make': translate('filters.ALL_MAKE'),
+      'All Models': translate('filters.ALL_MODELS'),
+      'All Body Types': translate('filters.ALL_BODY_TYPES'),
+      'All Locations': translate('filters.ALL_LOCATIONS'),
+      'Individual': translate('filters.INDIVIDUAL'),
+      'Dealer': translate('filters.DEALER'),
+      'Petrol': translate('filters.PETROL'),
+      'Diesel': translate('filters.DIESEL'),
+      'Hybrid': translate('filters.HYBRID'),
+      'Electric': translate('filters.ELECTRIC'),
+      'Automatic': translate('filters.AUTOMATIC'),
+      'Manual': translate('filters.MANUAL'),
+      'Steptonic': translate('filters.STEPTONIC'),
+      'Black': translate('filters.BLACK'),
+      'White': translate('filters.WHITE'),
+      'Red': translate('filters.RED'),
+      'Blue': translate('filters.BLUE'),
+      'Green': translate('filters.GREEN'),
+      'Yellow': translate('filters.YELLOW'),
+      'Orange': translate('filters.ORANGE'),
+      'Purple': translate('filters.PURPLE'),
+      'Silver': translate('filters.SILVER'),
+      'Gray': translate('filters.GRAY'),
+      'Brown': translate('filters.BROWN'),
+    };
+    return filterValueMap[value] || value;
+  };
+  
+  // Create extraFeaturesData with translated titles
+  const extraFeaturesData = [
+    {
+      title: translate('filters.COMFORT_CONVENIENCE'),
+      icon: <img src={Comforticon} alt="Comfort Icon" />,
+      features: ['Heated seats', 'Keyless entry', 'power mirrors'],
+    },
+    {
+      title: translate('filters.ENTERTAINMENT_MEDIA'),
+      icon: <img src={Mediaicon} alt="Media Icon" />,
+      features: ['Bluetooth', 'Cd Play', 'Radio'],
+    },
+    {
+      title: translate('filters.EXTRAS'),
+      icon: <img src={Extrasicon} alt="Extras Icon" />,
+      features: ['Navigation', 'Alloy wheels', 'Power locks'],
+    },
+    {
+      title: translate('filters.SAFETY_SECURITY'),
+      icon: <img src={Safetyicon} alt="Safety Icon" />,
+      features: ['Diesel', 'Electric'],
+    },
+  ];
   
   // Initialize condition state from newUsed prop on mount
   useEffect(() => {
@@ -952,10 +1061,10 @@ const [carModels, setCarModels] = useState([]);
         setCarBodyTypes(bodyTypeStrings);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to fetch body type data');
+      message.error(errorData.message || translate('filters.FETCH_BODY_TYPE_FAILED'));
       // Keep the static data on error
     } finally {
       setLoading(false);
@@ -975,10 +1084,10 @@ const [carModels, setCarModels] = useState([]);
         setCarLocation(locationStrings);
       }
 
-      message.success(data1?.message || 'Fetched successfully');
+      message.success(data1?.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to fetch location data');
+      message.error(errorData.message || translate('filters.FETCH_LOCATION_FAILED'));
       // Keep the static data on error
     } finally {
       setLoading(false);
@@ -1086,10 +1195,10 @@ const [carModels, setCarModels] = useState([]);
       setTrimData(data1?.data);
     }
 
-    message.success(data1.message || 'Fetched successfully');
+    message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to Trim car data');
+    message.error(errorData.message || translate('filters.FETCH_FAILED'));
     setTrimData([]);
   } finally {
     setLoading(false);
@@ -1107,10 +1216,10 @@ const fetchUpdateOptionsData = async () => {
       setRegionalSpecsOptions(data1.data.regional_specs);
     }
 
-    message.success(data1.message || 'Fetched successfully');
+    message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to fetch Regional Specs');
+    message.error(errorData.message || translate('filters.FETCH_FAILED'));
     setRegionalSpecsOptions([]); // reset on error
   } finally {
     setLoading(false);
@@ -1124,7 +1233,7 @@ const fetchUpdateOptionsData = async () => {
   if (!isNaN(min) && !isNaN(max) && min > max) {
    messageApi.open({
                 type: 'error',
-                content: `Minimum ${label} cannot be greater than maximum ${label}`,
+                content: translate(`filters.MIN_${label.toUpperCase()}_GREATER`),
               });
    
     return false;
@@ -1202,9 +1311,9 @@ if (
         if (response?.data?.data?.cars.length === 0) {
           setEmptySearchData(filterData);
           setIsEmptyModalOpen(true);
-          message.info('No cars found with the current filters. Try adjusting your search criteria.');
+          message.info(translate('filters.NO_CARS_FOUND'));
         } else {
-          message.success(`Found ${results.length} car(s) matching your filters!`);
+          message.success(translate('filters.FOUND_CARS', { count: results.length }));
         }
       }
       
@@ -1255,8 +1364,8 @@ if (
     setSelectedFeatures([]);
 
     // Reset selected values
-    setSelectedMake('');
-    setSelectedModel('');
+    setSelectedMake('Any');
+    setSelectedModel('Any');
     setSelectedBodyType([]);
     setSelectedLocation([]);
     setSelectedColors([]);
@@ -1269,7 +1378,7 @@ if (
       onResetFilters();
     }
 
-    message.success('Filters have been reset!');
+    message.success(translate('filters.FILTERS_RESET'));
   };
 
 
@@ -1290,7 +1399,7 @@ if (
       </button>
       
       <Drawer
-        title="Filter"
+        title={translate('filters.FILTER')}
         placement="left"
         onClose={() => setVisible(false)}
         visible={visible}
@@ -1308,7 +1417,7 @@ if (
         }}>
 
           <SelectInputAPI
-            title="Make"
+            title={translate('filters.MAKE')}
             value={selectedMake}
             onChange={(value) => {
               setSelectedMake(value);
@@ -1328,11 +1437,12 @@ if (
             options={carMakes}
             valueField="id"
             labelField="make_name"
-            defaultOption={{ value: 'Any', label: 'Any Make' }}
+            defaultOption={{ value: 'Any', label: 'Any Make', fieldType: 'make' }}
+            translate={translate}
           />
 
           <SelectInputAPI
-            title="Model"
+            title={translate('filters.MODEL')}
             value={selectedModel}
             onChange={(value) => {
               setSelectedModel(value);
@@ -1352,18 +1462,20 @@ if (
             options={carModels}
             valueField="id"
             labelField="model_name"
-            defaultOption={{ value: 'Any', label: 'Any Model' }}
+            defaultOption={{ value: 'Any', label: 'Any Model', fieldType: 'model' }}
+            translate={translate}
           />
           
           <SelectInputTrimData
-            title="Trim"
+            title={translate('filters.TRIM')}
             value={singleInputs.trimValue}
             onChange={singleInputs.setTrimValue}
             options={trimData}
+            translate={translate}
           />
 
           <SelectInputMultiAPI
-            title="Body Type"
+            title={translate('filters.BODY_TYPE')}
             value={selectedBodyType}
             onChange={(value) => {
               setSelectedBodyType(value);
@@ -1385,10 +1497,12 @@ if (
               }
             }}
             options={carBodyTypes.map(bodyType => ({ value: bodyType, label: bodyType }))}
+            translate={translate}
+            fieldType="bodyType"
           />
 
           <SelectInputMultiAPI
-            title="Location"
+            title={translate('filters.LOCATION')}
             value={selectedLocation}
             onChange={(value) => {
               setSelectedLocation(value);
@@ -1410,6 +1524,8 @@ if (
               }
             }}
             options={carLocation.map(location => ({ value: location, label: location }))}
+            translate={translate}
+            fieldType="location"
           />
 {/* 
           <div style={{ marginBottom: 16 }}>
@@ -1459,11 +1575,12 @@ if (
           </div> */}
 
           <RangeInputGroup
-            label="Kilometers"
+            label={translate('filters.KILOMETERS')}
             minValue={rangeInputs.kilometersMin}
             maxValue={rangeInputs.kilometersMax}
             onMinChange={(e) => rangeInputs.setKilometersMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setKilometersMax(e.target.value)}
+            translate={translate}
              onBlurValidation={() => {
     const min = parseInt(rangeInputs.kilometersMin, 10);
     const max = parseInt(rangeInputs.kilometersMax, 10);
@@ -1471,7 +1588,7 @@ if (
     if (!isNaN(min) && !isNaN(max) && min > max) {
         messageApi.open({
                 type: 'error',
-                content: 'Minimum kilometers cannot be greater than maximum kilometers',
+                content: translate('filters.MIN_KILOMETERS_GREATER'),
               });
     
     }
@@ -1480,10 +1597,11 @@ if (
 
           
 <RangeInputGroup
-  label="Year"
+  label={translate('filters.YEAR')}
+  translate={translate}
   minComponent={
     <Select
-      placeholder="Min Year"
+      placeholder={translate('filters.MIN_YEAR')}
       value={rangeInputs.yearMin || undefined}
       style={{ width: '100%' }}
       onChange={(value) => rangeInputs.setYearMin(value)}
@@ -1491,7 +1609,7 @@ if (
         const min = parseInt(rangeInputs.yearMin, 10);
         const max = parseInt(rangeInputs.yearMax, 10);
         if (!isNaN(min) && !isNaN(max) && min > max) {
-          message.error('Minimum Year cannot be greater than Maximum Year');
+          message.error(translate('filters.MIN_YEAR_GREATER'));
         }
       }}
     >
@@ -1504,7 +1622,7 @@ if (
   }
   maxComponent={
     <Select
-      placeholder="Max Year"
+      placeholder={translate('filters.MAX_YEAR')}
       value={rangeInputs.yearMax || undefined}
       style={{ width: '100%' }}
       onChange={(value) => rangeInputs.setYearMax(value)}
@@ -1512,7 +1630,7 @@ if (
         const min = parseInt(rangeInputs.yearMin, 10);
         const max = parseInt(rangeInputs.yearMax, 10);
         if (!isNaN(min) && !isNaN(max) && min > max) {
-          message.error('Minimum Year cannot be greater than Maximum Year');
+          message.error(translate('filters.MIN_YEAR_GREATER'));
         }
       }}
     >
@@ -1526,11 +1644,12 @@ if (
 />
 
           <RangeInputGroup
-            label="Price (Range)"
+            label={translate('filters.PRICE_RANGE')}
             minValue={rangeInputs.priceMin}
             maxValue={rangeInputs.priceMax}
             onMinChange={(e) => rangeInputs.setPriceMin(e.target.value)}
             onMaxChange={(e) => rangeInputs.setPriceMax(e.target.value)}
+            translate={translate}
             onBlurValidation={() => {
     const min = parseInt(rangeInputs.priceMin, 10);
     const max = parseInt(rangeInputs.priceMax, 10);
@@ -1538,7 +1657,7 @@ if (
     if (!isNaN(min) && !isNaN(max) && min > max) {
         messageApi.open({
                 type: 'error',
-                content: 'Minimum Price cannot be greater than maximum Price',
+                content: translate('filters.MIN_PRICE_GREATER'),
               });
     
     }
@@ -1546,27 +1665,35 @@ if (
           />
 
           <SelectInputMultiAPI
-            title="Fuel Type"
+            title={translate('filters.FUEL_TYPE')}
             value={filterState.selectedValues.filter(v => v !== 'Any')}
             onChange={(value) => filterState.setSelectedValues(value.length > 0 ? value : ['Any'])}
-            options={fuelOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
+            options={fuelOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: translateFilterValue(option) }))}
+            translate={translate}
           />
 
           <CheckboxGroup
-            title="Condition"
-            options={['Used', 'New']}
-            selectedValues={filterState.condition}
+            title={translate('filters.CONDITION')}
+            options={[translate('filters.USED'), translate('filters.NEW')]}
+            selectedValues={filterState.condition.map(v => translateFilterValue(v))}
             onChange={(option, selectedValues, setSelectedValues) => {
+              // Reverse translate the option back to English for internal state
+              const englishOption = option === translate('filters.USED') ? 'Used' : 
+                                    option === translate('filters.NEW') ? 'New' : option;
+              
+              // Get current values in English
+              const currentEnglishValues = filterState.condition;
+              
               // Calculate the new values after the change
               let newValues;
-              if (selectedValues.includes(option)) {
-                newValues = selectedValues.filter(item => item !== option);
+              if (currentEnglishValues.includes(englishOption)) {
+                newValues = currentEnglishValues.filter(item => item !== englishOption);
               } else {
-                newValues = [...selectedValues, option];
+                newValues = [...currentEnglishValues, englishOption];
               }
               
-              // Call the original handler to update the state
-              handleCheckboxChange(option, selectedValues, setSelectedValues);
+              // Update the state with English values
+              filterState.setCondition(newValues);
               
               // Convert condition array to newUsed format for allcarfilters
               let newUsedValue = 'New & Used'; // Default value
@@ -1590,10 +1717,11 @@ if (
           />
 
           <SelectInputMultiAPI
-            title="Transmission"
+            title={translate('filters.TRANSMISSION')}
             value={filterState.transmissionselectedValues.filter(v => v !== 'Any')}
             onChange={(value) => filterState.settransmissionselectedValues(value.length > 0 ? value : ['Any'])}
-            options={transmissionOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
+            options={transmissionOptions.filter(option => option !== 'Any').map(option => ({ value: option, label: translateFilterValue(option) }))}
+            translate={translate}
           />
 
           {/* <CheckboxGroup
@@ -1604,17 +1732,19 @@ if (
             setSelectedValues={filterState.setcylinderselectedValues}
           /> */}
           <SelectInputMultiAPI
-            title="Color"
+            title={translate('filters.COLOR')}
             value={selectedColors}
             onChange={(value) => setSelectedColors(value)}
-            options={['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Silver', 'Gray', 'Brown'].map(option => ({ value: option, label: option }))}
+            options={['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Silver', 'Gray', 'Brown'].map(option => ({ value: option, label: translateFilterValue(option) }))}
+            translate={translate}
           />
 
           <SelectInputMultiAPI
-            title="Number of Doors"
+            title={translate('filters.NUMBER_OF_DOORS')}
             value={filterState.doorselectedValues}
             onChange={(value) => filterState.setdoorselectedValues(value)}
             options={numberofdoors.filter(option => option !== 'Any').map(option => ({ value: option, label: option }))}
+            translate={translate}
           />
 
           {/* <SelectInput
@@ -1633,22 +1763,23 @@ if (
           /> */}
 
           <SelectInputMultiAPI
-            title="Regional Specs"
+            title={translate('filters.REGIONAL_SPECS')}
             value={selectedRegionalSpecs}
             onChange={(value) => setSelectedRegionalSpecs(value)}
             options={regionalSpecsOptions.map(spec => ({
               value: spec.regional_spec,
               label: spec.regional_spec
             }))}
+            translate={translate}
           />
 
 
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '10px' }}>
-              Keywords
+              {translate('filters.KEYWORDS')}
             </div>
             <Input
-              placeholder="Enter keywords (e.g., low mileage, one owner, accident free)"
+              placeholder={translate('filters.KEYWORDS_PLACEHOLDER')}
               value={keywords.join(', ')}
               onChange={(e) => handleKeywordsChange(keywords, setKeywords)(e.target.value)}
               style={{ width: '100%', marginTop: '10px' }}
@@ -1656,10 +1787,28 @@ if (
           </div>
 
           <CheckboxGroup
-            title="Owner Type"
-            options={[ 'Individual', 'Dealer']}
-            selectedValues={filterState.ownerType}
-            onChange={handleCheckboxChange}
+            title={translate('filters.OWNER_TYPE')}
+            options={[translate('filters.INDIVIDUAL'), translate('filters.DEALER')]}
+            selectedValues={filterState.ownerType.map(v => translateFilterValue(v))}
+            onChange={(option, selectedValues, setSelectedValues) => {
+              // Reverse translate the option back to English for internal state
+              const englishOption = option === translate('filters.INDIVIDUAL') ? 'Individual' : 
+                                    option === translate('filters.DEALER') ? 'Dealer' : option;
+              
+              // Get current values in English
+              const currentEnglishValues = filterState.ownerType;
+              
+              // Calculate the new values after the change
+              let newValues;
+              if (currentEnglishValues.includes(englishOption)) {
+                newValues = currentEnglishValues.filter(item => item !== englishOption);
+              } else {
+                newValues = [...currentEnglishValues, englishOption];
+              }
+              
+              // Update the state with English values
+              filterState.setOwnerType(newValues);
+            }}
             setSelectedValues={filterState.setOwnerType}
           />
 
@@ -1673,7 +1822,7 @@ if (
       onClick={handleApplyFilters}
       loading={loading}
     >
-      {loading ? 'Searching...' : 'Apply Filters'}
+      {loading ? translate('filters.SEARCHING') : translate('filters.APPLY_FILTERS')}
     </Button>
   </Col>
   <Col span={12}>
@@ -1686,7 +1835,7 @@ if (
         color: '#008ad5',
       }}
     >
-      Reset Filters
+      {translate('filters.RESET_FILTERS')}
     </Button>
   </Col>
 </Row>
@@ -1699,6 +1848,8 @@ if (
         onSearchChange={(e) => setSearch(e.target.value)}
         selectedFeatures={selectedFeatures}
         onFeatureToggle={handleFeatureToggle(selectedFeatures, setSelectedFeatures)}
+        translate={translate}
+        extraFeaturesData={extraFeaturesData}
       />
 
       <Searchemptymodal

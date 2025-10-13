@@ -13,8 +13,11 @@ import fb_icon from '../assets/images/fb_icon.svg';
 import x_icon from '../assets/images/x_icon.svg';
 import insta_icon from '../assets/images/insta_icon.svg';
 import whatsapp_icon from '../assets/images/whatsapp_icon.svg';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Footer = () => {
+  const { translate } = useLanguage();
+  
   const navigate = useNavigate();
    const location = useLocation();
   const socialIcons = [
@@ -26,13 +29,13 @@ const Footer = () => {
 
   const appBadges = [
     {
-      alt: 'Get it on Google Play',
+      alt: translate('footer.GET_IT_ON_GOOGLE_PLAY'),
       src: 'https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg',
       style: { height: 40, marginRight: 8 },
       link: 'https://play.google.com/store/apps/',
     },
     {
-      alt: 'Download on the App Store',
+      alt: translate('footer.DOWNLOAD_ON_APP_STORE'),
       src: 'https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg',
       style: { height: 40 },
       link: 'https://apps.apple.com/app/id1234567890',
@@ -41,16 +44,30 @@ const Footer = () => {
 
   const footerdata = [
     {
-      catogory: 'Quick Links',
-      items: ['Buy', 'Sell', 'My Listings', 'Evaluate My Car'],
+      catogory: translate('footer.QUICK_LINKS'),
+      items: [
+        translate('footer.BUY'),
+        translate('footer.SELL'),
+        translate('footer.MY_LISTINGS'),
+        translate('footer.EVALUATE_MY_CAR')
+      ],
     },
     {
-      catogory: 'Account',
-      items: ['My Profile', 'Messages', 'Contact Us', 'Payments'],
+      catogory: translate('footer.ACCOUNT'),
+      items: [
+        translate('footer.MY_PROFILE'),
+        translate('footer.MESSAGES'),
+        translate('footer.CONTACT_US'),
+        translate('footer.PAYMENTS')
+      ],
     },
     {
-      catogory: 'Help Center',
-      items: ['FAQs', 'Privacy Policy', 'Terms & Conditions'],
+      catogory: translate('footer.HELP_CENTER'),
+      items: [
+        translate('footer.FAQS'),
+        translate('footer.PRIVACY_POLICY'),
+        translate('footer.TERMS_CONDITIONS')
+      ],
     },
   ];
 
@@ -132,7 +149,8 @@ const Footer = () => {
           ))}
 
           <div className="footer-app-col">
-            <div className="footer-download">Download Our App on</div>
+            <div className="footer-download">{translate('footer.DOWNLOAD_OUR_APP')}</div>
+
             <div className="footer-app-badge">
               {appBadges.map((badge) => (
                 <a
@@ -150,7 +168,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-copyright">
-        Souq Sayarat@2025. All Right Reserved.
+        {translate('footer.COPYRIGHT')}
       </div>
     </div>
   );

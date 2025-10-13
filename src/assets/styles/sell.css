@@ -1122,3 +1122,6 @@
 .ant-upload-list-picture-card .ant-upload-list-item:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+.menuLeft > :where(.css-dev-only-do-not-override-1m2bkf9).ant-select-single .ant-select-selector .ant-select-selection-item, :where(.css-dev-only-do-not-override-1m2bkf9).ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+    color: #a8a8a8;
+}

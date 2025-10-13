@@ -11,11 +11,13 @@ import { LuEye } from 'react-icons/lu';
 import '../assets/styles/mycarslisting.css';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const STATUS_ACTIVE = 'Active';
 const STATUS_SOLD = 'Sold';
 
 const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }) => {
+  const { translate } = useLanguage();
   const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
   const [isMarkAsSoldModalVisible, setIsMarkAsSoldModalVisible] = useState(false);
   const [, setLoading] = useState(false);
@@ -26,25 +28,25 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
   const getDisplayLabel = () => {
     
     if (value === STATUS_SOLD) {
-      return { label: 'Sold', isVisible: true, bg: '#D5F0FF', color: '#008AD5' };
+      return { label: translate('myListings.SOLD'), isVisible: true, bg: '#D5F0FF', color: '#008AD5' };
     } 
     
     if (car.approval?.toLowerCase() === 'pending') {
       if (car.draft === 1) {
         return { label: '', isVisible: false, bg: '', color: '' };
       }
-      return { label: 'Approval Pending', isVisible: true, bg: '#FFEDD5', color: '#D67900' };
+      return { label: translate('myListings.APPROVAL_PENDING'), isVisible: true, bg: '#FFEDD5', color: '#D67900' };
     }
     
     if (car.approval?.toLowerCase() === 'approved') {
-      return { label: 'Active', isVisible: true, bg: '#A4F4E7', color: '#0B7B69' };
+      return { label: translate('myListings.ACTIVE'), isVisible: true, bg: '#A4F4E7', color: '#0B7B69' };
     }
     
     if (car.approval?.toLowerCase() === 'rejected') {
-      return { label: 'Rejected', isVisible: true, bg: '#FDECEC', color: '#DC3545' };
+      return { label: translate('myListings.REJECTED'), isVisible: true, bg: '#FDECEC', color: '#DC3545' };
     }
     
-    return { label: car.approval || 'Unknown', isVisible: true, bg: '#F5F5F5', color: '#333' };
+    return { label: car.approval || translate('myListings.UNKNOWN'), isVisible: true, bg: '#F5F5F5', color: '#333' };
   };
 
   const displayLabel = getDisplayLabel();
@@ -62,7 +64,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
     if (cardetail.status_code === 200) {
        messageApi.open({
           type: 'success',
-          content: cardetail?.message || 'Car Sold successfully',
+          content: cardetail?.message || translate('myListings.CAR_SOLD_SUCCESS'),
         });
        // Reload the data after successful mark as sold
        if (onRefresh) {
@@ -71,11 +73,11 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
          }, 500);
        }
     } else {
-      message.error(cardetail.message || 'Failed to mark as sold');
+      message.error(cardetail.message || translate('myListings.FAILED_TO_MARK_SOLD'));
     }
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to mark car as sold');
+    message.error(errorData.message || translate('myListings.FAILED_TO_MARK_CAR_SOLD'));
   } finally {
     setLoading(false);
   }
@@ -111,7 +113,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                         }}
                         style={{ color: '#E4626F', fontSize: '16px', fontWeight: '500' }}
                       >
-                        Delete Listing
+                        {translate('myListings.DELETE_LISTING')}
                       </Menu.Item>
 
                       <Menu.Item
@@ -122,7 +124,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                         }}
                         style={{ color: '#0A0A0B', fontSize: '16px', fontWeight: '500' }}
                       >
-                        Edit Listing
+                        {translate('myListings.EDIT_LISTING')}
                       </Menu.Item>
 
                      <Menu.Item
@@ -133,7 +135,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
   }}
   style={{ color: '#0A0A0B', fontSize: '16px', fontWeight: '500' }}
 >
-  Mark As Sold
+  {translate('myListings.MARK_AS_SOLD')}
 </Menu.Item>
 
 
@@ -187,7 +189,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                       padding: 0,
                     }}
                   >
-                    Reason
+                    {translate('myListings.REASON')}
                   </button>
                 )}
               </div>
@@ -200,7 +202,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                 className="car-card-boost"
                 onClick={(e) => e.stopPropagation()}
               >
-                <span className="car-card-boost-text">Boost</span>
+                <span className="car-card-boost-text">{translate('myListings.BOOST')}</span>
                 <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
               </button>
             )}
@@ -224,19 +226,19 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
             {car.approval?.toLowerCase() === 'approved' ? (
               <div className="car-card-stats-row">
                 <span className="car-card-stat">
-                  <PiChatDotsLight size={14} /> {car.chat_count || 0} Chats
+                  <PiChatDotsLight size={14} /> {car.chat_count || 0} {translate('myListings.CHATS')}
                 </span>
                 <span className="car-card-stat">
-                  <FaRegHeart size={14} /> {car.like_count || 0} Likes
+                  <FaRegHeart size={14} /> {car.like_count || 0} {translate('myListings.LIKES')}
                 </span>
                 <span className="car-card-stat">
-                  <LuEye size={14} /> {car.views || 0} Views
+                  <LuEye size={14} /> {car.views || 0} {translate('myListings.VIEWS')}
                 </span>
               </div>
             ) : (
               <>
                 <Button type="default" onClick={(e) => { e.stopPropagation(); handleDelete(car.id); }} className="car-card-delete-btn">
-                  Delete
+                  {translate('myListings.DELETE')}
                 </Button>
 
                 {!(value === 'Active' && car.approval?.toLowerCase() === 'pending') && (
@@ -245,7 +247,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
                     onClick={(e) => { e.stopPropagation(); navigate('/sell', { state: { extras: car } }); }}
                     className="car-card-edit-btn"
                   >
-                    Edit
+                    {translate('myListings.EDIT')}
                   </Button>
                 )}
               </>
@@ -256,17 +258,17 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
 
      
       <Modal
-        title="Rejection Details"
+        title={translate('myListings.REJECTION_DETAILS')}
         open={isReasonModalVisible}
         onCancel={() => setIsReasonModalVisible(false)}
         footer={null}
       >
         <p>
-          <strong>Reason:</strong> {car.rejection_reason || 'No reason provided'}
+          <strong>{translate('myListings.REASON_LABEL')}</strong> {car.rejection_reason || translate('myListings.NO_REASON_PROVIDED')}
         </p>
         {car.admin_rejection_comment && (
           <p>
-            <strong>Admin Comment:</strong> {car.admin_rejection_comment}
+            <strong>{translate('myListings.ADMIN_COMMENT')}</strong> {car.admin_rejection_comment}
           </p>
         )}
       </Modal>
@@ -280,7 +282,7 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
             key="cancel" 
             onClick={() => setIsMarkAsSoldModalVisible(false)}
           >
-            Cancel
+            {translate('myListings.CANCEL')}
           </Button>,
           <Button 
             key="confirm" 
@@ -291,13 +293,13 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
               handlemarkassoldMethod(car.id);
             }}
           >
-            Confirm
+            {translate('myListings.CONFIRM')}
           </Button>,
         ]}
         closable={false}
       >
         <p style={{ fontSize: '16px', textAlign: 'center' }}>
-          Are you sure you want to mark this car as sold?
+          {translate('myListings.MARK_AS_SOLD_CONFIRMATION')}
         </p>
       </Modal>
     </>

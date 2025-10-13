@@ -23,6 +23,7 @@ import { AiOutlineLeft } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateCustomerDetails } from '../redux/actions/authActions';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const YES = 'yes';
 const NO = 'no';
@@ -125,7 +126,8 @@ const ProfileForm = ({
   imageUrl,
   avatarUrl,
   uploadedDocUrl,
-  handleDocumentDownload
+  handleDocumentDownload,
+  translate
 }) => {
   
   const renderDealerFields = (form, editMode) => {
@@ -141,18 +143,18 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Company Name*
+                {translate('myProfile.COMPANY_NAME')}*
               </span>
             }
             required={false}
             name="company"
              rules={[
                       {  required: true,
-                        message: 'Company name is required',
+                        message: translate('myProfile.COMPANY_NAME_REQUIRED'),
                       },
                        {
                     max: 100,
-                    message: 'Company name cannot exceed 100 characters',
+                    message: translate('myProfile.COMPANY_NAME_MAX_LENGTH'),
                   },
                     ]}
           >
@@ -173,19 +175,18 @@ const ProfileForm = ({
         color: '#637D92',
       }}
     >
-      Owner's Name*
+      {translate('myProfile.OWNER_NAME')}*
     </span>
   }
   name="owner"
   rules={[
     {
       required: true,
-      message: 'Owner name is required',
+      message: translate('myProfile.OWNER_NAME_REQUIRED'),
     },
     {
       pattern: /^[a-zA-Z\s'-]{1,100}$/,
-      message:
-        'Owner name can only contain letters'
+      message: translate('myProfile.OWNER_NAME_LETTERS_ONLY')
     },
   ]}
 >
@@ -196,7 +197,7 @@ const ProfileForm = ({
       fontWeight: 400,
       color: '#4A5E6D',
     }}
-    maxLength={100} // enforce max length at input level
+    maxLength={100}
   />
 </Form.Item>
 
@@ -207,18 +208,18 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Company Address*
+                {translate('myProfile.COMPANY_ADDRESS')}*
               </span>
             }
             name="address"
             required={false}
             rules={[
                       {  required: true,
-                        message: 'Company address is required',
+                        message: translate('myProfile.COMPANY_ADDRESS_REQUIRED'),
                       },
                       {
                     max: 500,
-                    message: 'Company Address cannot exceed 500 characters',
+                    message: translate('myProfile.COMPANY_ADDRESS_MAX_LENGTH'),
                   },
                     ]}
           >
@@ -234,7 +235,7 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Phone Number*
+                {translate('myProfile.PHONE_NUMBER')}*
               </span>
             }
             name="phone"
@@ -264,13 +265,13 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Company Registration Number CR*
+                {translate('myProfile.COMPANY_REGISTRATION_NUMBER')}*
               </span>
             }
             name="reg"
             required={false}
          rules={[
-                  { required: true, message: 'Company Registration Number  is required' },]}
+                  { required: true, message: translate('myProfile.COMPANY_REGISTRATION_REQUIRED') },]}
           >
             <Input
              disabled={!editMode}
@@ -284,7 +285,7 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Facebook Page (Optional)
+                {translate('myProfile.FACEBOOK_PAGE')}
               </span>
             }
             name="facebook"
@@ -301,7 +302,7 @@ const ProfileForm = ({
               <span
                 className="form-label-text"
               >
-                Instagram Company Profile (Optional)
+                {translate('myProfile.INSTAGRAM_PROFILE')}
               </span>
             }
             name="instagram"
@@ -322,7 +323,7 @@ const ProfileForm = ({
           fontSize: 12,
         }}
       >
-        Upload Documents*
+        {translate('myProfile.UPLOAD_DOCUMENTS')}*
       </span>
     }
     name="uploadDocuments"
@@ -334,7 +335,7 @@ const ProfileForm = ({
           }
           if (!value || value.fileList?.length === 0) {
             return Promise.reject(
-              new Error('Please upload your company documents')
+              new Error(translate('myProfile.UPLOAD_DOCUMENTS_REQUIRED'))
             );
           }
           return Promise.resolve();
@@ -343,7 +344,6 @@ const ProfileForm = ({
     ]}
   >
     <div>
-      {/* ✅ Show download link if document already uploaded */}
       {uploadedDocUrl && (
         <div className="document-upload-container">
           <button
@@ -360,16 +360,15 @@ const ProfileForm = ({
           >
             <span className="document-icon">📄</span>
             <span className="document-filename">
-              {uploadedDocUrl.split('/').pop() || 'Download Document'}
+              {uploadedDocUrl.split('/').pop() || translate('myProfile.DOWNLOAD_DOCUMENT')}
             </span>
             <span className="document-download-text">
-              Click to download
+              {translate('myProfile.CLICK_TO_DOWNLOAD')}
             </span>
           </button>
         </div>
       )}
 
-      {/* File Input */}
       <Input
         disabled={!editMode}
         type="file"
@@ -399,7 +398,7 @@ const ProfileForm = ({
             htmlType="submit"
            
           >
-            Save Changes
+            {translate('myProfile.SAVE_CHANGES')}
           </Button>
         </>
       );
@@ -413,7 +412,7 @@ const ProfileForm = ({
         type="primary"
         onClick={onEdit}
       >
-        Edit Profile
+        {translate('myProfile.EDIT_PROFILE')}
       </Button>
     );
   };
@@ -500,19 +499,19 @@ const ProfileForm = ({
                     color: '#637D92',
                   }}
                 >
-                  First Name*
+                  {translate('myProfile.FIRST_NAME')}*
                 </span>
               }
               name="first_name"
                rules={[
-                  { required: true, message: 'First name is required' },
+                  { required: true, message: translate('myProfile.FIRST_NAME_REQUIRED') },
                   {
                     max: 50,
-                    message: 'First name cannot exceed 50 characters',
+                    message: translate('myProfile.FIRST_NAME_MAX_LENGTH'),
                   },
                   {
                         pattern: /^[A-Za-z\s]+$/, 
-                        message: 'First name can only contain letters',
+                        message: translate('myProfile.FIRST_NAME_LETTERS_ONLY'),
                       },
                 ]}
             >
@@ -537,19 +536,19 @@ const ProfileForm = ({
                     color: '#637D92',
                   }}
                 >
-                  Last Name*
+                  {translate('myProfile.LAST_NAME')}*
                 </span>
               }
               name="last_name"
                rules={[
-                  { required: true, message: 'Last name is required' },
+                  { required: true, message: translate('myProfile.LAST_NAME_REQUIRED') },
                   {
                     max: 50,
-                    message: 'Last name cannot exceed 50 characters',
+                    message: translate('myProfile.LAST_NAME_MAX_LENGTH'),
                   },
                   {
                         pattern: /^[A-Za-z\s]+$/, 
-                        message: 'First name can only contain letters',
+                        message: translate('myProfile.LAST_NAME_LETTERS_ONLY'),
                       },
                 ]}
             >
@@ -574,14 +573,14 @@ const ProfileForm = ({
         color: '#637D92',
       }}
     >
-      Email
+      {translate('myProfile.EMAIL')}
     </span>
   }
   name="email"
   rules={[
     {
       type: 'email',
-      message: 'Please enter a valid email address',
+      message: translate('myProfile.EMAIL_INVALID'),
       validator: (_, value) => {
         if (!value || value?.trim() === '') {
           return Promise.resolve();
@@ -589,7 +588,7 @@ const ProfileForm = ({
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value)
           ? Promise.resolve()
-          : Promise.reject(new Error('Please enter a valid email address'));
+          : Promise.reject(new Error(translate('myProfile.EMAIL_INVALID')));
       },
     },
   ]}
@@ -616,11 +615,11 @@ required={false}
         color: '#637D92',
       }}
     >
-      Date of Birth*
+      {translate('myProfile.DATE_OF_BIRTH')}*
     </span>
   }
   name='dob'
-  rules={[{ required: true, message: 'Please select your date of birth' }]}
+  rules={[{ required: true, message: translate('myProfile.DATE_OF_BIRTH_REQUIRED') }]}
   className={!editMode?'datePicker':''}
 >
   <DatePicker
@@ -643,14 +642,14 @@ required={false}
                     color: '#637D92',
                   }}
                 >
-                  Are You a Dealer?*
+                  {translate('myProfile.ARE_YOU_DEALER')}*
                 </span>
               }
               name="dealer"
             >
               <Radio.Group onChange={handleDealerChange} disabled={!editMode}>
-                <Radio value="yes">Yes</Radio>
-                <Radio value="no">No</Radio>
+                <Radio value="yes">{translate('common.YES')}</Radio>
+                <Radio value="no">{translate('common.NO')}</Radio>
               </Radio.Group>
             </Form.Item>
           </Col>
@@ -672,7 +671,7 @@ required={false}
             }}
             onClick={() => setModalOpen(true)}
           >
-            Change Phone Number
+            {translate('myProfile.CHANGE_PHONE_NUMBER')}
           </Button>
           {renderActionButtons(editMode, onEdit, onCancel)}
         </div>
@@ -714,9 +713,11 @@ ProfileForm.propTypes = {
   avatarUrl: PropTypes.string,
   uploadedDocUrl: PropTypes.string,
   handleDocumentDownload: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 const MyProfileForm = () => {
+  const { translate } = useLanguage();
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState({});
@@ -850,7 +851,7 @@ const populateUserProfile = (user, successMsg) => {
   // ✅ Set document URL from server (will be empty if dealer is "No")
   setUploadedDocUrl(user.document || '');
   
-  message.success(successMsg || MSG_FETCH_SUCCESS);
+  message.success(successMsg || translate('myProfile.FETCHED_SUCCESS'));
 };
 
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -907,7 +908,7 @@ const applyUpdatedUser = (updateParams) => {
   
   setEditMode(false);
   
-  message.success(successMsg || MSG_PROFILE_UPDATED);
+  message.success(successMsg || translate('myProfile.PROFILE_UPDATED'));
 };
 
 const handleSubmitError = (error, onFinishFailed) => {
@@ -916,7 +917,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     return;
   }
   const errorData = handleApiError(error);
-  message.error(errorData.message || MSG_UPDATE_FAILED);
+  message.error(errorData.message || translate('myProfile.PROFILE_UPDATE_FAILED'));
 };
 
    const getInitials = () => {
@@ -957,7 +958,7 @@ const handleSubmitError = (error, onFinishFailed) => {
      } catch (error) {
        messageApi.open({
          type: 'error',
-         content: 'Failed to open document. Please try again.',
+         content: translate('myProfile.DOCUMENT_OPEN_FAILED'),
        });
      }
   };
@@ -971,7 +972,7 @@ const handleSubmitError = (error, onFinishFailed) => {
       if (!isPDF) {
         messageApi.open({
           type: 'error',
-          content: 'Upload failed. Only .pdf documents are allowed.',
+          content: translate('myProfile.UPLOAD_FAILED_PDF_ONLY'),
         });
         return;
       }
@@ -980,7 +981,7 @@ const handleSubmitError = (error, onFinishFailed) => {
       if (!isLt10M) {
         messageApi.open({
           type: 'error',
-          content: 'Document must be smaller than 10 MB.',
+          content: translate('myProfile.DOCUMENT_SIZE_LIMIT'),
         });
         return;
       }
@@ -1021,8 +1022,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     if (!isImage) {
       messageApi.open({
         type: 'error',
-        content:
-          'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
+        content: translate('myProfile.UPLOAD_FAILED_IMAGE_ONLY'),
       });
       return Upload.LIST_IGNORE;
     }
@@ -1069,12 +1069,12 @@ const handleSubmitError = (error, onFinishFailed) => {
         
         messageApi.open({
           type: 'success',
-          content: userdoc.message || 'Profile image uploaded successfully',
+          content: userdoc.message || translate('myProfile.PROFILE_IMAGE_UPLOADED'),
         });
         return Upload.LIST_IGNORE; 
       } else {
        
-        message.error(userdoc?.message || 'Upload failed - no image URL received');
+        message.error(userdoc?.message || translate('myProfile.UPLOAD_FAILED'));
         return Upload.LIST_IGNORE;
       }
     } catch (error) {
@@ -1082,7 +1082,7 @@ const handleSubmitError = (error, onFinishFailed) => {
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
-        content: errorData.message || 'Upload failed due to network error',
+        content: errorData.message || translate('myProfile.UPLOAD_FAILED_NETWORK'),
       });
       return Upload.LIST_IGNORE; 
     } finally {
@@ -1103,7 +1103,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     
     // Check if required fields are filled
     if (!values.first_name || !values.last_name || !values.dob) {
-      message.error('Please fill in all required fields (First Name, Last Name, Date of Birth)');
+      message.error(translate('myProfile.FILL_REQUIRED_FIELDS'));
       return;
     }
  
@@ -1207,7 +1207,7 @@ const handleSubmitError = (error, onFinishFailed) => {
     
     messageApi.open({
         type: 'success',
-        content: result.message || 'Profile updated successfully',
+        content: result.message || translate('myProfile.PROFILE_UPDATED'),
       });
       
   } catch (error) {
@@ -1229,12 +1229,12 @@ const handleSubmitError = (error, onFinishFailed) => {
           onClick={onCancel}
           style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
         />
-        Edit Profile
+        {translate('myProfile.EDIT_PROFILE')}
       </>
     );
   }
 
-  return 'My Profile';
+  return translate('myProfile.PAGE_TITLE');
 };
 
 
@@ -1263,6 +1263,7 @@ const handleSubmitError = (error, onFinishFailed) => {
       avatarUrl={avatarUrl}
       uploadedDocUrl={uploadedDocUrl}
       handleDocumentDownload={handleDocumentDownload}
+      translate={translate}
     />
   );
 };
@@ -1279,13 +1280,14 @@ const handleSubmitError = (error, onFinishFailed) => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleConfirm}
+        translate={translate}
       />
       
     </div>
   );
 };
 
-const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
+const ConfirmModal = ({ isOpen, onClose, onConfirm, translate }) => {
   if (!isOpen) return null;
 
   return (
@@ -1300,14 +1302,14 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm }) => {
           &times;
         </button>
         <p className='popup-text'>
-          Are you sure you want to change your number?
+          {translate('myProfile.CHANGE_NUMBER_CONFIRM')}
         </p>
         <div className='popup-buttons'>
           <button className='popup-btn-no' onClick={onClose}>
-            No
+            {translate('common.NO')}
           </button>
           <button className='popup-btn-yes' onClick={onConfirm}>
-            Yes
+            {translate('common.YES')}
           </button>
         </div>
       </div>
@@ -1319,6 +1321,7 @@ ConfirmModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 

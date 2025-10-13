@@ -19,8 +19,10 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CarListing = ({ title, cardata }) => {
+  const { translate } = useLanguage();
   const navigate = useNavigate();
   const [, setLoading] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
@@ -63,21 +65,21 @@ const CarListing = ({ title, cardata }) => {
         );
         messageApi.open({
           type: 'success',
-          content: data1?.message || 'Added to favorites successfully',
+          content: data1?.message || translate('landing.ADDED_TO_FAVORITES'),
         });
       }
     } catch (error) {
-      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
         // Network/offline error -> show user-friendly message
         messageApi.open({ 
           type: 'error', 
-          content: 'You\'re offline! Please check your network connection and try again.' 
+          content: translate('filters.OFFLINE_ERROR')
         });
       } else {
         const errorData = handleApiError(error);
         messageApi.open({
           type: 'error',
-          content: errorData?.message || 'Failed to add to favorites',
+          content: errorData?.message || translate('landing.FAILED_TO_ADD_FAVORITE'),
         });
       }
     } finally {
@@ -99,21 +101,21 @@ const CarListing = ({ title, cardata }) => {
         );
         messageApi.open({
           type: 'success',
-          content: data1?.message || 'Removed from favorites successfully',
+          content: data1?.message || translate('landing.REMOVED_FROM_FAVORITES'),
         });
       }
     } catch (error) {
-      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
         // Network/offline error -> show user-friendly message
         messageApi.open({ 
           type: 'error', 
-          content: 'You\'re offline! Please check your network connection and try again.' 
+          content: translate('filters.OFFLINE_ERROR')
         });
       } else {
         const errorData = handleApiError(error);
         messageApi.open({
           type: 'error',
-          content: errorData?.message || 'Failed to remove from favorites',
+          content: errorData?.message || translate('landing.FAILED_TO_REMOVE_FAVORITE'),
         });
       }
     } finally {
@@ -131,13 +133,13 @@ const CarListing = ({ title, cardata }) => {
   type="button"
   className="car-listing-seeall"
  onClick={() => {
-  const type = title === 'Featured Car' ? 'featured' : 'recommended';
+  const type = title === translate('landing.FEATURED_CAR') ? 'featured' : 'recommended';
   localStorage.setItem('searchcardata', JSON.stringify({ Empty }));
   navigate('/allcars', { state: { type } });
 }}
 
 >
-  See All
+  {translate('landing.SEE_ALL')}
 </button>
 
         </div>
@@ -149,9 +151,9 @@ const CarListing = ({ title, cardata }) => {
           color: '#666',
           fontSize: '16px'
         }}>
-          <p>No cars found matching your search criteria.</p>
+          <p>{translate('landing.NO_CARS_FOUND')}</p>
           <p style={{ fontSize: '14px', marginTop: '10px' }}>
-            Try adjusting your filters or search terms.
+            {translate('landing.TRY_ADJUSTING_FILTERS')}
           </p>
         </div>
       )}
@@ -160,7 +162,7 @@ const CarListing = ({ title, cardata }) => {
           <div className="car-listing-card" key={car.car_id}>
             <Link
               to={`/carDetails/${car.car_id}`}
-              state={{ previousPage: title === 'Featured Car' ? 'Featured Cars' : title === 'Recommended Cars' ? 'Recommended Cars' : 'All Cars' }}
+              state={{ previousPage: title === translate('landing.FEATURED_CAR') ? translate('landing.FEATURED_CAR') + 's' : title === translate('landing.RECOMMENDED_CARS') ? translate('landing.RECOMMENDED_CARS') : 'All Cars' }}
               style={car.featured ? { cursor: 'pointer' } : {}}
             >
               <div className="car-listing-image-wrapper">
@@ -171,11 +173,11 @@ const CarListing = ({ title, cardata }) => {
                 />
                 <div className="car-listing-badges">
                   {Number(car.featured) === 1 && (
-                    <div className="car-listing-badge blue-bg">Featured</div>
+                    <div className="car-listing-badge blue-bg">{translate('landing.FEATURED')}</div>
                   )}
                   {Number(car.is_verified) === 1 && (
                     <div className="car-listing-badge orenge-bg">
-                      <CheckCircleFilled /> Certified Dealer
+                      <CheckCircleFilled /> {translate('landing.CERTIFIED_DEALER')}
                     </div>
                   )}
                 </div>

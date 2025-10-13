@@ -7,8 +7,10 @@ import { message } from 'antd';
 import '../assets/styles/loginScreen.css';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { setPhoneLogin, setToken, clearCustomerDetails } from '../redux/actions/authActions';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const LoginScreen = () => {
+  const { translate } = useLanguage();
   const [phone, setPhone] = useState('');
   const [, setPhoneValidation] = useState('');
   const [countryOptions, setCountryOptions] = useState([]);
@@ -146,9 +148,9 @@ const LoginScreen = () => {
 
   const onClickContinue = async () => {
     if (phone === '') {
-      setEmailErrorMsg('Phone number is required!');
+      setEmailErrorMsg(translate('loginScreen.PHONE_NUMBER_REQUIRED'));
     } else if (!verified) {
-      setCaptchaErrorMsg('Captcha is required!');
+      setCaptchaErrorMsg(translate('loginScreen.CAPTCHA_REQUIRED'));
     } else {
       try {
         setLoading(true);
@@ -189,7 +191,7 @@ const LoginScreen = () => {
         const errorData = handleApiError(error);
         messageApi.open({
           type: 'error',
-          content: errorData.message || 'Login failed. Please try again.',
+          content: errorData.message || translate('loginScreen.LOGIN_FAILED'),
         });
       } finally {
         setLoading(false);
@@ -241,10 +243,10 @@ const LoginScreen = () => {
               fontWeight: 700,
             }}
           >
-            Login
+            {translate('loginScreen.PAGE_TITLE')}
           </h2>
           <p style={{ color: '#0A0A0B', fontSize: 14, fontFamily: 'Roboto' }}>
-            Enter Your Phone Number to login to our website.
+            {translate('loginScreen.PAGE_SUBTITLE')}
           </p>
 
           <div style={{ margin: '20px 0' }}>
@@ -259,7 +261,7 @@ const LoginScreen = () => {
                 fontSize: 12,
               }}
             >
-              Enter Your Phone Number
+              {translate('loginScreen.PHONE_NUMBER_LABEL')}
             </label>
 
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
@@ -359,7 +361,7 @@ const LoginScreen = () => {
                 id="phone-number-input"
                 className="login-box"
                 type="tel"
-                placeholder="Enter phone number"
+                placeholder={translate('loginScreen.PHONE_NUMBER_LABEL')}
                 value={phone}
                 onChange={handlePhoneChange}
                 style={{
@@ -410,7 +412,7 @@ const LoginScreen = () => {
                 navigate('/landing');
               }}
             >
-              Continue as guest
+              {translate('loginScreen.CONTINUE_AS_GUEST')}
             </button>
 
             <button
@@ -429,7 +431,7 @@ const LoginScreen = () => {
               onClick={onClickContinue}
               disabled={loading}
             >
-              {loading ? 'Loading' : 'Continue'}
+              {loading ? translate('loginScreen.LOADING') : translate('loginScreen.CONTINUE')}
             </button>
           </div>
         </div>

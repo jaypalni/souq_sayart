@@ -19,6 +19,7 @@ import Searchemptymodal from '../components/searchemptymodal';
 import Cardetailsfilter from '../components/cardetailsfilter';
 import { useDispatch } from 'react-redux';
 import { logoutUser, clearCustomerDetails } from '../redux/actions/authActions';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   DEFAULT_MAKE,
   DEFAULT_MODEL,
@@ -50,11 +51,26 @@ const newUsedOptions = [DEFAULT_NEW_USED, 'New', 'Used'];
 const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { translate } = useLanguage();
   const [, setLoading] = useState(false);
   const [make, setMake] = useState(CORRECT_DEFAULT_MAKE);
   const [model, setModel] = useState(CORRECT_DEFAULT_MODEL);
   const [bodyType, setBodyType] = useState(CORRECT_DEFAULT_BODY_TYPE);
   const [location, setLocation] = useState(CORRECT_DEFAULT_LOCATION);
+  
+  // Helper function to translate condition values
+  const translateCondition = (value) => {
+    const conditionMap = {
+      'New & Used': translate('filters.NEW_USED'),
+      'New': translate('filters.NEW'),
+      'Used': translate('filters.USED'),
+      'All Make': translate('filters.ALL_MAKE'),
+      'All Models': translate('filters.ALL_MODELS'),
+      'All Body Types': translate('filters.ALL_BODY_TYPES'),
+      'All Locations': translate('filters.ALL_LOCATIONS'),
+    };
+    return conditionMap[value] || value;
+  };
   
   
   // Force location to "All Locations" on component mount
@@ -171,10 +187,10 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
         setCarBodyTypes(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Make car data');
+      message.error(errorData.message || translate('filters.FETCH_BODY_TYPE_FAILED'));
       setCarBodyTypes([]);
     } finally {
       setLoading(false);
@@ -188,7 +204,7 @@ const fetchRegionCars = async () => {
     const data1 = handleApiResponse(response);
 
    if (!data1) {
-      message.error('No location data received');
+      message.error(translate('filters.NO_LOCATION_DATA'));
       setCarLocation([]);
       return;
     }
@@ -204,10 +220,10 @@ const fetchRegionCars = async () => {
     }
 
 
-    message.success(data1?.message || 'Fetched successfully');
+    message.success(data1?.message || translate('filters.FETCHED_SUCCESSFULLY'));
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to fetch location data');
+    message.error(errorData.message || translate('filters.FETCH_LOCATION_FAILED'));
     setCarLocation([]);
   } finally {
     setLoading(false);
@@ -291,7 +307,7 @@ const resolveDefaultLocation = (locations, geoData) => {
     setPriceMax(DEFAULT_PRICE_MAX); // reset to default
     messageApi.open({
       type: 'warning',
-      content: "Max price can't be lesser than Min price.",
+      content: translate('filters.MAX_PRICE_LESSER'),
     });
   }
 };
@@ -334,8 +350,8 @@ const resolveDefaultLocation = (locations, geoData) => {
               cars: results, 
               pagination: data1?.data?.pagination,
               // Pass selected filter values
-              selectedMake: make,
-              selectedModel: model,
+              selectedMake: make=== translate('filters.ALL_MAKE')?'':make,
+              selectedModel: model=== translate('filters.ALL_MAKE')?'':model,
               selectedBodyType: bodyType,
               selectedLocation: location,
               selectedNewUsed: newUsed,
@@ -352,7 +368,7 @@ const resolveDefaultLocation = (locations, geoData) => {
       if (errorData.status === HTTP_STATUS_UNAUTHORIZED) {
         messageApi.open({
           type: 'error',
-          content: 'Your session has expired. Please log in again.',
+          content: translate('filters.SESSION_EXPIRED'),
         });
 
         setTimeout(() => {
@@ -440,7 +456,7 @@ const resolveDefaultLocation = (locations, geoData) => {
               }
             }}
           >
-            {opt}
+            {translateCondition(opt)}
           </div>
         );
       })}
@@ -456,7 +472,7 @@ const resolveDefaultLocation = (locations, geoData) => {
     if (data1?.total_cars !== undefined) {
       setCarCount(data1.total_cars); 
     } else {
-      message.error('No content found');
+      message.error(translate('messages.NO_DATA'));
     }
   } catch (error) {
     const errorData = handleApiError(error);
@@ -473,7 +489,7 @@ const resolveDefaultLocation = (locations, geoData) => {
       <div className="landing-filters-bar">
         <div className="landing-filters-row">
           <div className="landing-filters-col">
-            <label className="landing-filters-label" htmlFor="make-select">Make</label>
+            <label className="landing-filters-label" htmlFor="make-select">{translate('filters.MAKE')}</label>
             <Select
   id="make-select"
   value={make}
@@ -485,7 +501,7 @@ const resolveDefaultLocation = (locations, geoData) => {
   className="landing-filters-select"
   size="large"
   dropdownClassName="landing-filters-dropdown"
-  placeholder="All Make"
+  placeholder={translate('filters.ALL_MAKE')}
   showSearch
   allowClear
   filterOption={(input, option) =>
@@ -495,6 +511,9 @@ const resolveDefaultLocation = (locations, geoData) => {
     setMake(CORRECT_DEFAULT_MAKE);
   }}
 >
+  <Option key="all-make" value="All Make">
+    {translate('filters.ALL_MAKE')}
+  </Option>
   {carMakes.map((m) => (
     <Option key={m.id} value={m.name}>
       {m.name}
@@ -504,7 +523,7 @@ const resolveDefaultLocation = (locations, geoData) => {
 
           </div>
           <div className="landing-filters-col">
-            <label className="landing-filters-label" htmlFor="model-select">Model</label>
+            <label className="landing-filters-label" htmlFor="model-select">{translate('filters.MODEL')}</label>
             <Select
   id="model-select"
   value={model}
@@ -516,7 +535,7 @@ const resolveDefaultLocation = (locations, geoData) => {
   size="large"
   dropdownClassName="landing-filters-dropdown"
   disabled={make === 'All Make'}
-  placeholder="All Models"
+  placeholder={translate('filters.ALL_MODELS')}
   showSearch
   allowClear
   filterOption={(input, option) =>
@@ -526,6 +545,9 @@ const resolveDefaultLocation = (locations, geoData) => {
     setModel(CORRECT_DEFAULT_MODEL);
   }}
 >
+  <Option key="all-models" value="All Models">
+    {translate('filters.ALL_MODELS')}
+  </Option>
   {carModels?.map((m) => (
     <Option key={m.id} value={m.model_name}>
       {m.model_name}
@@ -535,7 +557,7 @@ const resolveDefaultLocation = (locations, geoData) => {
 
           </div>
           <div className="landing-filters-col">
-            <label className="landing-filters-label" htmlFor="bodytype-select">Body Type</label>
+            <label className="landing-filters-label" htmlFor="bodytype-select">{translate('filters.BODY_TYPE')}</label>
            <Select
   id="bodytype-select"
   value={bodyType}
@@ -546,7 +568,7 @@ const resolveDefaultLocation = (locations, geoData) => {
   className="landing-filters-select"
   size="large"
   dropdownClassName="landing-filters-dropdown"
-  placeholder="All Body Types"
+  placeholder={translate('filters.ALL_BODY_TYPES')}
   showSearch
   allowClear
   filterOption={(input, option) =>
@@ -556,6 +578,9 @@ const resolveDefaultLocation = (locations, geoData) => {
     setBodyType(CORRECT_DEFAULT_BODY_TYPE);
   }}
 >
+  <Option key="all-body-types" value="All Body Types">
+    {translate('filters.ALL_BODY_TYPES')}
+  </Option>
   {carBodyTypes.map((b) => (
     <Option key={b.id} value={b.body_type}>
       {b.body_type}
@@ -565,7 +590,7 @@ const resolveDefaultLocation = (locations, geoData) => {
 
           </div>
           <div className="landing-filters-col">
-            <label className="landing-filters-label" htmlFor="location-select">Location</label>
+            <label className="landing-filters-label" htmlFor="location-select">{translate('filters.LOCATION')}</label>
             <Select
   id="location-select"
   value={location}
@@ -576,7 +601,7 @@ const resolveDefaultLocation = (locations, geoData) => {
   className="landing-filters-select"
   size="large"
   dropdownClassName="landing-filters-dropdown"
-  placeholder="All Locations"
+  placeholder={translate('filters.ALL_LOCATIONS')}
   showSearch
   allowClear
   filterOption={(input, option) =>
@@ -587,7 +612,7 @@ const resolveDefaultLocation = (locations, geoData) => {
   }}
 >
   <Option key="all-locations" value="All Locations">
-    All Locations
+    {translate('filters.ALL_LOCATIONS')}
   </Option>
   {carLocation.map((l) => (
     <Option key={l.id} value={l.location}>
@@ -606,7 +631,7 @@ const resolveDefaultLocation = (locations, geoData) => {
   icon={<SearchOutlined />}
   className="landing-filters-btn"
 >
-  <span>Show {carCount.toLocaleString()} Cars</span>
+  <span>{translate('filters.SHOW_CARS', { count: carCount.toLocaleString() })}</span>
 </Button>
 
           </div>
@@ -618,7 +643,7 @@ const resolveDefaultLocation = (locations, geoData) => {
             onClick={() => toggleDropdown('newUsed')}
             style={{ background: 'transparent', border: 'none', padding: 0 }}
           >
-            <span className="landing-filters-text-label">{newUsed}</span>
+            <span className="landing-filters-text-label">{translateCondition(newUsed)}</span>
             <span className="landing-filters-text-arrow">▼</span>
             {openDropdown === 'newUsed' &&
               renderDropdown('newUsed', newUsedOptions, newUsed, setNewUsed)}
@@ -643,14 +668,14 @@ const resolveDefaultLocation = (locations, geoData) => {
       onClick={() => setShowMinInput(true)}
       aria-label="Set minimum price"
     >
-      {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+      {minPrice !== null ? `₹${minPrice}` : translate('filters.PRICE_MIN')}
     </button>
   ) : (
    <Input
   style={{ width: '100px' }}
   type="tel"
   value={minPrice}
-  placeholder="Min"
+  placeholder={translate('filters.MIN')}
   onChange={(e) => {
     const value = e.target.value.replace(/\D/g, ''); // allow only digits
     setMinPrice(value ? Number(value) : null);
@@ -683,14 +708,14 @@ const resolveDefaultLocation = (locations, geoData) => {
       onClick={() => setShowMaxInput(true)}
       aria-label="Set maximum price"
     >
-      {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
+      {maxPrice !== null ? `₹${maxPrice}` : translate('filters.PRICE_MAX')}
     </button>
   ) : (
    <Input
   style={{ width: '120px' }}
   type="tel" // use tel so numeric keypad shows on mobile
   value={maxPrice}
-  placeholder="Max"
+  placeholder={translate('filters.MAX')}
   onChange={(e) => {
     // Allow only digits
     const digitsOnly = e.target.value.replace(/\D/g, '');
@@ -701,12 +726,12 @@ const resolveDefaultLocation = (locations, geoData) => {
 
     // Validation checks on blur
     if (maxPrice > 5000000000) {
-      messageApi.error('Maximum allowed price is ₹5,000,000,000');
+      messageApi.error(translate('filters.MAX_PRICE_LIMIT'));
       setMaxPrice(5000000000); // optional: reset to max limit
     }
 
     if (minPrice !== null && maxPrice <= minPrice) {
-      messageApi.error('Maximum price should be greater than Minimum price');
+      messageApi.error(translate('filters.MAX_PRICE_GREATER'));
     }
   }}
 />

@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import CarCard from './CarCard';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Option } = Select;
 
@@ -69,6 +70,7 @@ MyListingsPagination.propTypes = {
 };
 
 const Mycarslisting = () => {
+  const { translate } = useLanguage();
   const [value, setValue] = useState('Active');
   const [filterStatus, setFilterStatus] = useState('Any');
   const [carDetails, setCarDetails] = useState([]);
@@ -167,13 +169,13 @@ const fetchCars = async () => {
     console.log('Total Count Set To:', pagination.total);
 
     if (list.length === 0) {
-      message.info('No cars found for the selected filter');
+      message.info(translate('myListings.NO_CARS_FOUND_FILTER'));
     } else {
-      message.success(cardetail.message || 'Fetched successfully');
+      message.success(cardetail.message || translate('myListings.FETCHED_SUCCESSFULLY'));
     }
   } catch (error) {
     const errorData = handleApiError(error);
-    message.error(errorData.message || 'Failed to load car data');
+    message.error(errorData.message || translate('myListings.FAILED_TO_LOAD'));
     setCarDetails([]);
   } finally {
     setLoading(false);
@@ -195,12 +197,12 @@ const fetchCars = async () => {
       const response = await carAPI.deleteCar(carId);
       const cardetail = handleApiResponse(response);
       if (cardetail.status_code === 200) {
-        message.success(cardetail.message || 'Car deleted successfully');
+        message.success(cardetail.message || translate('myListings.CAR_DELETED_SUCCESS'));
         fetchCars();
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to delete car data');
+      message.error(errorData.message || translate('myListings.FAILED_TO_DELETE'));
     } finally {
       setLoading(false);
     }
@@ -225,8 +227,8 @@ const fetchCars = async () => {
       {/* Header */}
       <div className="mylistings-header">
         <div className="mylistings-header-content">
-          <h2>My Listings</h2>
-          <p>Post an ad in just 3 simple steps</p>
+          <h2>{translate('myListings.PAGE_TITLE')}</h2>
+          <p>{translate('myListings.PAGE_SUBTITLE')}</p>
         </div>
       </div>
 
@@ -234,13 +236,13 @@ const fetchCars = async () => {
       <div className="mylisting-car-image-container">
         <div className="mylistings-banner-content">
           <h1 className="mylistings-banner-title">
-            Subscribe To Our Packages
+            {translate('myListings.SUBSCRIBE_TO_PACKAGES')}
           </h1>
            <button
       className="mylistings-subscribe-btn"
       onClick={() => navigate('/myProfile/subscriptions')}
     >
-      Subscribe
+      {translate('myListings.SUBSCRIBE')}
     </button>
         </div>
       </div>
@@ -254,17 +256,17 @@ const fetchCars = async () => {
               value={status}
               className={`custom-radio-button mylistings-radio-button ${value === status ? 'active' : 'inactive'}`}
             >
-              {status}
+              {translate(`myListings.${status.toUpperCase()}`)}
             </Radio.Button>
           ))}
         </Radio.Group>
 
         {value === 'Active' && (
           <Select value={filterStatus} className="mylistings-select" onChange={handleFilterChange}>
-            <Option value="Any">All</Option>
-            <Option value="Base">Pending Approval</Option>
-            <Option value="Sport">Approved</Option>
-            <Option value="Reject">Rejected</Option>
+            <Option value="Any">{translate('myListings.ALL')}</Option>
+            <Option value="Base">{translate('myListings.PENDING_APPROVAL')}</Option>
+            <Option value="Sport">{translate('myListings.APPROVED')}</Option>
+            <Option value="Reject">{translate('myListings.REJECTED')}</Option>
           </Select>
         )}
       </div>
@@ -284,7 +286,7 @@ const fetchCars = async () => {
       }}
     >
       <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
-        Initializing...
+        {translate('myListings.INITIALIZING')}
       </p>
     </div>
   );
@@ -302,7 +304,7 @@ const fetchCars = async () => {
       }}
     >
       <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
-        Loading Cars...
+        {translate('myListings.LOADING_CARS')}
       </p>
     </div>
   );
@@ -321,7 +323,7 @@ const fetchCars = async () => {
   }}
 >
   <p style={{ fontSize: '18px', color: '#555', fontWeight: 500 }}>
-    No listings posted.
+    {translate('myListings.NO_LISTINGS_POSTED')}
   </p>
 
  {/* Show Create Button only for Active & Drafts */}
@@ -339,7 +341,7 @@ const fetchCars = async () => {
           }}
           onClick={() => navigate('/sell')}
         >
-          Create a New Listing
+          {translate('myListings.CREATE_NEW_LISTING')}
         </Button>
       )}
 </div>
@@ -413,7 +415,7 @@ const fetchCars = async () => {
           maxWidth: '120px', 
         }}
       >
-        Cancel
+        {translate('myListings.CANCEL')}
       </Button>
 
       <Button
@@ -429,13 +431,13 @@ const fetchCars = async () => {
           maxWidth: '120px', 
         }}
       >
-        {loading ? 'Confirming...' : 'Confirm'}
+        {loading ? translate('myListings.CONFIRMING') : translate('myListings.CONFIRM')}
       </Button>
     </div>,
   ]}
 >
   <p style={{ fontSize: '18px', fontWeight: 500, textAlign: 'center', marginRight: '15px' }}>
-    Are you sure you want to delete this car? 
+    {translate('myListings.DELETE_CONFIRMATION')}
   </p>
 </Modal>
 

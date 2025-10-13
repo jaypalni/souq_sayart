@@ -4,7 +4,7 @@ import { Button } from 'antd';
 import { userAPI } from '../services/api';
 import lightbluetick from '../assets/images/lightbluetick_icon.svg';
 
-const SubscriptionCard = ({ title, price, duration, features, details, currency, is_subscribed }) => {
+const SubscriptionCard = ({ title, price, duration, features, details, currency, is_subscribed, translate }) => {
   
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(160);
@@ -61,7 +61,7 @@ const SubscriptionCard = ({ title, price, duration, features, details, currency,
                 fontWeight: 600,
               }}
             >
-              Current
+              {translate ? translate('subscriptions.CURRENT') : 'Current'}
             </div>
           )}
 
@@ -126,7 +126,7 @@ const SubscriptionCard = ({ title, price, duration, features, details, currency,
                     marginRight: 5,
                   }}
                 >
-                  Choose This Plan
+                  {translate ? translate('subscriptions.CHOOSE_THIS_PLAN') : 'Choose This Plan'}
                 </Button>
               </div>
             </div>
@@ -178,6 +178,7 @@ SubscriptionCard.propTypes = {
   }),
   currency: PropTypes.string,
   is_subscribed: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  translate: PropTypes.func,
 };
 
 export default SubscriptionCard;

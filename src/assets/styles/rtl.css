@@ -1,0 +1,473 @@
+/*
+ * Copyright (c) 2025 Palni. All rights reserved.
+ * This file is part of the ss-frontend project.
+ * RTL (Right-to-Left) Styles for Arabic and Kurdish Languages
+ */
+
+/* RTL Global Styles */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] body {
+  text-align: right;
+}
+
+/* Flip margins and paddings for RTL */
+[dir="rtl"] .mx-1 {
+  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+}
+
+[dir="rtl"] .mx-2 {
+  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+}
+
+[dir="rtl"] .mx-3 {
+  margin-right: 1rem !important;
+  margin-left: 1rem !important;
+}
+
+/* Header RTL Adjustments */
+[dir="rtl"] .header {
+  direction: rtl;
+}
+
+[dir="rtl"] .menuItem {
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
+[dir="rtl"] .menuLeft {
+  text-align: left;
+}
+
+/* Dropdown arrows for RTL */
+[dir="rtl"] .user-dropdown-arrow,
+[dir="rtl"] .mobile-menu-dropdown-arrow {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+/* Form Fields RTL */
+[dir="rtl"] .ant-form-item-label {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-form-item-label > label {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-input,
+[dir="rtl"] .ant-input-number,
+[dir="rtl"] .ant-picker,
+[dir="rtl"] .ant-select {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-radio-wrapper {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+/* Button adjustments */
+[dir="rtl"] .ant-btn {
+  text-align: center;
+}
+
+/* Profile Form RTL */
+[dir="rtl"] .myprofile-card {
+  direction: rtl;
+}
+
+[dir="rtl"] .profile-header-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .profile-btns {
+  direction: rtl;
+}
+
+[dir="rtl"] .profile-btns button:first-child {
+  margin-left: 16px;
+  margin-right: 0;
+}
+
+/* Modal RTL */
+[dir="rtl"] .ant-modal-header,
+[dir="rtl"] .ant-modal-body,
+[dir="rtl"] .ant-modal-footer {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-modal-close {
+  right: auto;
+  left: 0;
+}
+
+/* Select Dropdown RTL */
+[dir="rtl"] .ant-select-dropdown {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-select-item {
+  text-align: right;
+}
+
+/* Upload Component RTL */
+[dir="rtl"] .ant-upload {
+  text-align: right;
+}
+
+[dir="rtl"] .document-upload-container {
+  text-align: right;
+}
+
+/* Table RTL (if used) */
+[dir="rtl"] .ant-table {
+  direction: rtl;
+}
+
+[dir="rtl"] .ant-table-thead > tr > th {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-table-tbody > tr > td {
+  text-align: right;
+}
+
+/* Icon positioning for RTL */
+[dir="rtl"] .anticon {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+[dir="rtl"] .ant-btn .anticon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+/* Back button / Arrow icons */
+[dir="rtl"] .back-arrow {
+  transform: scaleX(-1);
+}
+
+/* Notification and Messages Icons */
+[dir="rtl"] .notification-icon,
+[dir="rtl"] .message-icon {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+/* Mobile Icons Left Container RTL - Keep natural position like English */
+[dir="rtl"] .mobile-icons-left {
+  position: relative;
+  left: auto;
+  right: auto;
+  display: flex;
+  gap: 10px;
+}
+
+/* Mobile Icon Containers RTL */
+[dir="rtl"] .mobile-icon-container {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+[dir="rtl"] .mobile-message-icon,
+[dir="rtl"] .mobile-notification-icon {
+  z-index: 1000;
+}
+
+/* Mobile Menu RTL - Menu slides from LEFT side (same as English) */
+[dir="rtl"] .mobile-menu-panel {
+  position: fixed !important;
+  left: -100% !important;
+  right: auto !important;
+  transform-origin: left center;
+  z-index: 1002 !important;
+  transition: left 0.3s ease-in-out;
+}
+
+[dir="rtl"] .mobile-menu-panel.active {
+  left: 0 !important;
+  right: auto !important;
+  transform: translateX(0) !important;
+  z-index: 1002 !important;
+}
+
+/* Mobile Menu Header RTL */
+[dir="rtl"] .mobile-menu-header {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Mobile Menu Items RTL */
+[dir="rtl"] .mobile-menu-items {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .mobile-menu-item {
+  text-align: right;
+}
+
+/* Mobile Menu User Section RTL */
+[dir="rtl"] .mobile-menu-user-section {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Mobile Menu Actions RTL */
+[dir="rtl"] .mobile-menu-actions {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Mobile Menu Overlay RTL - Ensure it covers full screen and is clickable */
+[dir="rtl"] .mobile-menu-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1001 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer !important;
+}
+
+[dir="rtl"] .mobile-menu-overlay.active {
+  display: block !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Hamburger Menu RTL - Keep on LEFT side like English */
+[dir="rtl"] .hamburger-menu {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 1003 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure hamburger is visible and clickable in RTL - even when menu is open */
+[dir="rtl"] .hamburger-menu.active {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 1003 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Hamburger lines animation for RTL */
+[dir="rtl"] .hamburger-line {
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+/* Flexbox RTL Fix */
+[dir="rtl"] .d-flex {
+  direction: rtl;
+}
+
+[dir="rtl"] .justify-content-end {
+  justify-content: flex-start !important;
+}
+
+[dir="rtl"] .justify-content-start {
+  justify-content: flex-end !important;
+}
+
+/* Row reverse for RTL */
+[dir="rtl"] .row {
+  direction: rtl;
+}
+
+/* Column spacing for RTL */
+[dir="rtl"] .ant-col {
+  text-align: right;
+}
+
+/* Radio Group RTL */
+[dir="rtl"] .ant-radio-group {
+  direction: rtl;
+}
+
+[dir="rtl"] .ant-radio-wrapper span {
+  padding-right: 8px;
+  padding-left: 0;
+}
+
+/* DatePicker RTL */
+[dir="rtl"] .ant-picker-panel {
+  direction: ltr; /* Keep calendar itself LTR for readability */
+}
+
+[dir="rtl"] .ant-picker-input {
+  text-align: right;
+}
+
+/* Message/Alert RTL */
+[dir="rtl"] .ant-message {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-message-notice-content {
+  text-align: right;
+}
+
+/* Language Selector RTL */
+[dir="rtl"] .language-select-container {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+/* Profile Avatar RTL */
+[dir="rtl"] .profile-avatar-name {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .profile-username {
+  margin-right: 0;
+  margin-left: 16px;
+}
+
+/* Document Download Button RTL */
+[dir="rtl"] .document-upload-content {
+  direction: rtl;
+}
+
+[dir="rtl"] .document-filename {
+  text-align: right;
+}
+
+/* Form Validation Messages RTL */
+[dir="rtl"] .ant-form-item-explain-error {
+  text-align: right;
+}
+
+/* Breadcrumb RTL (if used) */
+[dir="rtl"] .ant-breadcrumb {
+  direction: rtl;
+}
+
+[dir="rtl"] .ant-breadcrumb-separator {
+  margin: 0 4px;
+  transform: scaleX(-1);
+}
+
+/* Tabs RTL (if used) */
+[dir="rtl"] .ant-tabs-nav {
+  direction: rtl;
+}
+
+/* Pagination RTL (if used) */
+[dir="rtl"] .ant-pagination {
+  direction: rtl;
+}
+
+/* Card RTL (if used) */
+[dir="rtl"] .ant-card {
+  text-align: right;
+}
+
+/* List RTL (if used) */
+[dir="rtl"] .ant-list-item {
+  text-align: right;
+}
+
+/* Fix for Bootstrap grid in RTL */
+[dir="rtl"] .col-1, [dir="rtl"] .col-2, [dir="rtl"] .col-3, 
+[dir="rtl"] .col-4, [dir="rtl"] .col-5, [dir="rtl"] .col-6,
+[dir="rtl"] .col-7, [dir="rtl"] .col-8, [dir="rtl"] .col-9,
+[dir="rtl"] .col-10, [dir="rtl"] .col-11, [dir="rtl"] .col-12 {
+  float: right;
+}
+
+/* Ensure proper text alignment for all inputs */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="number"],
+[dir="rtl"] textarea {
+  text-align: right;
+}
+
+/* Placeholder text RTL */
+[dir="rtl"] ::placeholder {
+  text-align: right;
+}
+
+/* Scrollbar for RTL */
+[dir="rtl"] ::-webkit-scrollbar {
+  width: 8px;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+/* Dropdown menu RTL */
+[dir="rtl"] .ant-dropdown-menu {
+  text-align: right;
+}
+
+[dir="rtl"] .ant-dropdown-menu-item {
+  text-align: right;
+}
+
+/* Ant Design Menu RTL */
+[dir="rtl"] .ant-menu {
+  direction: rtl;
+}
+
+[dir="rtl"] .ant-menu-item {
+  text-align: right;
+}
+
+/* Fix for icons in RTL context */
+[dir="rtl"] .anticon-left {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .anticon-right {
+  transform: scaleX(-1);
+}
+
+/* Ensure numbers and English text maintain LTR */
+[dir="rtl"] .ltr-content {
+  direction: ltr;
+  display: inline-block;
+}
+
+/* Phone numbers should always be LTR */
+[dir="rtl"] input[type="tel"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Email should always be LTR */
+[dir="rtl"] input[type="email"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* URLs should always be LTR */
+[dir="rtl"] input[name="facebook"],
+[dir="rtl"] input[name="instagram"] {
+  direction: ltr;
+  text-align: left;
+}
+

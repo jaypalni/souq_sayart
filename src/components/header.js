@@ -25,8 +25,11 @@ import { useToken } from '../hooks/useToken';
 import { userAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { updateCustomerDetails } from '../redux/actions/authActions';
+import { useLanguage } from '../contexts/LanguageContext';
+
 const Header = () => {
   const dispatch = useDispatch();
+  const { currentLanguage, changeLanguage, translate } = useLanguage();
   const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
   const [activeMenu, setActiveMenu] = useState('');
@@ -39,28 +42,28 @@ const Header = () => {
   const menuList = [
     {
       id: '',
-      name: 'Buy',
+      name: translate('header.BUY'),
       path: '/landing',
       displayName: '',
       requiresAuth: false,
     },
     {
       id: '',
-      name: 'Sell',
+      name: translate('header.SELL'),
       path: '/sell',
       displayName: '',
       requiresAuth: true,
     },
     {
       id: '',
-      name: 'My Listings',
+      name: translate('header.MY_LISTINGS'),
       path: '/myListings',
       displayName: '',
       requiresAuth: true,
     },
     {
       id: '',
-      name: 'Evaluate My Car',
+      name: translate('header.EVALUATE_MY_CAR'),
       path: '/evaluate',
       displayName: '',
       requiresAuth: false,
@@ -88,28 +91,21 @@ useEffect(() => {
 
 const Userdataapi = async () => {
   try {
-    
-    // If no Redux data, fetch from API
-    console.log('No Redux data, fetching from API');
     const response = await userAPI.getProfile({});
     
     const result = handleApiResponse(response);
-console.log('s224',result)
-dispatch(updateCustomerDetails({
-          first_name: result?.data?.first_name,
-          last_name: result?.data?.last_name,
-          profile_pic: result?.data?.profile_pic,
-          email:result?.data?.email,
-          company_name: result?.data?.company_name,
-          dealer: result?.data?.is_dealer,
-
-        }));
+    
+    dispatch(updateCustomerDetails({
+      first_name: result?.data?.first_name,
+      last_name: result?.data?.last_name,
+      profile_pic: result?.data?.profile_pic,
+      email:result?.data?.email,
+      company_name: result?.data?.company_name,
+      dealer: result?.data?.is_dealer,
+    }));
   
   } catch (error) {
-    
-   
-  } finally {
-    
+    // Silent error handling
   }
 };
 
@@ -127,7 +123,7 @@ dispatch(updateCustomerDetails({
     }
 
     if (localStorage.getItem('isGuest') === 'true') {
-      return 'Guest';
+      return translate('header.GUEST');
     }
 
     return null;
@@ -136,19 +132,19 @@ dispatch(updateCustomerDetails({
   const userMenuItems = [
     {
       key: 'myProfile',
-      label: 'My Profile',
+      label: translate('header.MY_PROFILE'),
       icon: <UserOutlined />,
       onClick: () => navigate('/myProfile'),
     },
     {
       key: 'settings',
-      label: 'Settings',
+      label: translate('header.SETTINGS'),
       icon: <SettingOutlined />,
       onClick: () => navigate('/settings'),
     },
     {
       key: 'changePassword',
-      label: 'Change Password',
+      label: translate('header.CHANGE_PASSWORD'),
       onClick: () => navigate('/changePassword'),
     },
     {
@@ -156,7 +152,7 @@ dispatch(updateCustomerDetails({
     },
     {
        key: 'logout',
-      label: 'Logout',
+      label: translate('header.LOGOUT'),
       onClick: () => setLogoutModalOpen(true), 
     },
   ];
@@ -170,7 +166,7 @@ dispatch(updateCustomerDetails({
       if (!isLoggedIn || isGuest) {
         messageApi.open({
           type: 'warning',
-          content: 'Please login to access this feature',
+          content: translate('header.PLEASE_LOGIN'),
         });
         localStorage.removeItem('isGuest');
         navigate('/login');
@@ -178,10 +174,10 @@ dispatch(updateCustomerDetails({
       }
     }
 
-    if (value.name === 'Evaluate My Car') {
+    if (value.name === translate('header.EVALUATE_MY_CAR')) {
       messageApi.open({
         type: 'success',
-        content: 'Coming soon',
+        content: translate('header.COMING_SOON'),
       });
       return;
     }
@@ -198,7 +194,7 @@ dispatch(updateCustomerDetails({
 
       messageApi.open({
         type: 'success',
-        content: 'Logged out successfully',
+        content: translate('header.LOGGED_OUT_SUCCESS'),
       });
 
       setLogoutModalOpen(false); // close modal
@@ -206,7 +202,7 @@ dispatch(updateCustomerDetails({
     } catch (error) {
       messageApi.open({
         type: 'error',
-        content: 'Logout failed',
+        content: translate('header.LOGOUT_FAILED'),
       });
     }
   };
@@ -247,7 +243,6 @@ dispatch(updateCustomerDetails({
                     className="mobile-message-icon"
                     onClick={() => {
                       // Add message functionality here
-                      console.log('Messages clicked');
                     }}
                     style={{ 
                       background: 'none',
@@ -270,7 +265,6 @@ dispatch(updateCustomerDetails({
                     className="mobile-notification-icon"
                     onClick={() => {
                       // Add notification functionality here
-                      console.log('Notifications clicked');
                     }}
                     style={{ 
                       background: 'none',
@@ -366,34 +360,35 @@ dispatch(updateCustomerDetails({
                 }}
                 aria-label="Sign up or Login"
               >
-                Sign Up / Login
+                {translate('header.SIGN_UP_LOGIN')}
               </button>
             )}
+         
            <div className="menuLeft mx-2">
       <div 
         className="contct_us_btn" 
         onClick={() => navigate('/contactus')}
         style={{ cursor: 'pointer' }}
       >
-        Contact Us
+{translate('header.CONTACT_US')}
       </div>
     </div>
             <div
               className="menuLeft mx-1 language-select-container"
             >
               <Select
-                defaultValue="En"
+                value={currentLanguage}
                 bordered={false}
                 className='laguageSelect language-select'
                 dropdownStyle={{
                   backgroundColor: 'white',
                   boxShadow: 'none',
                 }}
-                onChange={(value) => console.log('Selected:', value)}
+                onChange={changeLanguage}
               >
-                <Option value="En">English</Option>
-                <Option value="Ar">أرابيك</Option>
-                <Option value="Ku">کوردی</Option>
+                <Option value="en">English</Option>
+                <Option value="ar">أرابيك</Option>
+                <Option value="ku">کوردی</Option>
               </Select>
             </div>
           </div>
@@ -408,7 +403,7 @@ dispatch(updateCustomerDetails({
             <span
               className="modal-title-text"
             >
-              Are you sure you want to log out?
+              {translate('header.LOGOUT_CONFIRM')}
             </span>
           </div>
         }
@@ -421,14 +416,14 @@ dispatch(updateCustomerDetails({
             onClick={() => setLogoutModalOpen(false)}
             className="modal-cancel-button"
           >
-            Cancel
+            {translate('common.CANCEL')}
           </Button>
           <Button
             type="primary"
             onClick={handleLogout}
             className="modal-confirm-button"
           >
-            Confirm
+            {translate('common.CONFIRM')}
           </Button>
         </div>
       </Modal>
@@ -504,7 +499,7 @@ dispatch(updateCustomerDetails({
                 navigate('/login');
               }}
             >
-              Sign up / Login
+              {translate('header.SIGN_UP_LOGIN')}
             </button>
           )}
         </div>
@@ -512,18 +507,18 @@ dispatch(updateCustomerDetails({
         {/* Mobile Menu Language Select */}
         <div className="mobile-menu-language-section">
           <Select
-            defaultValue="En"
+            value={currentLanguage}
             bordered={false}
             className="mobile-menu-language-select"
             dropdownStyle={{
               backgroundColor: 'white',
               boxShadow: 'none',
             }}
-            onChange={(value) => console.log('Selected:', value)}
+            onChange={changeLanguage}
           >
-            <Option value="En">English</Option>
-            <Option value="Ar">أرابيك</Option>
-            <Option value="Ku">کوردی</Option>
+            <Option value="en">English</Option>
+            <Option value="ar">العربية</Option>
+            <Option value="ku">کوردی</Option>
           </Select>
         </div>
 
@@ -536,7 +531,7 @@ dispatch(updateCustomerDetails({
               // Add contact us functionality here
             }}
           >
-            Contact Us
+            {translate('header.CONTACT_US')}
           </button>
         </div>
       </div>

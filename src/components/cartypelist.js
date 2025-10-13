@@ -18,6 +18,7 @@ import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Searchemptymodal from '../components/searchemptymodal';
 import PropTypes from 'prop-types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Arrow = (props) => {
   const { className, style, onClick, left } = props;
@@ -61,6 +62,7 @@ Arrow.propTypes = {
 };
 
 const CarTypeList = ({setSaveSearchesReload}) => {
+  const { translate } = useLanguage();
   const [, setLoading] = useState(false);
   const [carBodyTypes, setCarBodyTypes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -132,10 +134,10 @@ const CarTypeList = ({setSaveSearchesReload}) => {
         }, 100);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to fetch body types');
+      message.error(errorData.message || translate('filters.FETCH_BODY_TYPE_FAILED'));
       setCarBodyTypes([]);
     } finally {
       setLoading(false);
@@ -157,7 +159,7 @@ const CarTypeList = ({setSaveSearchesReload}) => {
         body_type: item,
         location: '',
       };
-console.log('Add Type3')
+// API call to search cars by body type
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
       if (data1) {
@@ -174,7 +176,7 @@ console.log('Add Type3')
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to search car data');
+      message.error(errorData.message || translate('filters.SEARCH_FAILED'));
     } finally {
       setLoading(false);
     }
@@ -182,10 +184,10 @@ console.log('Add Type3')
 
   return (
     <div className="car-type-list-container">
-      <h2 className="car-type-list-title">Body Types</h2>
+      <h2 className="car-type-list-title">{translate('landing.BODY_TYPES')}</h2>
       {!sliderReady ? (
         <div className="slider-loading">
-          <p>Loading body types...</p>
+          <p>{translate('landing.LOADING_BODY_TYPES')}</p>
         </div>
       ) : (
         <Slider {...settings} className="car-type-slider">

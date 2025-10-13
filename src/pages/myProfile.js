@@ -28,10 +28,12 @@ import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useSelector,useDispatch } from 'react-redux';
 import { clearCustomerDetails } from '../redux/actions/authActions';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Content } = Layout;
 
 const MyProfile = () => {
+  const { translate } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -173,7 +175,7 @@ const MyProfile = () => {
     
        const validateOtp = () => {
         if (otp.some((digit) => digit === '' || !/^\d$/.test(digit))) {
-          setError('Please enter the OTP.');
+          setError(translate('myProfilePage.PLEASE_ENTER_OTP'));
           return false;
         }else{
     setError('');
@@ -220,7 +222,7 @@ const MyProfile = () => {
   } catch (err) {
     console.error('OTP Delete Error:', err);
 
-    let errorMessage = 'Something went wrong!';
+    let errorMessage = translate('myProfilePage.SOMETHING_WENT_WRONG');
     if (err?.response?.data?.error) {
       
       errorMessage = err.response.data.error;
@@ -303,8 +305,8 @@ const MyProfile = () => {
     <>
     <div className="page-header">
                   {contextHolder}
-                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>My Profile</div>
-                  <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
+                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{translate('myProfilePage.PAGE_TITLE')}</div>
+                  <div style={{ fontSize: 11 }}>{translate('myProfilePage.PAGE_SUBTITLE')}</div>
      </div>
       <Layout style={{ background: '#fff' }}>
         <MyProfileMenu
@@ -332,11 +334,11 @@ const MyProfile = () => {
         }}
         style={{ fontSize: '25px', cursor: 'pointer', marginTop: '10px' }}
       />
-    <h2>Enter OTP to Delete Account</h2>
+    <h2>{translate('myProfilePage.ENTER_OTP_DELETE')}</h2>
     </div>
      
     <p className="otp-desc">
-      Enter the verification code sent to your phone number
+      {translate('myProfilePage.VERIFICATION_CODE_DESC')}
     </p>
 
     <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}>
@@ -386,7 +388,7 @@ const MyProfile = () => {
         if (isTimerRunning) {
           return (
             <span>
-              Resend in{' '}
+              {translate('myProfilePage.RESEND_IN')}{' '}
               <span className="otp-timer-count">{formatTime(timer)}</span>
             </span>
           );
@@ -398,7 +400,7 @@ const MyProfile = () => {
     onClick={handleResend}
     style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}
   >
-    Resend
+    {translate('myProfilePage.RESEND')}
   </button>
 );
 
@@ -427,7 +429,7 @@ const MyProfile = () => {
               borderRadius: '24px',
             }}
       >
-        Cancel
+        {translate('myProfilePage.CANCEL')}
       </button>
 
       <button
@@ -440,7 +442,7 @@ const MyProfile = () => {
   disabled={isDeleteContinueDisabled}  // Button respects state
   style={{ height: 35 }}
 >
-  {isDeleteContinueDisabled ? 'Processing...' : 'Continue'}
+  {isDeleteContinueDisabled ? translate('myProfilePage.PROCESSING') : translate('myProfilePage.CONTINUE')}
 </button>
 
     </div>

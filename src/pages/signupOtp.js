@@ -7,8 +7,10 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { verifyOTP } from '../redux/actions/authActions';
 import { message } from 'antd';
 import { useToken } from '../hooks/useToken';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SignupOtp = () => {
+  const { translate } = useLanguage();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -135,7 +137,7 @@ const SignupOtp = () => {
 
   const validateOtp = () => {
     if (otp.some(d => d === '' || !/^\d$/.test(d))) {
-      setError('Please enter the OTP.');
+      setError(translate('signupOtp.PLEASE_ENTER_OTP'));
       return false;
     }
     setError('');
@@ -242,7 +244,7 @@ const handleContinue = async () => {
   
   // Check if phone number is available
   if (!validatePhoneNumber(phoneToUse)) {
-    messageApi.error('Phone number not found. Please go back and try again.');
+    messageApi.error(translate('signupOtp.PHONE_NOT_FOUND'));
     return;
   }
 
@@ -267,7 +269,7 @@ const handleContinue = async () => {
       handleVerificationFailure(result);
     }
   } catch {
-    message.error('OTP verification failed. Please try again.');
+    message.error(translate('signupOtp.OTP_VERIFICATION_FAILED'));
   } finally {
     setLoading(false);
   }
@@ -281,7 +283,7 @@ const handleContinue = async () => {
       const phoneToUse = phone_login;
       
       if (!phoneToUse) {
-        messageApi.error('Phone number not found. Please start over.');
+        messageApi.error(translate('signupOtp.PHONE_NOT_FOUND_RESEND'));
         return;
       }
       
@@ -307,8 +309,8 @@ const handleContinue = async () => {
   return (
     <div className='otp-container'>
       {contextHolder}
-      <h2 className='otp-title'>Login</h2>
-      <p className='otp-desc'>Enter the verification code sent to your phone number</p>
+      <h2 className='otp-title'>{translate('signupOtp.PAGE_TITLE')}</h2>
+      <p className='otp-desc'>{translate('signupOtp.PAGE_SUBTITLE')}</p>
 
       <div className='otp-inputs'>
         {otp.map((digit, idx) => {
@@ -336,9 +338,9 @@ const handleContinue = async () => {
 
       <div className='otp-timer'>
         {isTimerRunning ? (
-          <span>Resend in <span className='otp-timer-count'>{formatTime(timer)}</span></span>
+          <span>{translate('signupOtp.RESEND_IN')} <span className='otp-timer-count'>{formatTime(timer)}</span></span>
         ) : (
-          <button type='button' className='otp-resend' onClick={handleResend} style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}>Resend</button>
+          <button type='button' className='otp-resend' onClick={handleResend} style={{ cursor: 'pointer', color: '#0090d4', background: 'transparent', border: 'none', padding: 0 }}>{translate('signupOtp.RESEND')}</button>
         )}
       </div>
 
@@ -363,7 +365,7 @@ const handleContinue = async () => {
   //   width: '50%'
   // }}
 >
-  {loading ? 'Verifying...' : 'Continue'}
+  {loading ? translate('signupOtp.VERIFYING') : translate('signupOtp.CONTINUE')}
 </button>
 
       </div>

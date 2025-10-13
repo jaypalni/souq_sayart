@@ -9,8 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import '../assets/styles/usersavedsearches.css';
 import posting from '../assets/images/posting.gif';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CarPostingModal = ({ onClose, handleAddNew, mode = 'create'}) => {
+  const { translate } = useLanguage();
   const navigate = useNavigate();
 
   const handleViewPost = () => {
@@ -26,10 +28,10 @@ const CarPostingModal = ({ onClose, handleAddNew, mode = 'create'}) => {
 
   // Determine content based on mode
   const isDraft = mode === 'draft';
-  const modalTitle = isDraft ? 'Your post is saved as Drafts' : 'Thank You For Posting';
+  const modalTitle = isDraft ? translate('carPostingModal.DRAFT_TITLE') : translate('carPostingModal.CREATE_TITLE');
   const modalSubtitle = isDraft
-    ? 'You can view and edit your draft from My Listings page.'
-    : 'We will review your post and let you know when it\'s approved.';
+    ? translate('carPostingModal.DRAFT_SUBTITLE')
+    : translate('carPostingModal.CREATE_SUBTITLE');
 
   return (
     <div className="modal-overlay">
@@ -55,7 +57,7 @@ const CarPostingModal = ({ onClose, handleAddNew, mode = 'create'}) => {
       borderStyle: 'solid',
     }}
   >
-    View Post
+    {translate('carPostingModal.VIEW_POST')}
   </button>
 
   <button
@@ -63,7 +65,7 @@ const CarPostingModal = ({ onClose, handleAddNew, mode = 'create'}) => {
     onClick={handleaddcar}
     style={{ flex: 1 }}
   >
-    Add New
+    {translate('carPostingModal.ADD_NEW')}
   </button>
 </div>
 

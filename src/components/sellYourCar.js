@@ -11,8 +11,10 @@ import { useSelector } from 'react-redux';
 import { message } from 'antd';
 import '../assets/styles/sellYourCar.css';
 import carBg from '../assets/images/Car_icon.png';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SellYourCar = () => {
+  const { translate } = useLanguage();
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const { customerDetails } = useSelector((state) => state.customerDetails);
@@ -23,7 +25,7 @@ const SellYourCar = () => {
     if (!isLoggedIn) {
       messageApi.open({
         type: 'warning',
-        content: 'Please login to sell your car',
+        content: translate('sellYourCar.PLEASE_LOGIN_TO_SELL'),
       });
       navigate('/login');
       return;
@@ -38,12 +40,12 @@ const SellYourCar = () => {
     >
       {contextHolder}
       <div className="sell-your-car-overlay">
-        <h2 className="sell-your-car-title">Sell Your Car</h2>
+        <h2 className="sell-your-car-title">{translate('sellYourCar.TITLE')}</h2>
         <p className="sell-your-car-desc">
-          Find your saved searches right here. Get alerts for new listings.
+          {translate('sellYourCar.DESCRIPTION')}
         </p>
         <button className="sell-your-car-btn" onClick={handleGetStarted}>
-          Get Started
+          {translate('sellYourCar.GET_STARTED')}
         </button>
       </div>
     </div>

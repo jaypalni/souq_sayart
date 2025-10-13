@@ -338,6 +338,8 @@ getMylistingCars: (type, filter, page) =>
   },
   termsAndConditions: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
+  getfaqs: () =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_FAQS),
   totalcarscount: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
   gethorsepower: () => 

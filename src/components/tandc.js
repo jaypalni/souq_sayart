@@ -50,8 +50,6 @@ const TandC = () => {
             <Spin tip="Loading content..." />
           ) : (
             <>
-              {/* Terms & Conditions Section */}
-              
               {contentData?.terms_conditions?.map((item) => (
                 <Paragraph
                   key={item.id}

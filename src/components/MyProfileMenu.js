@@ -289,11 +289,11 @@ const MyProfileMenu = ({
     ...(isDealer === 1
     ? [
         {
-          key: 'dashboard',
+          key: 'dealerdashboard',
           icon: <img src={dealerIcon} alt="Dealer" style={{ width: 16, height: 16 }} />,
           label: (
             <Link
-              to="/myProfile/dashboard"
+              to="/myProfile/dealerdashboard"
               style={{
                 fontSize: '12px',
                 fontWeight: 400,

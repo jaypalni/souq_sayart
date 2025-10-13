@@ -47,6 +47,7 @@ const API_CONFIG = {
       GET_SAVED_SEARCHES: (page, limit) =>
         `/api/users/saved-searches?page=${page}&limit=${limit}`,
       GET_TERM_AND_CONDITIONS: '/api/users/content',
+      GET_FAQS: '/api/users/faqs',
       GET_CARS_TOTALCOUNT: '/api/cars/total_count',
       GET_HORSE_POWER:'/api/cars/horsepower_ranges',
       GET_CAR_IMAGES_UPLOAD: '/api/search/upload-attachment',

@@ -73,7 +73,7 @@ const AppRouterContent = () => {
     '/myProfile/messages',
     '/myProfile/payments',
     '/myProfile/blocked',
-    '/myProfile/dashboard',
+    '/myProfile/dealerdashboard',
     '/myProfile/favorites',
     '/myProfile/change-phone',
     '/myProfile/change-phone-otp',

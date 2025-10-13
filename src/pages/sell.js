@@ -20,6 +20,7 @@ import {
   DatePicker,
   Modal,
   Image,
+  Tooltip,
   InputNumber
 } from 'antd';
 import { PlusOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
@@ -40,7 +41,7 @@ import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
 import EmojiPicker from 'emoji-picker-react';
-import { UploadOutlined } from '@ant-design/icons';
+
 const { Option } = Select;
 
 const ExteriorColorInput = ({
@@ -312,7 +313,6 @@ const Sell = () => {
   const autoSaveIntervalRef = useRef(null);
   const lastSavedDataRef = useRef(null); // Track last saved data to detect changes
   const [draggedIndex, setDraggedIndex] = useState(null); // Track which item is being dragged
-  const [selectedFileName, setSelectedFileName] = useState('');
 
 
 const handleAddNew = () => {
@@ -1651,23 +1651,6 @@ const handleImageUpload = async (images) => {
     </button>
   );
 
-   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (
-      file &&
-      (file.name.endsWith('.csv') ||
-        file.name.endsWith('.xls') ||
-        file.name.endsWith('.xlsx'))
-    ) {
-      setSelectedFileName(file.name);
-      message.success(`Selected File: ${file.name}`);
-    } else {
-      message.error('Please upload only CSV or Excel files (.csv, .xls, .xlsx)');
-      e.target.value = null;
-      setSelectedFileName('');
-    }
-  };
-
   return (
     <>
       <div className='page-header'>
@@ -1678,45 +1661,7 @@ const handleImageUpload = async (images) => {
         <div className='page-header-subtitle'>Post an ad in just 3 simple steps</div>
       </div>
       <div className='sell-container'>
-        <Card
-      className="card-description"
-      title={
-        <div
-          className="d-flex justify-content-between align-items-center"
-          style={{ marginLeft: '26px', marginRight: '26px' }}
-        >
-          <h5 className="mb-0" style={{ fontWeight: '600', color: '#4A5E6D' }}>
-            Car Description
-          </h5>
-
-          {/* Upload Bulk / File Name Button */}
-          <div>
-            <input
-              type="file"
-              accept=".csv,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
-              id="uploadExcel"
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
-            <Button
-              icon={<UploadOutlined />}
-              style={{
-                backgroundColor: '#008AD5',
-                color: '#fff',
-                borderRadius: '22px',
-                fontWeight: '500',
-                maxWidth: '200px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-              onClick={() => document.getElementById('uploadExcel').click()}
-            >
-              {selectedFileName ? selectedFileName : 'Upload Bulk'}
-            </Button>
-          </div>
-        </div>
-      }
-    >
+        <Card title='Car Description' className='card-description' >
           <Form
             form={form}
             layout='vertical'

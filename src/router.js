@@ -172,37 +172,21 @@ const AppRouterContent = () => {
             </ProtectedRoute>
           } 
         />
-        <Route 
-          path="/tandc" 
-          element={
-            <ProtectedRoute>
-              <TandC />
-            </ProtectedRoute>
-          } 
+        <Route
+          path="/tandc"
+          element={<TandC />}
         />
-         <Route 
-          path="/privacypolicy" 
-          element={
-            <ProtectedRoute>
-              <PrivacyPolicy />
-            </ProtectedRoute>
-          } 
+         <Route
+          path="/privacypolicy"
+          element={<PrivacyPolicy />}
         />
-         <Route 
-          path="/faqs" 
-          element={
-            <ProtectedRoute>
-              <FaqS />
-            </ProtectedRoute>
-          } 
+         <Route
+          path="/faqs"
+          element={<FaqS />}
         />
-        <Route 
-          path="/contactus" 
-          element={
-            <ProtectedRoute>
-              <ContactUs />
-            </ProtectedRoute>
-          } 
+        <Route
+          path="/contactus"
+          element={<ContactUs />}
         />
       
         <Route path="*" element={<Navigate to="/" replace />} />

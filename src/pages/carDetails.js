@@ -607,7 +607,7 @@ if (approval === 'approved' && status !== 'sold') {
           <div className='row shareCar'>
             <div className='col-10'>
               <Tooltip title={carDetails.ad_title} placement="top">
-                <h5 className="mb-0 seller-info-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <h5 className="mb-0 seller-info-title">
                   {carDetails.ad_title}
                 </h5>
               </Tooltip>

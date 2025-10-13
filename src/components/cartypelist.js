@@ -159,7 +159,7 @@ const CarTypeList = ({setSaveSearchesReload}) => {
         body_type: item,
         location: '',
       };
-console.log('Add Type3')
+// API call to search cars by body type
       const response = await carAPI.getSearchCars(params);
       const data1 = handleApiResponse(response);
       if (data1) {

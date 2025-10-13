@@ -21,7 +21,9 @@ import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
 import { message, Pagination, Skeleton } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 const Allcars = () => {
+  const { translate } = useLanguage();
   const [filtercarsData, setFilterCarsData] = useState({ cars: [], pagination: {} });
   const [sortedbydata, setSortedbyData] = useState('');
   const [isnetworkError,setIsnetworkError]= useState(false);
@@ -163,6 +165,7 @@ const Allcars = () => {
 };
 
 const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, title, isLoading ,setLimit,setCurrentPage,isnetworkError}) => {
+  const { translate } = useLanguage();
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -213,15 +216,18 @@ const getInitialSortOption = () => {
       message.error(data.message || 'Something went wrong');
     }
   } catch (error) {
-    if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+    if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
       // Network/offline error -> show user-friendly message
       messageApi.open({ 
         type: 'error', 
-        content: 'You\'re offline! Please check your network connection and try again.' 
+        content: translate('filters.OFFLINE_ERROR')
       });
     } else {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to add car to favorites.');
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || 'Failed to add car to favorites.'
+      });
     }
   } finally {
     setLoading(null);
@@ -254,15 +260,18 @@ const Removefavcarapi = async (carId) => {
       });
     }
   } catch (error) {
-    if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+    if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
       // Network/offline error -> show user-friendly message
       messageApi.open({ 
         type: 'error', 
-        content: 'You\'re offline! Please check your network connection and try again.' 
+        content: translate('filters.OFFLINE_ERROR')
       });
     } else {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to remove car from favorites.');
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || 'Failed to remove car from favorites.'
+      });
     }
   } finally {
     setLoading(null);

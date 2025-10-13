@@ -69,7 +69,7 @@ const CarListing = ({ title, cardata }) => {
         });
       }
     } catch (error) {
-      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
         // Network/offline error -> show user-friendly message
         messageApi.open({ 
           type: 'error', 
@@ -105,7 +105,7 @@ const CarListing = ({ title, cardata }) => {
         });
       }
     } catch (error) {
-      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
         // Network/offline error -> show user-friendly message
         messageApi.open({ 
           type: 'error', 

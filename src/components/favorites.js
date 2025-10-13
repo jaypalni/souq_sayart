@@ -76,11 +76,11 @@ const MyFavoritesCars = () => {
         fetchFavorites();
       }
     } catch (error) {
-      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || error?.name === 'AxiosError') {
+      if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
         // Network/offline error -> show user-friendly message
         messageApi.open({ 
           type: 'error', 
-          content: translate('favorites.OFFLINE_ERROR')
+          content: translate('filters.OFFLINE_ERROR')
         });
       } else {
         const errorData = handleApiError(error);

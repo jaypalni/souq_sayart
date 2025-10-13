@@ -350,8 +350,8 @@ const resolveDefaultLocation = (locations, geoData) => {
               cars: results, 
               pagination: data1?.data?.pagination,
               // Pass selected filter values
-              selectedMake: make,
-              selectedModel: model,
+              selectedMake: make=== translate('filters.ALL_MAKE')?'':make,
+              selectedModel: model=== translate('filters.ALL_MAKE')?'':model,
               selectedBodyType: bodyType,
               selectedLocation: location,
               selectedNewUsed: newUsed,

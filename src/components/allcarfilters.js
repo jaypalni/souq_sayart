@@ -312,6 +312,12 @@ const getInitialMaxPrice = () => {
     return '';
   };
 
+  // Helper function to ensure API gets empty strings for default values
+  const getApiValue = (value, defaultValue) => {
+    const result = (value === defaultValue || value === 'All Make' || value === 'All Models') ? '' : (value || '');
+    return result;
+  };
+
   // Helper function to handle locations parameter consistently
   const getLocationsParam = (currentLocation) => {
     // Always return an array
@@ -342,12 +348,12 @@ const getInitialMaxPrice = () => {
     return [];
   };
 
-  // Auto-search function without type parameter (for after clearing)
+// Auto-search function without type parameter
   const autoSearchForCountWithoutType = async () => {
     try {
       const apiParams = {
-        make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
-        model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
+        make: getApiValue(make, DEFAULTS.ALL_MAKE),
+        model: getApiValue(model, DEFAULTS.ALL_MODELS),
         body_types: getBodyTypesParam(bodyType),
         locations: getLocationsParam(location),
         price_min: minPrice !== null ? minPrice : '',
@@ -375,8 +381,8 @@ const getInitialMaxPrice = () => {
   const autoSearchForCount = async () => {
     try {
       const apiParams = {
-        make: valueOrEmpty(make, DEFAULTS.ALL_MAKE),
-        model: valueOrEmpty(model, DEFAULTS.ALL_MODELS),
+        make: getApiValue(make, DEFAULTS.ALL_MAKE),
+        model: getApiValue(model, DEFAULTS.ALL_MODELS),
         body_types: getBodyTypesParam(bodyType),
         locations: getLocationsParam(location),
         price_min: minPrice !== null ? minPrice : '',
@@ -497,10 +503,7 @@ fetchRegionCars()
     }
   }, [carMakes.length, propsProcessed]);
 
-  // Filter changes - call autoSearchForCount after each param change (only after initial load)
   useEffect(() => {
-    // Only call search if we have the necessary data loaded and initial search is done
-    // Add a small delay to prevent calls during initialization
     if (carMakes.length > 0 && hasInitialSearch.current) {
       const timer = setTimeout(() => {
         autoSearchForCount();
@@ -727,8 +730,8 @@ fetchRegionCars()
 
   // Helper function to build save parameters
   const buildSaveParams = (sortConfig) => ({
-    make: make === DEFAULTS.ALL_MAKE ? '' : make,
-    model: model === DEFAULTS.ALL_MODELS ? '' : model,
+    make: getApiValue(make, DEFAULTS.ALL_MAKE),
+    model: getApiValue(model, DEFAULTS.ALL_MODELS),
     body_types: getBodyTypesParam(bodyType),
     locations: getLocationsParam(location),
     condition: newUsed === DEFAULTS.NEW_USED ? '' : newUsed,
@@ -746,8 +749,8 @@ fetchRegionCars()
     const cleanedMax = maxPrice !== null ? maxPrice : '';
     
     const apiParams = {
-      make: make === DEFAULTS.ALL_MAKE ? '' : make,
-      model: model === DEFAULTS.ALL_MODELS ? '' : model,
+      make: getApiValue(make, DEFAULTS.ALL_MAKE),
+      model: getApiValue(model, DEFAULTS.ALL_MODELS),
       body_types: getBodyTypesParam(bodyType),
       locations: getLocationsParam(location),
       price_min: cleanedMin,

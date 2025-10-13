@@ -155,7 +155,11 @@ const convertNewUsedToCondition = (newUsed) => {
 
 // Helper functions for filter data preparation
 const getFilterValue = (value, defaultValue = '') => {
-  return value !== defaultValue ? value : '';
+  // Convert "All Make" and "All Models" to empty strings
+  if (value === 'All Make' || value === 'All Models' || value === defaultValue) {
+    return '';
+  }
+  return value || '';
 };
 
 const getArrayFilterValue = (array, defaultValue = 'Any') => {
@@ -225,6 +229,8 @@ const prepareFilterData = (filterParams) => {
     sortedbydata
   } = filterParams;
   
+  // API parameters prepared with correct default values
+  
   const sortConfig = getSortParameters(sortedbydata);
   
   const apiParams = {
@@ -264,6 +270,7 @@ const prepareFilterData = (filterParams) => {
     apiParams.type = featuredorrecommended;
   }
 
+  // Final API payload ready for transmission
   return apiParams;
 };
 

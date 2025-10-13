@@ -29,12 +29,14 @@ import TermsAndconditions from './termsAndconditions';
 import dayjs from 'dayjs';
 import { usePhoneNumber } from '../hooks/usePhoneNumber';
 import { useToken } from '../hooks/useToken';
+import { useLanguage } from '../contexts/LanguageContext';
 
 
 
 const { Title, Text } = Typography;
 
 const CreateProfile = () => {
+  const { translate } = useLanguage();
   const dispatch = useDispatch();
   const [isDealer, setIsDealer] = useState(false);
   const [form] = Form.useForm();
@@ -154,7 +156,7 @@ const CreateProfile = () => {
   if (!isAllowedType) {
     messageApi.open({
       type: 'error',
-      content: 'Upload failed. Only .pdf documents are allowed.',
+      content: translate('createProfile.UPLOAD_FAILED_PDF_ONLY'),
     });
     return;
   }
@@ -164,7 +166,7 @@ const CreateProfile = () => {
   if (!isLt10M) {
     messageApi.open({
       type: 'error',
-      content: 'Document must be smaller than 10 MB.',
+      content: translate('createProfile.DOCUMENT_SIZE_LIMIT'),
     });
     return;
   }
@@ -208,8 +210,7 @@ const CreateProfile = () => {
   if (!isImage) {
     messageApi.open({
       type: 'error',
-      content:
-        'Upload failed. Only .png, .jpeg, or .jpg images are allowed for profile picture.',
+      content: translate('createProfile.UPLOAD_FAILED_IMAGE_ONLY'),
     });
     return Upload.LIST_IGNORE;
   }
@@ -219,7 +220,7 @@ const CreateProfile = () => {
   if (!isLt5M) {
     messageApi.open({
       type: 'error',
-      content: 'Profile image must be smaller than 5 MB.',
+      content: translate('createProfile.PROFILE_IMAGE_SIZE_LIMIT'),
     });
     return Upload.LIST_IGNORE;
   }
@@ -286,8 +287,8 @@ const CreateProfile = () => {
     return <UserOutlined />;
   };
 
-  const MSG_REG_SUCCESS = 'Registration successful!';
-  const MSG_REG_FAILED = 'Registration failed';
+  const MSG_REG_SUCCESS = translate('createProfile.REGISTRATION_SUCCESS');
+  const MSG_REG_FAILED = translate('createProfile.REGISTRATION_FAILED');
 
   const safeString = (value) => {
     if (value) {
@@ -357,7 +358,7 @@ const CreateProfile = () => {
     try {
       // Check if phone number is valid before proceeding
       if (!isPhoneNumberValid) {
-        messageApi.error('Phone number is required. Please go back and verify your phone number.');
+        messageApi.error(translate('createProfile.PHONE_NUMBER_MISSING'));
         return;
       }
       
@@ -403,7 +404,7 @@ const CreateProfile = () => {
             fontSize: 20,
           }}
         >
-          Create Your Account
+          {translate('createProfile.PAGE_TITLE')}
         </Title>
         <div
           style={{
@@ -468,25 +469,25 @@ const CreateProfile = () => {
                   <span
                     style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
-                    First Name<span style={{ color: '#637D92' }}>*</span>
+                    {translate('createProfile.FIRST_NAME')}<span style={{ color: '#637D92' }}>*</span>
                   </span>
                 }
                 name="firstName"
                 rules={[
-                  { required: true, message: 'First name is required' },
+                  { required: true, message: translate('createProfile.FIRST_NAME_REQUIRED') },
                   {
                     max: 50,
-                    message: 'First name cannot exceed 50 characters',
+                    message: translate('createProfile.FIRST_NAME_MAX_LENGTH'),
                   },
                   {
       pattern: /^[A-Za-z\s]+$/, 
-      message: 'First name can only contain letters',
+      message: translate('createProfile.FIRST_NAME_LETTERS_ONLY'),
     },
                 ]}
                 style={{ marginBottom: 12 }}
                 required={false}
               >
-                <Input placeholder="First Name" size="middle" maxLength={50} />
+                <Input placeholder={translate('createProfile.FIRST_NAME')} size="middle" maxLength={50} />
               </Form.Item>
             </div>
             <div className="col-md-6">
@@ -495,25 +496,25 @@ const CreateProfile = () => {
                   <span
                     style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
-                    Last Name<span style={{ color: '#637D92' }}>*</span>
+                    {translate('createProfile.LAST_NAME')}<span style={{ color: '#637D92' }}>*</span>
                   </span>
                 }
                 name="lastName"
                 rules={[
-                  { required: true, message: 'Last name is required' },
+                  { required: true, message: translate('createProfile.LAST_NAME_REQUIRED') },
                   {
                     max: 50,
-                    message: 'Last name cannot exceed 50 characters',
+                    message: translate('createProfile.LAST_NAME_MAX_LENGTH'),
                   },
                   {
       pattern: /^[A-Za-z\s]+$/, // Allows only letters and spaces
-      message: 'First name can only contain letters',
+      message: translate('createProfile.LAST_NAME_LETTERS_ONLY'),
     },
                 ]}
                 style={{ marginBottom: 12 }}
                 required={false}
               >
-                <Input placeholder="Last Name" size="middle" maxLength={50} />
+                <Input placeholder={translate('createProfile.LAST_NAME')} size="middle" maxLength={50} />
               </Form.Item>
             </div>
           </div>
@@ -524,7 +525,7 @@ const CreateProfile = () => {
                   <span
                     style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                   >
-                    Email
+                    {translate('createProfile.EMAIL')}
                   </span>
                 }
                 name="email"
@@ -532,7 +533,7 @@ const CreateProfile = () => {
                  rules={[
                     {
                       type: 'email',
-                      message: 'Please enter a valid email address',
+                      message: translate('createProfile.EMAIL_INVALID'),
                       validator: (_, value) => {
                         if (!value || value?.trim() === '') {
                           return Promise.resolve();
@@ -540,26 +541,26 @@ const CreateProfile = () => {
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         return emailRegex.test(value)
                           ? Promise.resolve()
-                          : Promise.reject(new Error('Please enter a valid email address'));
+                          : Promise.reject(new Error(translate('createProfile.EMAIL_INVALID')));
                       },
                     },
                   ]}
               >
-                <Input placeholder="Email" size="middle" />
+                <Input placeholder={translate('createProfile.EMAIL')} size="middle" />
               </Form.Item>
             </div>
             <div className="col-md-6">
              <Form.Item
   label={
     <span style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}>
-      Date Of Birth*
+      {translate('createProfile.DATE_OF_BIRTH')}*
     </span>
   }
   name="dob"
   rules={[
     {
       required: true,
-      message: 'This field is mandatory, please fill it',
+      message: translate('createProfile.DATE_OF_BIRTH_REQUIRED'),
     },
     {
       validator: (_, value) => {
@@ -572,7 +573,7 @@ const CreateProfile = () => {
 
         if (age < 18) {
           return Promise.reject(
-            new Error('You must be at least 18 years old to register on this platform.')
+            new Error(translate('createProfile.DATE_OF_BIRTH_AGE_REQUIRED'))
           );
         }
 
@@ -625,7 +626,7 @@ const CreateProfile = () => {
                       style={{ width: 18, height: 18, marginRight: 5 }}
                     />
                     {' '}
-                    Whatsapp
+                    {translate('createProfile.WHATSAPP')}
                   </span>
 
                   <Switch
@@ -641,14 +642,14 @@ const CreateProfile = () => {
                 <span
                   style={{ fontWeight: 400, color: '#637D92', fontSize: 12 }}
                 >
-                  Are You A Dealer?*
+                  {translate('createProfile.ARE_YOU_DEALER')}*
                 </span>
               }
               name="isDealer"
               rules={[
                 {
                   required: true,
-                  message: 'Please select if you are a dealer',
+                  message: translate('createProfile.ARE_YOU_DEALER_REQUIRED'),
                 },
               ]}
               required={false}
@@ -671,9 +672,9 @@ const CreateProfile = () => {
                 }}
               >
                 <Radio value={true} style={{ marginRight: 24 }}>
-                  Yes
+                  {translate('createProfile.YES')}
                 </Radio>
-                <Radio value={false}>No</Radio>
+                <Radio value={false}>{translate('createProfile.NO')}</Radio>
               </Radio.Group>
             </Form.Item>
           </div>
@@ -691,23 +692,23 @@ const CreateProfile = () => {
                           fontSize: 12,
                         }}
                       >
-                        Company Name*
+                        {translate('createProfile.COMPANY_NAME')}*
                       </span>
                     }
                     name="companyName"
                     rules={[
                       {
                         required: isDealer,
-                        message: 'Company name is required',
+                        message: translate('createProfile.COMPANY_NAME_REQUIRED'),
                       },
                        {
                     max: 100,
-                    message: 'Company name cannot exceed 100 characters',
+                    message: translate('createProfile.COMPANY_NAME_MAX_LENGTH'),
                   },
                     ]}
                     required={false}
                   >
-                    <Input placeholder="Company Name" size="middle" />
+                    <Input placeholder={translate('createProfile.COMPANY_NAME')} size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
@@ -720,20 +721,20 @@ const CreateProfile = () => {
                           fontSize: 12,
                         }}
                       >
-                        Owner's Name*
+                        {translate('createProfile.OWNER_NAME')}*
                       </span>
                     }
                     name="ownerName"
                     rules={[
-                      { required: isDealer, message: 'Owner name is required' },
+                      { required: isDealer, message: translate('createProfile.OWNER_NAME_REQUIRED') },
                       {
                     max: 100,
-                    message: 'Owner name cannot exceed 100 characters',
+                    message: translate('createProfile.OWNER_NAME_MAX_LENGTH'),
                   },
                     ]}
                     required={false}
                   >
-                    <Input placeholder="Owner's Name" size="middle" />
+                    <Input placeholder={translate('createProfile.OWNER_NAME')} size="middle" />
                   </Form.Item>
                 </div>
               </div>
@@ -748,23 +749,23 @@ const CreateProfile = () => {
                           fontSize: 12,
                         }}
                       >
-                        Company Address*
+                        {translate('createProfile.COMPANY_ADDRESS')}*
                       </span>
                     }
                     name="companyAddress"
                     rules={[
                       {
                         required: isDealer,
-                        message: 'Company address is required',
+                        message: translate('createProfile.COMPANY_ADDRESS_REQUIRED'),
                       },
                       {
                     max: 500,
-                    message: 'Company Address cannot exceed 500 characters',
+                    message: translate('createProfile.COMPANY_ADDRESS_MAX_LENGTH'),
                   },
                     ]}
                     required={false}
                   >
-                    <Input placeholder="Company Address" size="middle" />
+                    <Input placeholder={translate('createProfile.COMPANY_ADDRESS')} size="middle" />
                   </Form.Item>
                 </div>
                 <div className="col-md-6">
@@ -777,7 +778,7 @@ const CreateProfile = () => {
                           fontSize: 12,
                         }}
                       >
-                        Phone Number*
+                        {translate('createProfile.PHONE_NUMBER')}*
                       </span>
                     }
                     name="phoneNumber"
@@ -785,16 +786,16 @@ const CreateProfile = () => {
                       
                       {
                         required: isDealer,
-                        message: 'Phone number is required',
+                        message: translate('createProfile.PHONE_NUMBER_REQUIRED'),
                       },
                       {
                         pattern: /^\d{8,15}$/,
-                        message: 'Enter a valid phone number',
+                        message: translate('createProfile.PHONE_NUMBER_INVALID'),
                       },
                     ]}
                     required={false}
                   >
-                    <Input placeholder="Phone Number" size="middle" />
+                    <Input placeholder={translate('createProfile.PHONE_NUMBER')} size="middle" />
                   </Form.Item>
                 </div>
               </div>
@@ -809,15 +810,15 @@ const CreateProfile = () => {
                           fontSize: 12,
                         }}
                       >
-                        Company Registration Number CR*
+                        {translate('createProfile.COMPANY_CR')}*
                       </span>
                     }
                     name="companyCR"
                     rules={[
-                      { required: isDealer, message: 'CR number is required' },
+                      { required: isDealer, message: translate('createProfile.COMPANY_CR_REQUIRED') },
                        {
                     max: 100,
-                    message: 'Company CR Number cannot exceed 100 characters',
+                    message: translate('createProfile.COMPANY_CR_MAX_LENGTH'),
                   },
                     ]}
                     required={false}
@@ -835,7 +836,7 @@ const CreateProfile = () => {
                           fontSize: 12,
                         }}
                       >
-                        Facebook Page (Optional)
+                        {translate('createProfile.FACEBOOK_PAGE')}
                       </span>
                     }
                     name="facebookPage"
@@ -846,7 +847,7 @@ const CreateProfile = () => {
           return Promise.resolve(); 
         }
         if (!value.includes('facebook.com')) {
-          return Promise.reject(new Error('URL must contain facebook.com'));
+          return Promise.reject(new Error(translate('createProfile.FACEBOOK_INVALID')));
         }
         return Promise.resolve();
       },
@@ -869,7 +870,7 @@ const CreateProfile = () => {
                           fontSize: 11,
                         }}
                       >
-                        Instagram Company Profile (Optional)
+                        {translate('createProfile.INSTAGRAM_PROFILE')}
                       </span>
                     }
                     name="instagramProfile"
@@ -880,7 +881,7 @@ const CreateProfile = () => {
           return Promise.resolve(); 
         }
         if (!value.includes('instagram.com')) {
-          return Promise.reject(new Error('URL must contain instagram.com'));
+          return Promise.reject(new Error(translate('createProfile.INSTAGRAM_INVALID')));
         }
         return Promise.resolve();
       },
@@ -901,21 +902,21 @@ const CreateProfile = () => {
         fontSize: 12,
       }}
     >
-      Upload Documents*
+      {translate('createProfile.UPLOAD_DOCUMENTS')}*
     </span>
   }
   name="uploadDocuments"
   rules={[
     {
       required: isDealer,
-      message: 'Please upload your company documents',
+      message: translate('createProfile.UPLOAD_DOCUMENTS_REQUIRED'),
     },
   ]}
   required={false}
 >
   <Input
     type="file"
-    placeholder="Documents"
+    placeholder={translate('createProfile.UPLOAD_DOCUMENTS')}
     size="middle"
     ref={fileInputRef}
     onChange={handleFileChange}
@@ -944,7 +945,7 @@ const CreateProfile = () => {
               }}
               onClick={onClickContinue}
             >
-              Create account
+              {translate('createProfile.CREATE_ACCOUNT')}
             </Button>
           </Form.Item>
 
@@ -969,8 +970,7 @@ const CreateProfile = () => {
                 padding: 0,
               }}
             >
-              By registering you agree with our terms & conditions and privacy
-              policy
+              {translate('createProfile.TERMS_AND_CONDITIONS')}
             </button>
 
             

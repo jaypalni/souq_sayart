@@ -17,8 +17,10 @@ import favoriteGif from '../assets/images/favorites_animi.gif';
 import car_type from '../assets/images/car_type.png';
 import country_code from '../assets/images/country_code.png';
 import speed_code from '../assets/images/speed_dashboard.png';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const MyFavoritesCars = () => {
+  const { translate } = useLanguage();
   const navigate = useNavigate();
   const [carsData, setCarsData] = useState([]);
   const [, setLoading] = useState(true);
@@ -52,7 +54,7 @@ const MyFavoritesCars = () => {
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
-        content: errorData.error || 'Something went wrong',
+        content: errorData.error || translate('favorites.SOMETHING_WENT_WRONG'),
       });
       setCarsData([]);
     } finally {
@@ -78,13 +80,13 @@ const MyFavoritesCars = () => {
         // Network/offline error -> show user-friendly message
         messageApi.open({ 
           type: 'error', 
-          content: 'You\'re offline! Please check your network connection and try again.' 
+          content: translate('favorites.OFFLINE_ERROR')
         });
       } else {
         const errorData = handleApiError(error);
         messageApi.open({
           type: 'error',
-          content: errorData?.message || 'Something went wrong',
+          content: errorData?.message || translate('favorites.SOMETHING_WENT_WRONG'),
         });
       }
     } finally {
@@ -100,12 +102,12 @@ const MyFavoritesCars = () => {
           <img src={favoriteGif} alt="Favorite" className="modal-image" />
 
           <p style={{ marginBottom: '10px', fontSize: '18px', color: '#0A0A0B', fontWeight: 700 }}>
-            You Have No Favorites
+            {translate('favorites.NO_FAVORITES')}
           </p>
 
           <h3 style={{ marginTop: '2px', fontSize: '14px', color: '#0A0A0B', fontWeight: 400 }}>
-            You have not saved any vehicles yet.<br />
-            Tap the heart icon on a listing to add it here.
+            {translate('favorites.NO_SAVED_VEHICLES')}<br />
+            {translate('favorites.TAP_HEART_ICON')}
           </h3>
 
           <button
@@ -122,7 +124,7 @@ const MyFavoritesCars = () => {
             }}
             onClick={() => navigate('/')}
           >
-            Browse Cars
+            {translate('favorites.BROWSE_CARS')}
           </button>
         </div>
       );
@@ -145,11 +147,11 @@ const MyFavoritesCars = () => {
                 />
                 <div className="car-listing-badges">
                   {Number(car.featured) === 1 && (
-                    <div className="car-listing-badge blue-bg">Featured</div>
+                    <div className="car-listing-badge blue-bg">{translate('favorites.FEATURED')}</div>
                   )}
                   {Number(car.is_verified) === 1 && (
                     <div className="car-listing-badge orenge-bg">
-                      <CheckCircleFilled /> Certified Dealer
+                      <CheckCircleFilled /> {translate('favorites.CERTIFIED_DEALER')}
                     </div>
                   )}
                 </div>
@@ -247,7 +249,7 @@ const MyFavoritesCars = () => {
     <div className="car-listing-container">
       {contextHolder}
       <div className="car-listing-header">
-        <span>Favorites</span>
+        <span>{translate('favorites.PAGE_TITLE')}</span>
       </div>
 
       {renderContent()}

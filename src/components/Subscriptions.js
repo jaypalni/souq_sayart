@@ -7,6 +7,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { userAPI } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 
 const plansData = {
@@ -14,32 +15,36 @@ const plansData = {
   Dealer: [],
 };
 
-const EmptyState = () => (
+const EmptyState = ({ translate }) => (
   <div style={{ textAlign: 'center', padding: 40 }}>
-    <h3>No Plans Available</h3>
-    <p>Please check back later for subscription plans.</p>
+    <h3>{translate('subscriptions.NO_PLANS_AVAILABLE')}</h3>
+    <p>{translate('subscriptions.CHECK_BACK_LATER')}</p>
   </div>
 );
 
+EmptyState.propTypes = {
+  translate: PropTypes.func.isRequired,
+};
+
 // Helper function to map plan data - extracted to reduce component complexity
-const mapPlanData = (items) =>
+const mapPlanData = (items, translate) =>
   items.map((item) => ({
     id: item.id,
     title: item.name,
     price: parseFloat(item.price),
-    duration: `${item.duration_days} Days`,
+    duration: `${item.duration_days} ${translate('subscriptions.DAYS')}`,
     features: [
-      'Price Model: Per Car',
-      `${item.listing_limit} Posts Allowed`,
-      `${item.photo_limit || 10} Photos Allowed`,
+      `${translate('subscriptions.PRICE_MODEL')}: ${translate('subscriptions.PER_CAR')}`,
+      `${item.listing_limit} ${translate('subscriptions.POSTS_ALLOWED')}`,
+      `${item.photo_limit || 10} ${translate('subscriptions.PHOTOS_ALLOWED')}`,
     ],
     details: {
       price: `IQD ${item.price}`,
-      priceModel: 'Per Car',
+      priceModel: translate('subscriptions.PER_CAR'),
       postsAllowed: item.listing_limit,
       photosAllowed: item.photo_limit || 10,
       videosAllowed: item.video_limit || '-',
-      postDuration: `${item.duration_days} Days`,
+      postDuration: `${item.duration_days} ${translate('subscriptions.DAYS')}`,
       featured: item.featured || '-',
       banner: item.banner || '-',
       analytics: item.analytics || '-',
@@ -53,20 +58,20 @@ const mapPlanData = (items) =>
   }));
 
 // Helper function to map package details - extracted to reduce component complexity
-const mapPackageDetailsData = (data, prevPlan) => ({
+const mapPackageDetailsData = (data, prevPlan, translate) => ({
   ...prevPlan,
   ...data,
   id: data.id || prevPlan.id,
   title: data.name || data.title || prevPlan.title,
   price: parseFloat(data.price) || prevPlan.price,
-  duration: `${data.duration_days || data.duration} Days`,
+  duration: `${data.duration_days || data.duration} ${translate('subscriptions.DAYS')}`,
   details: {
     price: `IQD ${data.price}`,
-    priceModel: data.price_model || 'Per Car',
+    priceModel: data.price_model || translate('subscriptions.PER_CAR'),
     postsAllowed: data.listing_limit || data.posts_allowed,
     photosAllowed: data.photo_limit || data.photos_allowed || 10,
     videosAllowed: data.video_limit || data.videos_allowed || '-',
-    postDuration: `${data.duration_days || data.duration} Days`,
+    postDuration: `${data.duration_days || data.duration} ${translate('subscriptions.DAYS')}`,
     featured: data.featured || '-',
     banner: data.banner || '-',
     analytics: data.analytics || '-',
@@ -80,14 +85,14 @@ const mapPackageDetailsData = (data, prevPlan) => ({
 });
 
 // Cancel confirmation step component - extracted to reduce component complexity
-const CancelConfirmStepComponent = ({ onNo, onYes }) => (
+const CancelConfirmStepComponent = ({ onNo, onYes, translate }) => (
   <>
     <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 24 }}>
-      Are You Sure You Want To Cancel This Subscription?
+      {translate('subscriptions.CANCEL_SUBSCRIPTION_CONFIRM')}
     </div>
     <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-      <Button onClick={onNo} style={{ width: 100 }}>No</Button>
-      <Button type="primary" danger style={{ width: 100 }} onClick={onYes}>Yes</Button>
+      <Button onClick={onNo} style={{ width: 100 }}>{translate('subscriptions.NO')}</Button>
+      <Button type="primary" danger style={{ width: 100 }} onClick={onYes}>{translate('subscriptions.YES')}</Button>
     </div>
   </>
 );
@@ -95,16 +100,17 @@ const CancelConfirmStepComponent = ({ onNo, onYes }) => (
 CancelConfirmStepComponent.propTypes = {
   onNo: PropTypes.func.isRequired,
   onYes: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 // Phone number step component - extracted to reduce component complexity
-const PhoneNumberStepComponent = ({ phone, onPhoneChange, onContinue }) => (
+const PhoneNumberStepComponent = ({ phone, onPhoneChange, onContinue, translate }) => (
   <>
     <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
-      Enter Number To Cancel Subscriptions
+      {translate('subscriptions.ENTER_NUMBER_CANCEL')}
     </div>
     <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
-      Enter Your New Phone Number to change
+      {translate('subscriptions.ENTER_NEW_PHONE')}
     </div>
     <Input
       addonBefore={<span style={{ fontWeight: 600 }}>+961</span>}
@@ -115,7 +121,7 @@ const PhoneNumberStepComponent = ({ phone, onPhoneChange, onContinue }) => (
       maxLength={8}
     />
     <Button type="primary" style={{ width: '100%' }} onClick={onContinue}>
-      Continue
+      {translate('subscriptions.CONTINUE')}
     </Button>
   </>
 );
@@ -124,20 +130,21 @@ PhoneNumberStepComponent.propTypes = {
   phone: PropTypes.string.isRequired,
   onPhoneChange: PropTypes.func.isRequired,
   onContinue: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 // OTP step component - extracted to reduce component complexity
-const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => {
+const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue, translate }) => {
   // Use fixed keys for OTP inputs (positions never change)
   const OTP_KEYS = ['otp-first', 'otp-second', 'otp-third', 'otp-fourth'];
   
   return (
     <>
       <div style={{ fontWeight: 600, fontSize: 18, textAlign: 'center', marginBottom: 12 }}>
-        Enter OTP Sent To Cancel Subscriptions
+        {translate('subscriptions.ENTER_OTP_CANCEL')}
       </div>
       <div style={{ fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
-        Enter Your New Phone Number to change
+        {translate('subscriptions.ENTER_NEW_PHONE')}
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
         {otp.map((digit, idx) => (
@@ -152,10 +159,10 @@ const OtpStepComponent = ({ otp, onOtpChange, otpTimer, onContinue }) => {
         ))}
       </div>
       <div style={{ textAlign: 'center', marginBottom: 16, color: '#039be5' }}>
-        Resend in {otpTimer}s
+        {translate('subscriptions.RESEND_IN')} {otpTimer}s
       </div>
       <Button type="primary" style={{ width: '100%' }} onClick={onContinue}>
-        Continue
+        {translate('subscriptions.CONTINUE')}
       </Button>
     </>
   );
@@ -166,22 +173,24 @@ OtpStepComponent.propTypes = {
   onOtpChange: PropTypes.func.isRequired,
   otpTimer: PropTypes.number.isRequired,
   onContinue: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 // Done step component - extracted to reduce component complexity
-const DoneStepComponent = ({ onDone }) => (
+const DoneStepComponent = ({ onDone, translate }) => (
   <>
     <div style={{ fontWeight: 600, fontSize: 20, textAlign: 'center', marginBottom: 24 }}>
-      Subscription Cancelled
+      {translate('subscriptions.SUBSCRIPTION_CANCELLED')}
     </div>
     <Button type="primary" style={{ width: '100%' }} onClick={onDone}>
-      Done
+      {translate('subscriptions.DONE')}
     </Button>
   </>
 );
 
 DoneStepComponent.propTypes = {
   onDone: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 // Radio button tab component - extracted to reduce component complexity
@@ -215,16 +224,14 @@ RadioButtonTab.propTypes = {
 };
 
 // Subscription list view component - extracted to reduce component complexity
-const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) => (
+const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, translate }) => (
   <>
-    <div className="subscriptions-header">Subcriptions</div>
+    <div className="subscriptions-header">{translate('subscriptions.PAGE_TITLE')}</div>
     <div
       className="subscriptions-desc"
       style={{ fontSize: 16, fontWeight: 400, color: '#0A0A0B' }}
     >
-      Lorem ipsum dolor sit amet consectetur. Leo vitae tellus turpis
-      adipiscing in. Eget in vehicula ut egestas risus sit lacus. Sit et
-      ut ac vulputate. Scelerisque euismod phasellus dignissim ut.
+      {translate('subscriptions.PAGE_DESC')}
     </div>
     <div style={{ marginBottom: 16, marginLeft: 24 }}>
       <Radio.Group
@@ -235,8 +242,8 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) =
           gap: '1px',
         }}
       >
-        <RadioButtonTab value="Individual" label="Individual" activeTab={activeTab} />
-        <RadioButtonTab value="Dealer" label="Dealer" activeTab={activeTab} />
+        <RadioButtonTab value="Individual" label={translate('subscriptions.INDIVIDUAL')} activeTab={activeTab} />
+        <RadioButtonTab value="Dealer" label={translate('subscriptions.DEALER')} activeTab={activeTab} />
       </Radio.Group>
     </div>
     <div
@@ -244,7 +251,7 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) =
       style={{ display: 'flex', gap: 24, marginTop: 24 }}
     >
       {plans.length === 0 ? (
-        <EmptyState />
+        <EmptyState translate={translate} />
       ) : (
         plans.map((plan) => (
           <button
@@ -253,7 +260,7 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange }) =
             style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
             onClick={() => onSelectPlan(plan)}
           >
-            <SubscriptionCard {...plan} />
+            <SubscriptionCard {...plan} translate={translate} />
           </button>
         ))
       )}
@@ -273,18 +280,19 @@ SubscriptionListView.propTypes = {
   })).isRequired,
   onSelectPlan: PropTypes.func.isRequired,
   onTabChange: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
-const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading }) => (
+const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading, translate }) => (
   <div className="subscription-details-main">
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
       <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} style={{ marginRight: 8 }} />
-      <div className="subscriptions-header" style={{ marginBottom: 0 }}>Subcriptions</div>
+      <div className="subscriptions-header" style={{ marginBottom: 0 }}>{translate('subscriptions.PAGE_TITLE')}</div>
     </div>
     <div className="subscription-details-card" style={{ background: isCurrent ? '#0091ea' : '#e3e8ef', borderRadius: 12, padding: 24, color: isCurrent ? '#fff' : '#222', marginBottom: 24 }}>
       {isCurrent && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-          <div style={{ background: '#ffa726', color: '#fff', borderRadius: 6, padding: '2px 12px', display: 'inline-block' }}>Current</div>
+          <div style={{ background: '#ffa726', color: '#fff', borderRadius: 6, padding: '2px 12px', display: 'inline-block' }}>{translate('subscriptions.CURRENT')}</div>
         </div>
       )}
       <div style={{ fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{plan.title}</div>
@@ -295,31 +303,31 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, l
     <table style={{ width: '100%', background: '#fff', borderRadius: 12, marginBottom: 24 }}>
       <thead>
         <tr>
-          <th style={{ textAlign: 'left', padding: '8px' }}>Feature</th>
-          <th style={{ textAlign: 'right', padding: '8px' }}>Value</th>
+          <th style={{ textAlign: 'left', padding: '8px' }}>{translate('subscriptions.FEATURE')}</th>
+          <th style={{ textAlign: 'right', padding: '8px' }}>{translate('subscriptions.VALUE')}</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Price</td><td style={{ textAlign: 'right' }}>{plan.details.price}</td></tr>
-        <tr><td>Price Model</td><td style={{ textAlign: 'right' }}>{plan.details.priceModel}</td></tr>
-        <tr><td>Posts Allowed</td><td style={{ textAlign: 'right' }}>{plan.details.postsAllowed}</td></tr>
-        <tr><td>Photos Allowed</td><td style={{ textAlign: 'right' }}>{plan.details.photosAllowed}</td></tr>
-        <tr><td>Videos Allowed</td><td style={{ textAlign: 'right' }}>{plan.details.videosAllowed}</td></tr>
-        <tr><td>Post Duration</td><td style={{ textAlign: 'right' }}>{plan.details.postDuration}</td></tr>
-        <tr><td>Featured</td><td style={{ textAlign: 'right' }}>{plan.details.featured}</td></tr>
-        <tr><td>Banner</td><td style={{ textAlign: 'right' }}>{plan.details.banner}</td></tr>
-        <tr><td>Analytics</td><td style={{ textAlign: 'right' }}>{plan.details.analytics}</td></tr>
-        <tr><td>Additional Car</td><td style={{ textAlign: 'right' }}>{plan.details.additionalCar}</td></tr>
-        <tr><td>Email Newsletter</td><td style={{ textAlign: 'right' }}>{plan.details.emailNewsletter}</td></tr>
-        <tr><td>Sponsored content ( Articles or Review )</td><td style={{ textAlign: 'right' }}>{plan.details.sponsoredContent}</td></tr>
+        <tr><td>{translate('subscriptions.PRICE')}</td><td style={{ textAlign: 'right' }}>{plan.details.price}</td></tr>
+        <tr><td>{translate('subscriptions.PRICE_MODEL')}</td><td style={{ textAlign: 'right' }}>{plan.details.priceModel}</td></tr>
+        <tr><td>{translate('subscriptions.POSTS_ALLOWED')}</td><td style={{ textAlign: 'right' }}>{plan.details.postsAllowed}</td></tr>
+        <tr><td>{translate('subscriptions.PHOTOS_ALLOWED')}</td><td style={{ textAlign: 'right' }}>{plan.details.photosAllowed}</td></tr>
+        <tr><td>{translate('subscriptions.VIDEOS_ALLOWED')}</td><td style={{ textAlign: 'right' }}>{plan.details.videosAllowed}</td></tr>
+        <tr><td>{translate('subscriptions.POST_DURATION')}</td><td style={{ textAlign: 'right' }}>{plan.details.postDuration}</td></tr>
+        <tr><td>{translate('subscriptions.FEATURED')}</td><td style={{ textAlign: 'right' }}>{plan.details.featured}</td></tr>
+        <tr><td>{translate('subscriptions.BANNER')}</td><td style={{ textAlign: 'right' }}>{plan.details.banner}</td></tr>
+        <tr><td>{translate('subscriptions.ANALYTICS')}</td><td style={{ textAlign: 'right' }}>{plan.details.analytics}</td></tr>
+        <tr><td>{translate('subscriptions.ADDITIONAL_CAR')}</td><td style={{ textAlign: 'right' }}>{plan.details.additionalCar}</td></tr>
+        <tr><td>{translate('subscriptions.EMAIL_NEWSLETTER')}</td><td style={{ textAlign: 'right' }}>{plan.details.emailNewsletter}</td></tr>
+        <tr><td>{translate('subscriptions.SPONSORED_CONTENT')}</td><td style={{ textAlign: 'right' }}>{plan.details.sponsoredContent}</td></tr>
       </tbody>
     </table>
     {isCurrent ? (
-      // <Button type="primary" danger style={{ width: 220, borderRadius: 24 }} onClick={onCancel}>Cancel Subscription</Button>
+      // <Button type="primary" danger style={{ width: 220, borderRadius: 24 }} onClick={onCancel}>{translate('subscriptions.CANCEL_SUBSCRIPTION')}</Button>
      <div></div>
     ) : (
       <Button type="primary" style={{ width: 220, borderRadius: 24 }} onClick={() => onSubscribe(plan.id)} loading={loading}>
-        {loading ? 'Subscribing...' : 'Subscribe'}
+        {loading ? translate('subscriptions.SUBSCRIBING') : translate('subscriptions.SUBSCRIBE')}
       </Button>
     )}
   </div>
@@ -351,9 +359,11 @@ SubscriptionDetails.propTypes = {
   onSubscribe: PropTypes.func.isRequired,
   isCurrent: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 const Subscriptions = () => {
+  const { translate } = useLanguage();
   const [activeTab, setActiveTab] = useState('Individual');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [cancelStep, setCancelStep] = useState(null);
@@ -369,11 +379,11 @@ const Subscriptions = () => {
   // Helper: Handle subscription response
   const handleSubscriptionResponse = (result) => {
     if (result.success) {
-      messageApi.success(result.message || 'Subscription successful!');
+      messageApi.success(result.message || translate('subscriptions.SUBSCRIPTION_SUCCESS'));
       fetchPackageDetails(selectedPlan?.id);
     } else {
       fetchPackageDetails(selectedPlan?.id);
-      messageApi.success(result.message || 'Subscription failed. Please try again.');
+      messageApi.success(result.message || translate('subscriptions.SUBSCRIPTION_FAILED'));
     }
   };
 
@@ -395,7 +405,7 @@ const Subscriptions = () => {
       handleSubscriptionResponse(result);
     } catch (error) {
       const errorData = handleApiError(error);
-      messageApi.error(errorData.message || 'Failed to subscribe. Please try again.');
+      messageApi.error(errorData.message || translate('subscriptions.FAILED_TO_SUBSCRIBE'));
     } finally {
       setLoading(false);
     }
@@ -409,13 +419,13 @@ const Subscriptions = () => {
       const result = handleApiResponse(response);
       
       if (result.success) {
-        setSelectedPlan(prevPlan => mapPackageDetailsData(result.data, prevPlan));
+        setSelectedPlan(prevPlan => mapPackageDetailsData(result.data, prevPlan, translate));
       } else {
-        messageApi.error(result.message || 'Failed to fetch package details.');
+        messageApi.error(result.message || translate('subscriptions.FAILED_TO_FETCH_DETAILS'));
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      messageApi.error(errorData.message || 'Failed to fetch package details. Please try again.');
+      messageApi.error(errorData.message || translate('subscriptions.FAILED_TO_FETCH_DETAILS_RETRY'));
     } finally {
       setLoading(false);
     }
@@ -431,13 +441,13 @@ const Subscriptions = () => {
         const { individual_packages = [], dealer_packages = [] } = result.data;
 
         setNewPlansData({
-          Individual: mapPlanData(individual_packages),
-          Dealer: mapPlanData(dealer_packages),
+          Individual: mapPlanData(individual_packages, translate),
+          Dealer: mapPlanData(dealer_packages, translate),
         });
       }
     } catch (error) {
       const errorData = handleApiError(error);
-      messageApi.error(errorData.message || 'Failed to fetch subscription plans. Please try again.');
+      messageApi.error(errorData.message || translate('subscriptions.FAILED_TO_FETCH_PLANS'));
     }
   };
 
@@ -467,10 +477,10 @@ const Subscriptions = () => {
   // Modal content for cancel flow
   const renderCancelModal = () => {
     const modalSteps = {
-      confirm: <CancelConfirmStepComponent onNo={() => setCancelStep(null)} onYes={() => setCancelStep('number')} />,
-      number: <PhoneNumberStepComponent phone={phone} onPhoneChange={(e) => setPhone(e.target.value)} onContinue={() => setCancelStep('otp')} />,
-      otp: <OtpStepComponent otp={otp} onOtpChange={handleOtpInputChange} otpTimer={otpTimer} onContinue={() => setCancelStep('done')} />,
-      done: <DoneStepComponent onDone={handleCancelDone} />,
+      confirm: <CancelConfirmStepComponent onNo={() => setCancelStep(null)} onYes={() => setCancelStep('number')} translate={translate} />,
+      number: <PhoneNumberStepComponent phone={phone} onPhoneChange={(e) => setPhone(e.target.value)} onContinue={() => setCancelStep('otp')} translate={translate} />,
+      otp: <OtpStepComponent otp={otp} onOtpChange={handleOtpInputChange} otpTimer={otpTimer} onContinue={() => setCancelStep('done')} translate={translate} />,
+      done: <DoneStepComponent onDone={handleCancelDone} translate={translate} />,
     };
     
     return modalSteps[cancelStep] || null;
@@ -499,6 +509,7 @@ const Subscriptions = () => {
           plans={plans}
           onSelectPlan={handlePlanSelect}
           onTabChange={(e) => setActiveTab(e.target.value)}
+          translate={translate}
         />
       ) : (
         <SubscriptionDetails
@@ -508,6 +519,7 @@ const Subscriptions = () => {
           onCancel={() => setCancelStep('confirm')}
           onSubscribe={handleSubscribe}
           loading={loading}
+          translate={translate}
         />
       )}
       <Modal

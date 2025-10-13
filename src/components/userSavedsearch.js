@@ -19,6 +19,7 @@ import { carAPI } from '../services/api';
 import { handleApiResponse } from '../utils/apiUtils';
 import { useToken } from '../hooks/useToken';
 import { useTokenWithInitialization } from '../hooks/useTokenWithInitialization';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const MAX_SAVED_SEARCHES = 3;
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -45,7 +46,7 @@ const buildPriceText = (sp) => {
   return `${left}${right}`;
 };
 
-const buildYearText = (sp) => `From ${sp?.year_min || 'N/A'}`;
+const buildYearText = (sp, translate) => `${translate('landing.FROM')} ${sp?.year_min || 'N/A'}`;
 
 const ModelText = ({ model }) => {
   if (!model) {
@@ -79,16 +80,16 @@ FeaturesList.propTypes = {
   features: PropTypes.arrayOf(PropTypes.string),
 };
 
-const SavedSearchCard = ({ item, idx, total }) => {
+const SavedSearchCard = ({ item, idx, total, translate }) => {
   const sp = item.search_params || {};
   let divider = '';
   if (idx < total - 1) {
     divider = ' with-divider';
   }
   const priceText = buildPriceText(sp);
-  const yearText = buildYearText(sp);
+  const yearText = buildYearText(sp, translate);
   const imgSrc = buildMakeImageSrc(item);
-  const makeDisplay =  item?.name || 'Unknown Make';
+  const makeDisplay =  item?.name || translate('landing.UNKNOWN_MAKE');
   console.log('Make',  item?.name)
   const makeAlt =  item?.name || 'Car';
 
@@ -129,9 +130,10 @@ SavedSearchCard.propTypes = {
   }).isRequired,
   idx: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
-const SignupBox = ({ onClick, title, buttonText }) => (
+const SignupBox = ({ onClick, title, buttonText, translate }) => (
   <div className="user-saved-searches-signup-box">
     <div className="signup-icon">
       <img src={like_icon} alt="like" />
@@ -139,7 +141,7 @@ const SignupBox = ({ onClick, title, buttonText }) => (
     <div>
       <h1>{title}</h1>
       <p className="signup-description-text">
-        Find your saved searches right here. Get alerts for new listings.
+        {translate('landing.FIND_SAVED_SEARCHES_DESC')}
       </p>
       <button className="signup-btn" onClick={onClick}>
         {buttonText}
@@ -152,24 +154,25 @@ SignupBox.propTypes = {
   onClick: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
-const ModalComingSoon = ({ onClose }) => (
+const ModalComingSoon = ({ onClose, translate }) => (
   <div className="modal-overlay">
     <div className="modal-content">
       <img src={diamondGif} alt="Diamond" className="modal-image" />
       <p
         className="modal-title-text"
       >
-        This Feature is coming soon
+        {translate('landing.COMING_SOON_FEATURE')}
       </p>
       <p
         className="modal-subtitle-text"
       >
-        you could try to remove some filters:
+        {translate('landing.COMING_SOON_TRY_REMOVE_FILTERS')}
       </p>
       <button className="modal-your-close-btn" onClick={onClose}>
-        Close
+        {translate('landing.CLOSE')}
       </button>
     </div>
   </div>
@@ -177,9 +180,11 @@ const ModalComingSoon = ({ onClose }) => (
 
 ModalComingSoon.propTypes = {
   onClose: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 const UserSavedsearch = ({title,savesearchesreload}) => {
+  const { translate } = useLanguage();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState([]);
@@ -243,20 +248,22 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
         return (
           <SignupBox
             onClick={() => navigate('/login')}
-            title="Sign up for saved searches"
-            buttonText="Sign up / log in"
+            title={translate('landing.SIGN_UP_FOR_SAVED_SEARCHES')}
+            buttonText={translate('landing.SIGN_UP_LOG_IN')}
+            translate={translate}
           />
         );
       }
       case 'loading': {
-        return <p>Loading saved searches...</p>;
+        return <p>{translate('landing.LOADING_SAVED_SEARCHES')}</p>;
       }
       case 'empty': {
         return (
           <SignupBox
             onClick={() => window.scrollTo({ top: 260, behavior: 'smooth' })}
-            title="You have no Saved searches"
-            buttonText="Start Searching "
+            title={translate('landing.NO_SAVED_SEARCHES')}
+            buttonText={translate('landing.START_SEARCHING')}
+            translate={translate}
           />
         );
       }
@@ -270,6 +277,7 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
                 item={item}
                 idx={idx}
                 total={savedSearches.length}
+                translate={translate}
               />
             ))}
           </div>
@@ -284,14 +292,14 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
         <h1
           className="user-saved-searches-title"
         >
-          {title || 'Your Saved Searches'}
+          {title || translate('landing.YOUR_SAVED_SEARCHES')}
         </h1>
         <button
           type="button"
           className="car-listing-seeall"
           onClick={() => navigate('/myProfile/searches')}
         >
-          See All
+          {translate('landing.SEE_ALL')}
         </button>
       </div>
 
@@ -307,7 +315,7 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
                 className="action-button"
                 onClick={() => setIsModalOpen(true)}
               >
-                Value your car with our free online valuation
+                {translate('landing.VALUE_YOUR_CAR')}
               </button>
             </div>
 
@@ -318,20 +326,20 @@ const UserSavedsearch = ({title,savesearchesreload}) => {
                 className="action-button"
                 onClick={() => setIsModalOpen(true)}
               >
-                List your car or get a free Instant Offer
+                {translate('landing.LIST_YOUR_CAR')}
               </button>
             </div>
           </div>
 
-          {isModalOpen && <ModalComingSoon onClose={() => setIsModalOpen(false)} />}
+          {isModalOpen && <ModalComingSoon onClose={() => setIsModalOpen(false)} translate={translate} />}
         </div>
 
         <div className="user-saved-search-image-box">
           <img src={carImage} alt="Car" className="user-saved-search-image" />
           <div className="user-saved-search-image-text">
-            <h3>Subscribe To Our Packages</h3>
+            <h3>{translate('landing.SUBSCRIBE_TO_PACKAGES')}</h3>
             <p>
-              Find your saved searches right here. Get alerts for new listings.
+              {translate('landing.FIND_SAVED_SEARCHES_DESC')}
             </p>
           </div>
         </div>

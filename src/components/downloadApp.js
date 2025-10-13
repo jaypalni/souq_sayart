@@ -10,15 +10,17 @@ import '../assets/styles/downloadApp.css';
 import googlePlay from '../assets/images/windowsDownload.png';
 import appStore from '../assets/images/appleDownload.png';
 import appMockup from '../assets/images/downloadMobiles.png';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const DownloadApp = () => {
+  const { translate } = useLanguage();
+  
   return (
     <div className="download-app-section">
       <div className="download-app-left">
-        <h2 className="download-app-title">Download Our Souq App</h2>
+        <h2 className="download-app-title">{translate('downloadApp.TITLE')}</h2>
         <p className="download-app-desc">
-          Lorem ipsum dolor sit amet consectetur. Commodo dignissim in nibh vel
-          rhoncus. Nullam sit faucibus eu massa nulla turpis leo habitasse.
+          {translate('downloadApp.DESCRIPTION')}
         </p>
         <div className="download-app-badges">
           <a
@@ -28,7 +30,7 @@ const DownloadApp = () => {
           >
             <img
               src={googlePlay}
-              alt="Get it on Google Play"
+              alt={translate('downloadApp.GET_IT_ON_GOOGLE_PLAY')}
               className="download-app-badge"
             />
           </a>
@@ -40,7 +42,7 @@ const DownloadApp = () => {
           >
             <img
               src={appStore}
-              alt="Download on the App Store"
+              alt={translate('downloadApp.DOWNLOAD_ON_APP_STORE')}
               className="download-app-badge"
             />
           </a>

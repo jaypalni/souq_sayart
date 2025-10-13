@@ -28,6 +28,7 @@ import whatsupIcon from '../assets/images/Whatsup.png';
 import logoutIcon from '../assets/images/Logout_icon.png';
 import deleteIcon from '../assets/images/Delete_icon.png';
 import '../assets/styles/myProfileMenu.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Sider } = Layout;
 
@@ -39,6 +40,7 @@ const MyProfileMenu = ({
   onDeleteClick,
   onLogoutClick 
 }) => {
+  const { translate } = useLanguage();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
@@ -85,7 +87,7 @@ const MyProfileMenu = ({
         setWhatsappNotification(checked);
         messageApi.open({
           type: 'success',
-          content: 'WhatsApp notification preference updated successfully!',
+          content: translate('myProfilePage.WHATSAPP_UPDATED_SUCCESS'),
         });
       }
     } catch (error) {
@@ -93,7 +95,7 @@ const MyProfileMenu = ({
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
-        content: errorData?.message || 'Failed to update WhatsApp preference',
+        content: errorData?.message || translate('myProfilePage.WHATSAPP_UPDATE_FAILED'),
       });
     } finally {
       setWhatsappLoading(false);
@@ -170,7 +172,7 @@ const MyProfileMenu = ({
           }}
         >
           {' '}
-          Personal Informations
+          {translate('myProfilePage.PERSONAL_INFORMATIONS')}
         </Link>
       ),
     },
@@ -186,7 +188,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Profile
+          {translate('myProfilePage.PROFILE')}
         </Link>
       ),
     },
@@ -202,7 +204,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Subscriptions
+          {translate('myProfilePage.SUBSCRIPTIONS')}
         </Link>
       ),
     },
@@ -218,7 +220,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Messages
+          {translate('myProfilePage.MESSAGES')}
         </Link>
       ),
     },
@@ -234,7 +236,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Manage Notifications
+          {translate('myProfilePage.MANAGE_NOTIFICATIONS')}
         </Link>
       ),
     },
@@ -250,7 +252,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Saved Searches
+          {translate('myProfilePage.SAVED_SEARCHES')}
         </Link>
       ),
     },
@@ -266,7 +268,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Payments
+          {translate('myProfilePage.PAYMENTS')}
         </Link>
       ),
     },
@@ -282,7 +284,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Blocked users
+          {translate('myProfilePage.BLOCKED_USERS')}
         </Link>
       ),
     },
@@ -300,7 +302,7 @@ const MyProfileMenu = ({
                 color: '#0A0A0B',
               }}
             >
-              Dealership Dashboard
+              {translate('myProfilePage.DEALERSHIP_DASHBOARD')}
             </Link>
           ),
         },
@@ -318,7 +320,7 @@ const MyProfileMenu = ({
             color: '#0A0A0B',
           }}
         >
-          Favorites
+          {translate('myProfilePage.FAVORITES')}
         </Link>
       ),
     },
@@ -327,7 +329,7 @@ const MyProfileMenu = ({
       icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
       label: (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>WhatsApp</span>
+          <span>{translate('myProfilePage.WHATSAPP')}</span>
           <Switch 
             size="small" 
             checked={whatsappNotification}
@@ -343,12 +345,12 @@ const MyProfileMenu = ({
     { 
       key: 'logout', 
       icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, 
-      label: 'Logout' 
+      label: translate('myProfilePage.LOGOUT')
     },
     {
       key: 'delete',
       icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
-      label: 'Delete Account',
+      label: translate('myProfilePage.DELETE_ACCOUNT'),
       disabled: isDeleteDisabled, 
     },
   ];
@@ -448,7 +450,7 @@ const MyProfileMenu = ({
             <div style={{ fontWeight: 600 }}>
               {customerDetails?.first_name && customerDetails?.last_name 
                 ? `${customerDetails.first_name} ${customerDetails.last_name}`
-                : 'User'
+                : translate('myProfilePage.USER')
               }
             </div>
           )}
@@ -472,7 +474,7 @@ const MyProfileMenu = ({
                 marginBottom: 8,
               }}
             >
-              Manage Account
+              {translate('myProfilePage.MANAGE_ACCOUNT')}
             </div>
             <Menu
               mode="inline"
@@ -508,7 +510,7 @@ const MyProfileMenu = ({
               <div className="mobile-menu-user-name">
                 {customerDetails?.first_name && customerDetails?.last_name 
                   ? `${customerDetails.first_name} ${customerDetails.last_name}`
-                  : 'User'
+                  : translate('myProfilePage.USER')
                 }
               </div>
             </div>
@@ -534,7 +536,7 @@ const MyProfileMenu = ({
             {showManageAccount && (
               <div className="mobile-menu-manage-section">
                 <div className="mobile-menu-manage-title">
-                  Manage Account
+                  {translate('myProfilePage.MANAGE_ACCOUNT')}
                 </div>
                 <Menu
                   mode="inline"
@@ -556,7 +558,7 @@ const MyProfileMenu = ({
         title={
           <div className="brand-modal-title-row">
             <span style={{ textAlign: 'center', margin: '15px 0px 0px 15px', fontWeight: 700 }}>
-              Are you sure you want to log out?
+              {translate('myProfilePage.LOGOUT_CONFIRMATION')}
             </span>
           </div>
         }
@@ -576,7 +578,7 @@ const MyProfileMenu = ({
               borderRadius: '24px',
             }}
           >
-            Cancel
+            {translate('myProfilePage.CANCEL')}
           </Button>
           <Button
             type="primary"
@@ -593,7 +595,7 @@ const MyProfileMenu = ({
               borderRadius: '24px',
             }}
           >
-            Confirm
+            {translate('myProfilePage.CONFIRM')}
           </Button>
         </div>
       </Modal>
@@ -606,7 +608,7 @@ const MyProfileMenu = ({
         title={
           <div className="brand-modal-title-row">
             <span style={{ textAlign: 'center', marginTop: '15px', fontWeight: 700 }}>
-              Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.
+              {translate('myProfilePage.DELETE_ACCOUNT_WARNING')}
             </span>
           </div>
         }
@@ -626,7 +628,7 @@ const MyProfileMenu = ({
               borderRadius: '24px',
             }}
           >
-            Cancel
+            {translate('myProfilePage.CANCEL')}
           </Button>
           <Button
             type="primary"
@@ -645,7 +647,7 @@ const MyProfileMenu = ({
               borderRadius: '24px',
             }}
           >
-            Continue
+            {translate('myProfilePage.CONTINUE')}
           </Button>
         </div>
       </Modal>

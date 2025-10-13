@@ -20,7 +20,6 @@ import {
   DatePicker,
   Modal,
   Image,
-  InputNumber
 } from 'antd';
 import { PlusOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -40,6 +39,7 @@ import moment from 'moment';
 import CarPostingModal from '../components/carpostingmodal';
 import '../assets/styles/subscriptions.css';
 import EmojiPicker from 'emoji-picker-react';
+import { useLanguage } from '../contexts/LanguageContext';
 const { Option } = Select;
 
 const ExteriorColorInput = ({
@@ -84,14 +84,14 @@ ExteriorColorInput.propTypes = {
   BASE_URL: PropTypes.string.isRequired,
 };
 
-const InteriorColorInput = ({ selectedInteriorColor, onOpen }) => (
+const InteriorColorInput = ({ selectedInteriorColor, onOpen, placeholder, translate }) => (
   <button
     type='button'
     className={`interior-color-input${!selectedInteriorColor ? ' placeholder' : ''}`}
     onClick={onOpen}
   >
     <span className='interior-color-text'>
-      {selectedInteriorColor || 'Beige'}
+      {selectedInteriorColor || (translate ? translate('sell.BEIGE') : placeholder || 'Beige')}
     </span>
     <RightOutlined className='color-arrow' />
   </button>
@@ -100,16 +100,18 @@ const InteriorColorInput = ({ selectedInteriorColor, onOpen }) => (
 InteriorColorInput.propTypes = {
   selectedInteriorColor: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  translate: PropTypes.func,
 };
 
-const TrimInput = ({ selectedTrim, onOpen }) => (
+const TrimInput = ({ selectedTrim, onOpen, translate }) => (
   <button
     type='button'
     className={`trim-input${!selectedTrim ? ' placeholder' : ''}`}
     onClick={onOpen}
   >
     <span className='trim-text'>
-      {selectedTrim || 'Select Trim'}
+      {selectedTrim || (translate ? translate('sell.SELECT_TRIM') : 'Select Trim')}
     </span>
     <RightOutlined className='trim-arrow' />
   </button>
@@ -118,9 +120,10 @@ const TrimInput = ({ selectedTrim, onOpen }) => (
 TrimInput.propTypes = {
   selectedTrim: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
+  translate: PropTypes.func,
 };
 
-const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandImage, onOpen, BASE_URL, brandOptions }) => {
+const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandImage, onOpen, BASE_URL, brandOptions, translate }) => {
   const selectedBrandObj = brandOptions.find((b) => b.value === selectedBrand);
 
   let imageSrc = null;
@@ -157,7 +160,7 @@ const BrandInput = ({ selectedBrand, selectedModel, selectedTrim, selectedBrandI
             const displayText = parts.join(' - ');
             return displayText;
           }
-          return 'Brand and Model of your car';
+          return translate ? translate('sell.BRAND_AND_MODEL_PLACEHOLDER') : 'Brand and Model of your car';
         })()}
       </span>
 
@@ -174,16 +177,17 @@ BrandInput.propTypes = {
   onOpen: PropTypes.func.isRequired,
   BASE_URL: PropTypes.string.isRequired,
   brandOptions: PropTypes.array.isRequired,
+  translate: PropTypes.func,
 };
 
-const YearInput = ({ selectedYear, onOpen }) => (
+const YearInput = ({ selectedYear, onOpen, translate }) => (
   <button
     type='button'
     className={`year-input${!selectedYear ? ' placeholder' : ''}`}
     onClick={onOpen}
   >
     <span className='year-text'>
-      {selectedYear || 'Select Year'}
+      {selectedYear || (translate ? translate('sell.SELECT_YEAR') : 'Select Year')}
     </span>
     <RightOutlined className='year-arrow' />
   </button>
@@ -192,16 +196,17 @@ const YearInput = ({ selectedYear, onOpen }) => (
 YearInput.propTypes = {
   selectedYear: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
+  translate: PropTypes.func,
 };
 
-const RegionInput = ({ selectedRegion, onOpen }) => (
+const RegionInput = ({ selectedRegion, onOpen, translate }) => (
   <button
     type='button'
     className={`region-input${!selectedRegion ? ' placeholder' : ''}`}
     onClick={onOpen}
   >
     <span className='region-text'>
-      {selectedRegion || 'Select Location'}
+      {selectedRegion || (translate ? translate('sell.SELECT_LOCATION') : 'Select Location')}
     </span>
     <RightOutlined className='region-arrow' />
   </button>
@@ -210,9 +215,10 @@ const RegionInput = ({ selectedRegion, onOpen }) => (
 RegionInput.propTypes = {
   selectedRegion: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
+  translate: PropTypes.func,
 };
 
-const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
+const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen, translate }) => (
   <button
     type='button'
     className={`regionalspecs-input${
@@ -221,7 +227,7 @@ const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
     onClick={onOpen}
   >
     <span className='regionalspecs-text'>
-      {selectedRegionalSpecs || 'Select Specs'}
+      {selectedRegionalSpecs || (translate ? translate('sell.REGIONAL_SPECS') : 'Select Specs')}
     </span>
     <RightOutlined className='regionalspecs-arrow' />
   </button>
@@ -230,6 +236,7 @@ const RegionalSpecsInput = ({ selectedRegionalSpecs, onOpen }) => (
 RegionalSpecsInput.propTypes = {
   selectedRegionalSpecs: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
+  translate: PropTypes.func,
 };
 
 const brandOptions = [
@@ -243,6 +250,7 @@ const brandOptions = [
 
 
 const Sell = () => {
+  const { translate } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [adTitle, setAdTitle] = useState('');
   const [carMakes, setCarMakes] = useState([]);
@@ -716,7 +724,7 @@ const handleChange = (e) => {
     let v = e.target.value || '';
     if (v.length > MAX_LEN) {
       v = v.slice(0, MAX_LEN);
-      message.warning(`Description truncated to ${MAX_LEN} characters.`);
+      message.warning(translate('sell.DESCRIPTION_TRUNCATED', { max: MAX_LEN }));
     }
     setDescription(v);
     form.setFieldsValue({ description: v });
@@ -727,7 +735,7 @@ const handleChange = (e) => {
     let v = (description || '') + emojiData.emoji;
     if (v.length > MAX_LEN) {
       v = v.slice(0, MAX_LEN);
-      message.warning(`Description truncated to ${MAX_LEN} characters.`);
+      message.warning(translate('sell.DESCRIPTION_TRUNCATED', { max: MAX_LEN }));
     }
     setDescription(v);
     form.setFieldsValue({ description: v });
@@ -965,10 +973,10 @@ const handleChange = (e) => {
         setUpdateData(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Make car data');
+      message.error(errorData.message || translate('filters.FETCH_FAILED'));
       setUpdateData([]);
     } finally {
       setLoading(false);
@@ -1039,10 +1047,10 @@ useEffect(() => {
         setTrimData(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Trim car data');
+      message.error(errorData.message || translate('filters.FETCH_FAILED'));
       setTrimData([]);
     } finally {
       setLoading(false);
@@ -1059,10 +1067,10 @@ useEffect(() => {
         setYearData(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Year car data');
+      message.error(errorData.message || translate('filters.FETCH_FAILED'));
       setYearData([]);
     } finally {
       setLoading(false);
@@ -1079,10 +1087,10 @@ useEffect(() => {
         setHorsePower(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Year car data');
+      message.error(errorData.message || translate('filters.FETCH_FAILED'));
       setHorsePower([]);
     } finally {
       setLoading(false);
@@ -1379,7 +1387,7 @@ const handleCreateSave = async (values) => {
   const { newImages, existingImages, orderMap } = separateImages(values.media);
   
   if (newImages.length === 0 && existingImages.length === 0) {
-    message.error('Please upload at least one image.');
+    message.error(translate('sell.UPLOAD_MIN_PHOTOS'));
     return;
   }
 
@@ -1453,7 +1461,7 @@ const handleUpdateCar = async () => {
     
 
     if (newImages.length === 0 && existingImages.length === 0) {
-      message.error('Please upload at least one image.');
+      message.error(translate('sell.UPLOAD_MIN_PHOTOS'));
       return;
     }
 
@@ -1593,7 +1601,7 @@ const handleImageUpload = async (images) => {
 
 
   const handleEvaluateCar = () => {
-     const messageContent = 'Coming soon';
+     const messageContent = translate('sell.COMING_SOON');
      messageApi.open({
         type: 'success',
         content: messageContent,
@@ -1654,13 +1662,13 @@ const handleImageUpload = async (images) => {
       <div className='page-header'>
         {contextHolder}
         <div className='page-header-title'>
-          Sell Your Car In IRAQ
+          {translate('sell.PAGE_TITLE')}
         </div>
-        <div className='page-header-subtitle'>Post an ad in just 3 simple steps</div>
+        <div className='page-header-subtitle'>{translate('sell.PAGE_SUBTITLE')}</div>
       </div>
       <div className='sell-container'>
         <Card
-          title='Car Description'
+          title={translate('sell.CAR_DESCRIPTION')}
           className='card-description'
         >
           <Form
@@ -1679,7 +1687,7 @@ const handleImageUpload = async (images) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Please add at least one media file!',
+                      message: translate('sell.PLEASE_ADD_MEDIA'),
                     },
                   ]}
                 >
@@ -1705,11 +1713,10 @@ const handleImageUpload = async (images) => {
                             .click();
                         }}
                       >
-                        Add Media
+                        {translate('sell.ADD_MEDIA')}
                       </Button>
                       <div className='custom-upload-info'>
-                        5MB maximum file size accepted in the following format :
-                        JPG , JPEG, PNG, HEIC, HEIF
+                        {translate('sell.FILE_SIZE_INFO')}
                       </div>
                       <input
   id="hidden-upload-input"
@@ -1723,7 +1730,7 @@ const handleImageUpload = async (images) => {
 
     // Check total count first
     if (mediaFileList.length + files.length > 15) {
-      messageApi.error('You can select only 15 images');
+      messageApi.error(translate('sell.IMAGE_MAX_COUNT'));
       e.target.value = null; // reset so it fires again
       return;
     }
@@ -1734,7 +1741,7 @@ const handleImageUpload = async (images) => {
       // Check file size
       if (file.size / 1024 / 1024 > 5) {
         hasInvalidFile = true;
-        messageApi.error(`"${file.name}" is larger than 5MB. Please select a less than 5MB file.`);
+        messageApi.error(translate('sell.IMAGE_SIZE_LIMIT_FILE', { file: file.name }));
         return;
       }
 
@@ -1744,7 +1751,7 @@ const handleImageUpload = async (images) => {
       
       if (!allowedTypes.includes(fileExtension)) {
         hasInvalidFile = true;
-        messageApi.error(`"${file.name}" format is not supported. We only accept JPEG/JPG/HEIC/HEIF/PNG formats.`);
+        messageApi.error(translate('sell.IMAGE_FORMAT_NOT_SUPPORTED', { file: file.name }));
         return;
       }
     });
@@ -1797,7 +1804,7 @@ const handleImageUpload = async (images) => {
   beforeUpload={(file) => {
     // Check file size
     if (file.size / 1024 / 1024 > 5) {
-      messageApi.error(`"${file.name}" is larger than 5MB. Please select a smaller file.`);
+      messageApi.error(translate('sell.IMAGE_SIZE_LIMIT_SMALLER', { file: file.name }));
       return Upload.LIST_IGNORE; // prevent adding this file
     }
 
@@ -1806,12 +1813,12 @@ const handleImageUpload = async (images) => {
     const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
     
     if (!allowedTypes.includes(fileExtension)) {
-      messageApi.error(`"${file.name}" format is not supported. We only accept JPEG/JPG/HEIC/HEIF/PNG formats.`);
+      messageApi.error(translate('sell.IMAGE_FORMAT_NOT_SUPPORTED', { file: file.name }));
       return Upload.LIST_IGNORE;
     }
 
     if (mediaFileList.length + 1 > 15) {
-      messageApi.error('You can only upload up to 15 images.');
+      messageApi.error(translate('sell.IMAGE_MAX_COUNT_UPLOAD'));
       return Upload.LIST_IGNORE;
     }
 
@@ -1834,7 +1841,7 @@ const handleImageUpload = async (images) => {
       className='media-info-text'
       style={{ marginTop: '8px', color: '#666' }}
     >
-      Tap on the images to edit them, or press, hold and move for reordering
+      {translate('sell.TAP_TO_EDIT_REORDER')}
     </div>
   )}
 
@@ -1857,11 +1864,11 @@ const handleImageUpload = async (images) => {
               <Col xs={24} md={14}>
                 <Form.Item
                   className='form-item-label'
-                  label='Ad Title'
+                  label={translate('sell.AD_TITLE')}
                   name='adTitle'
                 >
                    <Input
-    placeholder='Title will Auto-Generated'
+    placeholder={translate('sell.TITLE_AUTO_GENERATED')}
     value={adTitle}
     disabled
     onChange={(e) => {
@@ -1872,13 +1879,13 @@ const handleImageUpload = async (images) => {
                 </Form.Item>
                     <Form.Item
   className="form-item-label"
-  label="Description"
+  label={translate('sell.DESCRIPTION')}
   name="description"
 >
   <div className="description-container" style={{ position: 'relative' }}>
     <TextArea
       rows={4}
-      placeholder="Enter Description..."
+      placeholder={translate('sell.ENTER_DESCRIPTION')}
       value={description}
       onChange={handleChange}
     />
@@ -1898,7 +1905,7 @@ const handleImageUpload = async (images) => {
         size="small"
         onClick={() => setShowPicker((prev) => !prev)}
       >
-        😀 Emoji
+        {translate('sell.EMOJI')}
       </Button>
 
       {/* Live Counter */}
@@ -1928,25 +1935,25 @@ const handleImageUpload = async (images) => {
             </Row>
 
             <Card
-              title='Enter Your Car Information'
+              title={translate('sell.ENTER_CAR_INFORMATION')}
               className='card-car-info'
             >
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
   className='no-asterisk form-item-label-small'
-  label='Car Information*'
+  label={`${translate('sell.CAR_INFORMATION')}*`}
   name='brand'
   rules={[
     {
       validator: (_, value) => {
         // Check if we have at least brand selected
         if (!selectedBrand) {
-          return Promise.reject(new Error('Please select the car brand'));
+          return Promise.reject(new Error(translate('sell.PLEASE_SELECT_CAR_BRAND')));
         }
         // Check if model is selected when brand is selected
         if (selectedBrand && !selectedModel) {
-          return Promise.reject(new Error('Please select car model'));
+          return Promise.reject(new Error(translate('sell.PLEASE_SELECT_CAR_MODEL')));
         }
         return Promise.resolve();
       },
@@ -1972,6 +1979,7 @@ const handleImageUpload = async (images) => {
     onOpen={() => setBrandModalOpen(true)}
     BASE_URL={BASE_URL}
     brandOptions={brandOptions}
+    translate={translate}
   />
 </Form.Item>
 
@@ -1981,14 +1989,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>What is the brand of your car? </span>
+                        <span>{translate('sell.WHAT_IS_BRAND')}</span>
                       </div>
                     }
                     width={600}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={brandSearch}
                       onChange={(e) => setBrandSearch(e.target.value)}
                       className='modal-search'
@@ -2009,7 +2017,7 @@ const handleImageUpload = async (images) => {
                             onClick={() => {
                               // Check if user is changing make after selecting both make and model
                               if (selectedBrand && selectedModel && selectedBrand !== opt.name) {
-                                const messageContent = 'Changing make will clear the selected model';
+                                const messageContent = translate('sell.CHANGING_MAKE_CLEARS_MODEL');
                                 messageApi.open({
                                   type: 'warning',
                                   content: messageContent,
@@ -2060,14 +2068,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>What is the Model of your car?</span>
+                        <span>{translate('sell.WHAT_IS_MODEL')}</span>
                       </div>
                     }
                     width={500}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={modalName}
                       onChange={(e) => setModalName(e.target.value)}
                       className='modal-search'
@@ -2112,10 +2120,10 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label'
-                    label='Exterior Color*'
+                    label={`${translate('sell.EXTERIOR_COLOR')}*`}
                     name='exteriorColor'
                     rules={[
-    { required: true, message: 'Please select exterior color!' },
+    { required: true, message: translate('sell.EXTERIOR_COLOR_REQUIRED') },
   ]}
   required={false}
                   >
@@ -2123,7 +2131,7 @@ const handleImageUpload = async (images) => {
                     selectedColor={selectedColor}
                     selectedColorImage={selectedColorImage}
                     onOpen={() => setColorModalOpen(true)}
-                    placeholder='Select Exterior Color'
+                    placeholder={translate('sell.SELECT_EXTERIOR_COLOR')}
                     BASE_URL={BASE_URL}
                   />
                   </Form.Item>
@@ -2133,14 +2141,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>What is the exterior color of your car?</span>
+                        <span>{translate('sell.WHAT_IS_EXTERIOR_COLOR')}</span>
                       </div>
                     }
                     width={500}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={colorSearch}
                       onChange={(e) => setColorSearch(e.target.value)}
                       className='modal-search'
@@ -2176,14 +2184,14 @@ const handleImageUpload = async (images) => {
                  <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Year*'
+                    label={`${translate('sell.YEAR')}*`}
                      name='year'
                      rules={[
-    // { required: true, message: 'Please select Year!' },
+    // { required: true, message: translate('sell.YEAR_REQUIRED') },
     {
       validator: (_, value) => {
         if (!selectedYear || selectedYear === '') {
-          return Promise.reject(new Error('Please select Year!'));
+          return Promise.reject(new Error(translate('sell.YEAR_REQUIRED')));
         }
         return Promise.resolve();
       },
@@ -2199,6 +2207,7 @@ const handleImageUpload = async (images) => {
                     <YearInput 
                       selectedYear={selectedYear}
                       onOpen={() => setYearModalOpen(true)}
+                      translate={translate}
                     />
                   </Form.Item>
                   <Modal
@@ -2207,14 +2216,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>What is the Year of your car?</span>
+                        <span>{translate('sell.WHAT_IS_YEAR')}</span>
                       </div>
                     }
                     width={500}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={yearSearch}
                       onChange={(e) => setYearSearch(e.target.value)}
                       className='modal-search'
@@ -2243,12 +2252,13 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label'
-                    label='Trim'
+                    label={translate('sell.TRIM')}
                     name='trim'
                   >
                     <TrimInput 
                       selectedTrim={selectedTrim}
                       onOpen={() => setTrimModalOpen(true)}
+                      translate={translate}
                     />
                   </Form.Item>
                   <Modal
@@ -2257,14 +2267,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>What is the Trim of your car?</span>
+                        <span>{translate('sell.WHAT_IS_TRIM')}</span>
                       </div>
                     }
                     width={500}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={trimSearch}
                       onChange={(e) => setTrimSearch(e.target.value)}
                       className='modal-search'
@@ -2308,10 +2318,10 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
     <Form.Item
       className='form-item-label'
-      label='Body Type*'
+      label={`${translate('sell.BODY_TYPE')}*`}
       name='bodyType'
       rules={[
-    { required: true, message: 'Please select body type!' },
+    { required: true, message: translate('sell.BODY_TYPE_REQUIRED') },
   ]}
   required={false}
     >
@@ -2329,7 +2339,7 @@ const handleImageUpload = async (images) => {
             onClick={() => {
               // Check if Vehicle Type is Bike or Truck
               if (selectedVehicleType === 'Bike' || selectedVehicleType === 'Truck') {
-                const messageContent = 'Please select Vehicle Type Car';
+                const messageContent = translate('sell.SELECT_VEHICLE_TYPE_CAR');
                 messageApi.open({
                   type: 'warning',
                   content: messageContent,
@@ -2351,10 +2361,10 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
     <Form.Item
       className='form-item-label'
-      label='Condition*'
+      label={`${translate('sell.CONDITION')}*`}
       name='condition'
       rules={[
-    { required: true, message: 'Please select condition!' },
+    { required: true, message: translate('sell.CONDITION_REQUIRED') },
   ]}
   required={false}
     >
@@ -2392,25 +2402,25 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
   <Form.Item
     className='form-item-label-large'
-    label='Price (IQD)*'
+    label={`${translate('sell.PRICE_IQD')}*`}
     name='price'
     rules={[
-      { required: true, message: 'Please enter the price' },
+      { required: true, message: translate('sell.PRICE_REQUIRED') },
       {
         validator: (_, value) => {
           if (!value) {
-            return Promise.reject(new Error('Minimum price should be more than IQD 1000'));
+            return Promise.reject(new Error(translate('sell.PRICE_MIN_1000')));
           }
 
     
           const numericValue = parseFloat(value.replace(/,/g, ''));
 
           if (isNaN(numericValue)) {
-            return Promise.reject(new Error('Please enter a valid number'));
+            return Promise.reject(new Error(translate('sell.VALID_NUMBER')));
           }
 
           if (numericValue <= 1000) {
-            return Promise.reject(new Error('Price must be greater than IQD 1000'));
+            return Promise.reject(new Error(translate('sell.PRICE_GREATER_THAN_1000')));
           }
 
           return Promise.resolve();
@@ -2422,7 +2432,7 @@ const handleImageUpload = async (images) => {
       className='custom-placeholder full-width-input'
       type='text'
       inputMode='decimal'
-      placeholder='Enter price (IQD)...'
+      placeholder={translate('sell.ENTER_PRICE')}
       value={selectedPrice || ''}
       onChange={(e) => {
         let inputValue = e.target.value;
@@ -2445,15 +2455,15 @@ const handleImageUpload = async (images) => {
   <Col xs={24} md={6}>
     <Form.Item
       className='form-item-label'
-      label='Horsepower (HP)*'
+      label={`${translate('sell.HORSEPOWER_HP')}*`}
       name='horsepower'rules={[
-    { required: true, message: 'Please select horse power!' },
+    { required: true, message: translate('sell.HORSEPOWER_REQUIRED') },
   ]}
   required={false}
     >
       <Select
         showSearch
-        placeholder='Select horsepower'
+        placeholder={translate('sell.SELECT_HORSEPOWER')}
         optionFilterProp='children'
         value={selectedHorsepower || undefined}
         onChange={(val) => {
@@ -2509,15 +2519,15 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label'
-                    label='Vehicle Type*'
+                    label={`${translate('sell.VEHICLE_TYPE')}*`}
                     name='vehicletype'
                     rules={[
-    { required: true, message: 'Please select vehicle type!' },
+    { required: true, message: translate('sell.VEHICLE_TYPE_REQUIRED') },
   ]}
   required={false}
                   >
                     <Select
-        placeholder='Select vehicle type'
+        placeholder={translate('sell.SELECT_VEHICLE_TYPE')}
         value={selectedVehicleType || undefined}
         onChange={(val) => {
           setSelectedVehicleType(val);
@@ -2544,7 +2554,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Kilometers*'
+                    label={`${translate('sell.KILOMETERS')}*`}
                     name='kilometers'
                     rules={[
   
@@ -2552,17 +2562,17 @@ const handleImageUpload = async (images) => {
     validator: (_, value) => {
       const numberValue = Number(value);
       if (value === undefined || value === null || value === '') {
-        return Promise.reject(new Error('Please enter kilometers!'));
+        return Promise.reject(new Error(translate('sell.KILOMETERS_REQUIRED')));
       }
       
       // Check condition-based validation
       if (selectedCondition === 'Used' && numberValue <= 0) {
-        return Promise.reject(new Error('Used cars must have kilometers greater than 0!'));
+        return Promise.reject(new Error(translate('sell.KILOMETERS_GREATER_THAN_ZERO')));
       }
       
       // For "New" condition, 0 is allowed
       if (selectedCondition === 'New' && numberValue < 0) {
-        return Promise.reject(new Error('Kilometers cannot be negative!'));
+        return Promise.reject(new Error(translate('sell.KILOMETERS_CANNOT_BE_NEGATIVE')));
       }
      
       return Promise.resolve();
@@ -2578,7 +2588,7 @@ const handleImageUpload = async (images) => {
     type='tel'
     inputMode='numeric'
     pattern='[0-9]*'
-    placeholder='Enter kilometers'
+    placeholder={translate('sell.ENTER_KILOMETERS')}
     onChange={(e) => {
       const digitsOnly = (e.target.value || '').replace(/\D/g, '');
 
@@ -2587,7 +2597,7 @@ const handleImageUpload = async (images) => {
       
       // Check if user is trying to enter 0 while condition is "Used"
       if (sanitizedValue === '0' && selectedCondition === 'Used') {
-        const messageContent = 'Please enter kilometers more than 0 for used cars';
+        const messageContent = translate('sell.KILOMETERS_MORE_THAN_ZERO_USED');
         messageApi.open({
           type: 'warning',
           content: messageContent,
@@ -2615,16 +2625,17 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Location*'
+                    label={`${translate('sell.LOCATION')}*`}
                     name='region'
                     rules={[
-    { required: true, message: 'Please select Location!' },
+    { required: true, message: translate('sell.LOCATION_REQUIRED') },
   ]}
   required={false}
                   >
                     <RegionInput 
                       selectedRegion={selectedRegion}
                       onOpen={() => setRegionModalOpen(true)}
+                      translate={translate}
                     />
                   </Form.Item>
                   <Modal
@@ -2633,14 +2644,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>Where is the Location of your car?</span>
+                        <span>{translate('sell.WHERE_IS_LOCATION')}</span>
                       </div>
                     }
                     width={500}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={regionSearch}
                       onChange={(e) => setRegionSearch(e.target.value)}
                       className='modal-search'
@@ -2675,7 +2686,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Warranty Date (Optional)'
+                    label={translate('sell.WARRANTY_DATE')}
                     name='warrantyDate'
                   >
                     <DatePicker className='full-width-input' format='MM/DD/YYYY' />
@@ -2686,10 +2697,10 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Accident History'
+                    label={translate('sell.ACCIDENT_HISTORY')}
                     name='accidentHistory'
                   >
-                    <Select placeholder='Select The accident history of your car'>
+                    <Select placeholder={translate('sell.SELECT_ACCIDENT_HISTORY')}>
                       {updateData?.accident_histories?.map((hist) => (
                         <Option key={hist.id} value={hist.id}>
                           {hist.accident_history}
@@ -2702,16 +2713,17 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label'
-                    label='Regional Specs*'
+                    label={`${translate('sell.REGIONAL_SPECS')}*`}
                      name='regionalSpecs'
                      rules={[
-    { required: true, message: 'Please select regional specs!' },
+    { required: true, message: translate('sell.REGIONAL_SPECS_REQUIRED') },
   ]}
   required={false}
                   >
                     <RegionalSpecsInput 
                       selectedRegionalSpecs={selectedRegionalSpecs}
                       onOpen={() => setRegionalSpecsModalOpen(true)}
+                      translate={translate}
                     />
                   </Form.Item>
                   <Modal
@@ -2720,14 +2732,14 @@ const handleImageUpload = async (images) => {
                     footer={null}
                     title={
                       <div className='modal-title-row'>
-                        <span>What is the Regional Specs of your car?</span>
+                        <span>{translate('sell.WHAT_IS_REGIONAL_SPECS')}</span>
                       </div>
                     }
                     width={500}
                   >
                     <Input
                       prefix={<SearchOutlined />}
-                      placeholder='Search By Typing'
+                      placeholder={translate('sell.SEARCH_BY_TYPING')}
                       value={regionalSpecsSearch}
                       onChange={(e) => setRegionalSpecsSearch(e.target.value)}
                       className='modal-search'
@@ -2763,15 +2775,15 @@ const handleImageUpload = async (images) => {
                 </Col>
               </Row>
             </Card>
-            <Card title='Additional Details' className='card-additional-details'>
+            <Card title={translate('sell.ADDITIONAL_DETAILS')} className='card-additional-details'>
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Number of seats*'
+                    label={`${translate('sell.NUMBER_OF_SEATS')}*`}
                     name='seats'
                     rules={[
-    { required: true, message: 'Please select number of seats!' },
+    { required: true, message: translate('sell.SEATS_REQUIRED') },
   ]}
   required={false}
                   >
@@ -2801,7 +2813,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={4}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Number of doors'
+                    label={translate('sell.NUMBER_OF_DOORS')}
                     name='doors'
                   >
                     <div className='option-box-group'>
@@ -2825,10 +2837,10 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={7}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Fuel Type*'
+                    label={`${translate('sell.FUEL_TYPE')}*`}
                     name='fuelType'
                     rules={[
-    { required: true, message: 'Please select fuel type!' },
+    { required: true, message: translate('sell.FUEL_TYPE_REQUIRED') },
   ]}
   required={false}
                   >
@@ -2858,10 +2870,10 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Transmission Type*'
+                    label={`${translate('sell.TRANSMISSION_TYPE')}*`}
                     name='transmissionType'
                     rules={[
-    { required: true, message: 'Please select transmission type!' },
+    { required: true, message: translate('sell.TRANSMISSION_REQUIRED') },
   ]}
   required={false}
                   >
@@ -2891,7 +2903,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={12}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Drive Type'
+                    label={translate('sell.DRIVE_TYPE')}
                     name='driveType'
                   >
                     <div className='option-box-group'>
@@ -2915,12 +2927,12 @@ const handleImageUpload = async (images) => {
               <Col xs={24} md={6}>
   <Form.Item
   className='form-item-label-small'
-  label='Engine CC'
+  label={translate('sell.ENGINE_CC')}
   name='engineCC'
 >
   <Input
     className='input-font-14'
-    placeholder='Enter Engine CC...'
+    placeholder={translate('sell.ENTER_ENGINE_CC')}
     type='text'
     inputMode='decimal' // Allows numeric + decimal point keyboard on mobile
     onChange={(e) => {
@@ -2982,12 +2994,12 @@ const handleImageUpload = async (images) => {
  <Col xs={24} md={6}>
   <Form.Item
     className='form-item-label-small'
-    label='Consumption'
+    label={translate('sell.CONSUMPTION')}
     name='consumption'
   >
     <Input
       className='input-font-14'
-      placeholder='Enter Consumption...'
+      placeholder={translate('sell.ENTER_CONSUMPTION')}
       type='tel'
       inputMode='numeric'
       pattern='[0-9]*'
@@ -3019,11 +3031,11 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={6}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Extra Features'
+                    label={translate('sell.EXTRA_FEATURES')}
                     name='extraFeatures'
                   >
                     <Select mode='multiple' 
-                      placeholder='Choose'
+                      placeholder={translate('sell.CHOOSE')}
                       allowClear 
                        optionFilterProp='children'
                       showSearch   >
@@ -3060,11 +3072,11 @@ const handleImageUpload = async (images) => {
 <Col xs={24} md={6}>
   <Form.Item
     className='form-item-label'
-    label='Interior Color'
+    label={translate('sell.INTERIOR_COLOR')}
     name='interiorColor'
   >
     <Select
-      placeholder='Select interior color'
+      placeholder={translate('sell.SELECT_INTERIOR_COLOR')}
       className='full-width-input'
       value={selectedInteriorColor || undefined}
       onChange={(value) => {
@@ -3088,7 +3100,7 @@ const handleImageUpload = async (images) => {
                 <Col xs={24} md={18}>
                   <Form.Item
                     className='form-item-label-small'
-                    label='Number of Cylinders'
+                    label={translate('sell.NUMBER_OF_CYLINDERS')}
                     name='cylinders'
                   >
                     <div className='option-box-group'>
@@ -3121,7 +3133,7 @@ const handleImageUpload = async (images) => {
                       onClick={handleEvaluateCar}
                       type='default'
                     >
-                      Evaluate Car
+                      {translate('sell.EVALUATE_CAR')}
                     </Button>
 
                     <Button
@@ -3130,7 +3142,7 @@ const handleImageUpload = async (images) => {
                       onClick={() => handleFinish('draft')}
                       type='default'
                     >
-                      Save as draft
+                      {translate('sell.SAVE_DRAFT')}
                     </Button>
                   <Button
                     className={`btn-update-car ${loading ? '' : 'enabled'}`}
@@ -3139,7 +3151,7 @@ const handleImageUpload = async (images) => {
                     onClick={handleUpdateCar}
                     disabled={loading}
                   >
-                    Update Car
+                    {translate('sell.UPDATE_CAR')}
                   </Button>
                   </>
                  ) : (
@@ -3150,7 +3162,7 @@ const handleImageUpload = async (images) => {
                       onClick={handleEvaluateCar}
                       type='default'
                     >
-                      Evaluate Car
+                      {translate('sell.EVALUATE_CAR')}
                     </Button>
 
                     <Button
@@ -3159,7 +3171,7 @@ const handleImageUpload = async (images) => {
                       onClick={() => handleFinish('draft')}
                       type='default'
                     >
-                      Save as draft
+                      {translate('sell.SAVE_DRAFT')}
                     </Button>
                     <Button
                       className={`btn-create ${loading ? '' : 'enabled btn-solid-blue'}`}
@@ -3168,7 +3180,7 @@ const handleImageUpload = async (images) => {
                       onClick={() => handleFinish('create')}
                       disabled={loading}
                     >
-                      Create
+                      {translate('sell.CREATE')}
                     </Button>
                   </>
                 )}

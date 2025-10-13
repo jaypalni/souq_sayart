@@ -17,6 +17,7 @@ import { handleApiResponse, handleApiError, DEFAULT_MAKE, DEFAULT_MODEL, DEFAULT
 import '../assets/styles/allcarfilters.css';
 import Searchemptymodal from '../components/searchemptymodal';
 import { type } from '@testing-library/user-event/dist/type';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Option } = Select;
 
@@ -77,10 +78,25 @@ const LandingFilters = ({
   selectedPriceMin: propSelectedPriceMin,
   selectedPriceMax: propSelectedPriceMax
 }) => {
+  const { translate } = useLanguage();
   const [, setLoading] = useState(false);
   const [, setCarSearch] = useState([]);
   const [carLocation,setCarLocation]=useState()
   const [carMakes, setCarMakes] = useState([DEFAULTS.ALL_MAKE, 'Toyota', 'Honda', 'BMW', 'Mercedes', 'Hyundai']);
+  
+  // Helper function to translate condition values
+  const translateCondition = (value) => {
+    const conditionMap = {
+      'New & Used': translate('filters.NEW_USED'),
+      'New': translate('filters.NEW'),
+      'Used': translate('filters.USED'),
+      'All Make': translate('filters.ALL_MAKE'),
+      'All Models': translate('filters.ALL_MODELS'),
+      'All Body Types': translate('filters.ALL_BODY_TYPES'),
+      'All Locations': translate('filters.ALL_LOCATIONS'),
+    };
+    return conditionMap[value] || value;
+  };
 
   // Ensure limit and currentPage are valid numbers
   const validLimit = typeof limit === 'number' && limit > 0 ? limit : 20;
@@ -619,7 +635,7 @@ fetchRegionCars()
       const data1 = handleApiResponse(response);
   
      if (!data1) {
-        message.error('No location data received');
+        message.error(translate('filters.NO_LOCATION_DATA'));
         setCarLocation([]);
         return;
       }
@@ -634,10 +650,10 @@ fetchRegionCars()
       }
   
   
-      message.success(data1?.message || 'Fetched successfully');
+      message.success(data1?.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to fetch location data');
+      message.error(errorData.message || translate('filters.FETCH_LOCATION_FAILED'));
       setCarLocation([]);
     } finally {
       setLoading(false);
@@ -654,10 +670,10 @@ fetchRegionCars()
         setCarBodyTypes(data1?.data);
       }
 
-      message.success(data1.message || 'Fetched successfully');
+      message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to Make car data');
+      message.error(errorData.message || translate('filters.FETCH_BODY_TYPE_FAILED'));
       setCarBodyTypes([]);
     } finally {
       setLoading(false);
@@ -861,11 +877,11 @@ setIsnetworkError(false)
     if(error?.message==='Network Error' ){ 
       messageApi.open({
             type: 'error',
-            content: 'You\'re offline! Please check your network connection and try again.',
+            content: translate('filters.OFFLINE_ERROR'),
           });
       setIsnetworkError(true)
         } else {
-      message.error(errorData.message || 'Failed to search car data');
+      message.error(errorData.message || translate('filters.SEARCH_FAILED'));
         }
       setCarSearch([]);
     } finally {
@@ -912,7 +928,7 @@ setIsnetworkError(false)
         className={itemClass}
         onClick={() => handleDropdownItemClick(type, opt, setValue)}
       >
-        {opt}
+        {translateCondition(opt)}
       </button>
     );
   };
@@ -931,13 +947,13 @@ setIsnetworkError(false)
       <div className="allcars-filters-bar">
         <div className="allcars-filters-row">
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label" htmlFor="make-select">Make</label>
+            <label className="allcars-filters-label" htmlFor="make-select">{translate('filters.MAKE')}</label>
             <Select
   id="make-select"
   value={make}
   showSearch
   allowClear
-  placeholder="Select Make"
+  placeholder={translate('filters.SELECT_MAKE')}
   onChange={(value) => {
     setMake(value || DEFAULTS.ALL_MAKE); // Reset to default if cleared
     setModel(DEFAULTS.ALL_MODELS);
@@ -950,6 +966,9 @@ setIsnetworkError(false)
     option?.children?.toLowerCase().includes(input.toLowerCase())
   }
 >
+  <Option key="all-make" value="All Make">
+    {translate('filters.ALL_MAKE')}
+  </Option>
   {carMakes.map((m) => (
     <Option key={m?.name} value={m?.name}>
       {m?.name}
@@ -959,13 +978,13 @@ setIsnetworkError(false)
 
           </div>
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label" htmlFor="model-select">Model</label>
+            <label className="allcars-filters-label" htmlFor="model-select">{translate('filters.MODEL')}</label>
             <Select
   id="model-select"
   value={model}
   showSearch
   allowClear
-  placeholder="Select Model"
+  placeholder={translate('filters.SELECT_MODEL')}
   onChange={(value) => {
     setModel(value || DEFAULTS.ALL_MODELS);
     handleChange('Model', value || DEFAULTS.ALL_MODELS);
@@ -978,6 +997,9 @@ setIsnetworkError(false)
     option?.children?.toLowerCase().includes(input.toLowerCase())
   }
 >
+  <Option key="all-models" value="All Models">
+    {translate('filters.ALL_MODELS')}
+  </Option>
   {carModels?.map((m) => (
     <Option key={m.model_name} value={m.model_name}>
       {m.model_name}
@@ -988,13 +1010,13 @@ setIsnetworkError(false)
 
           </div>
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label" htmlFor="bodytype-select">Body Type</label>
+            <label className="allcars-filters-label" htmlFor="bodytype-select">{translate('filters.BODY_TYPE')}</label>
             <Select
   id="bodytype-select"
   value={bodyType}
   showSearch
   allowClear
-  placeholder="Select Body Type"
+  placeholder={translate('filters.SELECT_BODY_TYPE')}
   onChange={(value) => {
     setBodyType(value || DEFAULTS.ALL_BODY_TYPES);
     handleChange('Body Type', value || DEFAULTS.ALL_BODY_TYPES);
@@ -1006,6 +1028,9 @@ setIsnetworkError(false)
     option?.children?.toLowerCase().includes(input.toLowerCase())
   }
 >
+  <Option key="all-body-types" value="All Body Types">
+    {translate('filters.ALL_BODY_TYPES')}
+  </Option>
   {carBodyTypes.map((b) => (
     <Option key={b?.body_type} value={b?.body_type}>
       {b?.body_type}
@@ -1015,13 +1040,13 @@ setIsnetworkError(false)
 
           </div>
           <div className="allcars-filters-col">
-            <label className="allcars-filters-label" htmlFor="location-select">Location</label>
+            <label className="allcars-filters-label" htmlFor="location-select">{translate('filters.LOCATION')}</label>
             <Select
   id="location-select"
   value={location}
   showSearch
   allowClear
-  placeholder="Select Location"
+  placeholder={translate('filters.SELECT_LOCATION')}
   onChange={(value) => {
     const selectedValue = value || DEFAULTS.ALL_LOCATIONS;
     setLocation(selectedValue);
@@ -1042,6 +1067,9 @@ setIsnetworkError(false)
     option?.children?.toLowerCase().includes(input.toLowerCase())
   }
 >
+  <Option key="all-locations" value="All Locations">
+    {translate('filters.ALL_LOCATIONS')}
+  </Option>
   {carLocation?.map((l) => (
     <Option key={l?.id} value={l?.location}>
       {l?.location}
@@ -1160,7 +1188,7 @@ setIsnetworkError(false)
             icon={<SearchOutlined />}
             className="landing-filters-btn"
           >
-            <span>Show {carCount.toLocaleString()} Cars</span>
+            <span>{translate('filters.SHOW_CARS', { count: carCount.toLocaleString() })}</span>
           </Button>
           </div>
         </div>
@@ -1173,7 +1201,7 @@ setIsnetworkError(false)
             aria-expanded={openDropdown === DROPDOWN_NEW_USED}
             aria-controls={`menu-${DROPDOWN_NEW_USED}`}
           >
-            {newUsed}{' '}
+            {translateCondition(newUsed)}{' '}
             <span className="allcars-filters-text-arrow">
               <MdKeyboardArrowDown />
             </span>
@@ -1198,21 +1226,21 @@ setIsnetworkError(false)
       }}
       onClick={() => setShowMinInput(true)}
     >
-      {minPrice !== null ? `₹${minPrice}` : 'Price Min'}
+      {minPrice !== null ? `₹${minPrice}` : translate('filters.PRICE_MIN')}
     </div>
   ) : (
    <Input
   style={{ width: '100px' }}
   type="tel"
   value={minPrice}
-  placeholder="Min"
+  placeholder={translate('filters.MIN')}
   onChange={(e) => {
     // Allow only digits
     const value = e.target.value.replace(/\D/g, '');
 
     // Check against maxPrice
     if (maxPrice !== null && Number(value) >= maxPrice) {
-      messageApi.error('Minimum price should be less than Maximum price');
+      messageApi.error(translate('filters.MIN_PRICE_LESS'));
       return;
     }
 
@@ -1246,14 +1274,14 @@ setIsnetworkError(false)
       }}
       onClick={() => setShowMaxInput(true)}
     >
-      {maxPrice !== null ? `₹${maxPrice}` : 'Price Max'}
+      {maxPrice !== null ? `₹${maxPrice}` : translate('filters.PRICE_MAX')}
     </div>
   ) : (
    <Input
   style={{ width: '120px' }}
   type="tel"
   value={maxPrice !== null ? maxPrice : ''} // Show empty string when null
-  placeholder="Max"
+  placeholder={translate('filters.MAX')}
   onChange={(e) => {
     const value = e.target.value.replace(/\D/g, ''); // Allow only digits
     const numericValue = value ? Number(value) : null;
@@ -1263,12 +1291,12 @@ setIsnetworkError(false)
 
     // Validate max limit
     if (numericValue !== null && numericValue > 5000000000) {
-      messageApi.error('Maximum allowed price is ₹5,000,000,000');
+      messageApi.error(translate('filters.MAX_PRICE_LIMIT'));
     }
 
     // Validate against min price
     if (minPrice !== null && numericValue !== null && numericValue <= minPrice) {
-      messageApi.error('Maximum price should be greater than Minimum price');
+      messageApi.error(translate('filters.MAX_PRICE_GREATER'));
     }
     
     // Call API when price changes
@@ -1308,7 +1336,7 @@ setIsnetworkError(false)
       onMouseLeave={() => setIsHovering(false)}
       onClick={clearFeaturedOrRecommended}
     >
-      <span>{featuredorrecommended?.charAt(0).toUpperCase() + featuredorrecommended?.slice(1).toLowerCase()}</span>
+      <span>{translate(`filters.${featuredorrecommended?.toUpperCase()}`)}</span>
       {isHovering && (
         <CloseOutlined 
           style={{ 

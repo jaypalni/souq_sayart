@@ -267,3 +267,27 @@
   margin-top: 8px !important;
   margin-bottom: 8px !important;
 }
+
+.tandc-banner {
+  height: 60px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; 
+  padding-left: 230px; 
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.contactus-banner {
+  height: 60px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; 
+  padding-left: 100px; 
+  font-size: 32px;
+  font-weight: 700;
+}
+
+

@@ -311,3 +311,26 @@
 .mobile-menu-content::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* Highlight only the selected menu item text and icon */
+.ant-menu-item-selected {
+  background-color: transparent !important; /* no background color */
+}
+
+.ant-menu-item-selected a,
+.ant-menu-item-selected span,
+.ant-menu-item-selected img,
+.ant-menu-item-selected svg {
+  color: #008AD5 !important;
+  fill: #008AD5 !important;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(99%) saturate(1458%) hue-rotate(181deg) brightness(96%) contrast(101%);
+}
+
+/* Optional: On hover also keep consistent color */
+.ant-menu-item:hover a,
+.ant-menu-item:hover span,
+.ant-menu-item:hover img,
+.ant-menu-item:hover svg {
+  color: #008AD5 !important;
+  fill: #008AD5 !important;
+}

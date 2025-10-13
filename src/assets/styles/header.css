@@ -312,3 +312,20 @@
   align-items: center;
   color: #fafafa;
 }
+
+.menu-item-button.active-menu {
+  position: relative;
+  color: #fff; /* optional highlight color */
+  font-weight: 600;
+}
+
+.menu-item-button.active-menu::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; /* adjust to move underline up or down */
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #fff; /* underline color */
+  border-radius: 2px;
+}

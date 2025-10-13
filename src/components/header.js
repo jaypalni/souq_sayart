@@ -6,6 +6,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../assets/styles/header.css';
 import '../assets/styles/header-mobile.css';
 import '../assets/styles/header-tablet.css';
@@ -29,7 +30,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 const Header = () => {
   const dispatch = useDispatch();
   const { currentLanguage, changeLanguage, translate } = useLanguage();
+  const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
+  const [activeMenu, setActiveMenu] = useState('');
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const token = useToken();
@@ -73,6 +76,18 @@ useEffect(()=>{
   // getUserDisplayName()
   Userdataapi()
 },[])
+
+useEffect(() => {
+  const current = menuList.find(
+    (item) => location.pathname.startsWith(item.path) && item.name !== 'Evaluate My Car'
+  );
+  if (current) {
+    setActiveMenu(current.name);
+  } else {
+    setActiveMenu(''); // clear when evaluate is opened
+  }
+}, [location.pathname]);
+
 
 const Userdataapi = async () => {
   try {
@@ -283,18 +298,24 @@ const Userdataapi = async () => {
           </div>
           <div className="col-5 d-flex align-items-center  justify-content-center">
             {menuList.map((item) => (
-              <button
-                type="button"
-                className="menuItem mx-3 menu-item-button"
-                key={item.name}
-                onClick={() => {
-                  comingsoonMessage(item);
-                }}
-                aria-label={`Navigate to ${item.name}`}
-              >
-                {item.name}
-              </button>
-            ))}
+  <button
+    type="button"
+    className={`menuItem mx-3 menu-item-button ${
+      activeMenu === item.name ? 'active-menu' : ''
+    }`}
+    key={item.name}
+    onClick={() => {
+  if (item.name !== 'Evaluate My Car') {
+    setActiveMenu(item.name);
+  }
+  comingsoonMessage(item);
+}}
+
+    aria-label={`Navigate to ${item.name}`}
+  >
+    {item.name}
+  </button>
+))}
           </div>
           <div className="col-4 d-flex align-items-center justify-content-center">
             {getUserDisplayName() && (
@@ -342,9 +363,16 @@ const Userdataapi = async () => {
                 {translate('header.SIGN_UP_LOGIN')}
               </button>
             )}
-            <div className="menuLeft mx-2">
-              <div className="contct_us_btn">{translate('header.CONTACT_US')}</div>
-            </div>
+         
+           <div className="menuLeft mx-2">
+      <div 
+        className="contct_us_btn" 
+        onClick={() => navigate('/contactus')}
+        style={{ cursor: 'pointer' }}
+      >
+{translate('header.CONTACT_US')}
+      </div>
+    </div>
             <div
               className="menuLeft mx-1 language-select-container"
             >

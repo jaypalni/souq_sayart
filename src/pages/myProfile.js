@@ -22,6 +22,8 @@ import SavedSearches from '../components/savedSearches';
 import Favorites from '../components/favorites';
 import ChangePhoneNumber from '../components/changephonenumber';
 import Subscriptions from '../components/Subscriptions';
+import BlockedUser from '../components/blockedContacts';
+import DealerDashboard from '../components/dealerdashboard';
 import { authAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useSelector,useDispatch } from 'react-redux';
@@ -457,6 +459,8 @@ const MyProfile = () => {
                   <Route path="searches" element={<SavedSearches />} />
                   <Route path="favorites" element={<Favorites />} />
                   <Route path="subscriptions" element={<Subscriptions />} />
+                  <Route path="blocked" element={<BlockedUser />} />
+                  <Route path="dealerdashboard" element={<DealerDashboard />} />
                 </Routes>
               </>
             )}

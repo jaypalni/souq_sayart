@@ -51,6 +51,7 @@ const API_CONFIG = {
       GET_CARS_TOTALCOUNT: '/api/cars/total_count',
       GET_HORSE_POWER:'/api/cars/horsepower_ranges',
       GET_CAR_IMAGES_UPLOAD: '/api/search/upload-attachment',
+      POST_BOOST_CAR: '/api/cars/boost'
     },
     AUTH: {
       LOGIN: '/api/auth/login',

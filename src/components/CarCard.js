@@ -83,7 +83,37 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
   }
 };
 
-
+const addboostapi = async (body) => {
+  try {
+    setLoading(true);
+    const response = await carAPI.postboostcar(body); 
+    const cardetail = handleApiResponse(response);
+    if (cardetail.status_code === 200) {
+      messageApi.open({
+        type: 'success',
+        content: cardetail?.message,
+      });
+      if (onRefresh) {
+        setTimeout(() => {
+          onRefresh();
+        }, 500);
+      }
+    } else {
+        messageApi.open({
+        type: 'error',
+        content: message,
+      });
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData.message,
+      });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
@@ -196,16 +226,33 @@ const CarCard = ({ car, value, filterStatus, handleDelete, navigate, onRefresh }
             )}
 
             
-            {car.approval?.toLowerCase() === 'approved' && value !== STATUS_SOLD && (
-              <button
-                type="button"
-                className="car-card-boost"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <span className="car-card-boost-text">{translate('myListings.BOOST')}</span>
-                <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
-              </button>
-            )}
+           {car.approval?.toLowerCase() === 'approved' && value !== STATUS_SOLD && (
+  car.is_featured === 1 ? (
+    <button
+      type="button"
+      className="car-card-boost"
+      style={{ backgroundColor: '#9F9C9C', cursor: 'default' }} // greyed out and non-clickable
+    >
+      <span className="car-card-boost-text">Boosted</span>
+      <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
+    </button>
+  ) : (
+    <button
+      type="button"
+      className="car-card-boost"
+      onClick={(e) => {
+        e.stopPropagation();
+        console.log('Button got clicked');
+        addboostapi({ car_id: car.id });
+      }}
+    >
+      <span className="car-card-boost-text">{translate('myListings.BOOST')}</span>
+      <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
+    </button>
+  )
+)}
+
+
           </div>
         </button>
 

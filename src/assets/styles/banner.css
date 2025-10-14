@@ -253,9 +253,18 @@
 
 /* Car Details page specific breadcrumb styling */
 .car-details-breadcrumb {
-  margin-left: -676px !important;
+  margin-left: 0 !important;
   text-align: left !important;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto !important;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
+
 
 /* Car Details page specific banner height reduction */
 .car-details-banner {

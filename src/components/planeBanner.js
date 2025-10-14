@@ -228,36 +228,43 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
        ${location.pathname.includes('/contactus') ? 'contactus-banner' : ''}
        `}
     >
-      {/* ✅ Hide breadcrumb when on Terms & Conditions page */}
-      {!location.pathname.includes('/tandc') || !location.pathname.includes('/privacypolicy') || !location.pathname.includes('/faqs') || !location.pathname.includes('/contactus') && (
-        <div
-          className={`breadcrumb-container ${
-            location.pathname.includes('/carDetails')
-              ? 'car-details-breadcrumb'
-              : ''
-          }`}
-        >
-          {breadcrumbItems.map((item, index) => (
-            <React.Fragment key={`${item.path}-${index}`}>
-              {item.isClickable ? (
-                <Link
-                  to={item.path}
-                  className="breadcrumb-link"
-                  onMouseEnter={(e) => (e.target.style.opacity = '0.8')}
-                  onMouseLeave={(e) => (e.target.style.opacity = '1')}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <span className="breadcrumb-text">{item.label}</span>
-              )}
-              {index < breadcrumbItems.length - 1 && (
-                <span className="breadcrumb-separator">&gt;</span>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      )}
+      
+      {/* Show breadcrumb only if NOT on T&C, Privacy, FAQ, or Contact Us */}
+{!(
+  location.pathname.includes('/tandc') ||
+  location.pathname.includes('/privacypolicy') ||
+  location.pathname.includes('/faqs') ||
+  location.pathname.includes('/contactus')
+) && (
+  <div
+    className={`breadcrumb-container ${
+      location.pathname.includes('/carDetails')
+        ? 'car-details-breadcrumb'
+        : ''
+    }`}
+  >
+    {breadcrumbItems.map((item, index) => (
+      <React.Fragment key={`${item.path}-${index}`}>
+        {item.isClickable ? (
+          <Link
+            to={item.path}
+            className="breadcrumb-link"
+            onMouseEnter={(e) => (e.target.style.opacity = '0.8')}
+            onMouseLeave={(e) => (e.target.style.opacity = '1')}
+          >
+            {item.label}
+          </Link>
+        ) : (
+          <span className="breadcrumb-text">{item.label}</span>
+        )}
+        {index < breadcrumbItems.length - 1 && (
+          <span className="breadcrumb-separator">&gt;</span>
+        )}
+      </React.Fragment>
+    ))}
+  </div>
+)}
+
 
       {/* Show white title for Terms & Conditions page */}
       {location.pathname.includes('/tandc') && (

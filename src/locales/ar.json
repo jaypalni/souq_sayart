@@ -677,6 +677,8 @@
     "SOLD": "مباع",
     "ACTIVE": "نشط",
     "BOOST": "تعزيز",
+    "BOOSTED": "معزز",
+    "FAILED_TO_BOOST": "فشل التعزيز",
     "APPROVAL_PENDING": "في انتظار الموافقة",
     "PHONE_NUMBER_COPIED": "تم نسخ رقم الهاتف",
     "SELLER_PHONE_NUMBER": "رقم هاتف البائع",

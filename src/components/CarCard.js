@@ -233,7 +233,7 @@ const addboostapi = async (body) => {
       className="car-card-boost"
       style={{ backgroundColor: '#9F9C9C', cursor: 'default' }} // greyed out and non-clickable
     >
-      <span className="car-card-boost-text">Boosted</span>
+      <span className="car-card-boost-text">{translate('carDetails.BOOSTED')}</span>
       <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
     </button>
   ) : (

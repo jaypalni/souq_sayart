@@ -697,6 +697,8 @@
     "SOLD": "Sold",
     "ACTIVE": "Active",
     "BOOST": "Boost",
+    "BOOSTED": "Boosted",
+    "FAILED_TO_BOOST": "Failed to boost",
     "APPROVAL_PENDING": "Approval Pending",
     "PHONE_NUMBER_COPIED": "Phone Number Copied",
     "SELLER_PHONE_NUMBER": "Seller's Phone Number",

@@ -554,3 +554,16 @@
   color: #fff !important;               
   cursor: pointer;                     
 }
+
+/* Responsive styles for .text-title */
+@media (max-width: 768px) {
+  .text-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .text-title {
+    font-size: 20px;
+  }
+}

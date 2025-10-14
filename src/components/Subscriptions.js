@@ -13,6 +13,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const plansData = {
   Individual:[],
   Dealer: [],
+  BoostPlan: [],
 };
 
 const EmptyState = ({ translate }) => (
@@ -244,6 +245,7 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, tra
       >
         <RadioButtonTab value="Individual" label={translate('subscriptions.INDIVIDUAL')} activeTab={activeTab} />
         <RadioButtonTab value="Dealer" label={translate('subscriptions.DEALER')} activeTab={activeTab} />
+        <RadioButtonTab value="BoostPlan" label={translate('subscriptions.BOOSTPLAN')} activeTab={activeTab} />
       </Radio.Group>
     </div>
     <div
@@ -438,11 +440,12 @@ const Subscriptions = () => {
       const result = res.data;
 
       if (result.success) {
-        const { individual_packages = [], dealer_packages = [] } = result.data;
+        const { individual_packages = [], dealer_packages = [], boostings = [] } = result.data;
 
         setNewPlansData({
           Individual: mapPlanData(individual_packages, translate),
           Dealer: mapPlanData(dealer_packages, translate),
+          BoostPlan: mapPlanData(boostings, translate),
         });
       }
     } catch (error) {

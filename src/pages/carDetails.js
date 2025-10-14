@@ -481,6 +481,7 @@ CarDetailsMain.propTypes = {
 // Extracted SellerInfoCard component
 const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage }) => {
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
+  const [localCarDetails, setLocalCarDetails] = useState(carDetails);
 
   const handleCallClick = (e) => {
     e.preventDefault();
@@ -561,31 +562,70 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
 
 if (approval === 'approved' && status !== 'sold') {
   return (
-    <div style={{ display: 'inline-block',  width: '100%', textAlign: 'center' }}> 
+    <div style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
       <div style={{ ...commonStyle, ...statusStyles.approved }}>
         Active
       </div>
-      
-    <button
-  type="button"
-  onClick={(e) => e.stopPropagation()}
-  className="d-flex justify-content-center align-items-center mt-2 p-2 rounded"
-  style={{ 
-    width: '100%', 
-    cursor: 'pointer', 
-    backgroundColor: '#D67900', 
-    gap: '4px', 
-    textAlign: 'center',
-    border: 'none'
-  }}
->
-  <span className="car-card-boost-text text-white">Boost</span>
-  <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
-</button>
-      
+
+      {localCarDetails.is_featured === '1' ? (
+  // Boosted button (gray, disabled)
+  <button
+    type="button"
+    className="d-flex justify-content-center align-items-center mt-2 p-2 rounded"
+    style={{
+      width: '100%',
+      cursor: 'not-allowed',
+      backgroundColor: '#9F9C9C',
+      gap: '4px',
+      textAlign: 'center',
+      border: 'none',
+    }}
+    disabled
+  >
+    <span className="car-card-boost-text text-white">Boosted</span>
+    <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
+  </button>
+) : (
+  // Boost button (clickable)
+  <button
+    type="button"
+    onClick={async (e) => {
+      e.stopPropagation();
+      const body = { car_id: Number(localCarDetails.id) };
+      try {
+        const response = await carAPI.postboostcar(body);
+        const cardetail = handleApiResponse(response);
+        if (cardetail.status_code === 200) {
+          messageApi.open({ type: 'success', content: cardetail.message });
+          // ✅ Change button to Boosted
+          setLocalCarDetails(prev => ({ ...prev, is_featured: '1' }));
+        } else {
+          messageApi.open({ type: 'error', content: cardetail.message || 'Failed to boost' });
+        }
+      } catch (error) {
+        const errorData = handleApiError(error);
+        messageApi.open({ type: 'error', content: errorData.message });
+      }
+    }}
+    className="d-flex justify-content-center align-items-center mt-2 p-2 rounded"
+    style={{
+      width: '100%',
+      cursor: 'pointer',
+      backgroundColor: '#D67900',
+      gap: '4px',
+      textAlign: 'center',
+      border: 'none',
+    }}
+  >
+    <span className="car-card-boost-text text-white">Boost</span>
+    <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
+  </button>
+)}
+
     </div>
   );
 }
+
 
 
 
@@ -825,6 +865,35 @@ const useCarDetails = (id) => {
 
   return { carDetails, loading, messageApi, contextHolder };
 };
+
+
+
+// Boost API
+
+const addboostapi = async (body, messageApi) => {
+  try {
+    const response = await carAPI.postboostcar(body); 
+    const cardetail = handleApiResponse(response);
+    if (cardetail.status_code === 200) {
+      messageApi.open({
+        type: 'success',
+        content: cardetail?.message,
+      });
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: cardetail?.message || 'Failed to boost',
+      });
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+  }
+};
+
 
 // Helper function for data processing
 const processCarData = (carDetails, BASE_URL) => {

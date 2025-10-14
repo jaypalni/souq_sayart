@@ -344,6 +344,8 @@ getMylistingCars: (type, filter, page) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
   gethorsepower: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_HORSE_POWER),
+  postboostcar: (body) =>
+    api.post(API_CONFIG.ENDPOINTS.CARS.POST_BOOST_CAR, body),
   postuploadcarimages: (formData, type = 'car') =>
   api.post(
     `${API_CONFIG.ENDPOINTS.CARS.GET_CAR_IMAGES_UPLOAD}?type=${type}`,

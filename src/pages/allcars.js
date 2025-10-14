@@ -170,11 +170,27 @@ const CarListing = ({ filtercarsData, cardata, sortedbydata, setSortedbyData, ti
   const [loading, setLoading] = useState(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
   const [isOpen, setIsOpen] = useState(false);
-  // Initialize sortOption from localStorage or prop
-const getInitialSortOption = () => {
-  return sortedbydata || 'Newest Listing';
-};
+  
+  // Sort options mapping
+  const sortOptionsMap = {
+    'Newest Listing': 'allCars.NEWEST_LISTING',
+    'Oldest Listing': 'allCars.OLDEST_LISTING',
+    'Price : Low to High': 'allCars.PRICE_LOW_TO_HIGH',
+    'Price : High to Low': 'allCars.PRICE_HIGH_TO_LOW',
+    'Mileage: Low to High': 'allCars.MILEAGE_LOW_TO_HIGH',
+    'Mileage: High to Low': 'allCars.MILEAGE_HIGH_TO_LOW',
+  };
+  
+  // Get translated sort option text
+  const getTranslatedSortOption = (value) => {
+    const key = sortOptionsMap[value];
+    return key ? translate(key) : value;
+  };
 
+  // Initialize sortOption from localStorage or prop
+  const getInitialSortOption = () => {
+    return sortedbydata || 'Newest Listing';
+  };
 
   const [sortOption, setSortOption] = useState(getInitialSortOption);
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -310,11 +326,11 @@ const Removefavcarapi = async (carId) => {
               />
               <div className="car-listing-badges">
                 {Number(car.featured) === 1 && (
-                  <div className="car-listing-badge blue-bg">Featured</div>
+                  <div className="car-listing-badge blue-bg">{translate('allCars.FEATURED')}</div>
                 )}
                 {Number(car.is_verified) === 1 && (
                   <div className="car-listing-badge orenge-bg">
-                    <CheckCircleFilled /> Certified Dealer
+                    <CheckCircleFilled /> {translate('allCars.CERTIFIED_DEALER')}
                   </div>
                 )}
               </div>
@@ -392,14 +408,14 @@ const Removefavcarapi = async (carId) => {
       <div className="car-listing-header">
         <span>
           {carsToDisplay?.length === 0 
-            ? 'No cars found' 
+            ? translate('allCars.NO_CARS_FOUND')
             : (() => {
                 const currentPage = paginationToDisplay?.page || 1;
                 const limit = paginationToDisplay?.limit || 20;
                 const total = paginationToDisplay?.total || 0;
                 const startNum = (currentPage - 1) * limit + 1;
                 const endNum = Math.min(currentPage * limit, total);
-                return `Showing ${startNum} - ${endNum} Cars of ${total} Cars`;
+                return `${translate('allCars.SHOWING')} ${startNum} - ${endNum} ${translate('allCars.CARS_OF')} ${total} ${translate('allCars.CARS')}`;
               })()}
         </span>
         <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -421,7 +437,7 @@ const Removefavcarapi = async (carId) => {
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            Sort : {sortOption}
+            {translate('allCars.SORT_COLON')} {getTranslatedSortOption(sortOption)}
             <span style={{ fontSize: '12px' }}>
               {isOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
             </span>
@@ -443,17 +459,17 @@ const Removefavcarapi = async (carId) => {
               }}
             >
               {[
-                'Newest Listing',
-                'Oldest Listing',
-                'Price : Low to High',
-                'Price : High to Low',
-                'Mileage: Low to High',
-                'Mileage: High to Low',
+                { key: 'allCars.NEWEST_LISTING', value: 'Newest Listing' },
+                { key: 'allCars.OLDEST_LISTING', value: 'Oldest Listing' },
+                { key: 'allCars.PRICE_LOW_TO_HIGH', value: 'Price : Low to High' },
+                { key: 'allCars.PRICE_HIGH_TO_LOW', value: 'Price : High to Low' },
+                { key: 'allCars.MILEAGE_LOW_TO_HIGH', value: 'Mileage: Low to High' },
+                { key: 'allCars.MILEAGE_HIGH_TO_LOW', value: 'Mileage: High to Low' },
               ].map((option) => (
                 <button
                   type="button"
-                  key={option}
-                  onClick={() => handleSelect(option)}
+                  key={option.value}
+                  onClick={() => handleSelect(option.value)}
                   style={{
                     padding: '8px 12px',
                     cursor: 'pointer',
@@ -471,7 +487,7 @@ const Removefavcarapi = async (carId) => {
                     (e.currentTarget.style.background = '#fff')
                   }
                 >
-                  {option}
+                  {translate(option.key)}
                 </button>
               ))}
             </div>
@@ -487,9 +503,9 @@ const Removefavcarapi = async (carId) => {
           color: '#666',
           fontSize: '16px'
         }}>
-          <p>No cars found matching your search criteria.</p>
+          <p>{translate('allCars.NO_CARS_MATCHING')}</p>
           <p style={{ fontSize: '14px', marginTop: '10px' }}>
-            Try adjusting your filters or search terms.
+            {translate('allCars.TRY_ADJUSTING')}
           </p>
         </div>
       )}

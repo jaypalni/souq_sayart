@@ -160,7 +160,7 @@ const MyProfileMenu = ({
 
   // Menu items configuration
   const menuItems = [
-    {
+    ...(!collapsed ? [{
       key: 'Personal Informations',
       label: (
         <Link
@@ -175,7 +175,7 @@ const MyProfileMenu = ({
           {translate('myProfilePage.PERSONAL_INFORMATIONS')}
         </Link>
       ),
-    },
+    }] : []),
     {
       key: 'profile',
       icon: <img src={profileIcon} alt="Profile" style={{ width: 16, height: 16 }} />,

@@ -29,6 +29,7 @@ import whatsupIcon from '../assets/images/Whatsup.png';
 import logoutIcon from '../assets/images/Logout_icon.png';
 import deleteIcon from '../assets/images/Delete_icon.png';
 import whatsappIcon from '../assets/images/Whatsup.svg';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Sider, Content } = Layout;
 const CACHE_KEY = 'geoDataCache';
@@ -105,6 +106,7 @@ const toWhatsappFlag = (whatsappChecked) => {
 const ChangePhoneNumberPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { translate } = useLanguage();
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -152,7 +154,7 @@ const ChangePhoneNumberPage = () => {
         setWhatsappNotification(checked);
         messageApi.open({
           type: 'success',
-          content: 'WhatsApp notification preference updated successfully!',
+          content: translate('changePhone.WHATSAPP_UPDATED'),
         });
       }
     } catch (error) {
@@ -160,7 +162,7 @@ const ChangePhoneNumberPage = () => {
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
-        content: errorData?.message || 'Failed to update WhatsApp preference',
+        content: errorData?.message || translate('changePhone.WHATSAPP_UPDATE_FAILED'),
       });
     } finally {
       setWhatsappLoading(false);
@@ -212,7 +214,7 @@ const ChangePhoneNumberPage = () => {
           }}
         >
           {' '}
-          Personal Informations
+          {translate('changePhone.PERSONAL_INFORMATIONS')}
         </Link>
       ),
     },
@@ -228,7 +230,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Profile
+          {translate('changePhone.PROFILE')}
         </Link>
       ),
     },
@@ -244,7 +246,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Subscriptions
+          {translate('changePhone.SUBSCRIPTIONS')}
         </Link>
       ),
     },
@@ -260,7 +262,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Messages
+          {translate('changePhone.MESSAGES')}
         </Link>
       ),
     },
@@ -276,7 +278,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Manage Notifications
+          {translate('changePhone.MANAGE_NOTIFICATIONS')}
         </Link>
       ),
     },
@@ -292,7 +294,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Saved Searches
+          {translate('changePhone.SAVED_SEARCHES')}
         </Link>
       ),
     },
@@ -308,7 +310,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Payments
+          {translate('changePhone.PAYMENTS')}
         </Link>
       ),
     },
@@ -324,7 +326,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Blocked users
+          {translate('changePhone.BLOCKED_USERS')}
         </Link>
       ),
     },
@@ -340,7 +342,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Dealership Dashboard
+          {translate('changePhone.DEALERSHIP_DASHBOARD')}
         </Link>
       ),
     },
@@ -356,7 +358,7 @@ const ChangePhoneNumberPage = () => {
             color: '#0A0A0B',
           }}
         >
-          Favorites
+          {translate('changePhone.FAVORITES')}
         </Link>
       ),
     },
@@ -365,7 +367,7 @@ const ChangePhoneNumberPage = () => {
       icon: <img src={whatsupIcon} alt="Whatsup" style={{ width: 16, height: 16 }}/>,
       label: (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>WhatsApp</span>
+          <span>{translate('changePhone.WHATSAPP')}</span>
           <Switch 
             size="small" 
             checked={whatsappNotification}
@@ -377,11 +379,11 @@ const ChangePhoneNumberPage = () => {
     },
   ];
    const manageItems = [
-  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: 'Logout' },
+  { key: 'logout', icon: <img src={logoutIcon} alt="Logout" style={{ width: 16, height: 16 }} />, label: translate('changePhone.LOGOUT') },
    {
       key: 'delete',
       icon: <img src={deleteIcon} alt="Delete" style={{ width: 16, height: 16 }} />,
-      label: 'Delete Account',
+      label: translate('changePhone.DELETE_ACCOUNT'),
       disabled: false, 
     },
 ];
@@ -412,7 +414,7 @@ const ChangePhoneNumberPage = () => {
       } catch (err) {
         messageApi.open({
           type: 'error',
-          content: 'Failed to load country options',
+          content: translate('changePhone.COUNTRY_LOAD_FAILED'),
         });
       }
     };
@@ -433,7 +435,7 @@ const ChangePhoneNumberPage = () => {
 
   const onContinue = async () => {
     if (phone === '') {
-      setEmailErrorMsg('Phone number is required!');
+      setEmailErrorMsg(translate('changePhone.PHONE_REQUIRED'));
       return;
     }
 
@@ -511,8 +513,8 @@ const ChangePhoneNumberPage = () => {
     <>
       <div className="page-header">
         {contextHolder}
-        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>My Profile</div>
-        <div style={{ fontSize: 11 }}>Post an ad in just 3 simple steps</div>
+        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{translate('changePhone.PAGE_TITLE')}</div>
+        <div style={{ fontSize: 11 }}>{translate('changePhone.PAGE_SUBTITLE')}</div>
       </div>
       <Layout style={{ background: '#fff' }}>
         <Sider
@@ -552,7 +554,7 @@ const ChangePhoneNumberPage = () => {
                 marginBottom: 8,
               }}
             >
-              Manage Account
+              {translate('changePhone.MANAGE_ACCOUNT')}
             </div>
            <Menu
                         mode="inline"
@@ -581,7 +583,7 @@ const ChangePhoneNumberPage = () => {
                   onClick={() => navigate('/myProfile')}
                   style={{ fontSize: '18px', cursor: 'pointer', marginRight: '10px' }}
                 />
-                Change Mobile Number
+                {translate('changePhone.CHANGE_MOBILE_NUMBER')}
               </div>
               
               <div
@@ -605,7 +607,7 @@ const ChangePhoneNumberPage = () => {
                   }}
                 >
                   <p style={{ color: '#0A0A0B', fontSize: 14, fontFamily: 'Roboto' }}>
-                    Enter Your New Phone Number to change
+                    {translate('changePhone.ENTER_NEW_PHONE')}
                   </p>
                   <div style={{ margin: '20px 0' }}>
                     <label
@@ -619,7 +621,7 @@ const ChangePhoneNumberPage = () => {
                       }}
                       htmlFor="phone-input"
                     >
-                      Enter Your Phone Number
+                      {translate('changePhone.ENTER_PHONE_NUMBER')}
                     </label>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                       <div style={{ position: 'relative', width: 100, height: 57 }}>
@@ -702,7 +704,7 @@ const ChangePhoneNumberPage = () => {
                       <input
                         className="login-box"
                         type="tel"
-                        placeholder="Enter phone number"
+                        placeholder={translate('changePhone.ENTER_PHONE_PLACEHOLDER')}
                         value={phone}
                         onChange={handlePhoneChange}
                         id="phone-input"
@@ -731,7 +733,7 @@ const ChangePhoneNumberPage = () => {
                                           style={{ width: 18, height: 18, marginRight: 5 }}
                                         />
                                         {' '}
-                                        Whatsapp
+                                        {translate('changePhone.WHATSAPP')}
                                       </span>
                     
                                       <Switch
@@ -759,7 +761,7 @@ const ChangePhoneNumberPage = () => {
                       onClick={onContinue}
                       disabled={loading}
                     >
-                      {loading ? 'Sending...' : 'Continue'}
+                      {loading ? translate('changePhone.SENDING') : translate('changePhone.CONTINUE')}
                     </button>
                   </div>
                 </div>
@@ -773,7 +775,7 @@ const ChangePhoneNumberPage = () => {
         open={logoutModalOpen}
         onCancel={() => setLogoutModalOpen(false)}
         footer={null}
-        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',margin:'15px 0px 0px 15px',fontWeight: 700}}>Are you sure you want to log out?</span></div>}
+        title={<div className="brand-modal-title-row"><span style={{textAlign:'center',margin:'15px 0px 0px 15px',fontWeight: 700}}>{translate('changePhone.LOGOUT_CONFIRM')}</span></div>}
         width={350}
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '2px',marginTop:'15px' }}>
@@ -790,7 +792,7 @@ const ChangePhoneNumberPage = () => {
               borderRadius: '24px',
             }}
           >
-            Cancel
+            {translate('changePhone.CANCEL')}
           </Button>
           <Button
             type="primary"
@@ -804,7 +806,7 @@ const ChangePhoneNumberPage = () => {
               borderRadius: '24px',
             }}
           >
-            Confirm
+            {translate('changePhone.CONFIRM')}
           </Button>
         </div>
       </Modal>
@@ -812,7 +814,7 @@ const ChangePhoneNumberPage = () => {
               open={deleteModalOpen}
               onCancel={() => setDeleteModalOpen(false)}
               footer={null}
-              title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>Warning that all data (profile, listings, saved searches, favorites, etc.) will be permanently deleted.</span></div>}
+              title={<div className="brand-modal-title-row"><span style={{textAlign:'center',marginTop:'15px',fontWeight: 700}}>{translate('changePhone.DELETE_WARNING')}</span></div>}
               width={500}
             >
               <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '2px',marginTop:'25px' }}>
@@ -832,7 +834,7 @@ const ChangePhoneNumberPage = () => {
                     borderRadius: '24px',
                   }}
                 >
-                  Cancel
+                  {translate('changePhone.CANCEL')}
                 </Button>
                 <Button
                   type="primary"
@@ -854,7 +856,7 @@ const ChangePhoneNumberPage = () => {
                     borderRadius: '24px',
                   }}
                 >
-                  Continue
+                  {translate('changePhone.CONTINUE')}
                 </Button>
               </div>
             </Modal>

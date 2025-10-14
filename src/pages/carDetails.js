@@ -34,6 +34,7 @@ import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
 import PlaneBanner from '../components/planeBanner';
 import boost_icon from '../assets/images/boost_icon.svg';
 import '../assets/styles/cardetails.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Helpers
 const openWhatsApp = (phoneNumber) => {
@@ -63,37 +64,37 @@ const formatEngineSummary = (details) => {
   return `${cylindersPart}${liters}L ${details.fuel_type || ''}`.trim();
 };
 
-const getCarInfo = (d) => [
-  { label: 'Body Type', value: d.body_type || '-' },
-  { label: 'Regional Specs', value: d.regional_specs || '-' },
-  { label: 'Door Count', value: d.number_of_doors || '-' },
-  { label: 'Number of seats', value: d.number_of_seats || '-' },
-  { label: 'Version', value: d.trim || '-' },
-  { label: 'Exterior Color', value: d.exterior_color || '-' },
-  { label: 'Interior Color', value: d.interior_color || '-' },
-  { label: 'Warranty', value: d.warranty_date || '-' },
+const getCarInfo = (d, translate) => [
+  { label: translate('carDetails.BODY_TYPE'), value: d.body_type || '-' },
+  { label: translate('carDetails.REGIONAL_SPECS'), value: d.regional_specs || '-' },
+  { label: translate('carDetails.DOOR_COUNT'), value: d.number_of_doors || '-' },
+  { label: translate('carDetails.NUMBER_OF_SEATS'), value: d.number_of_seats || '-' },
+  { label: translate('carDetails.VERSION'), value: d.trim || '-' },
+  { label: translate('carDetails.EXTERIOR_COLOR'), value: d.exterior_color || '-' },
+  { label: translate('carDetails.INTERIOR_COLOR'), value: d.interior_color || '-' },
+  { label: translate('carDetails.WARRANTY'), value: d.warranty_date || '-' },
 ];
 
-const getAdditionalDetails = (d) => [
-  { label: 'Engine CC', value: d.engine_cc || '-' },
-  { label: 'Number of Cylinders', value: d.no_of_cylinders || '-' },
-  { label: 'Consumption', value: d.consumption || '-' },
-  { label: 'Transmission', value: d.transmission_type || '-' },
-  { label: 'Drive Type', value: d.drive_type || '-' },
-  { label: 'Vehicle Type', value: d.vechile_type || '-' },
-  { label: 'Horse Power', value: d.horse_power || '-' },
-  { label: 'Accident History', value: d.accident_history || '-' },
+const getAdditionalDetails = (d, translate) => [
+  { label: translate('carDetails.ENGINE_CC'), value: d.engine_cc || '-' },
+  { label: translate('carDetails.NUMBER_OF_CYLINDERS'), value: d.no_of_cylinders || '-' },
+  { label: translate('carDetails.CONSUMPTION'), value: d.consumption || '-' },
+  { label: translate('carDetails.TRANSMISSION'), value: d.transmission_type || '-' },
+  { label: translate('carDetails.DRIVE_TYPE'), value: d.drive_type || '-' },
+  { label: translate('carDetails.VEHICLE_TYPE'), value: d.vechile_type || '-' },
+  { label: translate('carDetails.HORSE_POWER'), value: d.horse_power || '-' },
+  { label: translate('carDetails.ACCIDENT_HISTORY'), value: d.accident_history || '-' },
 ];
 
 // Sub-components
-const ThumbnailButton = ({ img, idx, isActive, onClick }) => {
+const ThumbnailButton = ({ img, idx, isActive, onClick, translate }) => {
   const thumbClass = `thumbnail-img${isActive ? ' active' : ''}`;
   
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Show image ${idx + 1}`}
+      aria-label={`${translate('carDetails.SHOW_IMAGE')} ${idx + 1}`}
       className="thumbnail-button"
     >
       <img
@@ -143,7 +144,7 @@ InfoTable.defaultProps = {
   title: '',
 };
 
-const ImageGallery = ({ images }) => {
+const ImageGallery = ({ images, translate }) => {
   const [mainImageIdx, setMainImageIdx] = useState(0);
   const goToNextImage = () => setMainImageIdx((prev) => (prev + 1) % images.length);
   const goToPrevImage = () =>
@@ -158,10 +159,10 @@ const ImageGallery = ({ images }) => {
     <Card className="main-image-card">
       <div className="main-image-wrapper">
         <img src={images[mainImageIdx]} alt="Car" className="main-car-image" />
-        <button className="arrow-btn left-arrow" onClick={goToPrevImage} aria-label="Previous image">
+        <button className="arrow-btn left-arrow" onClick={goToPrevImage} aria-label={translate('carDetails.PREVIOUS_IMAGE')}>
           <FaChevronLeft />
         </button>
-        <button className="arrow-btn right-arrow" onClick={goToNextImage} aria-label="Next image">
+        <button className="arrow-btn right-arrow" onClick={goToNextImage} aria-label={translate('carDetails.NEXT_IMAGE')}>
           <FaChevronRight />
         </button>
       </div>
@@ -173,6 +174,7 @@ const ImageGallery = ({ images }) => {
             idx={idx}
             isActive={mainImageIdx === idx}
             onClick={() => setMainImageIdx(idx)}
+            translate={translate}
           />
         ))}
       </div>
@@ -184,7 +186,7 @@ ImageGallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-const FeaturesSection = ({ adTitle, featuresCsv }) => {
+const FeaturesSection = ({ adTitle, featuresCsv, translate }) => {
   const [open, setOpen] = useState(false);
 
   // Normalize features to always be an array of individual features
@@ -198,11 +200,11 @@ const FeaturesSection = ({ adTitle, featuresCsv }) => {
   return (
     <div className="car-details-features-section">
       <div className="car-details-features-h1">
-        <span>Features - {adTitle}</span>
+        <span>{translate('carDetails.FEATURES')} - {adTitle}</span>
       </div>
       <div className="border-bottom">
         <div className="car-details-features-header collapsed">
-          <span className="features-header-text">Extra Features</span>
+          <span className="features-header-text">{translate('carDetails.EXTRA_FEATURES')}</span>
           <button
             type="button"
             onClick={toggleFeatures}
@@ -237,15 +239,15 @@ FeaturesList.propTypes = {
   features: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-const copyToClipboard = () => {
+const copyToClipboard = (translate) => {
   const url = window.location.href;
   
   const copyWithClipboardAPI = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      alert('Page URL copied to clipboard!');
+      alert(translate('carDetails.URL_COPIED'));
     } catch (err) {
-      message.error('Failed to copy URL');
+      message.error(translate('carDetails.FAILED_TO_COPY'));
       console.error(err);
     }
   };
@@ -257,7 +259,7 @@ const copyToClipboard = () => {
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
-    alert('Page URL copied to clipboard!');
+    alert(translate('carDetails.URL_COPIED'));
   };
 
   if (navigator.clipboard) {
@@ -327,25 +329,25 @@ CarLocation.propTypes = {
 };
 
 // Extracted CarDetailsCards component
-const CarDetailsCards = ({ carDetails }) => {
+const CarDetailsCards = ({ carDetails, translate }) => {
   const carDetailItems = [
     {
-      label: 'Year',
+      label: translate('carDetails.YEAR'),
       value: carDetails.year || '-',
       icon: calender_image,
     },
     {
-      label: 'Fuel Type',
+      label: translate('carDetails.FUEL_TYPE'),
       value: carDetails.fuel_type || '-',
       icon: fuel_image,
     },
     {
-      label: 'Condition',
+      label: translate('carDetails.CONDITION'),
       value: carDetails.condition || '-',
       icon: gear_image,
     },
     {
-      label: 'Kilometers',
+      label: translate('carDetails.KILOMETERS'),
       value: carDetails.kilometers || '-',
       icon: speed_code,
     },
@@ -354,7 +356,7 @@ const CarDetailsCards = ({ carDetails }) => {
   return (
     <div className="col-md-12">
       <div className="car-details-info car-details-info-section">
-        Car Details
+        {translate('carDetails.CAR_DETAILS')}
       </div>
 
       <div className="row">
@@ -428,22 +430,22 @@ CarInfoTables.propTypes = {
 
 
 // Extracted CarDetailsMain component
-const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails }) => {
+const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails, translate }) => {
   return (
     <div className="col-md-8">
-      <ImageGallery images={images} />
+      <ImageGallery images={images} translate={translate} />
       
       <CarHeader carDetails={carDetails} />
       <CarEngineSummary carDetails={carDetails} />
       <CarLocation location={carDetails.location} />
-      <CarDetailsCards carDetails={carDetails} />
+      <CarDetailsCards carDetails={carDetails} translate={translate} />
 
       <div className="row g-4 mb-4">
-        <InfoTable title="Car Informations" rows={carInfo} />
-        <InfoTable title="Additional Details" rows={additionalDetails} />
+        <InfoTable title={translate('carDetails.CAR_INFORMATIONS')} rows={carInfo} />
+        <InfoTable title={translate('carDetails.ADDITIONAL_DETAILS')} rows={additionalDetails} />
       </div>
 
-      <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} />
+      <FeaturesSection adTitle={carDetails.ad_title} featuresCsv={carDetails.extra_features} translate={translate} />
     </div>
   );
 };
@@ -479,7 +481,7 @@ CarDetailsMain.propTypes = {
 
 
 // Extracted SellerInfoCard component
-const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage }) => {
+const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage, translate }) => {
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [localCarDetails, setLocalCarDetails] = useState(carDetails);
 
@@ -495,7 +497,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
     if (navigator.clipboard) {
       navigator.clipboard.writeText(phoneNumber)
         .then(() => {
-          messageApi.open({ type: 'success', content: 'Phone Number Copied' });
+          messageApi.open({ type: 'success', content: translate('carDetails.PHONE_NUMBER_COPIED') });
           setIsPhoneModalVisible(false);
         })
         .catch(() => {
@@ -506,7 +508,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
           textarea.select();
           document.execCommand('copy');
           document.body.removeChild(textarea);
-          messageApi.open({ type: 'success', content: 'Phone Number Copied' });
+          messageApi.open({ type: 'success', content: translate('carDetails.PHONE_NUMBER_COPIED') });
           setIsPhoneModalVisible(false);
         });
     } else {
@@ -517,7 +519,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      messageApi.open({ type: 'success', content: 'Phone Number Copied' });
+      messageApi.open({ type: 'success', content: translate('carDetails.PHONE_NUMBER_COPIED') });
       setIsPhoneModalVisible(false);
     }
   };
@@ -545,9 +547,9 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
   if (approval === 'rejected') {
     return (
       <div style={{ ...commonStyle, ...statusStyles.rejected }}>
-        Rejected
-        {reason && <div>Reason: {reason}</div>}
-        {comment && <div>Comment: {comment}</div>}
+        {translate('carDetails.REJECTED')}
+        {reason && <div>{translate('carDetails.REASON')}: {reason}</div>}
+        {comment && <div>{translate('carDetails.COMMENT')}: {comment}</div>}
       </div>
     );
   }
@@ -555,7 +557,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
   if (approval === 'approved' && status === 'sold') {
     return (
       <div style={{ ...commonStyle, ...statusStyles.sold }}>
-        Sold
+        {translate('carDetails.SOLD')}
       </div>
     );
   }
@@ -564,7 +566,7 @@ if (approval === 'approved' && status !== 'sold') {
   return (
     <div style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
       <div style={{ ...commonStyle, ...statusStyles.approved }}>
-        Active
+        {translate('carDetails.ACTIVE')}
       </div>
 
       {localCarDetails.is_featured === '1' ? (
@@ -632,7 +634,7 @@ if (approval === 'approved' && status !== 'sold') {
   if (approval === 'pending') {
     return (
       <div style={{ ...commonStyle, ...statusStyles.pending }}>
-        Approval Pending
+        {translate('carDetails.APPROVAL_PENDING')}
       </div>
     );
   }
@@ -679,16 +681,16 @@ if (approval === 'approved' && status !== 'sold') {
           </div>
 
           <div className='mt-2 text-muted seller-info-listed-text'>
-            Listed by {carDetails?.seller?.is_dealer === 'true' ? 'Dealer' : 'Owner'}
+            {translate('carDetails.LISTED_BY')} {carDetails?.seller?.is_dealer === 'true' ? translate('carDetails.DEALER') : translate('carDetails.OWNER')}
           </div>
 
           <div className="d-flex align-items-center gap-2 mt-2">
             <Avatar icon={<UserOutlined />} alt="User Avatar" />
             <div>
               <div className="seller-name">{carDetails.seller.first_name}</div>
-              <div className="text-muted seller-member-since">Member since {carDetails.seller.member_since}</div>
+              <div className="text-muted seller-member-since">{translate('carDetails.MEMBER_SINCE')} {carDetails.seller.member_since}</div>
               <Link className="car-details-view-profile-link">
-                View Profile <FaChevronRight className="view-profile-chevron" />
+                {translate('carDetails.VIEW_PROFILE')} <FaChevronRight className="view-profile-chevron" />
               </Link>
             </div>
           </div>
@@ -703,7 +705,7 @@ if (approval === 'approved' && status !== 'sold') {
           renderStatus()
         ) : (
           <>
-            <Button icon={<MessageOutlined />} className="w-100 message-button">Message</Button>
+            <Button icon={<MessageOutlined />} className="w-100 message-button">{translate('carDetails.MESSAGE')}</Button>
             
             <Button
               onClick={() => openWhatsApp(carDetails.seller.phone_number)}
@@ -711,7 +713,7 @@ if (approval === 'approved' && status !== 'sold') {
               className={`w-100 whatsapp-button ${carDetails.seller.whatsapp === 'False' ? 'whatsapp-button-disabled' : 'whatsapp-button-enabled'}`}
               disabled={carDetails.seller.whatsapp === 'False'}
             >
-              Whatsapp
+              {translate('carDetails.WHATSAPP')}
             </Button>
 
             <Button
@@ -719,7 +721,7 @@ if (approval === 'approved' && status !== 'sold') {
               className="w-100 no-hover-bg call-button"
               onClick={handleCallClick}
             >
-              Call
+              {translate('carDetails.CALL')}
             </Button>
           </>
         )}
@@ -727,7 +729,7 @@ if (approval === 'approved' && status !== 'sold') {
 
       {/* Phone Number Modal */}
       <Modal
-        title="Seller's Phone Number"
+        title={translate('carDetails.SELLER_PHONE_NUMBER')}
         open={isPhoneModalVisible}
         onCancel={() => setIsPhoneModalVisible(false)}
         footer={null}
@@ -735,7 +737,7 @@ if (approval === 'approved' && status !== 'sold') {
       >
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <p style={{ fontSize: '18px', fontWeight: 500, marginBottom: '20px' }}>
-            Click the phone number to copy:
+            {translate('carDetails.CLICK_TO_COPY')}
           </p>
           <button
             type="button"
@@ -788,7 +790,7 @@ SellerInfoCard.propTypes = {
 };
 
 // Extracted CarDetailsSidebar component
-const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage }) => {
+const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage, translate }) => {
   return (
     <div className="col-md-4">
       <SellerInfoCard 
@@ -797,6 +799,7 @@ const CarDetailsSidebar = ({ carDetails, copyToClipboard, openWhatsApp, messageA
         openWhatsApp={openWhatsApp} 
         messageApi={messageApi} 
         previousPage={previousPage}
+        translate={translate}
       />
     </div>
   );
@@ -896,24 +899,24 @@ const addboostapi = async (body, messageApi) => {
 
 
 // Helper function for data processing
-const processCarData = (carDetails, BASE_URL) => {
+const processCarData = (carDetails, BASE_URL, translate) => {
   const images = buildCarImages(carDetails?.car_image, BASE_URL, redcar_icon);
-  const carInfo = getCarInfo(carDetails);
-  const additionalDetails = getAdditionalDetails(carDetails);
+  const carInfo = getCarInfo(carDetails, translate);
+  const additionalDetails = getAdditionalDetails(carDetails, translate);
   return { images, carInfo, additionalDetails };
 };
 
 // Loading component
-const LoadingState = () => <div>Loading...</div>;
+const LoadingState = ({ translate }) => <div>{translate('carDetails.LOADING')}</div>;
 
 // Error state component
-const ErrorState = () => <div>No data found</div>;
+const ErrorState = ({ translate }) => <div>{translate('carDetails.NO_DATA_FOUND')}</div>;
 
 // Similar cars section component
-const SimilarCarsSection = ({ carDetails }) => (
+const SimilarCarsSection = ({ carDetails, translate }) => (
   <div className="similar-cars-section">
     <CarListing
-      title={'Used ' + carDetails.ad_title}
+      title={translate('carDetails.USED') + ' ' + carDetails.ad_title}
       cardata={carDetails.similar_cars}
     />
   </div>
@@ -930,6 +933,7 @@ const CarDetails = () => {
   const { id } = useParams();
   const location = useLocation();
   const BASE_URL = process.env.REACT_APP_API_URL;
+  const { translate } = useLanguage();
   
   // Get previous page from location state or default to "All Cars"
   const previousPage = location.state?.previousPage || 'All Cars';
@@ -939,14 +943,14 @@ const CarDetails = () => {
   const { carDetails, loading, messageApi, contextHolder } = useCarDetails(id);
     const { user } = useSelector((state) => state.auth);
   if (loading) {
-    return <LoadingState />;
+    return <LoadingState translate={translate} />;
   }
 
   if (!carDetails) {
-    return <ErrorState />;
+    return <ErrorState translate={translate} />;
   }
 
-  const { images, carInfo, additionalDetails } = processCarData(carDetails, BASE_URL);
+  const { images, carInfo, additionalDetails } = processCarData(carDetails, BASE_URL, translate);
   return (
     <div className="car-details-page">
       <PlaneBanner carDetails={carDetails} previousPage={previousPage} />
@@ -958,18 +962,20 @@ const CarDetails = () => {
           BASE_URL={BASE_URL} 
           images={images} 
           carInfo={carInfo} 
-          additionalDetails={additionalDetails} 
+          additionalDetails={additionalDetails}
+          translate={translate}
         />
         <CarDetailsSidebar 
           carDetails={carDetails} 
-          copyToClipboard={copyToClipboard} 
+          copyToClipboard={() => copyToClipboard(translate)} 
           openWhatsApp={openWhatsApp} 
           messageApi={messageApi} 
-          previousPage={previousPage} 
+          previousPage={previousPage}
+          translate={translate}
         />
       </div>
 
-   { user?.id!=  carDetails?.seller?.id &&    <SimilarCarsSection carDetails={carDetails} />
+   { user?.id!=  carDetails?.seller?.id &&    <SimilarCarsSection carDetails={carDetails} translate={translate} />
     }
       </div>
     </div>

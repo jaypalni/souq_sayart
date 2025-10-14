@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { Button, Popconfirm } from 'antd';
 import { CheckCircleFilled } from '@ant-design/icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const blockedContactsData = [
   {
@@ -44,14 +45,15 @@ const blockedContactsData = [
 
 const UNBLOCK_DELAY_MS = 500;
 
-const EmptyState = () => (
+const EmptyState = ({ translate }) => (
   <div style={{ textAlign: 'center', padding: 40 }}>
-    <h3>No Blocked Contacts</h3>
-    <p>You have not blocked any contacts.</p>
+    <h3>{translate('blockedContacts.NO_BLOCKED_CONTACTS')}</h3>
+    <p>{translate('blockedContacts.NO_BLOCKED_MESSAGE')}</p>
   </div>
 );
 
 const BlockedContacts = () => {
+  const { translate } = useLanguage();
   const [contacts, setContacts] = useState(blockedContactsData);
   const [unblockLoading, setUnblockLoading] = useState(null);
 
@@ -64,12 +66,12 @@ const BlockedContacts = () => {
   };
 
   if (contacts.length === 0) {
-    return <EmptyState />;
+    return <EmptyState translate={translate} />;
   }
 
   return (
     <div className="blocked-contacts-main">
-      <div className="blocked-contacts-header">Blocked Contacts</div>
+      <div className="blocked-contacts-header">{translate('blockedContacts.BLOCKED_CONTACTS')}</div>
       <div className="blocked-contacts-list">
         {contacts.map(contact => (
           <div className="blocked-contact-item" key={contact.id}>
@@ -95,10 +97,10 @@ const BlockedContacts = () => {
             </div>
             <div className="blocked-contact-action">
               <Popconfirm
-                title={`Unblock ${contact.name}?`}
+                title={translate('blockedContacts.UNBLOCK_CONFIRM').replace('{name}', contact.name)}
                 onConfirm={() => handleUnblock(contact.id)}
-                okText="Yes"
-                cancelText="No"
+                okText={translate('blockedContacts.YES')}
+                cancelText={translate('blockedContacts.NO')}
                 placement="left"
               >
                 <Button
@@ -106,7 +108,7 @@ const BlockedContacts = () => {
                   loading={unblockLoading === contact.id}
                   style={{ padding: 0, fontWeight: 500 }}
                 >
-                  Unblock
+                  {translate('blockedContacts.UNBLOCK')}
                 </Button>
               </Popconfirm>
             </div>

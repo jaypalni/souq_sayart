@@ -1,12 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PlaneBanner from '../components/planeBanner';
-import carImage from '../assets/images/homecar_icon.png'; // replace with your image path
+import carImage from '../assets/images/homecar_icon.png';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { IoCallOutline } from 'react-icons/io5';
+import { message } from 'antd';
 import { CiMail } from 'react-icons/ci';
 import { FaWhatsapp } from 'react-icons/fa';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 const ContactUs = () => {
+  const [loading, setLoading] = useState(false);
+  const [subjects, setSubjects] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [contactInfo, setContactInfo] = useState({
+    call_us: '',
+    email_us: '',
+    whatsapp: ''
+  });
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,16 +34,106 @@ const ContactUs = () => {
     if (formRef.current) {
       setFormHeight(formRef.current.offsetHeight);
     }
+  }, [subjects, contactInfo]);
+
+  useEffect(() => {
+    fetchsubjectData();
   }, []);
 
+  // 🟢 Fetch subjects and contact info
+  const fetchsubjectData = async () => {
+    try {
+      setLoading(true);
+      const response = await carAPI.getcontactsubject();
+      const data1 = handleApiResponse(response);
+
+      if (data1?.subjects?.length) {
+        setSubjects(data1.subjects);
+        setContactInfo(data1.contact_info || {});
+      } else {
+        message.warning('No Subjects found.');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to fetch Subject.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🟢 Handle field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  // 🟢 Submit Handler
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+
+    
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.subject.trim() ||
+      !formData.phone.trim() ||
+      !formData.message.trim()
+    ) {
+      messageApi.open({
+        type: 'error',
+        content: 'Please fill in all required fields before submitting.',
+      });
+      return;
+    }
+
+    // ✅ Prepare request body
+    const body = {
+    first_name: formData.firstName.trim(),
+    last_name: formData.lastName.trim(),
+    phone_number: formData.phone.trim(), 
+    subject: formData.subject.trim(),
+    message: formData.message.trim(),
+  };
+
+    await contactussubmitapi(body);
+  };
+
+  // 🟢 Submit API
+  const contactussubmitapi = async (body) => {
+    try {
+      setLoading(true);
+      const response = await carAPI.postcontactsubmit(body); 
+      const cardetail = handleApiResponse(response);
+
+      if (cardetail.status_code === 200) {
+        messageApi.open({
+          type: 'success',
+          content: cardetail?.message || 'Form submitted successfully!',
+        });
+
+        // ✅ Clear all fields after success
+        setFormData({
+          firstName: '',
+          lastName: '',
+          subject: '',
+          phone: '',
+          message: '',
+        });
+      } else {
+        messageApi.open({
+          type: 'error',
+          content: cardetail?.message || 'Failed to submit form.',
+        });
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle = {
@@ -57,14 +159,28 @@ const ContactUs = () => {
   return (
     <>
       <PlaneBanner />
-      <div className="container my-5">
-        <div className="row g-4 align-items-start">
 
+      {/* Dropdown custom scroll style */}
+      <style>
+        {`
+          .custom-select-scroll {
+            max-height: 150px !important;
+            overflow-y: auto !important;
+          }
+          select.form-select {
+            height: 45px !important;
+          }
+        `}
+      </style>
+
+      <div className="container my-5">
+        {contextHolder}
+        <div className="row g-4 align-items-start">
           {/* Left Column */}
           <div className="col-lg-6" ref={formRef}>
             <h2 className="mb-4">Contact Us Today</h2>
             <p style={{ color: '#959595', fontSize: '14px', fontWeight: '400' }}>
-              Submit your information to get in touch with us for personalized assistance for the perfect real estate in Lebanon. We care and we’re here to help
+              Submit your information to get in touch with us for personalized assistance. We care and we’re here to help.
             </p>
 
             <form onSubmit={handleSubmit}>
@@ -74,10 +190,9 @@ const ContactUs = () => {
                     type="text"
                     name="firstName"
                     className="form-control"
-                    placeholder="First Name"
+                    placeholder="First Name*"
                     value={formData.firstName}
                     onChange={handleChange}
-                    required
                     style={inputStyle}
                   />
                 </div>
@@ -86,28 +201,29 @@ const ContactUs = () => {
                     type="text"
                     name="lastName"
                     className="form-control"
-                    placeholder="Last Name"
+                    placeholder="Last Name*"
                     value={formData.lastName}
                     onChange={handleChange}
-                    required
                     style={inputStyle}
                   />
                 </div>
               </div>
 
+              {/* Dropdown with scroll */}
               <div className="mb-3">
                 <select
                   name="subject"
-                  className="form-select"
+                  className="form-select custom-select-scroll"
                   value={formData.subject}
                   onChange={handleChange}
-                  required
                   style={inputStyle}
                 >
                   <option value="">Choose Subject</option>
-                  <option value="General Inquiry">General Inquiry</option>
-                  <option value="Sell Car">Sell Car</option>
-                  <option value="Support">Support</option>
+                  {subjects.map((item) => (
+                    <option key={item.id} value={item.subject}>
+                      {item.subject}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -116,10 +232,9 @@ const ContactUs = () => {
                   type="tel"
                   name="phone"
                   className="form-control"
-                  placeholder="Phone Number"
+                  placeholder="Phone Number*"
                   value={formData.phone}
                   onChange={handleChange}
-                  required
                   style={inputStyle}
                 />
               </div>
@@ -128,24 +243,27 @@ const ContactUs = () => {
                 <textarea
                   name="message"
                   className="form-control"
-                  placeholder="Your Message"
+                  placeholder="Your Message*"
                   value={formData.message}
                   onChange={handleChange}
                   rows={5}
-                  required
                   style={inputStyle}
                 />
               </div>
 
               <div className="mb-3">
-                <button type="submit" className="w-100" style={submitButtonStyle}>
-                  Submit
+                <button type="submit" className="w-100" style={submitButtonStyle} disabled={loading}>
+                  {loading ? 'Submitting...' : 'Submit'}
                 </button>
               </div>
 
               {/* Contact Info Row */}
-              <div className="d-flex justify-content-between mt-4">
-                <div className="d-flex align-items-start">
+              <div
+                className="d-flex justify-content-between align-items-center flex-wrap mt-4"
+                style={{ gap: '10px' }}
+              >
+                {/* Call Us */}
+                <div className="d-flex align-items-start flex-fill" style={{ minWidth: '150px' }}>
                   <div
                     className="d-flex justify-content-center align-items-center me-2"
                     style={{
@@ -161,11 +279,14 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '16px' }}>Call Us</div>
-                    <div style={{ fontWeight: 400, fontSize: '14px', color: '#8B8B8A' }}>+91773867823</div>
+                    <div style={{ fontWeight: 400, fontSize: '14px', color: '#8B8B8A' }}>
+                      {contactInfo.call_us}
+                    </div>
                   </div>
                 </div>
 
-                <div className="d-flex align-items-start">
+                {/* Email Us */}
+                <div className="d-flex align-items-start flex-fill" style={{ minWidth: '150px' }}>
                   <div
                     className="d-flex justify-content-center align-items-center me-2"
                     style={{
@@ -181,11 +302,14 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '16px' }}>Email Us</div>
-                    <div style={{ fontWeight: 400, fontSize: '14px', color: '#8B8B8A' }}>Souqsiyarat@info.com</div>
+                    <div style={{ fontWeight: 400, fontSize: '14px', color: '#8B8B8A' }}>
+                      {contactInfo.email_us}
+                    </div>
                   </div>
                 </div>
 
-                <div className="d-flex align-items-start">
+                {/* WhatsApp */}
+                <div className="d-flex align-items-start flex-fill" style={{ minWidth: '150px' }}>
                   <div
                     className="d-flex justify-content-center align-items-center me-2"
                     style={{
@@ -200,12 +324,13 @@ const ContactUs = () => {
                     <FaWhatsapp />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '16px' }}>Whatsapp</div>
-                    <div style={{ fontWeight: 400, fontSize: '14px', color: '#8B8B8A' }}>+918736728322</div>
+                    <div style={{ fontWeight: 700, fontSize: '16px' }}>WhatsApp</div>
+                    <div style={{ fontWeight: 400, fontSize: '14px', color: '#8B8B8A' }}>
+                      {contactInfo.whatsapp}
+                    </div>
                   </div>
                 </div>
               </div>
-
             </form>
           </div>
 

@@ -181,18 +181,14 @@ const refreshtokenapi = async () => {
         'Authorization': `Bearer ${refresh_token}`,
       },
     });
-
-    // ✅ Process response
     const data1 = handleApiResponse(response);
 
     if (data1?.access_token) {
-      // ✅ Dispatch action to update Redux state with new access token
       const { refreshTokenSuccess } = require('../redux/actions/authActions');
       store.dispatch(refreshTokenSuccess(data1.access_token));
       
       return data1.access_token;
     } else if (data1?.status_code === 200 && data1?.message === 'Access token is not expired yet') {
-      // ✅ Token is still valid, return current token from Redux
       const currentToken = state.auth?.token;
       console.log('Access token is still valid, using current token');
       return currentToken;
@@ -340,6 +336,10 @@ getMylistingCars: (type, filter, page) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_TERM_AND_CONDITIONS),
   getfaqs: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_FAQS),
+   getcontactsubject: () =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_CONTACT_SUBJECT),
+   postcontactsubmit: (body) =>
+    api.post(API_CONFIG.ENDPOINTS.CARS.POST_CONTACT_SUBMIT, body),
   totalcarscount: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
   gethorsepower: () => 
@@ -349,10 +349,10 @@ getMylistingCars: (type, filter, page) =>
   postuploadcarimages: (formData, type = 'car') =>
   api.post(
     `${API_CONFIG.ENDPOINTS.CARS.GET_CAR_IMAGES_UPLOAD}?type=${type}`,
-    formData, // ✅ Sending form data
+    formData, 
     {
       headers: {
-        'Content-Type': 'multipart/form-data', // ✅ Required for file uploads
+        'Content-Type': 'multipart/form-data', 
       },
     }
   ),

@@ -340,6 +340,12 @@ getMylistingCars: (type, filter, page) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CONTACT_SUBJECT),
    postcontactsubmit: (body) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_CONTACT_SUBMIT, body),
+   uploadbulkdata: (formData) =>
+    api.post(API_CONFIG.ENDPOINTS.CARS.POST_BULK_UPLOAD, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
   totalcarscount: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),
   gethorsepower: () => 

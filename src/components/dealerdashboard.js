@@ -6,18 +6,24 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { Button, Tooltip, message } from 'antd';
+import { Button, Tooltip, message, Modal, Table, Tag } from 'antd';
 import {
   CloudUploadOutlined,
   DownloadOutlined,
   CheckCircleFilled,
   UploadOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
+import { carAPI } from '../services/api';
+import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
 const DealerDashboard = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef(null); 
+  const [uploadResult, setUploadResult] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -27,19 +33,99 @@ const DealerDashboard = () => {
   const handleClear = () => {
     setSelectedFile(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''; 
+      fileInputRef.current.value = '';
     }
   };
 
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.href = '/example_template.xlsx'; 
+    link.href = '/example_template.xlsx';
     link.download = 'Template_Format.xlsx';
     link.click();
   };
 
   const handleUpload = async () => {
-    console.log('File Selected')
+    if (!selectedFile) {
+      messageApi.open({
+        type: 'error',
+        content: 'Please select a file before uploading.',
+      });
+      return;
+    }
+
+    const file = selectedFile;
+    const allowedTypes = [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/csv',
+    ];
+    const isAllowedType =
+      allowedTypes.includes(file.type) || file.name.toLowerCase().endsWith('.csv');
+
+    if (!isAllowedType) {
+      messageApi.open({
+        type: 'error',
+        content: 'Only .CSV files are supported.',
+      });
+      return;
+    }
+
+    const maxFileSizeMB = 5;
+    if (file.size / 1024 / 1024 > maxFileSizeMB) {
+      messageApi.open({
+        type: 'error',
+        content: `File size must not exceed ${maxFileSizeMB}MB.`,
+      });
+      return;
+    }
+
+    const text = await file.text();
+    const rowCount = text.trim().split('\n').length - 1;
+    if (rowCount > 500) {
+      messageApi.open({
+        type: 'error',
+        content: 'Maximum 500 listings per file are allowed.',
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const carResponse = await carAPI.uploadbulkdata(formData);
+      const responseData = handleApiResponse(carResponse);
+
+      if (responseData) {
+        setUploadResult({
+          totalRecords: rowCount,
+          successCount: responseData.success_count || 0,
+          errorCount: responseData.error_count || responseData.total_errors || 0,
+          errors: responseData.errors || [],
+          message: responseData.message,
+        });
+        setIsModalVisible(true);
+        handleClear();
+      }
+    } catch (error) {
+      console.log('Error', error);
+      const errorData = handleApiError(error);
+      messageApi.open({
+        type: 'error',
+        content: errorData?.message || 'Failed to upload file.',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleConfirmDraft = () => {
+    setIsModalVisible(false);
+    messageApi.open({
+      type: 'success',
+      content: 'Valid listings saved as drafts successfully!',
+    });
   };
 
   return (
@@ -50,7 +136,7 @@ const DealerDashboard = () => {
         padding: '40px',
       }}
     >
-      {/* Dashboard Title */}
+      {contextHolder}
       <h2
         style={{
           color: '#4A5E6D',
@@ -86,12 +172,11 @@ const DealerDashboard = () => {
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
-          {/* Hidden file input (always present) */}
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv,.xls,.xlsx"
-            id="uploadExcel"
+            accept=".csv"
+            id="uploadCSV"
             style={{ display: 'none' }}
             onChange={handleFileChange}
           />
@@ -116,6 +201,10 @@ const DealerDashboard = () => {
               >
                 Browse Files
               </Button>
+              <p style={{ color: '#6B7280', fontSize: '12px', marginTop: '8px' }}>
+                Up to 5MB or 500 listings per file.<br />
+                Only .CSV files are supported.
+              </p>
             </>
           ) : (
             <div
@@ -177,6 +266,7 @@ const DealerDashboard = () => {
           )}
         </div>
 
+        {/* Download Box */}
         <div
           style={{
             border: '2px dashed #E7EBEF',
@@ -211,6 +301,63 @@ const DealerDashboard = () => {
           </Button>
         </div>
       </div>
+
+      {/* ✅ Upload Results Modal */}
+      <Modal
+        open={isModalVisible}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ExclamationCircleOutlined style={{ color: '#008AD5', fontSize: '20px' }} />
+            <span style={{ fontWeight: '600', color: '#4A5E6D' }}>
+              Upload Validation Summary
+            </span>
+          </div>
+        }
+        footer={[
+          <Button key="close" onClick={() => setIsModalVisible(false)}>
+            Close
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            onClick={handleConfirmDraft}
+            style={{ backgroundColor: '#008AD5' }}
+          >
+            Confirm Draft Creation
+          </Button>,
+        ]}
+        centered
+      >
+        {uploadResult && (
+          <div style={{ marginTop: '16px' }}>
+            <p><strong>Total Records:</strong> {uploadResult.totalRecords}</p>
+            <p><strong>Valid Records:</strong> {uploadResult.successCount}</p>
+            <p><strong>Invalid/Error Records:</strong> {uploadResult.errorCount}</p>
+            <p style={{ color: '#4A5E6D', fontStyle: 'italic' }}>{uploadResult.message}</p>
+
+            {uploadResult.errors.length > 0 && (
+              <div
+                style={{
+                  backgroundColor: '#FFF8F8',
+                  border: '1px solid #FFD1D1',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  marginTop: '10px',
+                  maxHeight: '150px',
+                  overflowY: 'auto',
+                }}
+              >
+                <strong>Errors:</strong>
+                <ul style={{ margin: '8px 0 0 16px', color: '#B91C1C' }}>
+                  {uploadResult.errors.map((err, index) => (
+                    <li key={index}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tag, Dropdown, Menu, Modal, message } from 'antd';
+import { Button, Tag, Dropdown, Menu, Modal, message, Tooltip } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { COLORS } from '../utils/constants';
 import boost_icon from '../assets/images/boost_icon.svg';
@@ -129,7 +129,24 @@ const addboostapi = async (body) => {
           <img src={imageSrc} alt="car" className={`car-card-image ${value === STATUS_SOLD ? 'sold' : ''}`} />
           <div className="car-card-details">
             <div className="car-card-header">
-              <h3 className="car-card-title">{car.ad_title}</h3>
+             <Tooltip title={car.ad_title}>
+  <h3
+    className="car-card-title"
+    style={{
+      display: '-webkit-box',
+       WebkitLineClamp: car.approval?.toLowerCase() === 'approved' ? 2 : 3, // 2 lines for approved, 3 lines otherwise
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      fontSize: '16px',
+      fontWeight: 600,
+      color: '#0A0A0B',
+      margin: 0,
+    }}
+  >
+    {car.ad_title}
+  </h3>
+</Tooltip>
 
               {car.approval?.toLowerCase() === 'approved' && car.status !== 'sold' && (
                 <Dropdown

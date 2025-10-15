@@ -26,7 +26,7 @@ import pin_location from '../assets/images/pin_location.png';
 import gear_image from '../assets/images/gear_image.png';
 import fuel_image from '../assets/images/fuel_image.png';
 import calender_image from '../assets/images/Layer_1.png';
-import { carAPI } from '../services/api';
+import { carAPI, userAPI } from '../services/api';
 import { useSelector } from 'react-redux';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import CarListing from '../components/carListing';
@@ -34,6 +34,7 @@ import { FaChevronUp, FaChevronDown, FaCheckCircle } from 'react-icons/fa';
 import PlaneBanner from '../components/planeBanner';
 import boost_icon from '../assets/images/boost_icon.svg';
 import '../assets/styles/cardetails.css';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Helpers
@@ -144,9 +145,12 @@ InfoTable.defaultProps = {
   title: '',
 };
 
-const ImageGallery = ({ images, translate }) => {
+const ImageGallery = ({ images, translate, carDetails }) => {
   const [mainImageIdx, setMainImageIdx] = useState(0);
+  const [, setLoading] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
   const goToNextImage = () => setMainImageIdx((prev) => (prev + 1) % images.length);
+  console.log('Cardetails', carDetails?.seller?.id)
   const goToPrevImage = () =>
     setMainImageIdx((prev) => {
       if (prev === 0) {
@@ -155,10 +159,105 @@ const ImageGallery = ({ images, translate }) => {
       return prev - 1;
     });
 
+    const handleFavorite = async (carId) => {
+        try {
+          setLoading(carId);
+          const response = await userAPI.addFavorite(Number(carId));
+          const data1 = handleApiResponse(response);
+    
+          if (data1) {
+            messageApi.open({
+              type: 'success',
+              content: data1?.message || translate('landing.ADDED_TO_FAVORITES'),
+            });
+          }
+        } catch (error) {
+          if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
+            // Network/offline error -> show user-friendly message
+            messageApi.open({ 
+              type: 'error', 
+              content: translate('filters.OFFLINE_ERROR')
+            });
+          } else {
+            const errorData = handleApiError(error);
+            messageApi.open({
+              type: 'error',
+              content: errorData?.message || translate('landing.FAILED_TO_ADD_FAVORITE'),
+            });
+          }
+        } finally {
+          setLoading(null);
+        }
+      };
+    
+      const handleRemoveFavorite = async (carId) => {
+        try {
+          setLoading(carId);
+          const response = await userAPI.removeFavorite(Number(carId));
+          const data1 = handleApiResponse(response);
+    
+          if (data1) {
+            messageApi.open({
+              type: 'success',
+              content: data1?.message || translate('landing.REMOVED_FROM_FAVORITES'),
+            });
+          }
+        } catch (error) {
+          if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
+            // Network/offline error -> show user-friendly message
+            messageApi.open({ 
+              type: 'error', 
+              content: translate('filters.OFFLINE_ERROR')
+            });
+          } else {
+            const errorData = handleApiError(error);
+            messageApi.open({
+              type: 'error',
+              content: errorData?.message || translate('landing.FAILED_TO_REMOVE_FAVORITE'),
+            });
+          }
+        } finally {
+          setLoading(null);
+        }
+      };
+
   return (
     <Card className="main-image-card">
       <div className="main-image-wrapper">
         <img src={images[mainImageIdx]} alt="Car" className="main-car-image" />
+        <div className="car-listing-fav">
+                      {carDetails?.is_favorite ?(
+                        <FaHeart
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                             handleRemoveFavorite(carDetails?.id);
+                             console.log('Card_id', carDetails)
+                          }}
+                          style={{
+                            backgroundColor: '#ffffff',
+                            color: '#008ad5',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        />
+                      ) : (
+                        <FaRegHeart
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                             handleFavorite(carDetails?.id);
+                             console.log('Card_id1', carDetails)
+                          }}
+                          style={{
+                            backgroundColor: '#ffffff',
+                            color: '#008ad5',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        />
+                      )}
+                    </div>
         <button className="arrow-btn left-arrow" onClick={goToPrevImage} aria-label={translate('carDetails.PREVIOUS_IMAGE')}>
           <FaChevronLeft />
         </button>
@@ -433,7 +532,7 @@ CarInfoTables.propTypes = {
 const CarDetailsMain = ({ carDetails, BASE_URL, images, carInfo, additionalDetails, translate }) => {
   return (
     <div className="col-md-8">
-      <ImageGallery images={images} translate={translate} />
+      <ImageGallery images={images} translate={translate} carDetails={carDetails} />
       
       <CarHeader carDetails={carDetails} />
       <CarEngineSummary carDetails={carDetails} />
@@ -526,13 +625,14 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
 
   // Helper function to render status info
   const renderStatus = () => {
-  const { approval, status, reason, comment } = carDetails;
+  const { approval, status, rejection_reason, admin_rejection_comment, draft } = carDetails;
 
   const statusStyles = {
     rejected: { background: '#FDECEC', color: '#DC3545' },
     approved: { background: '#A4F4E7', color: '#0B7B69' },
     sold: { background: '#D5F0FF', color: '#008AD5' },
     pending: { background: '#FFEDD5', color: '#D67900' },
+    draft: { background: '#E6F0FF', color: '#007BFF' },
   };
 
   const commonStyle = {
@@ -544,15 +644,44 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
     display: 'inline-block',
   };
 
-  if (approval === 'rejected') {
+   if (draft === '1') {
     return (
-      <div style={{ ...commonStyle, ...statusStyles.rejected }}>
-        {translate('carDetails.REJECTED')}
-        {reason && <div>{translate('carDetails.REASON')}: {reason}</div>}
-        {comment && <div>{translate('carDetails.COMMENT')}: {comment}</div>}
+      <div style={{ ...commonStyle, ...statusStyles.draft }}>
+        {'Draft'}
       </div>
     );
   }
+
+ if (approval === 'rejected') {
+  return (
+    <div
+      style={{
+        ...commonStyle,
+        ...statusStyles.rejected,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center', // for the "Rejected" text
+        textAlign: 'left', // for children like reason/comment
+        gap: '4px',
+      }}
+    >
+      <div style={{ fontWeight: 'bold', width: '100%', textAlign: 'center' }}>
+        {translate('carDetails.REJECTED')}
+      </div>
+      {rejection_reason && (
+        <div style={{ width: '100%', textAlign: 'left' }}>
+          <strong>{translate('carDetails.REASON')}:</strong> {rejection_reason}
+        </div>
+      )}
+      {admin_rejection_comment && (
+        <div style={{ width: '100%', textAlign: 'left' }}>
+          <strong>{translate('carDetails.COMMENT')}:</strong> {admin_rejection_comment}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
   if (approval === 'approved' && status === 'sold') {
     return (
@@ -599,7 +728,7 @@ if (approval === 'approved' && status !== 'sold') {
         const cardetail = handleApiResponse(response);
         if (cardetail.status_code === 200) {
           messageApi.open({ type: 'success', content: cardetail.message });
-          // ✅ Change button to Boosted
+          // Change button to Boosted
           setLocalCarDetails(prev => ({ ...prev, is_featured: '1' }));
         } else {
           messageApi.open({ type: 'error', content: cardetail.message || 'Failed to boost' });

@@ -50,6 +50,7 @@ const API_CONFIG = {
       GET_FAQS: '/api/users/faqs',
       GET_CONTACT_SUBJECT: '/api/users/contact/subjects',
       POST_CONTACT_SUBMIT: '/api/users/contact',
+      POST_BULK_UPLOAD: '/api/cars/upload-cars-csv',
       GET_CARS_TOTALCOUNT: '/api/cars/total_count',
       GET_HORSE_POWER:'/api/cars/horsepower_ranges',
       GET_CAR_IMAGES_UPLOAD: '/api/search/upload-attachment',

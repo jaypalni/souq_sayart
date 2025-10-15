@@ -1343,7 +1343,10 @@ const uploadImagesAndGetUrls = async (newImages) => {
 
 // Helper function to handle draft save
 const handleDraftSave = async (values) => {
-  const { newImages, existingImages, orderMap } = separateImages(values.media);
+  // Use mediaFileList state if values.media is empty or undefined
+  const mediaToProcess = values.media && values.media.length > 0 ? values.media : mediaFileList;
+  
+  const { newImages, existingImages, orderMap } = separateImages(mediaToProcess);
 
   if (newImages.length === 0 && existingImages.length === 0) {
     await handleCreateCar([], true, values);
@@ -1351,34 +1354,40 @@ const handleDraftSave = async (values) => {
   }
   
   if (newImages.length > 0) {
-    const uploadResult = await uploadImagesAndGetUrls(newImages);
-    
-    if (uploadResult?.attachment_url?.length > 0) {
-      const newUploadedUrls = uploadResult.attachment_url;
+    try {
+      const uploadResult = await uploadImagesAndGetUrls(newImages);
       
-      // Reconstruct images in the original drag-drop order
-      const allImages = orderMap.map(item => {
-        if (item.type === 'new') {
-          return newUploadedUrls[item.index];
-        } else {
-          return existingImages[item.index];
-        }
-      });
-      
-      // Update mediaFileList to replace ALL with server URLs in correct order
-      const updatedFileList = allImages.map((url, index) => ({
-        uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-        name: url.split('/').pop() || `img-${Date.now()}-${index}`,
-        status: 'done',
-        url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
-        originFileObj: null, // Mark as server file
-      }));
-      setMediaFileList(updatedFileList);
-      form.setFieldsValue({ media: updatedFileList });
-      
-      await handleCreateCar(allImages, true, values);
-    } else {
-      message.error(uploadResult.message || 'Upload failed');
+      if (uploadResult?.attachment_url?.length > 0) {
+        const newUploadedUrls = uploadResult.attachment_url;
+        
+        // Reconstruct images in the original drag-drop order
+        const allImages = orderMap.map(item => {
+          if (item.type === 'new') {
+            return newUploadedUrls[item.index];
+          } else {
+            return existingImages[item.index];
+          }
+        });
+        
+        // Update mediaFileList to replace ALL with server URLs in correct order
+        const updatedFileList = allImages.map((url, index) => ({
+          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+          status: 'done',
+          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+          originFileObj: null, // Mark as server file
+        }));
+        setMediaFileList(updatedFileList);
+        form.setFieldsValue({ media: updatedFileList });
+        
+        await handleCreateCar(allImages, true, values);
+      } else {
+        message.error(uploadResult?.message || 'Upload failed');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to upload images');
+      throw error;
     }
   } else {
     await handleCreateCar(existingImages, true, values);
@@ -1387,7 +1396,10 @@ const handleDraftSave = async (values) => {
 console.log('mediaFileList',mediaFileList)
 // Helper function to handle create save
 const handleCreateSave = async (values) => {
-  const { newImages, existingImages, orderMap } = separateImages(values.media);
+  // Use mediaFileList state if values.media is empty or undefined
+  const mediaToProcess = values.media && values.media.length > 0 ? values.media : mediaFileList;
+  
+  const { newImages, existingImages, orderMap } = separateImages(mediaToProcess);
   
   if (newImages.length === 0 && existingImages.length === 0) {
     message.error(translate('sell.UPLOAD_MIN_PHOTOS'));
@@ -1395,34 +1407,40 @@ const handleCreateSave = async (values) => {
   }
 
   if (newImages.length > 0) {
-    const uploadResult = await uploadImagesAndGetUrls(newImages);
-    
-    if (uploadResult?.attachment_url?.length > 0) {
-      const newUploadedUrls = uploadResult.attachment_url;
+    try {
+      const uploadResult = await uploadImagesAndGetUrls(newImages);
       
-      // Reconstruct images in the original drag-drop order
-      const allImages = orderMap.map(item => {
-        if (item.type === 'new') {
-          return newUploadedUrls[item.index];
-        } else {
-          return existingImages[item.index];
-        }
-      });
-      
-      // Update mediaFileList to replace ALL with server URLs in correct order
-      const updatedFileList = allImages.map((url, index) => ({
-        uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-        name: url.split('/').pop() || `img-${Date.now()}-${index}`,
-        status: 'done',
-        url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
-        originFileObj: null, // Mark as server file
-      }));
-      setMediaFileList(updatedFileList);
-      form.setFieldsValue({ media: updatedFileList });
-      
-      await handleCreateCar(allImages, false, values);
-    } else {
-      message.error(uploadResult.message || 'Upload failed');
+      if (uploadResult?.attachment_url?.length > 0) {
+        const newUploadedUrls = uploadResult.attachment_url;
+        
+        // Reconstruct images in the original drag-drop order
+        const allImages = orderMap.map(item => {
+          if (item.type === 'new') {
+            return newUploadedUrls[item.index];
+          } else {
+            return existingImages[item.index];
+          }
+        });
+        
+        // Update mediaFileList to replace ALL with server URLs in correct order
+        const updatedFileList = allImages.map((url, index) => ({
+          uid: `server-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+          name: url.split('/').pop() || `img-${Date.now()}-${index}`,
+          status: 'done',
+          url: url.startsWith('http') ? url : `${BASE_URL}${url}`,
+          originFileObj: null, // Mark as server file
+        }));
+        setMediaFileList(updatedFileList);
+        form.setFieldsValue({ media: updatedFileList });
+        
+        await handleCreateCar(allImages, false, values);
+      } else {
+        message.error(uploadResult?.message || 'Upload failed');
+      }
+    } catch (error) {
+      const errorData = handleApiError(error);
+      message.error(errorData.message || 'Failed to upload images');
+      throw error;
     }
   } else {
     await handleCreateCar(existingImages, false, values);
@@ -1689,17 +1707,22 @@ const handleImageUpload = async (images) => {
                   getValueFromEvent={normFile}
                   rules={[
                     {
-                      required: true,
-                      message: translate('sell.PLEASE_ADD_MEDIA'),
+                      validator: (_, value) => {
+                        // Check both the form value and the mediaFileList state
+                        if ((!value || value.length === 0) && mediaFileList.length === 0) {
+                          return Promise.reject(new Error(translate('sell.PLEASE_ADD_MEDIA')));
+                        }
+                        return Promise.resolve();
+                      },
                     },
                   ]}
                 >
                   {mediaFileList.length === 0 ? (
                     <div
                       className='custom-upload-area'
-                      onClick={() =>
-                        document.getElementById('hidden-upload-input').click()
-                      }
+                      onClick={() => {
+                        document.getElementById('hidden-upload-input').click();
+                      }}
                     >
                       <img
                         src={addMediaSvg}
@@ -1729,7 +1752,10 @@ const handleImageUpload = async (images) => {
   style={{ display: 'none' }}
   onChange={(e) => {
     const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      e.target.value = null;
+      return;
+    }
 
     // Check total count first
     if (mediaFileList.length + files.length > 15) {
@@ -1772,6 +1798,11 @@ const handleImageUpload = async (images) => {
 
       setMediaFileList(newFileList);
       form.setFieldsValue({ media: newFileList });
+      
+      // Clear any validation errors for media field
+      form.validateFields(['media']).catch(() => {
+        // Ignore validation errors, we just added files
+      });
     }
 
     e.target.value = null; // reset so it fires again

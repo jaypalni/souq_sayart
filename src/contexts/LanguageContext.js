@@ -44,13 +44,13 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
     
     
-    // if (currentLanguage === LANGUAGES.AR || currentLanguage === LANGUAGES.KU) {
-    //   document.documentElement.dir = 'rtl';
-    //   document.body.dir = 'rtl';
-    // } else {
-    //   document.documentElement.dir = 'ltr';
-    //   document.body.dir = 'ltr';
-    // }
+    if (currentLanguage === LANGUAGES.AR || currentLanguage === LANGUAGES.KU) {
+      document.documentElement.dir = 'rtl';
+      document.body.dir = 'rtl';
+    } else {
+      document.documentElement.dir = 'ltr';
+      document.body.dir = 'ltr';
+    }
   }, [currentLanguage]);
 
   // /**

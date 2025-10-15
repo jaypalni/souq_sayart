@@ -288,7 +288,6 @@ ImageGallery.propTypes = {
 const FeaturesSection = ({ adTitle, featuresCsv, translate }) => {
   const [open, setOpen] = useState(false);
 
-  // Normalize features to always be an array of individual features
   const features = Array.isArray(featuresCsv)
     ? featuresCsv.flatMap(item => item.split(',').map(f => f.trim())) // split and trim each string
     : (featuresCsv || '').split(',').map(f => f.trim()); // fallback if it's just a string
@@ -713,7 +712,7 @@ if (approval === 'approved' && status !== 'sold') {
     }}
     disabled
   >
-    <span className="car-card-boost-text text-white">Boosted</span>
+    <span className="car-card-boost-text text-white">{translate('carDetails.BOOSTED')}</span>
     <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
   </button>
 ) : (
@@ -731,7 +730,7 @@ if (approval === 'approved' && status !== 'sold') {
           // Change button to Boosted
           setLocalCarDetails(prev => ({ ...prev, is_featured: '1' }));
         } else {
-          messageApi.open({ type: 'error', content: cardetail.message || 'Failed to boost' });
+          messageApi.open({ type: 'error', content: cardetail.message || translate('carDetails.FAILED_TO_BOOST') });
         }
       } catch (error) {
         const errorData = handleApiError(error);
@@ -748,7 +747,7 @@ if (approval === 'approved' && status !== 'sold') {
       border: 'none',
     }}
   >
-    <span className="car-card-boost-text text-white">Boost</span>
+    <span className="car-card-boost-text text-white">{translate('carDetails.BOOST')}</span>
     <img src={boost_icon} alt="boost" className="car-card-boost-icon" />
   </button>
 )}
@@ -1002,7 +1001,7 @@ const useCarDetails = (id) => {
 
 // Boost API
 
-const addboostapi = async (body, messageApi) => {
+const addboostapi = async (body, messageApi, translate) => {
   try {
     const response = await carAPI.postboostcar(body); 
     const cardetail = handleApiResponse(response);
@@ -1014,7 +1013,7 @@ const addboostapi = async (body, messageApi) => {
     } else {
       messageApi.open({
         type: 'error',
-        content: cardetail?.message || 'Failed to boost',
+        content: cardetail?.message || translate('carDetails.FAILED_TO_BOOST'),
       });
     }
   } catch (error) {

@@ -678,6 +678,8 @@
     "SOLD": "فرۆشراوە",
     "ACTIVE": "چالاک",
     "BOOST": "بەرزکردنەوە",
+    "BOOSTED": "بەرزکراوەتەوە",
+    "FAILED_TO_BOOST": "بەرزکردنەوە سەرکەوتوو نەبوو",
     "APPROVAL_PENDING": "چاوەڕوانی پەسەندکردن",
     "PHONE_NUMBER_COPIED": "ژمارە تەلەفۆن کۆپی کرا",
     "SELLER_PHONE_NUMBER": "ژمارە تەلەفۆنی فرۆشیار",

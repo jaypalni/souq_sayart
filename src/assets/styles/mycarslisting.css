@@ -12,12 +12,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .mylisting-car-image-container {
-    height: 200px;
-    padding: 0 15px;
-  }
-}
+
 
 @media (max-width: 480px) {
   .mylisting-car-image-container {
@@ -415,4 +410,18 @@ flex: 1;
 
 .car-card-stat svg {
   color: #003958; /* force icons to same color */
+}
+@media (max-width: 768px) {
+  .mylistings-subscribe-btn {
+    background: #008ad500;
+    color: #fff;
+    border-radius: 22px;
+    border: 1px solid #fff;
+    padding: 2px 20px;
+    margin: 0px 0px 20px;
+  }
+  .mylisting-car-image-container {
+    height: 200px;
+    padding: 0 15px;
+  }
 }

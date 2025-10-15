@@ -1384,7 +1384,7 @@ const handleDraftSave = async (values) => {
     await handleCreateCar(existingImages, true, values);
   }
 };
-
+console.log('mediaFileList',mediaFileList)
 // Helper function to handle create save
 const handleCreateSave = async (values) => {
   const { newImages, existingImages, orderMap } = separateImages(values.media);

@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { Button, Tooltip, message, Modal, Table, Tag } from 'antd';
+import { Button, Tooltip, message, Modal } from 'antd';
 import {
   CloudUploadOutlined,
   DownloadOutlined,
@@ -25,16 +25,27 @@ const DealerDashboard = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const fileInputRef = useRef(null);
 
+  // ✅ Handle file selection (only .xlsx)
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) setSelectedFile(file);
+    if (!file) return;
+
+    const isXLSX = file.name.toLowerCase().endsWith('.xlsx');
+    if (!isXLSX) {
+      messageApi.open({
+        type: 'error',
+        content: 'Only .XLSX files are supported.',
+      });
+      event.target.value = ''; // clear file input
+      return;
+    }
+
+    setSelectedFile(file);
   };
 
   const handleClear = () => {
     setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDownload = () => {
@@ -44,72 +55,32 @@ const DealerDashboard = () => {
     link.click();
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      messageApi.open({
-        type: 'error',
-        content: 'Please select a file before uploading.',
-      });
-      return;
-    }
-
-    const file = selectedFile;
-    const allowedTypes = [
-      'text/csv',
-      'application/vnd.ms-excel',
-      'application/csv',
-    ];
-    const isAllowedType =
-      allowedTypes.includes(file.type) || file.name.toLowerCase().endsWith('.csv');
-
-    if (!isAllowedType) {
-      messageApi.open({
-        type: 'error',
-        content: 'Only .CSV files are supported.',
-      });
-      return;
-    }
-
-    const maxFileSizeMB = 5;
-    if (file.size / 1024 / 1024 > maxFileSizeMB) {
-      messageApi.open({
-        type: 'error',
-        content: `File size must not exceed ${maxFileSizeMB}MB.`,
-      });
-      return;
-    }
-
-    const text = await file.text();
-    const rowCount = text.trim().split('\n').length - 1;
-    if (rowCount > 500) {
-      messageApi.open({
-        type: 'error',
-        content: 'Maximum 500 listings per file are allowed.',
-      });
-      return;
-    }
-
+  // ✅ Function to handle API upload
+  const uploadFileToAPI = async (file, status) => {
     try {
       setIsUploading(true);
       const formData = new FormData();
       formData.append('file', file);
 
-      const carResponse = await carAPI.uploadbulkdata(formData);
+      // Call the API with status or without it
+      const carResponse = status !== undefined
+        ? await carAPI.uploadbulkdata(formData, status)
+        : await carAPI.uploadbulkdata(formData);
+
       const responseData = handleApiResponse(carResponse);
 
       if (responseData) {
         setUploadResult({
-          totalRecords: rowCount,
+          totalRecords: responseData.total_records || 0,
           successCount: responseData.success_count || 0,
           errorCount: responseData.error_count || responseData.total_errors || 0,
           errors: responseData.errors || [],
           message: responseData.message,
         });
         setIsModalVisible(true);
-        handleClear();
       }
     } catch (error) {
-      console.log('Error', error);
+      console.error('Error', error);
       const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
@@ -120,12 +91,43 @@ const DealerDashboard = () => {
     }
   };
 
-  const handleConfirmDraft = () => {
+  // ✅ Upload File (with status=false)
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      messageApi.open({
+        type: 'error',
+        content: 'Please select a file before uploading.',
+      });
+      return;
+    }
+
+    const maxFileSizeMB = 5;
+    if (selectedFile.size / 1024 / 1024 > maxFileSizeMB) {
+      messageApi.open({
+        type: 'error',
+        content: `File size must not exceed ${maxFileSizeMB}MB.`,
+      });
+      return;
+    }
+
+    await uploadFileToAPI(selectedFile, false); // send status=false
+  };
+
+  // ✅ Confirm Draft Creation (same file, no status param)
+  const handleConfirmDraft = async () => {
     setIsModalVisible(false);
-    messageApi.open({
-      type: 'success',
-      content: 'Valid listings saved as drafts successfully!',
-    });
+    if (selectedFile) {
+      await uploadFileToAPI(selectedFile); // no status param
+      messageApi.open({
+        type: 'success',
+        content: 'Valid listings saved as drafts successfully!',
+      });
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: 'No file available to re-upload.',
+      });
+    }
   };
 
   return (
@@ -175,8 +177,8 @@ const DealerDashboard = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv"
-            id="uploadCSV"
+            accept=".xlsx"
+            id="uploadXLSX"
             style={{ display: 'none' }}
             onChange={handleFileChange}
           />
@@ -203,7 +205,7 @@ const DealerDashboard = () => {
               </Button>
               <p style={{ color: '#6B7280', fontSize: '12px', marginTop: '8px' }}>
                 Up to 5MB or 500 listings per file.<br />
-                Only .CSV files are supported.
+                Only .XLSX files are supported.
               </p>
             </>
           ) : (

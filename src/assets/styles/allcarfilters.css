@@ -548,3 +548,15 @@
     padding: 0;
     color: rgb(146 135 135 / 88%) !important;
 }
+
+.responsive-container {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .responsive-container {
+    height: 90%;
+  }
+}

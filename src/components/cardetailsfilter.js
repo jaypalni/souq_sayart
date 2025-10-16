@@ -33,6 +33,7 @@ import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import Searchemptymodal from './searchemptymodal';
 import { fetchMakeCars, fetchModelCars } from '../commonFunction/fetchMakeCars';
 import { useLanguage } from '../contexts/LanguageContext';
+import '../assets/styles/allcarfilters.css';
 
 const { Option } = Select;
 
@@ -1410,11 +1411,7 @@ if (
           overflow: 'hidden',
         }}
       >
-        <div style={{
-          height: '100%',
-          overflowY: 'auto',
-          paddingRight: '8px',
-        }}>
+        <div className="responsive-container">
 
           <SelectInputAPI
             title={translate('filters.MAKE')}

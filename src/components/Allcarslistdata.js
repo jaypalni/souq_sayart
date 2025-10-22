@@ -15,7 +15,7 @@ import { userAPI } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 
-const Allcarslistdata = ({ car, idx }) => {
+const Allcarslistdata = ({ car, idx, onClick }) => {
   const BASE_URL = process.env.REACT_APP_API_URL;
   const { translate } = useLanguage();
   const [messageApi, contextHolder] = message.useMessage();
@@ -69,7 +69,7 @@ const handleRemoveFavorite = async () => {
 
   
   return (
-    <div className="col-3 p-0" key={idx}>
+    <div className="col-3 p-0" key={idx} onClick={onClick} style={{ cursor: 'pointer' }}>
       {contextHolder}
       <div className="allcars-listing-card">
         <div className="car-listing-image-wrapper">

@@ -10,6 +10,7 @@ import Pinlocation_icon from '../assets/images/pinlocation_icon.svg';
 import Allcarslistdata from '../components/Allcarslistdata';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { useNavigate } from 'react-router-dom';
 
 
 const { Option } = Select;
@@ -23,6 +24,7 @@ const UsersProfile = () => {
   const [visibleCars, setVisibleCars] = useState([]);
   const [carList, setCarList] = useState([]);
   const [, setLoading] = useState(false);
+   const navigate = useNavigate();
   
 
   // Fetch user details whenever userId or location changes
@@ -271,6 +273,7 @@ const UsersProfile = () => {
               certified: car.certified || false,
             }}
             idx={idx}
+            onClick={() => navigate(`/carDetails/${car.id}`, { state: { previousPage: 'Seller Profile' } })}
           />
         ))}
       </div>

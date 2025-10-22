@@ -147,9 +147,18 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
         // Add previous page breadcrumb (default to "All Cars" if not provided)
         const prevPage = previousPage || 'All Cars';
         let prevPagePath = '/allcars';
-        
+        console.log('Befor Page', previousPage)
         if (previousPage === 'My Listings') {
           prevPagePath = '/myListings';
+        } else if (previousPage === 'Seller Profile') {
+           const sellerId = carDetails?.seller?.id;
+  if (sellerId) {
+     prevPagePath = `/userProfile/${sellerId}`;
+    
+  } else {
+    
+    prevPagePath = '/'; 
+  }
         } else if (previousPage === 'Featured Cars') {
           prevPagePath = '/';
         } else if (previousPage === 'Recommended Cars') {
@@ -323,6 +332,10 @@ PlaneBanner.propTypes = {
     make: PropTypes.string,
     model: PropTypes.string,
     year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+     seller: PropTypes.shape({
+      id: PropTypes.string, // seller id as string
+    }),
+
   }),
   previousPage: PropTypes.string,
 };

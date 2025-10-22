@@ -367,13 +367,23 @@ const getInitialMaxPrice = () => {
       
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
+      console.log('ur offline2')
 
       // Null checks for pagination data
       if (data?.data?.pagination && typeof data.data.pagination.total === 'number') {
         setCarCount(data.data.pagination.total);
       }
+      
     } catch (error) {
+      console.log('Net', error)
       // Silent error handling for auto-search
+      if (error?.message === 'Network Error') {
+            messageApi.open({
+              type: 'error',
+              content: translate('filters.OFFLINE_ERROR'),
+            });
+          }else{
+          }
     }
   };
 
@@ -402,13 +412,21 @@ const getInitialMaxPrice = () => {
       
       const response = await carAPI.getSearchCars(apiParams);
       const data = handleApiResponse(response);
-
+console.log('ur offline3')
       // Null checks for pagination data
       if (data?.data?.pagination && typeof data.data.pagination.total === 'number') {
         setCarCount(data.data.pagination.total);
       }
+      
     } catch (error) {
-      // Silent error handling for auto-search
+      console.log('Net2', error)
+      if (error?.message === 'Network Error') {
+            messageApi.open({
+              type: 'error',
+              content: translate('filters.OFFLINE_ERROR'),
+            });
+          }else{
+          }
     }
   };
 
@@ -655,8 +673,16 @@ fetchRegionCars()
   
       message.success(data1?.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
-      const errorData = handleApiError(error);
+      if (error?.message === 'Network Error') {
+            messageApi.open({
+              type: 'error',
+              content: translate('filters.OFFLINE_ERROR'),
+            });
+          }else{
+ const errorData = handleApiError(error);
       message.error(errorData.message || translate('filters.FETCH_LOCATION_FAILED'));
+          }
+     
       setCarLocation([]);
     } finally {
       setLoading(false);
@@ -675,8 +701,15 @@ fetchRegionCars()
 
       message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
+      if (error?.message === 'Network Error') {
+            messageApi.open({
+              type: 'error',
+              content: translate('filters.OFFLINE_ERROR'),
+            });
+          }else{
       const errorData = handleApiError(error);
       message.error(errorData.message || translate('filters.FETCH_BODY_TYPE_FAILED'));
+          }
       setCarBodyTypes([]);
     } finally {
       setLoading(false);
@@ -871,11 +904,12 @@ setIsnetworkError(false)
       clearCachedData();
       const response = await carAPI.getSearchCars(apiParams);
       const data1 = handleApiResponse(response);
-
+console.log('ur offline1')
       if (data1) {
         handleSearchResults(data1, apiParams);
       }
     } catch (error) {
+      console.log('Net23', error)
       const errorData = handleApiError(error);
     if(error?.message==='Network Error' ){ 
       messageApi.open({
@@ -1214,6 +1248,7 @@ setIsnetworkError(false)
           <div className="landing-filters-row landing-filters-row-text">
          
             {/* Price Min */}
+{/* Price Min */}
 <div>
   {!showMinInput ? (
     <div
@@ -1229,35 +1264,29 @@ setIsnetworkError(false)
       }}
       onClick={() => setShowMinInput(true)}
     >
-      {minPrice !== null ? `₹${minPrice}` : translate('filters.PRICE_MIN')}
+      {minPrice !== null ? `IQD ${minPrice}` : translate('filters.PRICE_MIN')}
     </div>
   ) : (
-   <Input
-  style={{ width: '100px' }}
-  type="tel"
-  value={minPrice}
-  placeholder={translate('filters.MIN')}
-  onChange={(e) => {
-    // Allow only digits
-    const value = e.target.value.replace(/\D/g, '');
+    <Input
+      style={{ width: '100px' }}
+      type="tel"
+      value={minPrice !== null ? minPrice : ''}
+      placeholder={translate('filters.MIN')}
+      onChange={(e) => {
+        const value = e.target.value.replace(/\D/g, '');
+        setMinPrice(value ? Number(value) : null);
+      }}
+      onBlur={() => {
+        // Validate against maxPrice on blur
+        if (minPrice !== null && maxPrice !== null && minPrice >= maxPrice) {
+          messageApi.error(translate('filters.MIN_PRICE_LESS'));
+        }
+        setShowMinInput(false);
 
-    // Check against maxPrice
-    if (maxPrice !== null && Number(value) >= maxPrice) {
-      messageApi.error(translate('filters.MIN_PRICE_LESS'));
-      return;
-    }
-
-    setMinPrice(value ? Number(value) : null);
-    
-    // Call API when price changes
-    setTimeout(() => {
-      handleSearch();
-    }, 500);
-  }}
-  onBlur={() => {
-    if (minPrice === null) setShowMinInput(false);
-  }}
-/>
+        // Call API after input finished
+        handleSearch();
+      }}
+    />
   )}
 </div>
 
@@ -1277,42 +1306,34 @@ setIsnetworkError(false)
       }}
       onClick={() => setShowMaxInput(true)}
     >
-      {maxPrice !== null ? `₹${maxPrice}` : translate('filters.PRICE_MAX')}
+      {maxPrice !== null ? `IQD ${maxPrice}` : translate('filters.PRICE_MAX')}
     </div>
   ) : (
-   <Input
-  style={{ width: '120px' }}
-  type="tel"
-  value={maxPrice !== null ? maxPrice : ''} // Show empty string when null
-  placeholder={translate('filters.MAX')}
-  onChange={(e) => {
-    const value = e.target.value.replace(/\D/g, ''); // Allow only digits
-    const numericValue = value ? Number(value) : null;
+    <Input
+      style={{ width: '120px' }}
+      type="tel"
+      value={maxPrice !== null ? maxPrice : ''}
+      placeholder={translate('filters.MAX')}
+      onChange={(e) => {
+        const value = e.target.value.replace(/\D/g, '');
+        setMaxPrice(value ? Number(value) : null);
+      }}
+      onBlur={() => {
+        // Validate max price limits
+        if (maxPrice !== null && maxPrice > 5000000000) {
+          messageApi.error(translate('filters.MAX_PRICE_LIMIT'));
+        }
+        // Validate against min price
+        if (minPrice !== null && maxPrice !== null && maxPrice <= minPrice) {
+          messageApi.error(translate('filters.MAX_PRICE_GREATER'));
+        }
 
-    // Always update state first
-    setMaxPrice(numericValue);
+        setShowMaxInput(false);
 
-    // Validate max limit
-    if (numericValue !== null && numericValue > 5000000000) {
-      messageApi.error(translate('filters.MAX_PRICE_LIMIT'));
-    }
-
-    // Validate against min price
-    if (minPrice !== null && numericValue !== null && numericValue <= minPrice) {
-      messageApi.error(translate('filters.MAX_PRICE_GREATER'));
-    }
-    
-    // Call API when price changes
-    setTimeout(() => {
-      handleSearch();
-    }, 500);
-  }}
-  onBlur={() => {
-    if (maxPrice === null) setShowMaxInput(false);
-  }}
-/>
-
-
+        // Call API after input finished
+        handleSearch();
+      }}
+    />
   )}
 </div>
 

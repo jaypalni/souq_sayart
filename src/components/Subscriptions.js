@@ -37,13 +37,13 @@ const mapPlanData = (items, translate) =>
     features: [
       `${translate('subscriptions.PRICE_MODEL')}: ${translate('subscriptions.PER_CAR')}`,
       `${item.listing_limit} ${translate('subscriptions.POSTS_ALLOWED')}`,
-      `${item.photo_limit || 10} ${translate('subscriptions.PHOTOS_ALLOWED')}`,
+      `${item.photo_limit || 15} ${translate('subscriptions.PHOTOS_ALLOWED')}`,
     ],
     details: {
       price: `IQD ${item.price}`,
       priceModel: translate('subscriptions.PER_CAR'),
       postsAllowed: item.listing_limit,
-      photosAllowed: item.photo_limit || 10,
+      photosAllowed: item.photo_limit || 15,
       videosAllowed: item.video_limit || '-',
       postDuration: `${item.duration_days} ${translate('subscriptions.DAYS')}`,
       featured: item.featured || '-',
@@ -287,7 +287,7 @@ SubscriptionListView.propTypes = {
 
 const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading, translate }) => (
   <div className="subscription-details-main">
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+    <div style={{ display: 'flex', alignItems: 'left', marginBottom: 16 }}>
       <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} style={{ marginRight: 8 }} />
       <div className="subscriptions-header" style={{ marginBottom: 0 }}>{translate('subscriptions.PAGE_TITLE')}</div>
     </div>
@@ -297,8 +297,8 @@ const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, l
           <div style={{ background: '#ffa726', color: '#fff', borderRadius: 6, padding: '2px 12px', display: 'inline-block' }}>{translate('subscriptions.CURRENT')}</div>
         </div>
       )}
-      <div style={{ fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{plan.title}</div>
-      <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 4 }}>
+      <div style={{ fontWeight: 600, fontSize: 20, marginBottom: 8, textAlign: 'left', marginLeft: 8 }}>{plan.title}</div>
+      <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 4, textAlign: 'left', marginLeft: 8 }}>
         IQD  {plan.price} <span style={{ fontSize: 16, fontWeight: 400, color: isCurrent ? '#e3e8ef' : '#888' }}>{plan.duration}</span>
       </div>
     </div>

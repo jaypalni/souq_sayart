@@ -91,7 +91,8 @@ const AppRouterContent = () => {
   
   const hideBanner =
     hidebannerList.includes(location.pathname) ||
-    location.pathname.startsWith('/carDetails/');
+    location.pathname.startsWith('/carDetails/') ||
+  location.pathname.startsWith('/userProfile/');
 
   const hideFooter = hidefooterList.includes(location.pathname);
 
@@ -108,7 +109,9 @@ const AppRouterContent = () => {
         <Route path="/landing" element={<Landing />} />
         <Route path="/carDetails/:id" element={<CarDetails />} />
         <Route path="/allcars" element={<AllCars />} />
-        <Route path="/userProfile" element={<UserProfile />} />
+        {/* <Route path="/userProfile" element={<UserProfile />} /> */}
+        <Route path="/userProfile/:userId" element={<UserProfile />} />
+
         <Route
           path="/termsAndconditions"
           element={<TermsAndConditions />}

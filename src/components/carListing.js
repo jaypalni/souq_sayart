@@ -151,7 +151,13 @@ const CarListing = ({ title, cardata }) => {
           color: '#666',
           fontSize: '16px'
         }}>
-          <p>{translate('landing.NO_CARS_FOUND')}</p>
+          <p>
+      {title === translate('landing.FEATURED_CAR')
+        ? translate('landing.NO_FEATUREDCARS_FOUND')
+        : title === translate('landing.RECOMMENDED_CARS')
+        ? translate('landing.NO_RECOMMENDEDCARS_FOUND')
+        : translate('landing.NO_CARS_FOUND')}
+    </p>
           <p style={{ fontSize: '14px', marginTop: '10px' }}>
             {translate('landing.TRY_ADJUSTING_FILTERS')}
           </p>

@@ -3,12 +3,15 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message, Typography, Spin } from 'antd';
 import PlaneBanner from '../components/planeBanner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Title } = Typography;
 
 const TandC = () => {
   const [loading, setLoading] = useState(false);
   const [contentData, setContentData] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
+  const { translate } = useLanguage();
 
   useEffect(() => {
     fetchContentData();
@@ -26,8 +29,16 @@ const TandC = () => {
         message.error('No content found');
       }
     } catch (error) {
-      const errorData = handleApiError(error);
+       if (error?.message === 'Network Error') {
+                  messageApi.open({
+                    type: 'error',
+                    content: translate('filters.OFFLINE_ERROR'),
+                  });
+                }else{
+                   const errorData = handleApiError(error);
       message.error(errorData.message);
+                }
+     
     } finally {
       setLoading(false);
     }
@@ -51,6 +62,7 @@ const TandC = () => {
           padding: '0 16px',
         }}
       >
+        {contextHolder}
         {loading ? (
           <div style={{ textAlign: 'center', marginTop: '50px' }}>
             <Spin tip="Loading content..." size="large" />

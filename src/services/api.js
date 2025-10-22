@@ -338,14 +338,22 @@ getMylistingCars: (type, filter, page) =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_FAQS),
    getcontactsubject: () =>
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CONTACT_SUBJECT),
+  postsellerprofile: (body) =>
+    api.post(API_CONFIG.ENDPOINTS.CARS.POST_SELLER_PROFILE, body),
    postcontactsubmit: (body) =>
     api.post(API_CONFIG.ENDPOINTS.CARS.POST_CONTACT_SUBMIT, body),
+  //  postdownloadreport: () =>
+  //   api.get(API_CONFIG.ENDPOINTS.CARS.POST_DOWNLOAD_REPORT),
+     postdownloadreport: (config = {}) =>
+    api.get(API_CONFIG.ENDPOINTS.CARS.GET_DOWNLOAD_REPORT, config),
    uploadbulkdata: (formData, status) =>
   api.post(API_CONFIG.ENDPOINTS.CARS.POST_BULK_UPLOAD(status), formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   }),
+   getdownloadtemplate: (config = {}) =>
+  api.get(API_CONFIG.ENDPOINTS.CARS.GET_DOWNLOAD_TEMPLATE, config),
 
   totalcarscount: () => 
     api.get(API_CONFIG.ENDPOINTS.CARS.GET_CARS_TOTALCOUNT),

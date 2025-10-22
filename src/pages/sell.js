@@ -321,6 +321,8 @@ const Sell = () => {
   const [carId, setCarId] = useState('');
   const autoSaveIntervalRef = useRef(null);
   const lastSavedDataRef = useRef(null); // Track last saved data to detect changes
+  const initialDataRef = useRef(null); // Track initial data from extras to detect user changes
+  const isEditModeRef = useRef(false); // Track if we're in edit mode
   const [draggedIndex, setDraggedIndex] = useState(null); // Track which item is being dragged
 
 
@@ -370,8 +372,10 @@ const handleAddNew = () => {
   // Reset car_id for new car
   setCarId('');
   
-  // Reset last saved data ref
+  // Reset last saved data ref and edit mode tracking
   lastSavedDataRef.current = null;
+  initialDataRef.current = null;
+  isEditModeRef.current = false;
 
   // Finally close the modal
   setShowModal(false);
@@ -623,9 +627,10 @@ useEffect(() => {
   
   if (populatedRef.current) return;
 
-  // Set car_id from extras if it exists
+  // Set car_id from extras if it exists (this means we're in edit mode)
   if (data.id) {
     setCarId(data.id.toString());
+    isEditModeRef.current = true; // Mark as edit mode
   }
 
   const imagePath = data.image_url || data.car_image || '';
@@ -724,14 +729,19 @@ useEffect(() => {
 
   // your handleChange stays same
 const handleChange = (e) => {
-    let v = e.target.value || '';
-    if (v.length > MAX_LEN) {
-      v = v.slice(0, MAX_LEN);
-      message.warning(translate('sell.DESCRIPTION_TRUNCATED', { max: MAX_LEN }));
-    }
-    setDescription(v);
-    form.setFieldsValue({ description: v });
-  };
+  let v = e.target.value || '';
+
+  // ✅ Strictly enforce the max length
+  if (v.length > MAX_LEN) {
+    v = v.substring(0, MAX_LEN); // only keep the first MAX_LEN characters
+    message.warning(translate('sell.DESCRIPTION_TRUNCATED', { max: MAX_LEN }));
+  }
+
+  // ✅ Update only the trimmed value
+  setDescription(v);
+  form.setFieldsValue({ description: v });
+};
+
 
   // ✅ Emoji click (NO auto-close here)
   const handleEmojiClick = (emojiData) => {
@@ -921,14 +931,37 @@ const handleChange = (e) => {
   const performAutoSave = async () => {
     const values = form.getFieldsValue();
     
-    if (!hasFormData(values)) return;
+    if (!hasFormData(values)) {
+      console.log('⏭️ Auto-save skipped: No form data');
+      return;
+    }
 
     const currentDataSnapshot = buildFormDataSnapshot(values);
     
+    // If no changes since last save, skip auto-save
     if (lastSavedDataRef.current === currentDataSnapshot) {
+      console.log('⏭️ Auto-save skipped: No changes since last save');
       return;
     }
     
+    // ✅ In edit mode, only auto-save if user made actual changes from initial data
+    if (isEditModeRef.current && initialDataRef.current) {
+      const hasChanges = initialDataRef.current !== currentDataSnapshot;
+      console.log('🔍 Edit mode check:', {
+        isEditMode: isEditModeRef.current,
+        hasInitialData: !!initialDataRef.current,
+        hasChanges,
+        initialLength: initialDataRef.current?.length,
+        currentLength: currentDataSnapshot.length
+      });
+      
+      if (!hasChanges) {
+        console.log('⏭️ Auto-save skipped: No changes from initial data in edit mode');
+        return; // Skip auto-save - no changes from initial data
+      }
+    }
+    
+    console.log('💾 Auto-save triggered');
     
     const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
     const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
@@ -949,8 +982,25 @@ const handleChange = (e) => {
         clearInterval(autoSaveIntervalRef.current);
       }
 
+      // ✅ For edit mode, capture initial snapshot on first interval run
+      let isFirstRun = true;
+
       autoSaveIntervalRef.current = setInterval(async () => {
         try {
+          // ✅ On first run in edit mode, just capture the snapshot and skip save
+          if (isFirstRun && isEditModeRef.current) {
+            isFirstRun = false;
+            const values = form.getFieldsValue();
+            const initialSnapshot = buildFormDataSnapshot(values);
+            initialDataRef.current = initialSnapshot;
+            lastSavedDataRef.current = initialSnapshot;
+            console.log('📸 First auto-save interval: Captured initial snapshot (no save):', {
+              snapshotLength: initialSnapshot.length
+            });
+            return; // Skip auto-save on first run in edit mode
+          }
+          
+          isFirstRun = false;
           await performAutoSave();
         } catch (error) {
           // Silent error handling for auto-save
@@ -978,8 +1028,19 @@ const handleChange = (e) => {
 
       message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
+      if (error?.message === 'Network Error') {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR'),
+      });
+    } else {
+      // Handle other API errors
       const errorData = handleApiError(error);
-      message.error(errorData.message || translate('filters.FETCH_FAILED'));
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || translate('filters.FETCH_FAILED'),
+      });
+    }
       setUpdateData([]);
     } finally {
       setLoading(false);
@@ -1033,7 +1094,7 @@ useEffect(() => {
 // Only clear trim and body type when model changes manually (not during initial data loading)
 useEffect(() => {
   const timer = setTimeout(() => {
-    setSelectedTrim(extras?.trim||null);
+    // setSelectedTrim(extras?.trim||null);
     setSelectedBodyType(extras?.body_type||'');
     form.setFieldsValue({ bodyType: extras?.body_type||'' });
   }, 100);
@@ -1052,8 +1113,19 @@ useEffect(() => {
 
       message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
+      if (error?.message === 'Network Error') {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR'),
+      });
+    } else {
+      // Handle other API errors
       const errorData = handleApiError(error);
-      message.error(errorData.message || translate('filters.FETCH_FAILED'));
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || translate('filters.FETCH_FAILED'),
+      });
+    }
       setTrimData([]);
     } finally {
       setLoading(false);
@@ -1072,8 +1144,19 @@ useEffect(() => {
 
       message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
+       if (error?.message === 'Network Error') {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR'),
+      });
+    } else {
+      // Handle other API errors
       const errorData = handleApiError(error);
-      message.error(errorData.message || translate('filters.FETCH_FAILED'));
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || translate('filters.FETCH_FAILED'),
+      });
+    }
       setYearData([]);
     } finally {
       setLoading(false);
@@ -1092,8 +1175,19 @@ useEffect(() => {
 
       message.success(data1.message || translate('filters.FETCHED_SUCCESSFULLY'));
     } catch (error) {
+       if (error?.message === 'Network Error') {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR'),
+      });
+    } else {
+      // Handle other API errors
       const errorData = handleApiError(error);
-      message.error(errorData.message || translate('filters.FETCH_FAILED'));
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || translate('filters.FETCH_FAILED'),
+      });
+    }
       setHorsePower([]);
     } finally {
       setLoading(false);
@@ -1196,7 +1290,9 @@ const handlePostDataSuccess = (data1, isDraft, text) => {
 const buildCreateCarFormData = (values, uploadedImages, isDraft) => {
   const cleanPrice = values.price ? values.price.replace(/,/g, '') : '';
   const formData = new FormData();
-  
+
+  const trimmedDescription = (description || '').slice(0, MAX_LEN);
+ 
   if (carId && carId !== '') {
     formData.append('car_id', carId);
   }
@@ -1205,7 +1301,7 @@ const buildCreateCarFormData = (values, uploadedImages, isDraft) => {
   formData.append('model', selectedModel || modalName || '');
   formData.append('year', selectedYear || '');
   formData.append('price', cleanPrice || '');
-  formData.append('description', values?.description || '');
+  formData.append('description', trimmedDescription || '');
   formData.append('ad_title', values?.adTitle || '');
   formData.append('exterior_color', selectedColor || '');
   formData.append('interior_color', selectedInteriorColor || '');
@@ -1296,14 +1392,21 @@ const handleCreateCar = async (uploadedImages = [], isDraft = false, valuesParam
       handlePostCreationActions(isDraft, isAutoSave);
     }
   } catch (error) {
-    const errorData = handleApiError(error);
-    const messageText = typeof errorData === 'object' 
-      ? errorData?.message
-      : (errorData || 'An error occurred');
-    
-    
-    if (!isAutoSave) {
-      messageApi.open({ type: 'error', content: messageText });
+    if (error?.message === 'Network Error') {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR') || 'You are offline, please check your internet connection',
+      });
+    } else {
+      // ✅ Handle other API errors
+      const errorData = handleApiError(error);
+      const messageText = typeof errorData === 'object' 
+        ? errorData?.message
+        : (errorData || 'An error occurred');
+
+      if (!isAutoSave) {
+        messageApi.open({ type: 'error', content: messageText });
+      }
     }
     setAddData([]);
   } finally {
@@ -1385,15 +1488,26 @@ const handleDraftSave = async (values) => {
         message.error(uploadResult?.message || 'Upload failed');
       }
     } catch (error) {
+      if (error?.message === 'Network Error') {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR'),
+      });
+    } else {
+      // Handle other API errors
       const errorData = handleApiError(error);
-      message.error(errorData.message || 'Failed to upload images');
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || translate('filters.FETCH_FAILED'),
+      });
+    }
       throw error;
     }
   } else {
     await handleCreateCar(existingImages, true, values);
   }
 };
-console.log('mediaFileList',mediaFileList)
+
 // Helper function to handle create save
 const handleCreateSave = async (values) => {
   // Use mediaFileList state if values.media is empty or undefined
@@ -1569,13 +1683,22 @@ const handleUpdateCar = async () => {
       navigate('/myListings');
     }
   } catch (err) {
-    if (err?.errorFields) {
-      const messageContent = 'Please fill required fields before submitting.';
-      messageApi.open({ type: 'error', content: messageContent });
+    if (err?.message === 'Network Error' || !window.navigator.onLine) {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR') || 'You are offline, please check your internet connection',
+      });
+    } else if (err?.errorFields) {
+      messageApi.open({
+        type: 'error',
+        content: 'Please fill required fields before submitting.',
+      });
     } else {
       const errorData = handleApiError(err);
-      const messageContent = errorData.message || 'Failed to update car';
-      messageApi.open({ type: 'error', content: messageContent });
+      messageApi.open({
+        type: 'error',
+        content: errorData.message || 'Failed to update car',
+      });
     }
   } finally {
     setLoading(false);
@@ -1968,10 +2091,22 @@ const handleImageUpload = async (images) => {
               </Col>
             </Row>
 
-            <Card
-              title={translate('sell.ENTER_CAR_INFORMATION')}
-              className='card-car-info'
-            >
+           <Card
+  title={
+    <div
+      style={{
+        whiteSpace: 'normal',  // Allow text wrapping
+        wordBreak: 'break-word', // Break long words if needed
+        fontSize: window.innerWidth <= 768 ? '14px' : '16px', // Responsive font
+        lineHeight: '1.4',
+      }}
+    >
+      {translate('sell.ENTER_CAR_INFORMATION')}
+    </div>
+  }
+  className="card-car-info"
+>
+
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item
@@ -2438,7 +2573,7 @@ const handleImageUpload = async (images) => {
     className='form-item-label-large'
     label={`${translate('sell.PRICE_IQD')}*`}
     name='price'
-    rules={[
+   rules={[
       { required: true, message: translate('sell.PRICE_REQUIRED') },
       {
         validator: (_, value) => {
@@ -2446,7 +2581,6 @@ const handleImageUpload = async (images) => {
             return Promise.reject(new Error(translate('sell.PRICE_MIN_1000')));
           }
 
-    
           const numericValue = parseFloat(value.replace(/,/g, ''));
 
           if (isNaN(numericValue)) {
@@ -2455,6 +2589,12 @@ const handleImageUpload = async (images) => {
 
           if (numericValue <= 1000) {
             return Promise.reject(new Error(translate('sell.PRICE_GREATER_THAN_1000')));
+          }
+          const maxAmount = 5000000000;
+          if (numericValue > maxAmount) {
+            return Promise.reject(
+              new Error(translate('sell.PRICE_MAX_LIMIT'))
+            );
           }
 
           return Promise.resolve();
@@ -2736,7 +2876,7 @@ const handleImageUpload = async (images) => {
                   >
                     <Select placeholder={translate('sell.SELECT_ACCIDENT_HISTORY')}>
                       {updateData?.accident_histories?.map((hist) => (
-                        <Option key={hist.id} value={hist.id}>
+                        <Option key={hist.id} value={hist.accident_history}>
                           {hist.accident_history}
                         </Option>
                       ))}
@@ -2809,7 +2949,13 @@ const handleImageUpload = async (images) => {
                 </Col>
               </Row>
             </Card>
-            <Card title={translate('sell.ADDITIONAL_DETAILS')} className='card-additional-details'>
+            <Card style={{
+        whiteSpace: 'normal',  // Allow text wrapping
+        wordBreak: 'break-word', // Break long words if needed
+        fontSize: window.innerWidth <= 768 ? '14px' : '16px', // Responsive font
+        lineHeight: '1.4',
+      }}
+       title={translate('sell.ADDITIONAL_DETAILS')} className='card-additional-details'>
               <Row gutter={16}>
                 <Col xs={24} md={6}>
                   <Form.Item

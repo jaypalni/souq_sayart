@@ -189,11 +189,18 @@ const CreateProfile = () => {
       });
     }
   } catch (error) {
-    const errorData = handleApiError(error);
+    if (error?.message === 'Network Error') {
+                messageApi.open({
+                  type: 'error',
+                  content: translate('filters.OFFLINE_ERROR'),
+                });
+              }else{
+                 const errorData = handleApiError(error);
     messageApi.open({
       type: 'error',
       content: errorData.message,
     });
+              }
   } finally {
     setLoading(false);
   }
@@ -247,12 +254,19 @@ const CreateProfile = () => {
       return Upload.LIST_IGNORE;
     }
   } catch (error) {
-    const errorData = handleApiError(error);
+    if (error?.message === 'Network Error') {
+                messageApi.open({
+                  type: 'error',
+                  content: translate('filters.OFFLINE_ERROR'),
+                });
+              }else{
+               const errorData = handleApiError(error);
     messageApi.open({
       type: 'error',
       content: errorData.message,
     });
     return Upload.LIST_IGNORE;
+              }
   }
 };
 
@@ -335,18 +349,31 @@ const CreateProfile = () => {
   });
 
   const handleRegistrationOutcome = (result) => {
-    if (result.success) {
-      console.log('Registration successful, result:', result);
-      console.log('User data after registration:', result.data);
-      
-      // Clear the fromOtpVerification flag after successful registration
-      localStorage.removeItem('fromOtpVerification');
-      messageApi.open({ type: 'success', content: MSG_REG_SUCCESS });
-      navigate('/landing');
-      return;
-    }
-    messageApi.open({ type: 'error', content: result.error || MSG_REG_FAILED });
-  };
+  if (result.success) {
+    console.log('Registration successful, result:', result);
+    console.log('User data after registration:', result.data);
+
+    localStorage.removeItem('fromOtpVerification');
+    messageApi.open({ type: 'success', content: MSG_REG_SUCCESS });
+    navigate('/landing');
+    return;
+  }
+
+  // If result.message indicates a network error or user is offline
+  const isOffline = result?.message === 'Network Error' || !navigator.onLine;
+
+  if (isOffline) {
+    messageApi.open({
+      type: 'error',
+      content: translate('filters.OFFLINE_ERROR'),
+    });
+  } else {
+    messageApi.open({
+      type: 'error',
+      content: result.error || MSG_REG_FAILED,
+    });
+  }
+};
 
   const handleNonValidationError = (error) => {
     const errorData = handleApiError(error);
@@ -355,32 +382,40 @@ const CreateProfile = () => {
   };
 
   const onClickContinue = async () => {
-    try {
-      // Check if phone number is valid before proceeding
-      if (!isPhoneNumberValid) {
-        messageApi.error(translate('createProfile.PHONE_NUMBER_MISSING'));
-        return;
-      }
-      
-      setLoading(true);
-      const values = await form.validateFields();
-      const payload = buildRegistrationPayload(values, imageUrl, phoneToUse);
-      
-      console.log('Registration payload:', payload);
-      console.log('Phone number being sent:', phoneToUse);
-      
-      const result = await dispatch(registerUser(payload));
-      handleRegistrationOutcome(result);
-    } catch (error) {
-      if (error.errorFields) {
-        onFinishFailed(error);
-      } else {
-        handleNonValidationError(error);
-      }
-    } finally {
-      setLoading(false);
+  try {
+    if (!isPhoneNumberValid) {
+      messageApi.error(translate('createProfile.PHONE_NUMBER_MISSING'));
+      return;
     }
-  };
+
+    setLoading(true);
+    const values = await form.validateFields();
+    const payload = buildRegistrationPayload(values, imageUrl, phoneToUse);
+
+    console.log('Registration payload:', payload);
+    const result = await dispatch(registerUser(payload));
+
+    handleRegistrationOutcome(result);
+  } catch (error) {
+    // Check for network issues
+    const isOffline = error?.message === 'Network Error' || !navigator.onLine;
+
+    if (isOffline) {
+      messageApi.open({
+        type: 'error',
+        content: translate('filters.OFFLINE_ERROR'),
+      });
+    } else if (error.errorFields) {
+      // Form validation error
+      onFinishFailed(error);
+    } else {
+      // Other API errors
+      handleNonValidationError(error);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div

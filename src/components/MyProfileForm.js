@@ -376,7 +376,7 @@ const ProfileForm = ({
         size="middle"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept=".pdf"
+        accept=".pdf, .jpg, .jpeg, .png"
       />
     </div>
   </Form.Item>
@@ -964,54 +964,58 @@ const handleSubmitError = (error, onFinishFailed) => {
   };
 
    const handleFileChange = async (e) => {
-      const file = e.target.files[0];
-  
-      if (!file) return;
-  
-      const isPDF = file.type === 'application/pdf';
-      if (!isPDF) {
-        messageApi.open({
-          type: 'error',
-          content: translate('myProfile.UPLOAD_FAILED_PDF_ONLY'),
-        });
-        return;
-      }
+  const file = e.target.files[0];
+  if (!file) return;
 
-      const isLt10M = file.size / 1024 / 1024 <= 10;
-      if (!isLt10M) {
-        messageApi.open({
-          type: 'error',
-          content: translate('myProfile.DOCUMENT_SIZE_LIMIT'),
-        });
-        return;
-      }
-  
-      try {
-        setLoading(true);
-  
-        const formData = new FormData();
-        formData.append('attachment', file);
-  
-        const carResponse = await authAPI.uploadimages(formData);
-        const userdoc = handleApiResponse(carResponse);
-  
-        if (userdoc?.attachment_url) {
-          setUploadedDocUrl(userdoc.attachment_url);
-          messageApi.open({
-            type: 'success',
-            content: userdoc.message,
-          });
-        }
-      } catch (error) {
-        const errorData = handleApiError(error);
-        messageApi.open({
-          type: 'error',
-          content: errorData.message,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ✅ Allow JPG, PNG, or PDF files only
+  const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+  const isAllowedType = allowedTypes.includes(file.type);
+
+  if (!isAllowedType) {
+    messageApi.open({
+      type: 'error',
+      content: translate('myProfile.UPLOAD_FAILED_VALID_FORMATS'), // e.g. "Only JPG, PNG, or PDF files are allowed."
+    });
+    return;
+  }
+
+  // ✅ Check file size (<= 10 MB)
+  const isLt10M = file.size / 1024 / 1024 <= 10;
+  if (!isLt10M) {
+    messageApi.open({
+      type: 'error',
+      content: translate('myProfile.DOCUMENT_SIZE_LIMIT'), // e.g. "File size should not exceed 10 MB."
+    });
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append('attachment', file);
+
+    const carResponse = await authAPI.uploadimages(formData);
+    const userdoc = handleApiResponse(carResponse);
+
+    if (userdoc?.attachment_url) {
+      setUploadedDocUrl(userdoc.attachment_url);
+      messageApi.open({
+        type: 'success',
+        content: userdoc.message,
+      });
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleBeforeUpload = async (file) => {    
     const isImage =

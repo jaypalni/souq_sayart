@@ -51,7 +51,7 @@ const SubscriptionCard = ({ title, price, duration, features, details, currency,
             <div
               style={{
                 position: 'absolute',
-                top: 12,
+                top: -11,
                 right: 12,
                 background: '#ffa726',
                 color: '#fff',

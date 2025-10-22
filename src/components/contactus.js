@@ -8,11 +8,13 @@ import { CiMail } from 'react-icons/ci';
 import { FaWhatsapp } from 'react-icons/fa';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ContactUs = () => {
   const [loading, setLoading] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
+  const { translate } = useLanguage();
   const [contactInfo, setContactInfo] = useState({
     call_us: '',
     email_us: '',
@@ -20,6 +22,14 @@ const ContactUs = () => {
   });
 
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    subject: '',
+    phone: '',
+    message: ''
+  });
+
+  const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
     subject: '',
@@ -40,7 +50,7 @@ const ContactUs = () => {
     fetchsubjectData();
   }, []);
 
-  // 🟢 Fetch subjects and contact info
+  // Fetch subjects and contact info
   const fetchsubjectData = async () => {
     try {
       setLoading(true);
@@ -54,55 +64,89 @@ const ContactUs = () => {
         message.warning('No Subjects found.');
       }
     } catch (error) {
-      const errorData = handleApiError(error);
+       if (error?.message === 'Network Error') {
+                                   messageApi.open({
+                                     type: 'error',
+                                     content: translate('filters.OFFLINE_ERROR'),
+                                   });
+                                 }else{
+                                     const errorData = handleApiError(error);
       message.error(errorData.message || 'Failed to fetch Subject.');
+                                 }
+     
     } finally {
       setLoading(false);
     }
   };
 
-  // 🟢 Handle field changes
+  // Handle field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Remove error message on change
+    setErrors({ ...errors, [name]: '' });
   };
 
-  // 🟢 Submit Handler
+  // Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
-    if (
-      !formData.firstName.trim() ||
-      !formData.lastName.trim() ||
-      !formData.subject.trim() ||
-      !formData.phone.trim() ||
-      !formData.message.trim()
-    ) {
-      messageApi.open({
-        type: 'error',
-        content: 'Please fill in all required fields before submitting.',
-      });
-      return;
+    // Reset errors
+    setErrors({
+      firstName: '',
+      lastName: '',
+      subject: '',
+      phone: '',
+      message: ''
+    });
+
+    let hasError = false;
+    const newErrors = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'Please enter First Name';
+      hasError = true;
+    }
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Please enter Last Name';
+      hasError = true;
+    }
+    if (!formData.subject.trim()) {
+      newErrors.subject = 'Please choose a Subject';
+      hasError = true;
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Please enter Phone Number';
+      hasError = true;
+    }
+    if (!formData.message.trim()) {
+      newErrors.message = 'Please enter your Message';
+      hasError = true;
     }
 
-    // ✅ Prepare request body
+    if (hasError) {
+      setErrors(newErrors);
+      return; // stop submission
+    }
+
+    // Prepare request body
     const body = {
-    first_name: formData.firstName.trim(),
-    last_name: formData.lastName.trim(),
-    phone_number: formData.phone.trim(), 
-    subject: formData.subject.trim(),
-    message: formData.message.trim(),
-  };
+      first_name: formData.firstName.trim(),
+      last_name: formData.lastName.trim(),
+      phone_number: formData.phone.trim(),
+      subject: formData.subject.trim(),
+      message: formData.message.trim(),
+    };
 
     await contactussubmitapi(body);
   };
 
-  // 🟢 Submit API
+  // Submit API
   const contactussubmitapi = async (body) => {
     try {
       setLoading(true);
-      const response = await carAPI.postcontactsubmit(body); 
+      const response = await carAPI.postcontactsubmit(body);
       const cardetail = handleApiResponse(response);
 
       if (cardetail.status_code === 200) {
@@ -111,7 +155,7 @@ const ContactUs = () => {
           content: cardetail?.message || 'Form submitted successfully!',
         });
 
-        // ✅ Clear all fields after success
+        // Clear all fields after success
         setFormData({
           firstName: '',
           lastName: '',
@@ -126,11 +170,19 @@ const ContactUs = () => {
         });
       }
     } catch (error) {
-      const errorData = handleApiError(error);
+      if (error?.message === 'Network Error') {
+                                   messageApi.open({
+                                     type: 'error',
+                                     content: translate('filters.OFFLINE_ERROR'),
+                                   });
+                                 }else{
+                                      const errorData = handleApiError(error);
       messageApi.open({
         type: 'error',
         content: errorData.message,
       });
+                                 }
+    
     } finally {
       setLoading(false);
     }
@@ -178,7 +230,7 @@ const ContactUs = () => {
         <div className="row g-4 align-items-start">
           {/* Left Column */}
           <div className="col-lg-6" ref={formRef}>
-            <h2 className="mb-4">Contact Us Today</h2>
+            <h2 className="mb-4" style={{ fontSize: '44px', fontWeight: 700 }}>Contact Us Today</h2>
             <p style={{ color: '#959595', fontSize: '14px', fontWeight: '400' }}>
               Submit your information to get in touch with us for personalized assistance. We care and we’re here to help.
             </p>
@@ -195,6 +247,7 @@ const ContactUs = () => {
                     onChange={handleChange}
                     style={inputStyle}
                   />
+                  {errors.firstName && <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>{errors.firstName}</div>}
                 </div>
                 <div className="col">
                   <input
@@ -206,6 +259,7 @@ const ContactUs = () => {
                     onChange={handleChange}
                     style={inputStyle}
                   />
+                  {errors.lastName && <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>{errors.lastName}</div>}
                 </div>
               </div>
 
@@ -218,13 +272,14 @@ const ContactUs = () => {
                   onChange={handleChange}
                   style={inputStyle}
                 >
-                  <option value="">Choose Subject</option>
+                  <option value="">Choose Subject*</option>
                   {subjects.map((item) => (
                     <option key={item.id} value={item.subject}>
                       {item.subject}
                     </option>
                   ))}
                 </select>
+                {errors.subject && <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>{errors.subject}</div>}
               </div>
 
               <div className="mb-3">
@@ -237,6 +292,7 @@ const ContactUs = () => {
                   onChange={handleChange}
                   style={inputStyle}
                 />
+                {errors.phone && <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>{errors.phone}</div>}
               </div>
 
               <div className="mb-3">
@@ -249,6 +305,7 @@ const ContactUs = () => {
                   rows={5}
                   style={inputStyle}
                 />
+                {errors.message && <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>{errors.message}</div>}
               </div>
 
               <div className="mb-3">

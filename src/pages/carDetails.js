@@ -8,6 +8,7 @@
 import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom'; 
 import { Card, Button, Avatar, message, Tooltip, Modal } from 'antd';
 import {
   FaWhatsapp,
@@ -58,12 +59,24 @@ const buildCarImages = (images, baseUrl, fallback) => {
 const formatEngineSummary = (details) => {
   const isElectric = details.fuel_type === 'Electric';
   let cylindersPart = '';
-  if (!isElectric) {
+
+  if (!isElectric && details.no_of_cylinders) {
     cylindersPart = `${details.no_of_cylinders}cyl `;
   }
-  const liters = ((details.engine_cc || 0) / 1000).toFixed(1);
+
+  // Convert engine_cc from string → number safely
+  let engineCC = Number(details.engine_cc) || 0;
+
+  // ✅ Auto-adjust if CC is too small (e.g., "8" should be 800)
+  if (engineCC > 0 && engineCC < 100) {
+    engineCC *= 100; // assume shorthand like "8" → "800"
+  }
+
+  const liters = (engineCC / 1000).toFixed(1);
+
   return `${cylindersPart}${liters}L ${details.fuel_type || ''}`.trim();
 };
+
 
 const getCarInfo = (d, translate) => [
   { label: translate('carDetails.BODY_TYPE'), value: d.body_type || '-' },
@@ -147,125 +160,163 @@ InfoTable.defaultProps = {
 
 const ImageGallery = ({ images, translate, carDetails }) => {
   const [mainImageIdx, setMainImageIdx] = useState(0);
-  const [, setLoading] = useState(null);
+  const [loading, setLoading] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(carDetails?.is_favorite || false);
   const [messageApi, contextHolder] = message.useMessage();
-  const goToNextImage = () => setMainImageIdx((prev) => (prev + 1) % images.length);
-  console.log('Cardetails', carDetails?.seller?.id)
-  const goToPrevImage = () =>
-    setMainImageIdx((prev) => {
-      if (prev === 0) {
-        return images.length - 1;
-      }
-      return prev - 1;
-    });
+  const { customerDetails } = useSelector((state) => state.customerDetails);
 
-    const handleFavorite = async (carId) => {
-        try {
-          setLoading(carId);
-          const response = await userAPI.addFavorite(Number(carId));
-          const data1 = handleApiResponse(response);
-    
-          if (data1) {
-            messageApi.open({
-              type: 'success',
-              content: data1?.message || translate('landing.ADDED_TO_FAVORITES'),
-            });
-          }
-        } catch (error) {
-          if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
-            // Network/offline error -> show user-friendly message
-            messageApi.open({ 
-              type: 'error', 
-              content: translate('filters.OFFLINE_ERROR')
-            });
-          } else {
-            const errorData = handleApiError(error);
-            messageApi.open({
-              type: 'error',
-              content: errorData?.message || translate('landing.FAILED_TO_ADD_FAVORITE'),
-            });
-          }
-        } finally {
-          setLoading(null);
-        }
-      };
-    
-      const handleRemoveFavorite = async (carId) => {
-        try {
-          setLoading(carId);
-          const response = await userAPI.removeFavorite(Number(carId));
-          const data1 = handleApiResponse(response);
-    
-          if (data1) {
-            messageApi.open({
-              type: 'success',
-              content: data1?.message || translate('landing.REMOVED_FROM_FAVORITES'),
-            });
-          }
-        } catch (error) {
-          if (error?.message === 'Network Error' || error?.code === 'ERR_NETWORK' || (!error?.response && error?.request)) {
-            // Network/offline error -> show user-friendly message
-            messageApi.open({ 
-              type: 'error', 
-              content: translate('filters.OFFLINE_ERROR')
-            });
-          } else {
-            const errorData = handleApiError(error);
-            messageApi.open({
-              type: 'error',
-              content: errorData?.message || translate('landing.FAILED_TO_REMOVE_FAVORITE'),
-            });
-          }
-        } finally {
-          setLoading(null);
-        }
-      };
+  const goToNextImage = () => setMainImageIdx((prev) => (prev + 1) % images.length);
+
+  const goToPrevImage = () =>
+    setMainImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+
+  const handleFavorite = async (carId) => {
+    try {
+      setLoading(carId);
+      const response = await userAPI.addFavorite(Number(carId));
+      const data1 = handleApiResponse(response);
+
+      if (data1) {
+        messageApi.open({
+          type: 'success',
+          content: data1?.message || translate('landing.ADDED_TO_FAVORITES'),
+        });
+        setIsFavorite(true); 
+      }
+    } catch (error) {
+      if (
+        error?.message === 'Network Error' ||
+        error?.code === 'ERR_NETWORK' ||
+        (!error?.response && error?.request)
+      ) {
+        messageApi.open({
+          type: 'error',
+          content: translate('filters.OFFLINE_ERROR'),
+        });
+      } else {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content:
+            errorData?.message || translate('landing.FAILED_TO_ADD_FAVORITE'),
+        });
+      }
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleRemoveFavorite = async (carId) => {
+    try {
+      setLoading(carId);
+      const response = await userAPI.removeFavorite(Number(carId));
+      const data1 = handleApiResponse(response);
+
+      if (data1) {
+        messageApi.open({
+          type: 'success',
+          content: data1?.message || translate('landing.REMOVED_FROM_FAVORITES'),
+        });
+        setIsFavorite(false); // Toggle to unfilled heart
+      }
+    } catch (error) {
+      if (
+        error?.message === 'Network Error' ||
+        error?.code === 'ERR_NETWORK' ||
+        (!error?.response && error?.request)
+      ) {
+        messageApi.open({
+          type: 'error',
+          content: translate('filters.OFFLINE_ERROR'),
+        });
+      } else {
+        const errorData = handleApiError(error);
+        messageApi.open({
+          type: 'error',
+          content:
+            errorData?.message ||
+            translate('landing.FAILED_TO_REMOVE_FAVORITE'),
+        });
+      }
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <Card className="main-image-card">
+      {contextHolder}
       <div className="main-image-wrapper">
         <img src={images[mainImageIdx]} alt="Car" className="main-car-image" />
-        <div className="car-listing-fav">
-                      {carDetails?.is_favorite ?(
-                        <FaHeart
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                             handleRemoveFavorite(carDetails?.id);
-                             console.log('Card_id', carDetails)
-                          }}
-                          style={{
-                            backgroundColor: '#ffffff',
-                            color: '#008ad5',
-                            border: 'none',
-                            cursor: 'pointer',
-                          }}
-                        />
-                      ) : (
-                        <FaRegHeart
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                             handleFavorite(carDetails?.id);
-                             console.log('Card_id1', carDetails)
-                          }}
-                          style={{
-                            backgroundColor: '#ffffff',
-                            color: '#008ad5',
-                            border: 'none',
-                            cursor: 'pointer',
-                          }}
-                        />
-                      )}
-                    </div>
-        <button className="arrow-btn left-arrow" onClick={goToPrevImage} aria-label={translate('carDetails.PREVIOUS_IMAGE')}>
+         <div
+    style={{
+      position: 'absolute',
+      bottom: '8px',
+      right: '8px',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      color: '#fff',
+      padding: '4px 8px',
+      borderRadius: '12px',
+      fontSize: '14px',
+      fontWeight: 600,
+    }}
+  >
+    {mainImageIdx + 1}/{images.length}
+  </div>
+
+        {Number(customerDetails?.id) !== Number(carDetails?.seller?.id) && (
+  <div className="car-listing-fav">
+    {isFavorite ? (
+      <FaHeart
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleRemoveFavorite(carDetails?.id);
+        }}
+        style={{
+          backgroundColor: '#ffffff',
+          color: '#008ad5',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+      />
+    ) : (
+      <FaRegHeart
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleFavorite(carDetails?.id);
+        }}
+        style={{
+          backgroundColor: '#ffffff',
+          color: '#008ad5',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+      />
+    )}
+  </div>
+)}
+
+
+        <button
+          className="arrow-btn left-arrow"
+          onClick={goToPrevImage}
+          aria-label={translate('carDetails.PREVIOUS_IMAGE')}
+        >
           <FaChevronLeft />
         </button>
-        <button className="arrow-btn right-arrow" onClick={goToNextImage} aria-label={translate('carDetails.NEXT_IMAGE')}>
+
+        <button
+          className="arrow-btn right-arrow"
+          onClick={goToNextImage}
+          aria-label={translate('carDetails.NEXT_IMAGE')}
+        >
           <FaChevronRight />
         </button>
       </div>
-      <div className=" mt-3 d-flthumbnail-rowex gap-2">
+
+      <div className="mt-3 d-flthumbnail-rowex gap-2">
         {images.map((img, idx) => (
           <ThumbnailButton
             key={img}
@@ -280,6 +331,7 @@ const ImageGallery = ({ images, translate, carDetails }) => {
     </Card>
   );
 };
+
 
 ImageGallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -582,6 +634,10 @@ CarDetailsMain.propTypes = {
 const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi, previousPage, translate }) => {
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [localCarDetails, setLocalCarDetails] = useState(carDetails);
+  const { customerDetails } = useSelector((state) => state.customerDetails);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate(); 
+  
 
   const handleCallClick = (e) => {
     e.preventDefault();
@@ -756,9 +812,6 @@ if (approval === 'approved' && status !== 'sold') {
   );
 }
 
-
-
-
   if (approval === 'pending') {
     return (
       <div style={{ ...commonStyle, ...statusStyles.pending }}>
@@ -817,9 +870,23 @@ if (approval === 'approved' && status !== 'sold') {
             <div>
               <div className="seller-name">{carDetails.seller.first_name}</div>
               <div className="text-muted seller-member-since">{translate('carDetails.MEMBER_SINCE')} {carDetails.seller.member_since}</div>
-              <Link className="car-details-view-profile-link">
-                {translate('carDetails.VIEW_PROFILE')} <FaChevronRight className="view-profile-chevron" />
-              </Link>
+            {!(isAuthenticated && Number(customerDetails?.id) === Number(carDetails?.seller?.id)) && (
+  <Link
+    className="car-details-view-profile-link"
+    onClick={(e) => {
+      e.preventDefault();
+      if (!isAuthenticated) {
+        messageApi.open({ type: 'warning', content: translate('header.PLEASE_LOGIN') });
+        return;
+      }
+       navigate(`/userProfile/${carDetails.seller.id}`);
+      // TODO: navigate to profile page for authenticated non-seller users
+    }}
+  >
+    {translate('carDetails.VIEW_PROFILE')} <FaChevronRight className="view-profile-chevron" />
+  </Link>
+)}
+
             </div>
           </div>
         </div>
@@ -828,32 +895,93 @@ if (approval === 'approved' && status !== 'sold') {
       {/* ✅ Conditional Rendering based on previousPage */}
       
       <div className="d-flex gap-2 mt-3">
-        {previousPage === 'My Listings' ? (
-          
-          renderStatus()
-        ) : (
-          <>
-            <Button icon={<MessageOutlined />} className="w-100 message-button">{translate('carDetails.MESSAGE')}</Button>
-            
-            <Button
-              onClick={() => openWhatsApp(carDetails.seller.phone_number)}
-              icon={<FaWhatsapp />}
-              className={`w-100 whatsapp-button ${carDetails.seller.whatsapp === 'False' ? 'whatsapp-button-disabled' : 'whatsapp-button-enabled'}`}
-              disabled={carDetails.seller.whatsapp === 'False'}
-            >
-              {translate('carDetails.WHATSAPP')}
-            </Button>
+  {isAuthenticated ? (
+    // Authenticated user
+    Number(customerDetails?.id) === Number(carDetails?.seller?.id) ? (
+      renderStatus() // Seller view
+    ) : (
+      <>
+        <Button icon={<MessageOutlined />} className="w-100 message-button">
+          {translate('carDetails.MESSAGE')}
+        </Button>
 
-            <Button
-              icon={<FaPhoneAlt className="call-button-icon" />}
-              className="w-100 no-hover-bg call-button"
-              onClick={handleCallClick}
-            >
-              {translate('carDetails.CALL')}
-            </Button>
-          </>
-        )}
-      </div>
+       {carDetails.seller.whatsapp !== 'False' && (
+  <Button
+    onClick={() => {
+      if (!isAuthenticated) {
+        messageApi.open({ type: 'warning', content: translate('carDetails.PLEASE_LOGIN') });
+        return;
+      }
+      openWhatsApp(carDetails.seller.phone_number);
+    }}
+    icon={<FaWhatsapp />}
+    className="w-100 whatsapp-button whatsapp-button-enabled"
+  >
+    {translate('carDetails.WHATSAPP')}
+  </Button>
+)}
+        <Button
+          icon={<FaPhoneAlt className="call-button-icon" />}
+          className="w-100 no-hover-bg call-button"
+          onClick={handleCallClick}
+        >
+          {translate('carDetails.CALL')}
+        </Button>
+      </>
+    )
+  ) : (
+    // Not authenticated → always show buttons
+     <>
+      <Button
+        icon={<MessageOutlined />}
+        className="w-100 message-button"
+        onClick={() => {
+          if (!isAuthenticated) {
+            messageApi.open({ type: 'warning', content: translate('header.PLEASE_LOGIN') });
+            return;
+          }
+          // TODO: handle message action for authenticated users
+        }}
+      >
+        {translate('carDetails.MESSAGE')}
+      </Button>
+
+      <Button
+        icon={<FaWhatsapp />}
+        className={`w-100 whatsapp-button ${
+          carDetails.seller.whatsapp === 'False'
+            ? 'whatsapp-button-disabled'
+            : 'whatsapp-button-enabled'
+        }`}
+        // disabled={carDetails.seller.whatsapp === 'False'}
+        onClick={() => {
+          if (!isAuthenticated) {
+            messageApi.open({ type: 'warning', content: translate('header.PLEASE_LOGIN') });
+            return;
+          }
+          openWhatsApp(carDetails.seller.phone_number);
+        }}
+      >
+        {translate('carDetails.WHATSAPP')}
+      </Button>
+
+      <Button
+        icon={<FaPhoneAlt className="call-button-icon" />}
+        className="w-100 no-hover-bg call-button"
+        onClick={() => {
+          if (!isAuthenticated) {
+            messageApi.open({ type: 'warning', content: translate('header.PLEASE_LOGIN') });
+            return;
+          }
+          handleCallClick();
+        }}
+      >
+        {translate('carDetails.CALL')}
+      </Button>
+    </>
+  )}
+</div>
+
 
       {/* Phone Number Modal */}
       <Modal

@@ -270,7 +270,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
       {location.pathname.includes('/tandc') && (
         <h1
           className="plane-banner-title"
-          style={{ color: '#fff', marginTop: '20px' }}
+          style={{ color: '#fff', marginTop: '5px' }}
         >
           Terms & Conditions
         </h1>
@@ -280,7 +280,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
       {location.pathname.includes('/privacypolicy') && (
         <h1
           className="plane-banner-title"
-          style={{ color: '#fff', marginTop: '20px' }}
+          style={{ color: '#fff', marginTop: '5px', fontSize: '32px', fontWeight: '700' }}
         >
           Privacy & Policy
         </h1>
@@ -290,7 +290,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
       {location.pathname.includes('/faqs') && (
         <h1
           className="plane-banner-title"
-          style={{ color: '#fff', marginTop: '20px' }}
+          style={{ color: '#fff', marginTop: '5px', fontSize: '32px', fontWeight: '700' }}
         >
           Frequently Asked Questions
         </h1>
@@ -300,7 +300,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
       {location.pathname.includes('/contactus') && (
         <h1
           className="plane-banner-title"
-          style={{ color: '#fff', marginTop: '20px' }}
+          style={{ color: '#fff', marginTop: '5px' }}
         >
           Contact Us
         </h1>

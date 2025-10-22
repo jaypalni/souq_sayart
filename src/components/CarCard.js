@@ -300,21 +300,36 @@ const addboostapi = async (body) => {
                 </span>
               </div>
             ) : (
-              <>
-                <Button type="default" onClick={(e) => { e.stopPropagation(); handleDelete(car.id); }} className="car-card-delete-btn">
-                  {translate('myListings.DELETE')}
-                </Button>
+            <>
+      {/* ✅ Hide buttons when approval = rejected and reason = Others */}
+      {!(car.approval?.toLowerCase() === 'rejected' && car.rejection_reason === 'Others') && (
+        <>
+          <Button
+            type="default"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(car.id);
+            }}
+            className="car-card-delete-btn"
+          >
+            {translate('myListings.DELETE')}
+          </Button>
 
-                {!(value === 'Active' && car.approval?.toLowerCase() === 'pending') && (
-                  <Button
-                    type="primary"
-                    onClick={(e) => { e.stopPropagation(); navigate('/sell', { state: { extras: car } }); }}
-                    className="car-card-edit-btn"
-                  >
-                    {translate('myListings.EDIT')}
-                  </Button>
-                )}
-              </>
+          {!(value === 'Active' && car.approval?.toLowerCase() === 'pending') && (
+            <Button
+              type="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/sell', { state: { extras: car } });
+              }}
+              className="car-card-edit-btn"
+            >
+              {translate('myListings.EDIT')}
+            </Button>
+          )}
+        </>
+      )}
+    </>
             )}
           </div>
         </div>

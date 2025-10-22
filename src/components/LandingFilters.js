@@ -140,9 +140,9 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
-    fetchtotalcarcount()
+    // fetchtotalcarcount()
   }, []);
-
+    
   useEffect(() => {
     if (make) {
       fetchModelCars({ setLoading, setCarModels, make });
@@ -313,6 +313,13 @@ const resolveDefaultLocation = (locations, geoData) => {
 };
   const handleSearch = async () => {
     try {
+       if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+      messageApi.open({
+        type: 'warning',
+        content: translate('filters.MIN_PRICE_LESSER'),
+      });
+      return; // stop execution
+    }
       setLoading(true);
 
       const cleanedMin = minPrice !== null ? minPrice : '';
@@ -668,7 +675,7 @@ const resolveDefaultLocation = (locations, geoData) => {
       onClick={() => setShowMinInput(true)}
       aria-label="Set minimum price"
     >
-      {minPrice !== null ? `₹${minPrice}` : translate('filters.PRICE_MIN')}
+      {minPrice !== null ? `IQD ${minPrice}` : translate('filters.PRICE_MIN')}
     </button>
   ) : (
    <Input
@@ -708,7 +715,7 @@ const resolveDefaultLocation = (locations, geoData) => {
       onClick={() => setShowMaxInput(true)}
       aria-label="Set maximum price"
     >
-      {maxPrice !== null ? `₹${maxPrice}` : translate('filters.PRICE_MAX')}
+      {maxPrice !== null ? `IQD ${maxPrice}` : translate('filters.PRICE_MAX')}
     </button>
   ) : (
    <Input

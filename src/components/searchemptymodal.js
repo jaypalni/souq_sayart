@@ -328,16 +328,74 @@ const FilterButtons = ({
       </FilterButton>
     )}
     
-    {filterData?.fuel_type && filterData.fuel_type !== 'Any' && (
-      <FilterButton>{filterData.fuel_type}</FilterButton>
+    {filterData?.fuel_types && Array.isArray(filterData.fuel_types) && filterData.fuel_types.length > 0 && (
+      filterData.fuel_types.map((fuel, index) => (
+        <FilterButton key={`fuel-${index}`}>{fuel}</FilterButton>
+      ))
     )}
     
-    {filterData?.transmission && filterData.transmission !== 'Any' && (
-      <FilterButton>{filterData.transmission}</FilterButton>
+    {filterData?.transmissions && Array.isArray(filterData.transmissions) && filterData.transmissions.length > 0 && (
+      filterData.transmissions.map((trans, index) => (
+        <FilterButton key={`trans-${index}`}>{trans}</FilterButton>
+      ))
     )}
     
-    {filterData?.colour && filterData.colour !== 'Any' && (
-      <FilterButton>{filterData.colour}</FilterButton>
+    {filterData?.colors && Array.isArray(filterData.colors) && filterData.colors.length > 0 && (
+      filterData.colors.map((color, index) => (
+        <FilterButton key={`color-${index}`}>{color}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.body_types && Array.isArray(filterData.body_types) && filterData.body_types.length > 0 && (
+      filterData.body_types.map((bodyType, index) => (
+        <FilterButton key={`body-${index}`}>{bodyType}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.locations && Array.isArray(filterData.locations) && filterData.locations.length > 0 && (
+      filterData.locations.map((loc, index) => (
+        <FilterButton key={`loc-${index}`}>{loc}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.trim && Array.isArray(filterData.trim) && filterData.trim.length > 0 && (
+      filterData.trim.map((trimValue, index) => (
+        <FilterButton key={`trim-${index}`}>{trimValue}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.regional_specs_list && Array.isArray(filterData.regional_specs_list) && filterData.regional_specs_list.length > 0 && (
+      filterData.regional_specs_list.map((spec, index) => (
+        <FilterButton key={`spec-${index}`}>{spec}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.number_of_cylinders && Array.isArray(filterData.number_of_cylinders) && filterData.number_of_cylinders.length > 0 && (
+      filterData.number_of_cylinders.map((cyl, index) => (
+        <FilterButton key={`cyl-${index}`}>{cyl}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.doors && Array.isArray(filterData.doors) && filterData.doors.length > 0 && (
+      filterData.doors.map((door, index) => (
+        <FilterButton key={`door-${index}`}>{door}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.seller_type && Array.isArray(filterData.seller_type) && filterData.seller_type.length > 0 && (
+      filterData.seller_type.map((seller, index) => (
+        <FilterButton key={`seller-${index}`}>{seller}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.condition && Array.isArray(filterData.condition) && filterData.condition.length > 0 && (
+      filterData.condition.map((cond, index) => (
+        <FilterButton key={`cond-${index}`}>{cond}</FilterButton>
+      ))
+    )}
+    
+    {filterData?.keyword && filterData.keyword !== '' && (
+      <FilterButton>{filterData.keyword}</FilterButton>
     )}
   </div>
 );
@@ -352,13 +410,23 @@ FilterButtons.propTypes = {
     price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     price_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
+    locations: PropTypes.array,
     body_type: PropTypes.string,
+    body_types: PropTypes.array,
     fuel_type: PropTypes.string,
+    fuel_types: PropTypes.array,
     transmission: PropTypes.string,
+    transmissions: PropTypes.array,
     min_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     max_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     colour: PropTypes.string,
-    condition: PropTypes.string,
+    colors: PropTypes.array,
+    condition: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    trim: PropTypes.array,
+    regional_specs_list: PropTypes.array,
+    number_of_cylinders: PropTypes.array,
+    doors: PropTypes.array,
+    seller_type: PropTypes.array,
   }),
   make: PropTypes.string,
   setMake: PropTypes.func,
@@ -432,13 +500,23 @@ EmptySearchContent.propTypes = {
     price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     price_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
+    locations: PropTypes.array,
     body_type: PropTypes.string,
+    body_types: PropTypes.array,
     fuel_type: PropTypes.string,
+    fuel_types: PropTypes.array,
     transmission: PropTypes.string,
+    transmissions: PropTypes.array,
     min_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     max_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     colour: PropTypes.string,
-    condition: PropTypes.string,
+    colors: PropTypes.array,
+    condition: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    trim: PropTypes.array,
+    regional_specs_list: PropTypes.array,
+    number_of_cylinders: PropTypes.array,
+    doors: PropTypes.array,
+    seller_type: PropTypes.array,
   }),
   make: PropTypes.string,
   setMake: PropTypes.func,
@@ -484,13 +562,23 @@ Searchemptymodal.propTypes = {
     price_min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     price_max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
+    locations: PropTypes.array,
     body_type: PropTypes.string,
+    body_types: PropTypes.array,
     fuel_type: PropTypes.string,
+    fuel_types: PropTypes.array,
     transmission: PropTypes.string,
+    transmissions: PropTypes.array,
     min_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     max_kilometers: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     colour: PropTypes.string,
-    condition: PropTypes.string,
+    colors: PropTypes.array,
+    condition: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    trim: PropTypes.array,
+    regional_specs_list: PropTypes.array,
+    number_of_cylinders: PropTypes.array,
+    doors: PropTypes.array,
+    seller_type: PropTypes.array,
   }),
 };
 

@@ -10,11 +10,14 @@ import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { message, Skeleton } from 'antd';
 import PlaneBanner from '../components/planeBanner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const FaqS = () => {
   const [faqData, setFaqData] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const { translate } = useLanguage();
 
   const toggleDropdown = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -44,8 +47,16 @@ const FaqS = () => {
         message.warning('No FAQs found.');
       }
     } catch (error) {
-      const errorData = handleApiError(error);
+      if (error?.message === 'Network Error') {
+                             messageApi.open({
+                               type: 'error',
+                               content: translate('filters.OFFLINE_ERROR'),
+                             });
+                           }else{
+                              const errorData = handleApiError(error);
       message.error(errorData.message || 'Failed to fetch FAQs.');
+                           }
+      
     } finally {
       setLoading(false);
     }
@@ -56,8 +67,9 @@ const FaqS = () => {
       <PlaneBanner />
 
       <div style={{ maxWidth: 800, margin: '0 auto', marginTop: '20px' }}>
+        {contextHolder}
         {loading ? (
-          // 👇 Show skeleton placeholders while loading
+          
           <>
             {[...Array(5)].map((_, index) => (
               <div key={index} style={{ marginBottom: '30px' }}>

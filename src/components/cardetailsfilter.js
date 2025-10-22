@@ -39,7 +39,7 @@ const { Option } = Select;
 
 // Constants moved outside component
 const fuelOptions = ['Any', 'Petrol', 'Diesel', 'Hybrid', 'Electric'];
-const transmissionOptions = ['Any', 'Automatic', 'Manual', 'Steptonic'];
+const transmissionOptions = ['Any', 'Automatic', 'Manual', 'CVT'];
 const cylinderOptions = ['3', '4', '5', '6', '8', '12', 'N/A', 'Electric', 'Not Sure'];
 const numberofdoors = ['Any', '2/3', '4/5'];
 
@@ -1320,12 +1320,19 @@ if (
       
       setVisible(false);
     } catch (error) {
-      
-      // Still try to call onSearchResults with empty data to reset the state
-      if (onSearchResults) {
+       if (error?.message === 'Network Error') {
+                  messageApi.open({
+                    type: 'error',
+                    content: translate('filters.OFFLINE_ERROR'),
+                  });
+                }else{
+                   if (onSearchResults) {
         onSearchResults({ cars: [], pagination: {} });
       }
       
+                }
+      // Still try to call onSearchResults with empty data to reset the state
+     
       setVisible(false);
     } finally {
       setLoading(false);

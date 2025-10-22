@@ -23,6 +23,8 @@ const DealerDashboard = () => {
   const [uploadResult, setUploadResult] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [isConfirmingDraft, setIsConfirmingDraft] = useState(false);
+
   const fileInputRef = useRef(null);
 
   // ✅ Handle file selection (only .xlsx)
@@ -48,50 +50,114 @@ const DealerDashboard = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+  try {
+    const response = await carAPI.getdownloadtemplate({
+      responseType: 'blob',
+    });
+
+    // Handle API response
+    if (response && response.data) {
+      const blob = new Blob([response.data], {
+        type:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Template_Format.xlsx'); // file name
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      message.success('Template downloaded successfully.');
+    } else {
+      message.error('Failed to download template file.');
+    }
+  } catch (error) {
+    const errorData = handleApiError(error);
+    message.error(errorData.message || 'Failed to download template.');
+  }
+};
+
+// Function to download the error report
+const handleDownloadErrorReport = async () => {
+  try {
+    // Pass responseType: 'blob' to get the file as a blob
+    const response = await carAPI.postdownloadreport({ responseType: 'blob' });
+
+    // Convert response data to Blob
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // adjust type if needed
+    });
+
+    // Create a temporary link and trigger download
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = '/example_template.xlsx';
-    link.download = 'Template_Format.xlsx';
+    link.href = url;
+
+    // Optional: set dynamic filename or static
+    link.setAttribute('download', 'Error_Report.xlsx');
+
+    document.body.appendChild(link);
     link.click();
-  };
+    document.body.removeChild(link);
 
-  // ✅ Function to handle API upload
-  const uploadFileToAPI = async (file, status) => {
-    try {
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append('file', file);
+    messageApi.open({
+      type: 'success',
+      content: 'Error report downloaded successfully.',
+    });
+  } catch (err) {
+    const errorData = handleApiError(err);
+    messageApi.open({
+      type: 'error',
+      content: errorData.message || 'Failed to download report.',
+    });
+  }
+};
 
-      // Call the API with status or without it
-      const carResponse = status !== undefined
+  
+  const uploadFileToAPI = async (file, status, isConfirmingDraft = false) => {
+  try {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Call the API with status or without it
+    const carResponse =
+      status !== undefined
         ? await carAPI.uploadbulkdata(formData, status)
         : await carAPI.uploadbulkdata(formData);
 
-      const responseData = handleApiResponse(carResponse);
+    const responseData = handleApiResponse(carResponse);
 
-      if (responseData) {
-        setUploadResult({
-          totalRecords: responseData.total_records || 0,
-          successCount: responseData.success_count || 0,
-          errorCount: responseData.error_count || responseData.total_errors || 0,
-          errors: responseData.errors || [],
-          message: responseData.message,
-        });
+    if (responseData) {
+      setUploadResult({
+        totalRecords: responseData.total_records || 0,
+        successCount: responseData.success_count || 0,
+        errorCount: responseData.error_count || responseData.total_errors || 0,
+        errors: responseData.errors || [],
+        message: responseData.message,
+      });
+
+      // ✅ Show modal only if not confirming draft
+      if (!isConfirmingDraft) {
         setIsModalVisible(true);
       }
-    } catch (error) {
-      console.error('Error', error);
-      const errorData = handleApiError(error);
-      messageApi.open({
-        type: 'error',
-        content: errorData?.message || 'Failed to upload file.',
-      });
-    } finally {
-      setIsUploading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error', error);
+    const errorData = handleApiError(error);
+    messageApi.open({
+      type: 'error',
+      content: errorData?.message || 'Failed to upload file.',
+    });
+  } finally {
+    setIsUploading(false);
+  }
+};
 
-  // ✅ Upload File (with status=false)
+
+  
   const handleUpload = async () => {
     if (!selectedFile) {
       messageApi.open({
@@ -113,22 +179,31 @@ const DealerDashboard = () => {
     await uploadFileToAPI(selectedFile, false); // send status=false
   };
 
-  // ✅ Confirm Draft Creation (same file, no status param)
-  const handleConfirmDraft = async () => {
-    setIsModalVisible(false);
-    if (selectedFile) {
-      await uploadFileToAPI(selectedFile); // no status param
-      messageApi.open({
-        type: 'success',
-        content: 'Valid listings saved as drafts successfully!',
-      });
-    } else {
-      messageApi.open({
-        type: 'error',
-        content: 'No file available to re-upload.',
-      });
-    }
-  };
+  
+const handleConfirmDraft = async () => {
+  setIsModalVisible(false);
+  if (selectedFile) {
+    await uploadFileToAPI(selectedFile, undefined, true); 
+
+    messageApi.open({
+      type: 'success',
+      content: 'Valid listings saved as drafts successfully!',
+    });
+
+    
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setUploadResult(null);
+  } else {
+    messageApi.open({
+      type: 'error',
+      content: 'No file available to re-upload.',
+    });
+  }
+};
+
+
+
 
   return (
     <div
@@ -306,60 +381,78 @@ const DealerDashboard = () => {
 
       {/* ✅ Upload Results Modal */}
       <Modal
-        open={isModalVisible}
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ExclamationCircleOutlined style={{ color: '#008AD5', fontSize: '20px' }} />
-            <span style={{ fontWeight: '600', color: '#4A5E6D' }}>
-              Upload Validation Summary
-            </span>
-          </div>
-        }
-        footer={[
-          <Button key="close" onClick={() => setIsModalVisible(false)}>
-            Close
-          </Button>,
-          <Button
-            key="confirm"
-            type="primary"
-            onClick={handleConfirmDraft}
-            style={{ backgroundColor: '#008AD5' }}
-          >
-            Confirm Draft Creation
-          </Button>,
-        ]}
-        centered
-      >
-        {uploadResult && (
-          <div style={{ marginTop: '16px' }}>
-            <p><strong>Total Records:</strong> {uploadResult.totalRecords}</p>
-            <p><strong>Valid Records:</strong> {uploadResult.successCount}</p>
-            <p><strong>Invalid/Error Records:</strong> {uploadResult.errorCount}</p>
-            <p style={{ color: '#4A5E6D', fontStyle: 'italic' }}>{uploadResult.message}</p>
+  open={isModalVisible}
+  title={
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <ExclamationCircleOutlined style={{ color: '#008AD5', fontSize: '20px' }} />
+      <span style={{ fontWeight: '600', color: '#4A5E6D' }}>
+        Upload Validation Summary
+      </span>
+    </div>
+  }
+  footer={[
+    <Button key="close" onClick={() => setIsModalVisible(false)}>
+      Close
+    </Button>,
 
-            {uploadResult.errors.length > 0 && (
-              <div
-                style={{
-                  backgroundColor: '#FFF8F8',
-                  border: '1px solid #FFD1D1',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  marginTop: '10px',
-                  maxHeight: '150px',
-                  overflowY: 'auto',
-                }}
-              >
-                <strong>Errors:</strong>
-                <ul style={{ margin: '8px 0 0 16px', color: '#B91C1C' }}>
-                  {uploadResult.errors.map((err, index) => (
-                    <li key={index}>{err}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
+    // ✅ Show only if there are any errors
+    uploadResult?.errors?.length > 0 && (
+      <Button
+        key="download"
+        style={{
+          backgroundColor: '#DC2626',
+          color: '#fff',
+          border: 'none',
+          fontWeight: '500',
+        }}
+        onClick={() => handleDownloadErrorReport()}
+      >
+        Download Report
+      </Button>
+    ),
+
+    <Button
+      key="confirm"
+      type="primary"
+      onClick={handleConfirmDraft}
+      style={{ backgroundColor: '#008AD5' }}
+    >
+      Confirm Draft Creation
+    </Button>,
+  ]}
+  centered
+>
+  {uploadResult && (
+    <div style={{ marginTop: '16px' }}>
+      <p><strong>Total Records:</strong> {uploadResult.totalRecords}</p>
+      <p><strong>Valid Records:</strong> {uploadResult.successCount}</p>
+      <p><strong>Invalid/Error Records:</strong> {uploadResult.errorCount}</p>
+      <p style={{ color: '#4A5E6D', fontStyle: 'italic' }}>{uploadResult.message}</p>
+
+      {uploadResult.errors.length > 0 && (
+        <div
+          style={{
+            backgroundColor: '#FFF8F8',
+            border: '1px solid #FFD1D1',
+            padding: '12px',
+            borderRadius: '8px',
+            marginTop: '10px',
+            maxHeight: '150px',
+            overflowY: 'auto',
+          }}
+        >
+          <strong>Errors:</strong>
+          <ul style={{ margin: '8px 0 0 16px', color: '#B91C1C' }}>
+            {uploadResult.errors.map((err, index) => (
+              <li key={index}>{err}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )}
+</Modal>
+
     </div>
   );
 };

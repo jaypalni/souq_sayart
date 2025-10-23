@@ -1,6 +1,6 @@
 .car-listing-container {
   width: 100%;
-  background: #fff;
+  background: transparent;
   padding: 0;
   margin: 0 auto 32px auto;
   max-width: 1200px;

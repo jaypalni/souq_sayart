@@ -133,13 +133,13 @@ const handleDownloadErrorReport = async () => {
     if (responseData) {
       setUploadResult({
         totalRecords: responseData.total_records || 0,
-        successCount: responseData.success_count || 0,
+        successCount: responseData.valid_count || 0,
         errorCount: responseData.error_count || responseData.total_errors || 0,
         errors: responseData.errors || [],
         message: responseData.message,
       });
 
-      // ✅ Show modal only if not confirming draft
+      //  Show modal only if not confirming draft
       if (!isConfirmingDraft) {
         setIsModalVisible(true);
       }
@@ -382,6 +382,7 @@ const handleConfirmDraft = async () => {
       {/* ✅ Upload Results Modal */}
       <Modal
   open={isModalVisible}
+  onCancel={() => setIsModalVisible(false)}
   title={
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <ExclamationCircleOutlined style={{ color: '#008AD5', fontSize: '20px' }} />

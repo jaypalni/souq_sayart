@@ -963,16 +963,33 @@ const handleChange = (e) => {
     
     console.log('💾 Auto-save triggered');
     
-    const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
-    const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
+    // Show "Saving..." toast for auto-save using messageApi
+    messageApi.open({
+      type: 'loading',
+      content: 'Saving...',
+      duration: 0, // Don't auto-close
+      key: 'auto-save', // Use key to update/close this specific message
+    });
     
-    if (newImages.length > 0) {
-      await performAutoSaveWithImages(values, newImages, existingImages);
-    } else {
-      await handleCreateCar(existingImages, true, values, true);
+    try {
+      const newImages = values.media?.filter(file => file.originFileObj).map(file => file.originFileObj) || [];
+      const existingImages = values.media?.filter(file => !file.originFileObj && file.url).map(file => file.url) || [];
+      
+      if (newImages.length > 0) {
+        await performAutoSaveWithImages(values, newImages, existingImages);
+      } else {
+        await handleCreateCar(existingImages, true, values, true);
+      }
+      
+      lastSavedDataRef.current = currentDataSnapshot;
+      
+      // Close the "Saving..." message
+      messageApi.destroy('auto-save');
+    } catch (error) {
+      // Close the "Saving..." message on error
+      messageApi.destroy('auto-save');
+      throw error;
     }
-    
-    lastSavedDataRef.current = currentDataSnapshot;
   };
 
   // Auto-save functionality - runs every 20 seconds

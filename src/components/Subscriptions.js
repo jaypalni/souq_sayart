@@ -8,6 +8,8 @@ import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { userAPI } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Spin } from 'antd';
+
 
 
 const plansData = {
@@ -15,6 +17,8 @@ const plansData = {
   Dealer: [],
   BoostPlan: [],
 };
+
+
 
 const EmptyState = ({ translate }) => (
   <div style={{ textAlign: 'center', padding: 40 }}>
@@ -225,7 +229,7 @@ RadioButtonTab.propTypes = {
 };
 
 // Subscription list view component - extracted to reduce component complexity
-const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, translate }) => (
+const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, translate, plansLoading }) => (
   <>
     <div className="subscriptions-header">{translate('subscriptions.PAGE_TITLE')}</div>
     <div
@@ -249,24 +253,27 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, tra
       </Radio.Group>
     </div>
     <div
-      className="subscriptions-list"
-      style={{ display: 'flex', gap: 24, marginTop: 24 }}
-    >
-      {plans.length === 0 ? (
-        <EmptyState translate={translate} />
-      ) : (
-        plans.map((plan) => (
-          <button
-            key={plan.id}
-            type="button"
-            style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
-            onClick={() => onSelectPlan(plan)}
-          >
-            <SubscriptionCard {...plan} translate={translate} />
-          </button>
-        ))
-      )}
-    </div>
+  className="subscriptions-list"
+  style={{ display: 'flex', gap: 24, marginTop: 24 }}
+>
+  {plansLoading ? (
+    <Spin tip={translate('subscriptions.LOADING')} style={{ margin: 'auto' }} />
+  ) : plans.length === 0 ? (
+    <EmptyState translate={translate} />
+  ) : (
+    plans.map((plan) => (
+      <button
+        key={plan.id}
+        type="button"
+        style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+        onClick={() => onSelectPlan(plan)}
+      >
+        <SubscriptionCard {...plan} translate={translate} />
+      </button>
+    ))
+  )}
+</div>
+
   </>
 );
 
@@ -375,6 +382,7 @@ const Subscriptions = () => {
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [newplansData, setNewPlansData] = useState(plansData);
+  const [plansLoading, setPlansLoading] = useState(true); 
 
   const plans = newplansData[activeTab];
 
@@ -435,6 +443,7 @@ const Subscriptions = () => {
 
   // Fetch plans from API
   const fetchPlans = async () => {
+    setPlansLoading(true);
     try {
       const res = await userAPI.getsubscriptions();
       const result = res.data;
@@ -451,12 +460,15 @@ const Subscriptions = () => {
     } catch (error) {
       const errorData = handleApiError(error);
       messageApi.error(errorData.message || translate('subscriptions.FAILED_TO_FETCH_PLANS'));
+    } finally {
+      setPlansLoading(false); 
     }
   };
 
   // Helper: Handle plan selection
   const handlePlanSelect = (plan) => {
     setSelectedPlan(plan);
+    localStorage.setItem('selectedPlan', JSON.stringify(plan));
     fetchPackageDetails(plan.id);
   };
 
@@ -475,6 +487,7 @@ const Subscriptions = () => {
   const handleCancelDone = () => {
     setCancelStep(null);
     setSelectedPlan(null);
+    localStorage.removeItem('selectedPlan');
   };
 
   // Modal content for cancel flow
@@ -500,6 +513,11 @@ const Subscriptions = () => {
 
   // Fetch plans on mount
   useEffect(() => {
+    const savedPlan = localStorage.getItem('selectedPlan');
+  if (savedPlan) {
+    setSelectedPlan(JSON.parse(savedPlan));
+  }
+
     fetchPlans();
   }, []);
              
@@ -513,6 +531,7 @@ const Subscriptions = () => {
           onSelectPlan={handlePlanSelect}
           onTabChange={(e) => setActiveTab(e.target.value)}
           translate={translate}
+          plansLoading={plansLoading}
         />
       ) : (
         <SubscriptionDetails

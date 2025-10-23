@@ -231,7 +231,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
       className={`plane-banner-main ${
         location.pathname.includes('/carDetails') ? 'car-details-banner' : ''
       }
-       ${location.pathname.includes('/tandc') ? 'tandc-banner' : ''}
+       ${location.pathname.includes('/terms') ? 'tandc-banner' : ''}
        ${location.pathname.includes('/privacypolicy') ? 'tandc-banner' : ''}
        ${location.pathname.includes('/faqs') ? 'tandc-banner' : ''}
        ${location.pathname.includes('/contactus') ? 'contactus-banner' : ''}
@@ -240,7 +240,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
       
       {/* Show breadcrumb only if NOT on T&C, Privacy, FAQ, or Contact Us */}
 {!(
-  location.pathname.includes('/tandc') ||
+  location.pathname.includes('/terms') ||
   location.pathname.includes('/privacypolicy') ||
   location.pathname.includes('/faqs') ||
   location.pathname.includes('/contactus')
@@ -276,7 +276,7 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
 
 
       {/* Show white title for Terms & Conditions page */}
-      {location.pathname.includes('/tandc') && (
+      {location.pathname.includes('/terms') && (
         <h1
           className="plane-banner-title"
           style={{ color: '#fff', marginTop: '5px' }}

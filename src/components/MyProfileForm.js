@@ -605,30 +605,51 @@ const ProfileForm = ({
 
           </Col>
           <Col span={6}>
-<Form.Item
-required={false} 
-  label={
-    <span
-      style={{
-        fontSize: '12px',
-        fontWeight: 400,
-        color: '#637D92',
-      }}
-    >
-      {translate('myProfile.DATE_OF_BIRTH')}*
-    </span>
-  }
-  name='dob'
-  rules={[{ required: true, message: translate('myProfile.DATE_OF_BIRTH_REQUIRED') }]}
-  className={!editMode?'datePicker':''}
->
-  <DatePicker
-    disabled={!editMode}
-    format='ddd, DD MMM YYYY' 
-      className="radio-group-container"
-    onChange={() => {}}
-  />
-</Form.Item>
+  <Form.Item
+    required={false}
+    label={
+      <span
+        style={{
+          fontSize: '12px',
+          fontWeight: 400,
+          color: '#637D92',
+        }}
+      >
+        {translate('myProfile.DATE_OF_BIRTH')}*
+      </span>
+    }
+    name='dob'
+    rules={[
+      {
+        required: true,
+        message: translate('createProfile.DATE_OF_BIRTH_REQUIRED'),
+      },
+      {
+        validator: (_, value) => {
+          if (!value) return Promise.resolve();
+
+          const today = dayjs();
+          const age = today.diff(value, 'year');
+
+          if (age < 18) {
+            message.error('Please add the date of birth 18 plus only');
+            return Promise.reject(new Error('Age must be 18+'));
+          }
+
+          return Promise.resolve();
+        },
+      },
+    ]}
+    className={!editMode ? 'datePicker' : ''}
+  >
+    <DatePicker
+      disabled={!editMode}
+      format='ddd, DD MMM YYYY'
+      className='radio-group-container'
+      onChange={() => {}}
+      disabledDate={(current) => current && current > dayjs().endOf('day')} // Restrict future dates
+    />
+  </Form.Item>
 </Col>
         </Row>
         <Row gutter={16} align="middle">

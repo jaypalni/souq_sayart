@@ -283,17 +283,27 @@ const ContactUs = () => {
               </div>
 
               <div className="mb-3">
-                <input
-                  type="tel"
-                  name="phone"
-                  className="form-control"
-                  placeholder="Phone Number*"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  style={inputStyle}
-                />
-                {errors.phone && <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>{errors.phone}</div>}
-              </div>
+  <input
+    type="tel"
+    name="phone"
+    className="form-control"
+    placeholder="Phone Number*"
+    value={formData.phone}
+    onChange={(e) => {
+      // Allow only numbers
+      const value = e.target.value.replace(/\D/g, ''); // remove non-digit chars
+      setFormData({ ...formData, phone: value });
+    }}
+    style={inputStyle}
+    maxLength={15} // optional: limit max length
+  />
+  {errors.phone && (
+    <div style={{ color: 'red', fontSize: '12px', marginTop: '2px' }}>
+      {errors.phone}
+    </div>
+  )}
+</div>
+
 
               <div className="mb-3">
                 <textarea

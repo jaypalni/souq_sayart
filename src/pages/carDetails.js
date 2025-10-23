@@ -640,9 +640,12 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
   
 
   const handleCallClick = (e) => {
+    if (e) {
     e.preventDefault();
     e.stopPropagation();
-    setIsPhoneModalVisible(true);
+    e.currentTarget.blur(); // ✅ remove focus from button
+  }
+  setIsPhoneModalVisible(true);
   };
 
   const copyPhoneNumber = () => {
@@ -835,9 +838,11 @@ if (approval === 'approved' && status !== 'sold') {
                 </h5>
               </Tooltip>
             </div>
-            <div className='col-2'>
-              <ShareAltOutlined className="share-icon" onClick={copyToClipboard} />
-            </div>
+             {carDetails.status !== 'sold' && carDetails.draft !== '1' && (
+    <div className='col-2'>
+      <ShareAltOutlined className="share-icon" onClick={copyToClipboard} />
+    </div>
+  )}
           </div>
 
           <div className="car-price">

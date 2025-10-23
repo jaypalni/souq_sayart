@@ -80,7 +80,7 @@ const AppRouterContent = () => {
     '/termsAndconditions',
     '/captchatoken',
     '/deleteaccount-otp',
-    '/tandc',
+    '/terms',
     '/privacypolicy',
     '/faqs',
     '/contactus',
@@ -176,7 +176,7 @@ const AppRouterContent = () => {
           } 
         />
         <Route
-          path="/tandc"
+          path="/terms"
           element={<TandC />}
         />
          <Route

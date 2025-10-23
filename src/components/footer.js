@@ -73,7 +73,7 @@ const Footer = () => {
 
    const handleItemClick = (sub) => {
     if (sub === 'Terms & Conditions') {
-      navigate('/tandc'); 
+      navigate('/terms'); 
     } else if (sub === 'Privacy Policy') {
       navigate('/privacypolicy'); 
     } else if (sub === 'FAQs') {
@@ -90,7 +90,7 @@ const Footer = () => {
    const getPathForItem = (sub) => {
     switch (sub) {
       case 'Terms & Conditions':
-        return '/tandc';
+        return '/terms';
       case 'Privacy Policy':
         return '/privacypolicy';
       case 'FAQs':

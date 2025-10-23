@@ -11,11 +11,14 @@ import Allcarslistdata from '../components/Allcarslistdata';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+
 
 
 const { Option } = Select;
 
 const UsersProfile = () => {
+  const { translate } = useLanguage();
   const { userId } = useParams();
   const [location, setLocation] = useState('');
   const [carLocations, setCarLocations] = useState([]);
@@ -92,6 +95,41 @@ const UsersProfile = () => {
       setLoading(false);
     }
   };
+
+ const copyToClipboard = async (translate) => {
+  const url = window.location.href;
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert(translate('carDetails.URL_COPIED')); // ✅ Show alert instead of message
+    } catch (err) {
+      alert(translate('carDetails.FAILED_TO_COPY'));
+      console.error('Clipboard API failed:', err);
+    }
+  } else {
+    // Fallback for insecure contexts
+    const textArea = document.createElement('textarea');
+    textArea.value = url;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      alert(translate('carDetails.URL_COPIED')); // ✅ Alert for fallback too
+    } catch (err) {
+      alert(translate('carDetails.FAILED_TO_COPY'));
+      console.error('Fallback copy failed:', err);
+    } finally {
+      document.body.removeChild(textArea);
+    }
+  }
+};
+
+
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -177,18 +215,21 @@ const UsersProfile = () => {
               </div>
             </div>
 
-            <div style={{ marginLeft: 55 }}>
-              <img
-                src={Share_icon}
-                alt="Share"
-                style={{
-                  width: 24,
-                  height: 24,
-                  cursor: 'pointer',
-                  marginRight: 1,
-                }}
-              />
-            </div>
+           <div style={{ marginLeft: 55 }}>
+<img
+  src={Share_icon}
+  alt="Share"
+  style={{
+    width: 24,
+    height: 24,
+    cursor: 'pointer',
+    marginRight: 1,
+  }}
+  onClick={() => copyToClipboard(translate)}
+/>
+
+</div>
+
           </div>
 
           {/* Actions */}
@@ -267,7 +308,11 @@ const UsersProfile = () => {
               transmission: car.transmission_type || 'Automatic',
               location: car.location || 'Unknown',
               country: car.company_name || 'N/A',
+              country_code: car.country_code || 'N/A',
               mileage: car.kilometers ? `${car.kilometers}` : 'N/A',
+              fuel_type: car.fuel_type,
+              no_of_cylinders: car.no_of_cylinders,
+              engine_cc: car.engine_cc,
               is_favorite: car.is_favorite, 
               featured: car.is_featured || false,
               certified: car.certified || false,

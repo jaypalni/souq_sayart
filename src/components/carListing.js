@@ -132,6 +132,11 @@ const CarListing = ({ title, cardata }) => {
          <button
   type="button"
   className="car-listing-seeall"
+  style={{
+    color: (title === translate('landing.RECOMMENDED_CARS') || title?.includes(translate('carDetails.USED'))) 
+      ? '#008AD5' 
+      : '#D67900'
+  }}
  onClick={() => {
   const type = title === translate('landing.FEATURED_CAR') ? 'featured' : 'recommended';
   localStorage.setItem('searchcardata', JSON.stringify({ Empty }));

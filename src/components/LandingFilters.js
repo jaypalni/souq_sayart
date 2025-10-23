@@ -142,7 +142,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
     fetchMakeCars({ setLoading, setCarMakes });
     // fetchtotalcarcount()
   }, []);
-    
+
   useEffect(() => {
     if (make) {
       fetchModelCars({ setLoading, setCarModels, make });
@@ -312,96 +312,104 @@ const resolveDefaultLocation = (locations, geoData) => {
   }
 };
   const handleSearch = async () => {
-    try {
-       if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
-      messageApi.open({
-        type: 'warning',
-        content: translate('filters.MIN_PRICE_LESSER'),
-      });
-      return; // stop execution
-    }
-      setLoading(true);
+  if (!validatePrices()) return;
 
-      const cleanedMin = minPrice !== null ? minPrice : '';
-    const cleanedMax = maxPrice !== null ? maxPrice : '';
+  setLoading(true);
 
-      const params = {
-        make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
-        model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
-        body_types: bodyTypeAsArray(bodyType),
-        // location: valueOrEmpty(location, CORRECT_DEFAULT_LOCATION),
-        locations: locationAsArray(location),
-         price_min: cleanedMin,
-      price_max: cleanedMax,
-        condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
-      };
+  const params = buildSearchParams();
 
+  try {
+    const data1 = await fetchSearchResults(params);
+    if (data1) handleSearchResults(data1, params);
+  } catch (error) {
+    await handleSearchError(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
-    
-      const response = await carAPI.getSearchCars(params);
-      const data1 = handleApiResponse(response);
+// ✅ Helper to validate price
+const validatePrices = () => {
+  if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+    messageApi.open({
+      type: 'warning',
+      content: translate('filters.MIN_PRICE_LESSER'),
+    });
+    return false;
+  }
+  return true;
+};
 
-      if (data1) {
-        const results = data1?.data?.cars || [];
+// ✅ Helper to build API params
+const buildSearchParams = () => ({
+  make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
+  model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
+  body_types: bodyTypeAsArray(bodyType),
+  locations: locationAsArray(location),
+  price_min: minPrice !== null ? minPrice : '',
+  price_max: maxPrice !== null ? maxPrice : '',
+  condition: newUsed === DEFAULT_NEW_USED ? '' : newUsed,
+});
 
-        // Update car count from pagination
-        if (data1.data.pagination && data1.data.pagination.total !== undefined) {
-          setCarCount(data1?.data?.pagination?.total);
-        }
+// ✅ Helper to fetch API results
+const fetchSearchResults = async (params) => {
+  const response = await carAPI.getSearchCars(params);
+  return handleApiResponse(response);
+};
 
-        if (results.length === 0) {
-          setIsModalOpen(true);
-        } else {
-          navigate('/allcars', {
-            state: { 
-              cars: results, 
-              pagination: data1?.data?.pagination,
-              // Pass selected filter values
-              selectedMake: make=== translate('filters.ALL_MAKE')?'':make,
-              selectedModel: model=== translate('filters.ALL_MAKE')?'':model,
-              selectedBodyType: bodyType,
-              selectedLocation: location,
-              selectedNewUsed: newUsed,
-              selectedPriceMin: minPrice,
-              selectedPriceMax: maxPrice
-            },
-          });
-          localStorage.setItem('searchcardata', JSON.stringify(params));
-        }
-      }
-    } catch (error) {
-      const errorData = handleApiError(error);
+// ✅ Helper to handle API results
+const handleSearchResults = (data1, params) => {
+  const results = data1?.data?.cars || [];
+  if (data1.data.pagination?.total !== undefined) {
+    setCarCount(data1.data.pagination.total);
+  }
 
-      if (errorData.status === HTTP_STATUS_UNAUTHORIZED) {
-        messageApi.open({
-          type: 'error',
-          content: translate('filters.SESSION_EXPIRED'),
-        });
+  if (results.length === 0) {
+    setIsModalOpen(true);
+  } else {
+    navigate('/allcars', {
+      state: {
+        cars: results,
+        pagination: data1?.data?.pagination,
+        selectedMake: make === translate('filters.ALL_MAKE') ? '' : make,
+        selectedModel: model === translate('filters.ALL_MAKE') ? '' : model,
+        selectedBodyType: bodyType,
+        selectedLocation: location,
+        selectedNewUsed: newUsed,
+        selectedPriceMin: minPrice,
+        selectedPriceMax: maxPrice,
+      },
+    });
+    localStorage.setItem('searchcardata', JSON.stringify(params));
+  }
+};
 
-        setTimeout(() => {
-          (async () => {
-            localStorage.removeItem('token');
-            localStorage.clear();
+// ✅ Helper to handle API errors
+const handleSearchError = async (error) => {
+  const errorData = handleApiError(error);
 
-            await dispatch(logoutUser());
-            dispatch(clearCustomerDetails());
-            dispatch({ type: 'CLEAR_USER_DATA' });
+  if (errorData.status === HTTP_STATUS_UNAUTHORIZED) {
+    messageApi.open({
+      type: 'error',
+      content: translate('filters.SESSION_EXPIRED'),
+    });
 
-            navigate('/login');
-          })();
-        }, TOKEN_EXPIRY_REDIRECT_DELAY_MS);
-      } else {
-        messageApi.open({
-          type: 'error',
-          content: errorData.message,
-        });
-      }
+    setTimeout(async () => {
+      localStorage.removeItem('token');
+      localStorage.clear();
+      await dispatch(logoutUser());
+      dispatch(clearCustomerDetails());
+      dispatch({ type: 'CLEAR_USER_DATA' });
+      navigate('/login');
+    }, TOKEN_EXPIRY_REDIRECT_DELAY_MS);
+  } else {
+    messageApi.open({
+      type: 'error',
+      content: errorData.message,
+    });
+  }
+};
 
-      
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const toggleDropdown = (type) => {
     if (openDropdown === type) {

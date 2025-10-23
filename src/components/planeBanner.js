@@ -88,129 +88,219 @@ const PlaneBanner = ({ selectedLocation: propSelectedLocation, selectedNewUsed: 
   // }, [selectedLocation]);
 
   // Function to generate breadcrumb from current path
-  const generateBreadcrumb = () => {
-    const pathSegments = location.pathname.split('/').filter(segment => segment !== '');
-    const breadcrumbItems = [];
+  // const generateBreadcrumb = () => {
+  //   const pathSegments = location.pathname.split('/').filter(segment => segment !== '');
+  //   const breadcrumbItems = [];
     
-    // Always start with Home
-    breadcrumbItems.push({
-      label: 'Home',
-      path: '/',
-      isClickable: true
-    });
+  //   // Always start with Home
+  //   breadcrumbItems.push({
+  //     label: 'Home',
+  //     path: '/',
+  //     isClickable: true
+  //   });
 
-    // Map path segments to readable labels
-    const pathLabels = {
-      'myProfile': 'My Profile',
-      'change-phone': 'Change Phone',
-      'change-phone-otp': 'OTP Verification',
-      'notifications': 'Notifications',
-      'searches': 'Saved Searches',
-      'subscriptions': 'Subscriptions',
-      'messages': 'Messages',
-      'payments': 'Payments',
-      'blocked': 'Blocked Users',
-      'dashboard': 'Dashboard',
-      'favorites': 'Favorites',
-      'allcars': 'All Cars',
-      'myListings': 'My Listings',
-      'newsell': 'Sell Car',
-      'userProfile': 'User Profile',
-      'carDetails': 'Car Details',
-      'landing': 'Landing',
-      'login': 'Login',
-      'verifyOtp': 'Verify OTP',
-      'createProfile': 'Create Profile',
-      'termsAndconditions': 'Terms & Conditions',
-      'captchatoken': 'Captcha'
-    };
+  //   // Map path segments to readable labels
+  //   const pathLabels = {
+  //     'myProfile': 'My Profile',
+  //     'change-phone': 'Change Phone',
+  //     'change-phone-otp': 'OTP Verification',
+  //     'notifications': 'Notifications',
+  //     'searches': 'Saved Searches',
+  //     'subscriptions': 'Subscriptions',
+  //     'messages': 'Messages',
+  //     'payments': 'Payments',
+  //     'blocked': 'Blocked Users',
+  //     'dashboard': 'Dashboard',
+  //     'favorites': 'Favorites',
+  //     'allcars': 'All Cars',
+  //     'myListings': 'My Listings',
+  //     'newsell': 'Sell Car',
+  //     'userProfile': 'User Profile',
+  //     'carDetails': 'Car Details',
+  //     'landing': 'Landing',
+  //     'login': 'Login',
+  //     'verifyOtp': 'Verify OTP',
+  //     'createProfile': 'Create Profile',
+  //     'termsAndconditions': 'Terms & Conditions',
+  //     'captchatoken': 'Captcha'
+  //   };
 
-    // Build breadcrumb path
-    let currentPath = '';
-    pathSegments.forEach((segment, index) => {
-      currentPath += `/${segment}`;
-      let label = pathLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+  //   // Build breadcrumb path
+  //   let currentPath = '';
+  //   pathSegments.forEach((segment, index) => {
+  //     currentPath += `/${segment}`;
+  //     let label = pathLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
       
-      // Special handling for allcars page to show location
-      if (segment === 'allcars') {
-        label = `${selectedNewUsed} Cars Sale in ${selectedLocation}`;
-        console.log('New or used', selectedNewUsed)
-      }
+  //     // Special handling for allcars page to show location
+  //     if (segment === 'allcars') {
+  //       label = `${selectedNewUsed} Cars Sale in ${selectedLocation}`;
+  //       console.log('New or used', selectedNewUsed)
+  //     }
       
-      // Special handling for car details page
-      if (segment === 'carDetails' && carDetails) {
-        // Create breadcrumb: Home > Previous Page > Make > Model > Listing
-        const make = carDetails.make || 'Car';
-        const model = carDetails.model || '';
-        const year = carDetails.year || '';
+  //     // Special handling for car details page
+  //     if (segment === 'carDetails' && carDetails) {
+  //       // Create breadcrumb: Home > Previous Page > Make > Model > Listing
+  //       const make = carDetails.make || 'Car';
+  //       const model = carDetails.model || '';
+  //       const year = carDetails.year || '';
         
-        // Add previous page breadcrumb (default to "All Cars" if not provided)
-        const prevPage = previousPage || 'All Cars';
-        let prevPagePath = '/allcars';
-        console.log('Befor Page', previousPage)
-        if (previousPage === 'My Listings') {
-          prevPagePath = '/myListings';
-        } else if (previousPage === 'Seller Profile') {
-           const sellerId = carDetails?.seller?.id;
-  if (sellerId) {
-     prevPagePath = `/userProfile/${sellerId}`;
+  //       // Add previous page breadcrumb (default to "All Cars" if not provided)
+  //       const prevPage = previousPage || 'All Cars';
+  //       let prevPagePath = '/allcars';
+  //       console.log('Befor Page', previousPage)
+  //       if (previousPage === 'My Listings') {
+  //         prevPagePath = '/myListings';
+  //       } else if (previousPage === 'Seller Profile') {
+  //          const sellerId = carDetails?.seller?.id;
+  // if (sellerId) {
+  //    prevPagePath = `/userProfile/${sellerId}`;
     
-  } else {
+  // } else {
     
-    prevPagePath = '/'; 
-  }
-        } else if (previousPage === 'Featured Cars') {
-          prevPagePath = '/';
-        } else if (previousPage === 'Recommended Cars') {
-          prevPagePath = '/';
-        } else if (previousPage === 'Favorites') {
-          prevPagePath = '/favorites';
-        }
+  //   prevPagePath = '/'; 
+  // }
+  //       } else if (previousPage === 'Featured Cars') {
+  //         prevPagePath = '/';
+  //       } else if (previousPage === 'Recommended Cars') {
+  //         prevPagePath = '/';
+  //       } else if (previousPage === 'Favorites') {
+  //         prevPagePath = '/favorites';
+  //       }
         
-        breadcrumbItems.push({
-          label: prevPage,
-          path: prevPagePath,
-          isClickable: true
-        });
+  //       breadcrumbItems.push({
+  //         label: prevPage,
+  //         path: prevPagePath,
+  //         isClickable: true
+  //       });
         
-        // Add Make breadcrumb (non-clickable)
-        breadcrumbItems.push({
-          label: make,
-          path: `${prevPagePath}?make=${make}`,
-          isClickable: false
-        });
+  //       // Add Make breadcrumb (non-clickable)
+  //       breadcrumbItems.push({
+  //         label: make,
+  //         path: `${prevPagePath}?make=${make}`,
+  //         isClickable: false
+  //       });
         
-        // Add Model breadcrumb (if model exists, non-clickable)
-        if (model) {
-          breadcrumbItems.push({
-            label: model,
-            path: `${prevPagePath}?make=${make}&model=${model}`,
-            isClickable: false
-          });
-        }
+  //       // Add Model breadcrumb (if model exists, non-clickable)
+  //       if (model) {
+  //         breadcrumbItems.push({
+  //           label: model,
+  //           path: `${prevPagePath}?make=${make}&model=${model}`,
+  //           isClickable: false
+  //         });
+  //       }
         
-        // Add Listing breadcrumb (current page - not clickable)
-        const listingTitle = year ? `${year} ${make} ${model}` : `${make} ${model}`;
-        breadcrumbItems.push({
-          label: listingTitle || 'Listing',
-          path: currentPath,
-          isClickable: false
-        });
+  //       // Add Listing breadcrumb (current page - not clickable)
+  //       const listingTitle = year ? `${year} ${make} ${model}` : `${make} ${model}`;
+  //       breadcrumbItems.push({
+  //         label: listingTitle || 'Listing',
+  //         path: currentPath,
+  //         isClickable: false
+  //       });
         
-        return breadcrumbItems; // Return early for car details
-      }
+  //       return breadcrumbItems; // Return early for car details
+  //     }
       
-      const isLast = index === pathSegments.length - 1;
+  //     const isLast = index === pathSegments.length - 1;
       
-      breadcrumbItems.push({
-        label: label,
-        path: currentPath,
-        isClickable: !isLast // Last item is not clickable
-      });
-    });
+  //     breadcrumbItems.push({
+  //       label: label,
+  //       path: currentPath,
+  //       isClickable: !isLast // Last item is not clickable
+  //     });
+  //   });
 
-    return breadcrumbItems;
+  //   return breadcrumbItems;
+  // };
+
+  // Helper: Get label for a segment
+const getSegmentLabel = (segment) => {
+  const pathLabels = {
+    myProfile: 'My Profile',
+    'change-phone': 'Change Phone',
+    'change-phone-otp': 'OTP Verification',
+    notifications: 'Notifications',
+    searches: 'Saved Searches',
+    subscriptions: 'Subscriptions',
+    messages: 'Messages',
+    payments: 'Payments',
+    blocked: 'Blocked Users',
+    dashboard: 'Dashboard',
+    favorites: 'Favorites',
+    allcars: `${selectedNewUsed} Cars Sale in ${selectedLocation}`,
+    myListings: 'My Listings',
+    newsell: 'Sell Car',
+    userProfile: 'User Profile',
+    carDetails: 'Car Details',
+    landing: 'Landing',
+    login: 'Login',
+    verifyOtp: 'Verify OTP',
+    createProfile: 'Create Profile',
+    termsAndconditions: 'Terms & Conditions',
+    captchatoken: 'Captcha'
   };
+
+  return pathLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+};
+
+// Helper: Generate breadcrumbs for car details page
+const generateCarDetailsBreadcrumb = () => {
+  const items = [];
+  const make = carDetails.make || 'Car';
+  const model = carDetails.model || '';
+  const year = carDetails.year || '';
+
+  let prevPagePath = '/allcars';
+  const prevPage = previousPage || 'All Cars';
+
+  switch (previousPage) {
+    case 'My Listings':
+      prevPagePath = '/myListings';
+      break;
+    case 'Seller Profile':
+      prevPagePath = carDetails?.seller?.id
+        ? `/userProfile/${carDetails.seller.id}`
+        : '/';
+      break;
+    case 'Favorites':
+      prevPagePath = '/favorites';
+      break;
+    case 'Featured Cars':
+    case 'Recommended Cars':
+      prevPagePath = '/';
+      break;
+  }
+
+  items.push({ label: prevPage, path: prevPagePath, isClickable: true });
+  items.push({ label: make, path: `${prevPagePath}?make=${make}`, isClickable: false });
+  if (model) items.push({ label: model, path: `${prevPagePath}?make=${make}&model=${model}`, isClickable: false });
+  const listingTitle = year ? `${year} ${make} ${model}` : `${make} ${model}`;
+  items.push({ label: listingTitle || 'Listing', path: location.pathname, isClickable: false });
+
+  return items;
+};
+
+// Main breadcrumb generator
+const generateBreadcrumb = () => {
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const breadcrumbItems = [{ label: 'Home', path: '/', isClickable: true }];
+
+  for (let i = 0; i < pathSegments.length; i++) {
+    const segment = pathSegments[i];
+
+    if (segment === 'carDetails' && carDetails) {
+      return [...breadcrumbItems, ...generateCarDetailsBreadcrumb()];
+    }
+
+    breadcrumbItems.push({
+      label: getSegmentLabel(segment),
+      path: '/' + pathSegments.slice(0, i + 1).join('/'),
+      isClickable: i !== pathSegments.length - 1
+    });
+  }
+
+  return breadcrumbItems;
+};
+
 
   const breadcrumbItems = generateBreadcrumb();
 

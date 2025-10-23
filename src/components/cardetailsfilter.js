@@ -1261,83 +1261,98 @@ if (
 
 
   const applyFilters = async () => {
-    try {
-      setLoading(true);
-      const filterData = prepareFilterData({ 
-        selectedMake, 
-        selectedModel, 
-        bodyType, 
-        location: selectedLocation, 
-        singleInputs, 
-        rangeInputs, 
-        filterState, 
-        keywords, 
-        currentPage: validCurrentPage, 
-        limit: validLimit, 
-        featuredorrecommended, 
-        newUsed,
-        selectedColors,
-        selectedRegionalSpecs,
-        selectedBodyType,
-        sortedbydata
-      });
-      
-      // Call onFilterChange callback to update main filter fields
-      if (onFilterChange) {
-        const filterChangeData = {
-          make: selectedMake !== 'Any' ? selectedMake : '',
-          model: selectedModel !== 'Any' ? selectedModel : '',
-          bodyType: selectedBodyType,
-          location: selectedLocation,
-          newUsed: newUsed,
-          priceMin: rangeInputs.priceMin,
-          priceMax: rangeInputs.priceMax
-        };
-        onFilterChange(filterChangeData);
-      }
-      
-      const response = await carAPI.searchCars(filterData);      
-      if (response.data) {
-        const results = response.data.cars || response.data || [];
-        
-        // Update car count from pagination if available and call parent callback
-        if (onSearchResults) {
-          const resultsWithCount = {
-            ...response.data,
-            carCount: response?.data?.pagination?.total || 0
-          };
-          onSearchResults(resultsWithCount);
-        }
-        
-        if (response?.data?.data?.cars.length === 0) {
-          setEmptySearchData(filterData);
-          setIsEmptyModalOpen(true);
-          message.info(translate('filters.NO_CARS_FOUND'));
-        } else {
-          message.success(translate('filters.FOUND_CARS', { count: results.length }));
-        }
-      }
-      
-      setVisible(false);
-    } catch (error) {
-       if (error?.message === 'Network Error') {
-                  messageApi.open({
-                    type: 'error',
-                    content: translate('filters.OFFLINE_ERROR'),
-                  });
-                }else{
-                   if (onSearchResults) {
-        onSearchResults({ cars: [], pagination: {} });
-      }
-      
-                }
-      // Still try to call onSearchResults with empty data to reset the state
-     
-      setVisible(false);
-    } finally {
-      setLoading(false);
-    }
+  setLoading(true);
+  try {
+    const filterData = prepareFilterDataForAPI();
+    handleFilterChangeCallback(filterData);
+
+    const response = await carAPI.searchCars(filterData);
+    handleSearchResults(response, filterData);
+  } catch (error) {
+    handleSearchError(error);
+  } finally {
+    setLoading(false);
+    setVisible(false);
+  }
+};
+
+// ✅ Helper to prepare filter data for API
+const prepareFilterDataForAPI = () => {
+  return prepareFilterData({ 
+    selectedMake, 
+    selectedModel, 
+    bodyType, 
+    location: selectedLocation, 
+    singleInputs, 
+    rangeInputs, 
+    filterState, 
+    keywords, 
+    currentPage: validCurrentPage, 
+    limit: validLimit, 
+    featuredorrecommended, 
+    newUsed,
+    selectedColors,
+    selectedRegionalSpecs,
+    selectedBodyType,
+    sortedbydata
+  });
+};
+
+// ✅ Helper to call parent callback for filter change
+const handleFilterChangeCallback = (filterData) => {
+  if (!onFilterChange) return;
+
+  const filterChangeData = {
+    make: selectedMake !== 'Any' ? selectedMake : '',
+    model: selectedModel !== 'Any' ? selectedModel : '',
+    bodyType: selectedBodyType,
+    location: selectedLocation,
+    newUsed,
+    priceMin: rangeInputs.priceMin,
+    priceMax: rangeInputs.priceMax,
   };
+
+  onFilterChange(filterChangeData);
+};
+
+// ✅ Helper to handle API results
+const handleSearchResults = (response, filterData) => {
+  if (!response?.data) return;
+
+  const results = response.data.cars || response.data || [];
+
+  // Update parent component with results and car count
+  if (onSearchResults) {
+    const resultsWithCount = {
+      ...response.data,
+      carCount: response?.data?.pagination?.total || 0,
+    };
+    onSearchResults(resultsWithCount);
+  }
+
+  // Show modal if no results
+  if (response?.data?.data?.cars?.length === 0) {
+    setEmptySearchData(filterData);
+    setIsEmptyModalOpen(true);
+    message.info(translate('filters.NO_CARS_FOUND'));
+  } else {
+    message.success(translate('filters.FOUND_CARS', { count: results.length }));
+  }
+};
+
+//  Helper to handle errors
+const handleSearchError = (error) => {
+  if (error?.message === 'Network Error') {
+    messageApi.open({
+      type: 'error',
+      content: translate('filters.OFFLINE_ERROR'),
+    });
+  } else if (onSearchResults) {
+    // Reset results in case of other errors
+    onSearchResults({ cars: [], pagination: {} });
+  }
+};
+
 
     const handleResetFilters = () => {
     // Reset range inputs

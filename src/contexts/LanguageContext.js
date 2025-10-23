@@ -59,39 +59,45 @@ export const LanguageProvider = ({ children }) => {
   //  * @param {object} replacements - Object with replacement values for variables
   //  * @returns {string} - Translated text
   //  */
-  const translate = (key, replacements = {}) => {
-    const keys = key.split('.');
-    let value = translations;
+  // Helper: Get nested translation value from object by key array
+const getNestedValue = (obj, keys) => {
+  return keys.reduce((acc, k) => (acc && typeof acc === 'object' && k in acc ? acc[k] : undefined), obj);
+};
 
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        if (currentLanguage !== LANGUAGES.EN && languageFiles[LANGUAGES.EN]) {
-          let englishValue = languageFiles[LANGUAGES.EN];
-          for (const k of keys) {
-            if (englishValue && typeof englishValue === 'object' && k in englishValue) {
-              englishValue = englishValue[k];
-            } else {
-              return key;
-            }
-          }
-          value = englishValue;
-          break;
-        } else {
-          return key;
-        }
-      }
-    }
+// Helper: Get English fallback if translation is missing
+const getEnglishFallback = (keys) => {
+  return getNestedValue(languageFiles[LANGUAGES.EN], keys);
+};
 
-    if (typeof value === 'string' && Object.keys(replacements).length > 0) {
-      return value.replace(/\{\{(\w+)\}\}/g, (match, variable) => {
-        return replacements[variable] !== undefined ? replacements[variable] : match;
-      });
-    }
+// Helper: Replace variables in string
+const replaceVariables = (str, replacements) => {
+  return str.replace(/\{\{(\w+)\}\}/g, (_, variable) =>
+    replacements[variable] !== undefined ? replacements[variable] : `{{${variable}}}`
+  );
+};
 
-    return value || key;
-  };
+const translate = (key, replacements = {}) => {
+  const keys = key.split('.');
+  
+  // Try current language first
+  let value = getNestedValue(translations, keys);
+
+  // Fallback to English if missing
+  if (value === undefined && currentLanguage !== LANGUAGES.EN) {
+    value = getEnglishFallback(keys);
+  }
+
+  // Final fallback to key itself
+  if (value === undefined) return key;
+
+  // Replace variables if any
+  if (typeof value === 'string' && Object.keys(replacements).length > 0) {
+    value = replaceVariables(value, replacements);
+  }
+
+  return value;
+};
+
 
   /**
    * Change current language

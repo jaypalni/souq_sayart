@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { carAPI } from '../services/api';
 import { handleApiResponse, handleApiError } from '../utils/apiUtils';
-import { message, Typography, Spin } from 'antd';
+import { message, Spin } from 'antd';
 import PlaneBanner from '../components/planeBanner';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const { Title } = Typography;
 
 const PrivacyPolicy = () => {
   const [loading, setLoading] = useState(false);
@@ -21,26 +19,39 @@ const PrivacyPolicy = () => {
     try {
       setLoading(true);
       const response = await carAPI.termsAndConditions();
-      const data1 = handleApiResponse(response);
+      const data = handleApiResponse(response);
 
-      if (data1?.data) {
-        setContentData(data1.data);
+      if (data?.data) {
+        setContentData(data.data);
       } else {
         message.error('No content found');
       }
     } catch (error) {
       if (error?.message === 'Network Error') {
-                       messageApi.open({
-                         type: 'error',
-                         content: translate('filters.OFFLINE_ERROR'),
-                       });
-                     }else{
-                        const errorData = handleApiError(error);
-           message.error(errorData.message);
-                     }
+        messageApi.open({
+          type: 'error',
+          content: translate('filters.OFFLINE_ERROR'),
+        });
+      } else {
+        const errorData = handleApiError(error);
+        message.error(errorData.message);
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString(undefined, {
+      weekday: 'short', // e.g., Wed
+      day: '2-digit',   // e.g., 15
+      month: 'long',    // e.g., October
+      year: 'numeric',  // e.g., 2025
+      hour: '2-digit',  // e.g., 10
+      minute: '2-digit',// e.g., 38
+      hour12: true,     // AM/PM format
+    });
   };
 
   return (
@@ -72,6 +83,13 @@ const PrivacyPolicy = () => {
                   '<p>No content available.</p>',
               }}
             />
+
+            {/* Last Updated with date & time */}
+            {contentData?.privacy_policy?.[0]?.updated_at && (
+              <p style={{ color: '#999', fontSize: '14px', marginTop: '12px' }}>
+                Last Updated: {formatDateTime(contentData.privacy_policy[0].updated_at)}
+              </p>
+            )}
           </>
         )}
       </div>

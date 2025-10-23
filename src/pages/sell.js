@@ -1111,7 +1111,7 @@ useEffect(() => {
 // Only clear trim and body type when model changes manually (not during initial data loading)
 useEffect(() => {
   const timer = setTimeout(() => {
-    // setSelectedTrim(extras?.trim||null);
+    
     setSelectedBodyType(extras?.body_type||'');
     form.setFieldsValue({ bodyType: extras?.body_type||'' });
   }, 100);
@@ -2674,38 +2674,7 @@ const handleImageUpload = async (images) => {
 </Row>
 
               <Row gutter={16}>
-                {/* <Col xs={24} md={12}>
-                  <Form.Item
-                    className='form-item-label'
-                    label='Badges'
-                    name='badges'
-                  >
-                    <div className='option-box-group'>
-                      {updateData?.badges?.map((opt) => (
-                        <div
-                          key={opt.badge}
-                          className={`option-box${
-                            selectedBadges.includes(opt.badge) ? ' selected' : ''
-                          }`}
-                          onClick={() => {
-                            let newBadges;
-                            if (selectedBadges.includes(opt.badge)) {
-                              newBadges = selectedBadges?.filter(
-                                (b) => b !== opt.badge
-                              );
-                            } else {
-                              newBadges = [...selectedBadges, opt.badge];
-                            }
-                            setSelectedBadges(newBadges);
-                            form.setFieldsValue({ badges: newBadges });
-                          }}
-                        >
-                          {opt.badge}
-                        </div>
-                      ))}
-                    </div>
-                  </Form.Item>
-                </Col> */}
+                
 
                 <Col xs={24} md={12}>
                   <Form.Item
@@ -3244,26 +3213,7 @@ const handleImageUpload = async (images) => {
                     </Select>
                   </Form.Item>
                 </Col>
-                {/* <Col xs={24} md={6}>
-                  <Form.Item
-                    className='form-item-label-small'
-                    label='Interior'
-                    name='interior'
-                  >
-                    <Select placeholder='Choose'
-                     value={selectedInterior || undefined}
-                    onChange={(val) => {
-                   setSelectedInterior(val);
-                  //  form.setFieldsValue({ horsepower: val });
-                   }}>
-                      {updateData?.interiors?.map((int) => (
-                        <Option key={int.id} value={int.interior}>
-                          {int.interior}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col> */}
+                
 
                  
 <Col xs={24} md={6}>

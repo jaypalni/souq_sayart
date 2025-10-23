@@ -15,7 +15,6 @@
 
 @media (max-width: 575px) {
   .car-listing-container {
-    /* width: 87%; */
     width: 50%;
   }
 }

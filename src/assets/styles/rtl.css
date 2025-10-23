@@ -139,7 +139,7 @@
 /* Icon positioning for RTL */
 [dir="rtl"] .anticon {
   margin-left: 0;
-  /* margin-right: 8px; */
+ 
 }
 
 [dir="rtl"] .ant-btn .anticon {

@@ -1136,48 +1136,6 @@ const [carModels, setCarModels] = useState([]);
   }
 }, [searchBodyType]);
 
-  
-    //  const fetchBodyTypeCars = async () => {
-    //    try {
-    //      setLoading(true);
-    //      const response = await carAPI.getBodyCars({});
-    //      const data1 = handleApiResponse(response);
-   
-    //      console.log('Body Type API response:', data1);
-    //      if (data1) {
-    //        setCarBodyTypes(data1?.data);
-    //        console.log('Set carBodyTypes to:', data1?.data);
-    //      }
-   
-    //      message.success(data1.message || 'Fetched successfully');
-    //    } catch (error) {
-    //      const errorData = handleApiError(error);
-    //      message.error(errorData.message || 'Failed to Make car data');
-    //      setCarBodyTypes([]);
-    //    } finally {
-    //      setLoading(false);
-    //    }
-    //  };
-  
-//   const fetchRegionCars = async () => {
-//   try {
-//     setLoading(true);
-//     const res = await carAPI.getLocationCars();
-//     const data = handleApiResponse(res);
-    
-//     console.log('Location API response:', data);
-//     setCarLocations(data?.data || []); // ✅ fixed
-//     console.log('Set carLocations to:', data?.data);
-//   } catch (err) {
-//     const errorData = handleApiError(err);
-//     message.error(errorData.message || 'Failed to fetch locations');
-//     setCarLocations([]); // ✅ fixed
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-
    useEffect(() => {
     handleApplyFilters()
   },[validCurrentPage, validLimit])

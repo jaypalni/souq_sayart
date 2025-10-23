@@ -400,6 +400,7 @@ CarCard.propTypes = {
     chat_count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     like_count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     views: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    is_featured: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }).isRequired,
   value: PropTypes.string.isRequired,
   filterStatus: PropTypes.string.isRequired,

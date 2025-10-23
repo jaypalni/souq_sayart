@@ -361,9 +361,19 @@ const Removefavcarapi = async (carId) => {
             </div>
             <div className="car-listing-content">
               <div className="d-flex">
-                <div className="car-listing-title">
-                  {car.ad_title || 'No Title Available'}
-                </div>
+               <div
+  className="car-listing-title"
+   style={{
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '250px'
+  }}
+  title={car.ad_title} 
+>
+  {car.ad_title || 'No Title Available'}
+</div>
+
               </div>
               <div className="car-listing-price">
                 {'IQD ' + Number(car.price).toLocaleString()}

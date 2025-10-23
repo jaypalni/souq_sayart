@@ -93,7 +93,9 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [showMaxInput, setShowMaxInput] = useState(false);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
-  const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
+  // const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
+  const [carCount, setCarCount] = useState(null); 
+
   const locationAsArray = (loc) => {
   if (loc && loc !== CORRECT_DEFAULT_LOCATION) {
     return [loc]; // wrap in array
@@ -110,6 +112,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   // Auto-search function to update car count on filter changes
   const autoSearchForCount = async () => {
     try {
+      setCarCount(null);
       const apiParams = {
         make: valueOrEmpty(make, CORRECT_DEFAULT_MAKE),
         model: valueOrEmpty(model, CORRECT_DEFAULT_MODEL),
@@ -646,7 +649,11 @@ const handleSearchError = async (error) => {
   icon={<SearchOutlined />}
   className="landing-filters-btn"
 >
-  <span>{translate('filters.SHOW_CARS', { count: carCount.toLocaleString() })}</span>
+ <span>
+  {carCount === null || carCount === undefined
+    ? 'Showing...' 
+    : translate('filters.SHOW_CARS', { count: carCount.toLocaleString() })}
+</span>
 </Button>
 
           </div>

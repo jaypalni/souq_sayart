@@ -94,10 +94,33 @@ const Allcarslistdata = ({ car, idx, onClick }) => {
 };
 
   return (
-    <div className="col-3 p-0" key={idx} onClick={onClick} style={{ cursor: 'pointer' }}>
+    <div className="col-3" key={idx} style={{ padding: '0 8px', marginBottom: '16px' }}>
       {contextHolder}
-      <div className="allcars-listing-card">
-        <div className="car-listing-image-wrapper">
+      <button 
+        type="button"
+        className="allcars-listing-card"
+        onClick={onClick}
+        style={{ 
+          cursor: 'pointer',
+          border: 'none',
+          background: 'none',
+          padding: 0,
+          width: '100%',
+          textAlign: 'left',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          position: 'relative',
+          zIndex: 1
+        }}
+      >
+        <div 
+          className="car-listing-image-wrapper"
+          style={{
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px 8px 0 0',
+            borderBottom: 'none'
+          }}
+        >
           <img src={`${BASE_URL}${car.image}`} alt={car.title} className="car-listing-image" />
           <div className="car-listing-badges">
             {car.featured && <div className="car-listing-badge blue-bg">Featured</div>}
@@ -140,7 +163,15 @@ const Allcarslistdata = ({ car, idx, onClick }) => {
           </div>
         </div>
 
-        <div className="car-listing-content">
+        <div 
+          className="car-listing-content"
+          style={{
+            border: '1px solid #e0e0e0',
+            borderRadius: '0 0 8px 8px',
+            borderTop: 'none',
+            padding: '12px'
+          }}
+        >
           <div className="d-flex">
             <Tooltip title={car.title}>
               <div style={titleStyle}>{car.title}</div>
@@ -167,14 +198,16 @@ const Allcarslistdata = ({ car, idx, onClick }) => {
             <div className="car-listing-location">{car.location}</div>
           </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 };
 
 Allcarslistdata.propTypes = {
   idx: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
   car: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     image: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     featured: PropTypes.bool.isRequired,
@@ -185,6 +218,11 @@ Allcarslistdata.propTypes = {
     country: PropTypes.string.isRequired,
     mileage: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
+    is_favorite: PropTypes.bool,
+    fuel_type: PropTypes.string,
+    no_of_cylinders: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    engine_cc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    country_code: PropTypes.string,
   }).isRequired,
 };
 

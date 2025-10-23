@@ -235,8 +235,8 @@ const handleSuccessfulVerification = (result) => {
 
 // Helper function to handle OTP verification failure
 const handleVerificationFailure = (result) => {
-  console.log('OTP verification failed, showing error:', result.error);
-  messageApi.error(result.error);
+  
+  messageApi.error(result?.error);
 };
 
 const handleContinue = async () => {
@@ -266,10 +266,20 @@ const handleContinue = async () => {
     if (result.success) {
       handleSuccessfulVerification(result);
     } else {
+      
       handleVerificationFailure(result);
     }
   } catch {
-    message.error(translate('signupOtp.OTP_VERIFICATION_FAILED'));
+    
+      if (error?.message === 'Network Error') {
+                                       messageApi.open({
+                                         type: 'error',
+                                         content: translate('filters.OFFLINE_ERROR'),
+                                       });
+                                     }else{
+                                          message.error(translate('signupOtp.OTP_VERIFICATION_FAILED'));
+                                     }
+   
   } finally {
     setLoading(false);
   }

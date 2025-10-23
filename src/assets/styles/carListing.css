@@ -15,7 +15,7 @@
 
 @media (max-width: 575px) {
   .car-listing-container {
-    width: 50%;
+    width: 87%;
   }
 }
 .blue-bg{
@@ -104,6 +104,13 @@
       width: 100%;
     height: 100%;
 }
+.car-listing-image-wrapper img {
+  width: 100%;
+  height: auto;
+  max-height: 200px; /* prevents too tall images */
+  object-fit: contain;
+}
+
 .car-listing-image {
   width: 100%;
   height: 100%;

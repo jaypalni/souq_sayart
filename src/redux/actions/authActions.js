@@ -215,12 +215,12 @@ export const verifyOTP = (otpData) => async (dispatch) => {
       return { success: true, data: apiData, message: apiData.message };
     } else {
       // Handle non-200 status codes
-      const errorMessage = apiData.message || 'OTP verification failed';
+      const errorMessage = apiData.message || 'OTP verification failed 1';
       dispatch(customerDetailsFailure(errorMessage));
       return { success: false, error: errorMessage };
     }
   } catch (error) {
-    const errorMessage = error.response?.data?.message || 'OTP verification failed';
+    const errorMessage = error.response?.data?.message || 'OTP verification failed 11';
     dispatch(customerDetailsFailure(errorMessage));
     return { success: false, error: errorMessage };
   }

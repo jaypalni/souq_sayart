@@ -145,8 +145,25 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
-    if (error.response?.status === 401) {
+    console.log('err1',error.message)
+ if (error.message === 'Network Error') {
+  try {
+    const { message } = require('antd');
+    message.error("You're offline. Please check your internet connection.");
+  } catch (msgError) {
+    console.error('Failed to show offline message:', msgError);
+  }
+
+  // 👇 Return a fake response-like object so `error.response?.data?.message` still works
+  return Promise.reject({
+    response: {
+      data: {
+        message: "You're offline. Please check your internet connection."
+      }
+    }
+  });
+}
+   else if (error.response?.status === 401) {
       const retryResult = await handle401Error(originalRequest);
       if (retryResult) {
         return retryResult;

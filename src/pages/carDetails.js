@@ -637,7 +637,7 @@ const SellerInfoCard = ({ carDetails, copyToClipboard, openWhatsApp, messageApi,
   const { customerDetails } = useSelector((state) => state.customerDetails);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate(); 
-  
+  const BASE_URL = process.env.REACT_APP_API_URL
 
   const handleCallClick = (e) => {
     if (e) {
@@ -871,7 +871,17 @@ if (approval === 'approved' && status !== 'sold') {
           </div>
 
           <div className="d-flex align-items-center gap-2 mt-2">
-            <Avatar icon={<UserOutlined />} alt="User Avatar" />
+            <Avatar
+  src={
+    carDetails?.seller?.profile_pic
+      ? `${BASE_URL}${carDetails.seller.profile_pic}`
+      : null
+  }
+  icon={!carDetails?.seller?.profile_pic && <UserOutlined />}
+  alt="User Avatar"
+  style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+/>
+
             <div>
               <div className="seller-name">{carDetails.seller.first_name}</div>
               <div className="text-muted seller-member-since">{translate('carDetails.MEMBER_SINCE')} {carDetails.seller.member_since}</div>

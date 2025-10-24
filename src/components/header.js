@@ -384,7 +384,7 @@ const Userdataapi = async () => {
                   backgroundColor: 'white',
                   boxShadow: 'none',
                 }}
-                onChange={changeLanguage}
+                // onChange={changeLanguage}
               >
                 <Option value="en">English</Option>
                 <Option value="ar">أرابيك</Option>

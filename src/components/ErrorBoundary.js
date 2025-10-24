@@ -53,11 +53,9 @@ class ErrorBoundary extends React.Component {
               overflow: 'auto',
               fontSize: '12px'
             }}>
-              {this.state.error ? this.state.error.toString() : 'Unknown error'}
-              {this.state.errorInfo && this.state.errorInfo.componentStack ? 
-                `\n\nComponent Stack:\n${this.state.errorInfo.componentStack}` : 
-                ''
-              }
+             {this.state.error?.toString() ?? 'Unknown error'}
+{this.state.errorInfo?.componentStack ? `\n\nComponent Stack:\n${this.state.errorInfo.componentStack}` : ''}
+
             </pre>
           </details>
           <button 

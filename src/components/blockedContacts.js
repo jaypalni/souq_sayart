@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { Button, Popconfirm } from 'antd';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { useLanguage } from '../contexts/LanguageContext';
+import PropTypes from 'prop-types';
 
 const blockedContactsData = [
   {
@@ -51,6 +52,10 @@ const EmptyState = ({ translate }) => (
     <p>{translate('blockedContacts.NO_BLOCKED_MESSAGE')}</p>
   </div>
 );
+
+EmptyState.propTypes = {
+  translate: PropTypes.func.isRequired,
+};
 
 const BlockedContacts = () => {
   const { translate } = useLanguage();

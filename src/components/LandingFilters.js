@@ -93,7 +93,6 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
   const [showMaxInput, setShowMaxInput] = useState(false);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
-  // const [carCount, setCarCount] = useState(DEFAULT_CAR_COUNT);
   const [carCount, setCarCount] = useState(null); 
 
   const locationAsArray = (loc) => {
@@ -143,7 +142,7 @@ const LandingFilters = ({ searchbodytype, setSaveSearchesReload }) => {
 
   useEffect(() => {
     fetchMakeCars({ setLoading, setCarMakes });
-    // fetchtotalcarcount()
+    
   }, []);
 
   useEffect(() => {
@@ -480,25 +479,6 @@ const handleSearchError = async (error) => {
       })}
     </div>
   );
-
-  const fetchtotalcarcount = async () => {
-  try {
-    setLoading(true);
-    const response = await carAPI.totalcarscount();
-    const data1 = handleApiResponse(response);
-
-    if (data1?.total_cars !== undefined) {
-      setCarCount(data1.total_cars); 
-    } else {
-      message.error(translate('messages.NO_DATA'));
-    }
-  } catch (error) {
-    const errorData = handleApiError(error);
-    message.error(errorData.message);
-  } finally {
-    setLoading(false);
-  }
-};
 
 
   return (

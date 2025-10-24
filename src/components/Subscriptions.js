@@ -229,39 +229,15 @@ RadioButtonTab.propTypes = {
 };
 
 // Subscription list view component - extracted to reduce component complexity
-const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, translate, plansLoading }) => (
-  <>
-    <div className="subscriptions-header">{translate('subscriptions.PAGE_TITLE')}</div>
-    <div
-      className="subscriptions-desc"
-      style={{ fontSize: 16, fontWeight: 400, color: '#0A0A0B' }}
-    >
-      {translate('subscriptions.PAGE_DESC')}
-    </div>
-    <div style={{ marginBottom: 16, marginLeft: 24 }}>
-      <Radio.Group
-        onChange={onTabChange}
-        value={activeTab}
-        style={{
-          display: 'flex',
-          gap: '1px',
-        }}
-      >
-        <RadioButtonTab value="Individual" label={translate('subscriptions.INDIVIDUAL')} activeTab={activeTab} />
-        <RadioButtonTab value="Dealer" label={translate('subscriptions.DEALER')} activeTab={activeTab} />
-        <RadioButtonTab value="BoostPlan" label={translate('subscriptions.BOOSTPLAN')} activeTab={activeTab} />
-      </Radio.Group>
-    </div>
-    <div
-  className="subscriptions-list"
-  style={{ display: 'flex', gap: 24, marginTop: 24 }}
->
-  {plansLoading ? (
-    <Spin tip={translate('subscriptions.LOADING')} style={{ margin: 'auto' }} />
-  ) : plans.length === 0 ? (
-    <EmptyState translate={translate} />
-  ) : (
-    plans.map((plan) => (
+const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, translate, plansLoading }) => {
+  let content;
+
+  if (plansLoading) {
+    content = <Spin tip={translate('subscriptions.LOADING')} style={{ margin: 'auto' }} />;
+  } else if (plans.length === 0) {
+    content = <EmptyState translate={translate} />;
+  } else {
+    content = plans.map((plan) => (
       <button
         key={plan.id}
         type="button"
@@ -270,12 +246,39 @@ const SubscriptionListView = ({ activeTab, plans, onSelectPlan, onTabChange, tra
       >
         <SubscriptionCard {...plan} translate={translate} />
       </button>
-    ))
-  )}
-</div>
+    ));
+  }
 
-  </>
-);
+  return (
+    <>
+      <div className="subscriptions-header">{translate('subscriptions.PAGE_TITLE')}</div>
+      <div
+        className="subscriptions-desc"
+        style={{ fontSize: 16, fontWeight: 400, color: '#0A0A0B' }}
+      >
+        {translate('subscriptions.PAGE_DESC')}
+      </div>
+      <div style={{ marginBottom: 16, marginLeft: 24 }}>
+        <Radio.Group
+          onChange={onTabChange}
+          value={activeTab}
+          style={{ display: 'flex', gap: '1px' }}
+        >
+          <RadioButtonTab value="Individual" label={translate('subscriptions.INDIVIDUAL')} activeTab={activeTab} />
+          <RadioButtonTab value="Dealer" label={translate('subscriptions.DEALER')} activeTab={activeTab} />
+          <RadioButtonTab value="BoostPlan" label={translate('subscriptions.BOOSTPLAN')} activeTab={activeTab} />
+        </Radio.Group>
+      </div>
+      <div
+        className="subscriptions-list"
+        style={{ display: 'flex', gap: 24, marginTop: 24 }}
+      >
+        {content}
+      </div>
+    </>
+  );
+};
+
 
 SubscriptionListView.propTypes = {
   activeTab: PropTypes.string.isRequired,
@@ -290,6 +293,7 @@ SubscriptionListView.propTypes = {
   onSelectPlan: PropTypes.func.isRequired,
   onTabChange: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
+  plansLoading: PropTypes.func.isRequired,
 };
 
 const SubscriptionDetails = ({ plan, onBack, onCancel, onSubscribe, isCurrent, loading, translate }) => (
